@@ -1,6 +1,6 @@
 package SigmaEC.test;
 
-import SigmaEC.representation.Individual;
+import SigmaEC.represent.Individual;
 
 /**
  * A simple individual with 1 continuous trait.  Intended for use with unit
