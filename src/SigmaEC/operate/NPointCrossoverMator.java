@@ -22,6 +22,8 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
     
     @Override
     public int getNumChildren() { return numParents; }
+
+    public int getNumCutPoints() { return numCutPoints; }
     
     public NPointCrossoverMator(int numCutPoints, int numParents, Random random)
     {
@@ -126,7 +128,8 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
     
     private int[] getNewCutPoints(int genomeLength)
     {
-        int[] cutPoints = new int[numCutPoints + 1];
+        int[] cutPoints = new int[numCutPoints + 2];
+        cutPoints[0] = 0;
         for(int i = 0; i < numCutPoints; i++)
             cutPoints[i] = random.nextInt(genomeLength);
         cutPoints[numCutPoints + 1] = genomeLength;
@@ -146,7 +149,7 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
     @Override
     public String toString()
     {
-        return String.format("[NPointCrossoverMator: CutPonts=%d, Parents=%d", numCutPoints, numParents);
+        return String.format("[NPointCrossoverMator: CutPoints=%d, Parents=%d]", numCutPoints, numParents);
     }
     
     @Override
