@@ -55,7 +55,8 @@ public class RandomSelectorTest
         }};
     }
 
-    /** Test of selectIndividual method, of class RandomSelector. */
+    /** Test of selectIndividual method, of class RandomSelector. Clearly this
+     test is quite brittle, since it's tied to a specific set of random numbers. */
     @Test
     public void testSelectIndividual()
     {
