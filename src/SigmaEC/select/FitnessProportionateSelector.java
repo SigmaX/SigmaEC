@@ -13,21 +13,35 @@ import java.util.Random;
  */
 public class FitnessProportionateSelector<T extends Individual> extends Selector<T>
 {
-    private Random random;
+    private final Random random;
     private int numContestants;
-    private RandomSelector<T> contestantSelector;
-    private ObjectiveFunction<T> objective;
+    private Selector<T> contestantSelector;
+    private final ObjectiveFunction<T> objective;
     
-    public FitnessProportionateSelector(ObjectiveFunction<T> objective, Random random, int poolSize) throws NullPointerException, IllegalArgumentException
+    /** Set up a selector that will perform fitness-proportionate selection on
+     * the entire population.
+     */
+    public FitnessProportionateSelector(ObjectiveFunction<T> objective, Random random) throws NullPointerException
     {
         if (objective == null)
             throw new NullPointerException("FitnessProportionalSelector: obj is null.");
-        else if (poolSize <= 0)
-            throw new IllegalArgumentException("FitnessProportionalSelector: poolSize is less than 1.");
         this.objective = objective;
         this.random = random;
+        this.numContestants = 0;
+        assert(repOK());
+    }
+    
+    /** Set up a selector that will perform fitness-proportionate selection on a
+     * random subset of the population.
+     */
+    public FitnessProportionateSelector(ObjectiveFunction<T> objective, Random random, int poolSize) throws NullPointerException, IllegalArgumentException
+    {
+        this(objective, random);
+        if (poolSize <= 0)
+            throw new IllegalArgumentException("FitnessProportionalSelector: poolSize is less than 1.");
         this.numContestants = poolSize;
         this.contestantSelector = new RandomSelector<T>(random);
+        assert(repOK());
     }
     
     @Override
@@ -36,8 +50,12 @@ public class FitnessProportionateSelector<T extends Individual> extends Selector
         if (population.isEmpty())
             throw new IllegalArgumentException("FitnessProportionalSelector.selectIndividual: population is empy.");
         List<T> contestants = new ArrayList(numContestants);
+        if (numContestants == 0)
+            return chooseFromContestants(population);
+        
         for (int i = 0; i < numContestants; i++)
             contestants.add(contestantSelector.selectIndividual(population));
+        assert(repOK());
         return chooseFromContestants(contestants);
     }
     
@@ -58,11 +76,12 @@ public class FitnessProportionateSelector<T extends Individual> extends Selector
         return contestants.get(contestants.size()-1); // Happens occassionally because of conversion error in the last bin
     }
     
-    public boolean repOK()
+    @Override
+    final public boolean repOK()
     {
         return random != null
-                && numContestants > 0
-                && contestantSelector != null
+                && (numContestants > 0 && contestantSelector != null)
+                    || (numContestants == 0 && contestantSelector == null)
                 && objective != null;
     }
 }
