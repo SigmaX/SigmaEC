@@ -7,59 +7,43 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Implements unbiased n-point crossover between m parents.
+ * Implements unbiased n-point crossover between 2 parents.
  * 
  * @author Eric 'Siggy' Scott
  */
 public class NPointCrossoverMator<T extends Gene> implements Mator<T>
 {
     final private int numCutPoints;
-    final private int numParents;
     final private Random random;
+    final private boolean allowCloning;
 
     @Override
-    public int getNumParents() { return numParents; }
+    public int getNumParents() { return 2; }
     
     @Override
-    public int getNumChildren() { return numParents; }
+    public int getNumChildren() { return 2; }
 
     public int getNumCutPoints() { return numCutPoints; }
     
-    public NPointCrossoverMator(int numCutPoints, int numParents, Random random)
+    public NPointCrossoverMator(int numCutPoints, boolean allowCloning, Random random)
     {
         if (numCutPoints < 1)
             throw new IllegalArgumentException("NPointCrossoverMator: numCutPoints is " + numCutPoints + ", but must be > 0.");
-        if (numParents < 2)
-            throw new IllegalArgumentException("NPointCrossoverMator: numParents is " + numParents + ", but must be > 1.");
         if (random == null)
             throw new IllegalArgumentException("NPointCrossoverMator: random is null.");
         this.numCutPoints = numCutPoints;
-        this.numParents = numParents;
         this.random = random;
+        this.allowCloning = allowCloning;
         assert(repOK());
     }
     
     /**
      * Non-destructively recombine parent genomes into children using n-point
-     * crossover.  Specifically, this works as follows: Let l be the
-     * length of all the genomes in parents.  For a genome G^k, let G^k_i be the
-     * ith gene of G^k.
+     * crossover.  Since cut-points can be chosen on the ends, this will
+     * sometimes result in cloning.
      * 
-     * A set C of cut points {c_1, c_2, ..., c_m} is chosen such that c_i &le;
-     * c_{i+1}.  Each genomes in the set parents = {G^1, G^2, ... , G^n} is
-     * cut into subsequences according to the cut points:  That is, a genome G^k
-     * is cut into the sequences S^k_1 = G_1G_2...G_{c_1},
-     * S^k_2 = G_{c_1+1}G_{c_1+2}...G_{c_2}, ..., S^k_{m} = G_{c_m}...G_{l}.
-     * 
-     * Now that the genomes have been cut, for each k \in (1,n) we generate
-     * offspring O^k = S^{r_1}_1S^{r_2}_2...S^{r_m}_m, where r_i is a random
-     * integer selected from (1,n) without replacement.  That is, we generate
-     * offspring by randomly choosing among the ith subsequences of all parents
-     * to determine the ith subsequence of the offspring.
-     * 
-     * PRECONDITIONS: The list of parents must be equal this.numParents, and
-     * all the parent genomes must be of the same length.  No exception is
-     * caught if these conditions are not met.
+     * PRECONDITIONS: All the parent genomes must be of the same length.
+     * No exception is caught if this condition is not met.
      * 
      * @return The set of offspring, which will be the same size as the set of
      * parents.
@@ -67,28 +51,30 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
     @Override
     public List<List<T>> mate(List<List<T>> parents)
     {
-        assert(parents.size() == numParents);
+        assert(parents.size() == 2);
         assert(genomesSameLength(parents));
         int[] cutPoints = getNewCutPoints(parents.get(0).size());
         
-        // Initialize empty genomes for offspring
-        List<List<T>> offspring = new ArrayList<List<T>>(numParents) {{
-           for (int i = 0; i < numParents; i++)
-               add(new ArrayList<T>());
-        }};
+        final List<T> child1 = new ArrayList<T>(parents.get(0).size());
+        final List<T> child2 = new ArrayList<T>(parents.get(0).size());
         
         // Splice the parents and mix them into offspring
+        boolean swap = false; // When true, the first child gets a segment from the second parent.  When false, the first child gets a segment from the first parent.
         for(int i = 0; i < cutPoints.length - 1; i++)
         {
             List<List<T>> segments = getSegments(cutPoints[i], cutPoints[i+1], parents);
-            for (List<T> o : offspring)
-            {
-                int parentSegment = random.nextInt(segments.size());
-                o.addAll(segments.get(parentSegment));
-                segments.remove(parentSegment); // Drawing without replacement
-            }
+            assert(segments.size() == 2);
+            child1.addAll(segments.get(swap ? 1 : 0));
+            child2.addAll(segments.get(swap ? 0 : 1));
+            swap = !swap; // Alternate the source of the segments
         }
         
+        List<List<T>> offspring = new ArrayList<List<T>>() {{
+           add(child1);
+           add(child2);
+        }};
+        
+        assert(offspring.size() == 2);
         assert(offspring.get(0).size() == parents.get(0).size());
         assert(genomesSameLength(offspring));
         assert(repOK());
@@ -116,6 +102,7 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
         return segments;
     }
     
+    /** Compares the length of n Lists. */
     private boolean genomesSameLength(List<List<T>> genomes)
     {
         assert(genomes.size() > 0);
@@ -127,11 +114,11 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
     }
     
     private int[] getNewCutPoints(int genomeLength)
-    {
+    { //TODO make use of allowCloning
         int[] cutPoints = new int[numCutPoints + 2];
         cutPoints[0] = 0;
         for(int i = 0; i < numCutPoints; i++)
-            cutPoints[i] = random.nextInt(genomeLength);
+            cutPoints[i] = random.nextInt(genomeLength+1);
         cutPoints[numCutPoints + 1] = genomeLength;
         Arrays.sort(cutPoints);
         return cutPoints;
@@ -142,14 +129,13 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
     final public boolean repOK()
     {
         return numCutPoints > 0
-                && numParents > 1
                 && random != null;
     }
 
     @Override
     public String toString()
     {
-        return String.format("[NPointCrossoverMator: CutPoints=%d, Parents=%d]", numCutPoints, numParents);
+        return String.format("[NPointCrossoverMator: CutPoints=%d]", numCutPoints);
     }
     
     @Override
@@ -158,8 +144,7 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
         if (!(ref instanceof NPointCrossoverMator))
             return false;
         NPointCrossoverMator cRef = (NPointCrossoverMator) ref;
-        return numParents == cRef.numParents
-                && numCutPoints == cRef.numCutPoints
+        return numCutPoints == cRef.numCutPoints
                 && random.equals(cRef.random);
     }
 
@@ -168,7 +153,6 @@ public class NPointCrossoverMator<T extends Gene> implements Mator<T>
     {
         int hash = 5;
         hash = 97 * hash + this.numCutPoints;
-        hash = 97 * hash + this.numParents;
         hash = 97 * hash + (this.random != null ? this.random.hashCode() : 0);
         return hash;
     }
