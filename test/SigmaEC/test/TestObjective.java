@@ -15,4 +15,16 @@ public class TestObjective implements ObjectiveFunction<TestIndividual>
 
     @Override
     public boolean repOK() { return true; }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        return (o instanceof TestObjective);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
 }

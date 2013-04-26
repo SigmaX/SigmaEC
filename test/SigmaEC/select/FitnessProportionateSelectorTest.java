@@ -19,6 +19,7 @@ import org.junit.Test;
 public class FitnessProportionateSelectorTest
 {
     private FitnessProportionateSelector<TestIndividual> SUT;
+    private Random random;
     private List<TestIndividual> population;
     private final static int POP_SIZE = 10;
     private int totalFitness;
@@ -32,7 +33,7 @@ public class FitnessProportionateSelectorTest
     @Before
     public void setUp()
     {
-        final Random random = new Random();
+        random = new Random();
         ObjectiveFunction<TestIndividual> obj = new TestObjective();
         SUT = new FitnessProportionateSelector<TestIndividual>(obj, random);
         population = new ArrayList(POP_SIZE) {{
@@ -67,6 +68,31 @@ public class FitnessProportionateSelectorTest
             double expectedFrequency = ind.getTrait()/totalFitness;
             assertEquals(expectedFrequency, frequency, EPSILON);
         }
+        assertTrue(SUT.repOK());
+    }
+    
+    @Test
+    public void testToString()
+    {
+        assertEquals("[FitnessProportionateSelector: Random=" + random.toString() + "]", SUT.toString());
+        assertTrue(SUT.repOK());
+    }
+    
+    @Test
+    public void testEquals()
+    {
+        System.out.println("equals & hashcode");
+        FitnessProportionateSelector SUT = new FitnessProportionateSelector(new TestObjective(), random);
+        FitnessProportionateSelector gRef = new FitnessProportionateSelector(new TestObjective(), random);
+        FitnessProportionateSelector bRef = new FitnessProportionateSelector(new TestObjective(), new Random());
+        assertTrue(SUT.equals(gRef));
+        assertEquals(SUT.hashCode(), gRef.hashCode());
+        assertTrue(gRef.equals(SUT));
+        assertTrue(SUT.equals(SUT));
+        assertFalse(SUT.equals(null));
+        assertFalse(SUT.equals(bRef));
+        assertNotEquals(SUT.hashCode(), bRef.hashCode());
+        assertFalse(bRef.equals(SUT));
         assertTrue(SUT.repOK());
     }
 }

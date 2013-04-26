@@ -17,6 +17,7 @@ import org.junit.Test;
 public class RandomSelectorTest
 {
     private RandomSelector SUT;
+    private Random random;
     private List<TestIndividual> population;
     private final static int POP_SIZE = 10;
     
@@ -27,7 +28,8 @@ public class RandomSelectorTest
     @Before
     public void setUp()
     {
-        SUT = new RandomSelector(new Random());
+        random = new Random();
+        SUT = new RandomSelector(random);
         population = new ArrayList(POP_SIZE) {{
             for (int i = 0; i < POP_SIZE; i++)
                 add(new TestIndividual(i));
@@ -72,5 +74,18 @@ public class RandomSelectorTest
     {
         System.out.println("selectIndividual IAE");
             SUT.selectIndividual(new ArrayList());
+    }
+    
+    @Test
+    public void testToString()
+    {
+        assertEquals("[RandomSelector: Random=" + random.toString() + "]", SUT.toString());
+        assertTrue(SUT.repOK());
+    }
+    
+    @Test
+    public void testEquals()
+    {
+        fail("Test case not implemented");
     }
 }

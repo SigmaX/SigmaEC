@@ -36,8 +36,10 @@ public class TournamentSelectorTest
     @Before
     public void setUp()
     {
+        // TODO Get rid of the god-awful brittleness
         final Random mockRandom = context.mock(Random.class);
         context.checking(new Expectations () {{
+            allowing(mockRandom).toString(); will(returnValue("mockr"));
             allowing(mockRandom).nextInt(POP_SIZE);
             will(onConsecutiveCalls(
                     returnValue(randomSequence[0]),
@@ -88,5 +90,18 @@ public class TournamentSelectorTest
     {
         System.out.println("selectIndividual IAE");
         SUT.selectIndividual(new ArrayList());
+    }
+    
+    @Test
+    public void testToString()
+    {
+        assertEquals("[TournamentSelector: Random=mockr]", SUT.toString());
+        assertTrue(SUT.repOK());
+    }
+    
+    @Test
+    public void testEquals()
+    {
+        fail("Test case not implemented");
     }
 }

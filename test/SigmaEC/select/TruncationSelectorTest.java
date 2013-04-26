@@ -131,4 +131,17 @@ public class TruncationSelectorTest
         System.out.println("selectMultipleIndividuals IAE3");
         SUT.selectMultipleIndividuals(population, 0);
     }
+    
+    @Test
+    public void testToString()
+    {
+        assertEquals("[TruncationSelector]", SUT.toString());
+        assertTrue(SUT.repOK());
+    }
+    
+    @Test
+    public void testEquals()
+    {
+        fail("Test case not implemented");
+    }
 }

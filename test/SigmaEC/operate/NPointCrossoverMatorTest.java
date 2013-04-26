@@ -146,10 +146,12 @@ public class NPointCrossoverMatorTest
         NPointCrossoverMator gRef = new NPointCrossoverMator<TestGene>(NUM_CUT_POINTS, false, random);
         NPointCrossoverMator bRef = new NPointCrossoverMator<TestGene>(NUM_CUT_POINTS + 1, false, random);
         assertTrue(SUT.equals(gRef));
+        assertEquals(SUT.hashCode(), gRef.hashCode());
         assertTrue(gRef.equals(SUT));
         assertTrue(SUT.equals(SUT));
         assertFalse(SUT.equals(null));
         assertFalse(SUT.equals(bRef));
+        assertNotEquals(SUT.hashCode(), bRef.hashCode());
         assertFalse(bRef.equals(SUT));
         assertTrue(SUT.repOK());
     }

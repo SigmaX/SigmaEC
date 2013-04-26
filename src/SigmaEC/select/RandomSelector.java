@@ -29,8 +29,15 @@ public class RandomSelector<T extends Individual> extends Selector<T>
             return population.get(random.nextInt(population.size()));
     }
     
+    @Override
     public boolean repOK()
     {
         return (random != null);
+    }
+    
+    @Override
+    public String toString()
+    {
+        return "[RandomSelector: Random=" + random.toString() + "]";
     }
 }

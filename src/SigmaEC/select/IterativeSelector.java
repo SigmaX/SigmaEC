@@ -14,7 +14,6 @@ public class IterativeSelector<T extends Individual> extends Selector<T>
     
     public IterativeSelector()
     {
-        
     }
     
     @Override
@@ -22,9 +21,31 @@ public class IterativeSelector<T extends Individual> extends Selector<T>
         return population.get(i++%population.size());
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public boolean repOK() {
         return i >= 0;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return "[IterativeSelector]";
+    }
+    
+    @Override 
+    public boolean equals(Object o)
+    {
+        return (o instanceof IterativeSelector);
+    }
+    
+    // </editor-fold>
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 41 * hash + this.i;
+        return hash;
     }
     
 }

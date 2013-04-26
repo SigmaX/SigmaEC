@@ -1,5 +1,6 @@
 package SigmaEC.select;
 
+import SigmaEC.represent.Individual;
 import SigmaEC.test.TestIndividual;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,5 +36,30 @@ public class IterativeSelectorTest
         for (int j = 0; j < 5; j++)
             for (int i = 0; i < POP_SIZE; i++)
                 assertEquals(i, (int) SUT.selectIndividual(population).getTrait());
+    }
+    
+    @Test
+    public void testToString()
+    {
+        assertEquals("[IterativeSelector]", SUT.toString());
+        assertTrue(SUT.repOK());
+    }
+    
+    @Test
+    public void testEquals()
+    {
+        System.out.println("equals & hashcode");
+        IterativeSelector SUT = new IterativeSelector<TestIndividual>();
+        IterativeSelector gRef = new IterativeSelector<TestIndividual>();
+        IterativeSelector bRef = new IterativeSelector<Individual>();
+        assertTrue(SUT.equals(gRef));
+        assertEquals(SUT.hashCode(), gRef.hashCode());
+        assertTrue(gRef.equals(SUT));
+        assertTrue(SUT.equals(SUT));
+        assertFalse(SUT.equals(null));
+        assertFalse(SUT.equals(bRef));
+        assertNotEquals(SUT.hashCode(), bRef.hashCode());
+        assertFalse(bRef.equals(SUT));
+        assertTrue(SUT.repOK());
     }
 }

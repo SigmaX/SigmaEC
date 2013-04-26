@@ -76,6 +76,7 @@ public class FitnessProportionateSelector<T extends Individual> extends Selector
         return contestants.get(contestants.size()-1); // Happens occassionally because of conversion error in the last bin
     }
     
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
     {
@@ -84,4 +85,35 @@ public class FitnessProportionateSelector<T extends Individual> extends Selector
                     || (numContestants == 0 && contestantSelector == null)
                 && objective != null;
     }
+    
+    @Override
+    public String toString()
+    {
+        return "[FitnessProportionateSelector: Random=" + random.toString() + "]";
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof FitnessProportionateSelector))
+            return false;
+        
+        FitnessProportionateSelector cRef = (FitnessProportionateSelector) o;
+        return random == cRef.random
+                && numContestants == cRef.numContestants
+                && ((contestantSelector == null && cRef.contestantSelector == null)
+                    || (contestantSelector.equals(cRef.contestantSelector)))
+                && objective.equals(cRef.objective);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 13 * hash + (this.random != null ? this.random.hashCode() : 0);
+        hash = 13 * hash + this.numContestants;
+        hash = 13 * hash + (this.contestantSelector != null ? this.contestantSelector.hashCode() : 0);
+        hash = 13 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        return hash;
+    }
+    // </editor-fold>
 }
