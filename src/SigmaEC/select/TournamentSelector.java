@@ -12,11 +12,11 @@ import java.util.Random;
  */
 public class TournamentSelector<T extends Individual> extends Selector<T>
 {
-    private int tournamentSize;
-    private RandomSelector<T> contestantSelector;
-    private ObjectiveFunction<T> objective;
+    final private int tournamentSize;
+    final private RandomSelector<T> contestantSelector;
+    final private ObjectiveFunction<? super T> objective;
     
-    public TournamentSelector(ObjectiveFunction<T> obj, Random random, int tournamentSize) throws NullPointerException, IllegalArgumentException
+    public TournamentSelector(ObjectiveFunction<? super T> obj, Random random, int tournamentSize) throws NullPointerException, IllegalArgumentException
     {
         if (obj == null)
             throw new NullPointerException("TournamentSelector: obj is null.");
@@ -35,10 +35,14 @@ public class TournamentSelector<T extends Individual> extends Selector<T>
             throw new IllegalArgumentException("TournamentSelector.selectIndividual: population is empty.");
         List<T> contestants = contestantSelector.selectMultipleIndividuals(population, tournamentSize);
         TruncationSelector<T> finalSelector = new TruncationSelector(this.objective);
-        return finalSelector.selectIndividual(contestants);
+        T selectedIndividual = finalSelector.selectIndividual(contestants);
+        assert(selectedIndividual != null);
+        assert(repOK());
+        return selectedIndividual;
     }
     
-    public boolean repOK()
+    @Override
+    final public boolean repOK()
     {
         return tournamentSize > 0
                 && contestantSelector != null
