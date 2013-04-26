@@ -3,7 +3,8 @@ package SigmaEC.represent;
 import java.util.List;
 
 /**
- *
+ * An individual based on a List of Genes.
+ * 
  * @author Eric 'Siggy' Scott
  */
 public interface LinearGenomeIndividual<G extends Gene> extends Individual
