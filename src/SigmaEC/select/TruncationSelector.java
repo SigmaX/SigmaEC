@@ -40,7 +40,7 @@ public class TruncationSelector<T extends Individual> extends Selector<T>
         if (population.isEmpty())
             throw new IllegalArgumentException("TruncationSelector.selectMultipleIndividuals(): population is empty.");
         
-        double bestFitness = 0.0;
+        double bestFitness = Double.NEGATIVE_INFINITY;
         T best = null;
         for (T ind : population)
         {
@@ -51,7 +51,7 @@ public class TruncationSelector<T extends Individual> extends Selector<T>
                 best = ind;
             }
         }
-        
+        assert(best != null);
         return best;
     }
     
