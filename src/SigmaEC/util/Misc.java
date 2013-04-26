@@ -32,7 +32,7 @@ public class Misc
         double sum = 0;
         for (int i = 0; i < 12; i++)
             sum += random.nextDouble();
-        return sum/6;
+        return sum - 6;
     }
     
 }
