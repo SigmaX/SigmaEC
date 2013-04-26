@@ -17,9 +17,9 @@ import java.util.List;
 public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G extends Gene> implements Generator<T>
 {
     private final Selector<T> parentSelector;
-    private final LinearGenomeMator<G> mator;
+    private final Mator<T> mator;
     
-    public LinearGenomeMatingGenerator(Selector<T> selector, LinearGenomeMator<G> mator) throws IllegalArgumentException
+    public LinearGenomeMatingGenerator(Selector<T> selector, Mator<T> mator) throws IllegalArgumentException
     {
         if (selector == null)
             throw new IllegalArgumentException("LinearGenomeMatingGenerator: selector is null.");
@@ -54,13 +54,10 @@ public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G 
         List<T> offspring = new ArrayList();
         for(int totalChildren = 0; totalChildren < population.size(); totalChildren += mator.getNumChildren())
         {
-            List<List<G>> parentGenomes = new ArrayList<List<G>>();
+            List<T> parents = new ArrayList<T>();
             for (int i = 0; i < mator.getNumParents(); i++)
-                parentGenomes.add(parentSelector.selectIndividual(population).getGenome());
-
-            List<List<G>> offspringGenomes = mator.mate(parentGenomes);
-            for (List<G> genome : offspringGenomes)
-                offspring.add((T) population.get(0).create(genome));
+                parents.add(parentSelector.selectIndividual(population));
+            offspring.addAll(mator.mate(parents));
         }
         return offspring;
     }

@@ -1,20 +1,20 @@
 package SigmaEC.operate;
 
-import SigmaEC.represent.Gene;
+import SigmaEC.represent.Individual;
 import java.util.List;
 
 /**
- * An operator that takes two or more linear genomes and 'mates' them to produce
+ * An operator that takes two or more individuals and 'mates' them to produce
  * one or more children.
  * 
  * @author Eric 'Siggy' Scott
  */
-public interface LinearGenomeMator<T extends Gene>
+public interface Mator<T extends Individual>
 {
     /**
      * @param parents Parent genomes.
      * @return Children. */
-    public List<List<T>> mate(List<List<T>> parents);
+    public List<T> mate(List<T> parents);
     
     /** @return The number of parents the mate() function takes, or -1 if it
      * takes an arbitrary number of parents. */

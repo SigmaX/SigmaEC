@@ -15,6 +15,8 @@ public interface Generator<T extends Individual>
     
     public List<T> produceGeneration(List<T> parentPopulation);
     
+    /** Representation invariant.  If this returns false, there is something
+     * invalid about the Individual's internal state. */
     public boolean repOK();
     
 }

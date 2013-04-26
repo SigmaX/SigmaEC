@@ -1,11 +1,12 @@
 package SigmaEC.represent;
 
 /**
- * A gene.
+ * An immutable gene.
  * 
  * @author Eric 'Siggy' Scott
  */
 public interface Gene
 {
-    public void mutate();
+    /** A producer that non-destructively creates a mutated copy of this gene. */
+    public Gene mutate();
 }
