@@ -39,7 +39,8 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
         assert(repOK());
     }
     
-    /** Creates an objective bounded by a hyper-cube of width 2*bound. */
+    /** Creates an objective bounded by a hyper-cube bound in each dimension by
+     * -bound and bound, i.e. with a width of 2*bound. */
     public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         this(dimensions, scalarBoundToArray(dimensions, bound), objective);
