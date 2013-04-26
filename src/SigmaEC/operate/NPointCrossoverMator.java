@@ -12,7 +12,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NPointCrossoverMator<T extends LinearGenomeIndividual> implements Mator<T>
+public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends Gene> implements Mator<T>
 {
     final private int numCutPoints;
     final private Random random;
@@ -53,21 +53,21 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual> implements M
     public List<T> mate(final List<T> parents)
     {
         assert(parents.size() == 2);
-        List<List<Gene>> parentGenomes = new ArrayList<List<Gene>>() {{
+        List<List<G>> parentGenomes = new ArrayList<List<G>>() {{
            add(parents.get(0).getGenome());
            add(parents.get(1).getGenome());
         }};
         assert(genomesSameLength(parentGenomes));
         int[] cutPoints = getNewCutPoints(parentGenomes.get(0).size());
         
-        final List<Gene> child1 = new ArrayList<Gene>(parentGenomes.get(0).size());
-        final List<Gene> child2 = new ArrayList<Gene>(parentGenomes.get(0).size());
+        final List<G> child1 = new ArrayList<G>(parentGenomes.get(0).size());
+        final List<G> child2 = new ArrayList<G>(parentGenomes.get(0).size());
         
         // Splice the parents and mix them into offspring
         boolean swap = false; // When true, the first child gets a segment from the second parent.  When false, the first child gets a segment from the first parent.
         for(int i = 0; i < cutPoints.length - 1; i++)
         {
-            List<List<Gene>> segments = getSegments(cutPoints[i], cutPoints[i+1], parentGenomes);
+            List<List<G>> segments = getSegments(cutPoints[i], cutPoints[i+1], parentGenomes);
             assert(segments.size() == 2);
             child1.addAll(segments.get(swap ? 1 : 0));
             child2.addAll(segments.get(swap ? 0 : 1));
@@ -89,15 +89,15 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual> implements M
      * 
      * @return A new list containing the cropped genomes.
      */
-    private List<List<Gene>> getSegments(final int start, final int end, final List<List<Gene>> parents)
+    private List<List<G>> getSegments(final int start, final int end, final List<List<G>> parents)
     {
         assert(parents.size() > 0);
         assert(start <= end);
-        List<List<Gene>> segments = new ArrayList<List<Gene>>();
+        List<List<G>> segments = new ArrayList<List<G>>();
         for (int i = 0; i < parents.size(); i++)
         {
             final int p = i;
-            segments.add(new ArrayList<Gene>() {{
+            segments.add(new ArrayList<G>() {{
                 for (int j = start; j < end; j++)
                     add(parents.get(p).get(j));
             }});
@@ -106,7 +106,7 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual> implements M
     }
     
     /** Compares the length of n Lists. */
-    private boolean genomesSameLength(List<List<Gene>> genomes)
+    private boolean genomesSameLength(List<List<G>> genomes)
     {
         assert(genomes.size() > 0);
         final int firstLength = genomes.get(0).size();
