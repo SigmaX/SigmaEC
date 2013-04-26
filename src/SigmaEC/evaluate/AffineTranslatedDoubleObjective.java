@@ -11,7 +11,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class AffineTranslatedDoubleObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+public class AffineTranslatedDoubleObjective implements ObjectiveFunction<DoubleVectorIndividual>
 {
     private final double[][] transformationMatrix;
     private final ObjectiveFunction<DoubleVectorIndividual> objective;
@@ -68,7 +68,6 @@ public class AffineTranslatedDoubleObjective extends VectorObjectiveFunction<Dou
         return transformationMatrix;
     }
     
-    @Override
     public int getNumDimensions()
     {
         return transformationMatrix.length - 1;

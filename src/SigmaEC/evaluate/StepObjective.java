@@ -9,7 +9,7 @@ import SigmaEC.represent.DoubleVectorIndividual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class StepObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+public class StepObjective implements ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     
@@ -21,7 +21,6 @@ public class StepObjective extends VectorObjectiveFunction<DoubleVectorIndividua
         assert(repOK());
     }
 
-    @Override
     public int getNumDimensions()
     {
         return numDimensions;

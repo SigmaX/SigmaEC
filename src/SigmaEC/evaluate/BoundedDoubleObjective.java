@@ -12,18 +12,17 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BoundedDoubleObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorIndividual>
 {
     private final IDoublePoint[] bounds;
-    private VectorObjectiveFunction<DoubleVectorIndividual> objective;
+    private ObjectiveFunction<DoubleVectorIndividual> objective;
     
-    @Override
     public int getNumDimensions()
     {
         return bounds.length;
     }
     
-    public BoundedDoubleObjective(int dimensions, IDoublePoint[] bounds, final VectorObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
+    public BoundedDoubleObjective(int dimensions, IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         if (dimensions <= 0)
             throw new IllegalArgumentException("BoundedDoubleObjective: dimensions was < 1.");
@@ -41,7 +40,7 @@ public class BoundedDoubleObjective extends VectorObjectiveFunction<DoubleVector
     }
     
     /** Creates an objective bounded by a hyper-cube of width 2*bound. */
-    public BoundedDoubleObjective(final int dimensions, final double bound, final VectorObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
+    public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         this(dimensions, scalarBoundToArray(dimensions, bound), objective);
         assert(repOK());

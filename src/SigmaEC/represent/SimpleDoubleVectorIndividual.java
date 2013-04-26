@@ -7,7 +7,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SimpleDoubleVectorIndividual extends DoubleVectorIndividual
+public class SimpleDoubleVectorIndividual implements Individual, DoubleVectorIndividual
 {
     private double[] vector;
     

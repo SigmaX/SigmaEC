@@ -18,7 +18,7 @@ public class BoundedDoubleObjectiveTest
     private BoundedDoubleObjective SUT;
     private final int numDimensions = 3;
     private final double singleBound = 5;
-    private final VectorObjectiveFunction objective = new TestVectorObjective();
+    private final ObjectiveFunction<DoubleVectorIndividual> objective = new TestVectorObjective();
     private final IDoublePoint[] bounds = new IDoublePoint[] {
         new IDoublePoint(-3, 3),
         new IDoublePoint(-8, 4),
@@ -174,7 +174,7 @@ public class BoundedDoubleObjectiveTest
         assertTrue(bRef.repOK());
     }
     
-    private class TestVectorObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+    private class TestVectorObjective implements ObjectiveFunction<DoubleVectorIndividual>
     {
         @Override
         public double fitness(DoubleVectorIndividual ind)
@@ -189,11 +189,10 @@ public class BoundedDoubleObjectiveTest
         public boolean repOK() { return true; }
         @Override
         public String toString() { return "[TestVectorObjective]"; } 
-        @Override
         public int getNumDimensions() { return 3;}
     }
     
-    private class TestVectorIndividual extends DoubleVectorIndividual
+    private class TestVectorIndividual implements DoubleVectorIndividual
     {
         private final double[] vector;
         public TestVectorIndividual(final double[] vector)

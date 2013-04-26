@@ -9,7 +9,7 @@ import SigmaEC.represent.DoubleVectorIndividual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RosenbrockObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     
@@ -21,7 +21,6 @@ public class RosenbrockObjective extends VectorObjectiveFunction<DoubleVectorInd
         assert(repOK());
     }
 
-    @Override
     public int getNumDimensions()
     {
         return numDimensions;

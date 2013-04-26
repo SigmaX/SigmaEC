@@ -6,7 +6,7 @@ import java.util.List;
  *
  * @author Eric 'Siggy' Scott
  */
-public abstract class LinearGenomeIndividual<G extends Gene> implements Individual, LinearGenome<G>
+public abstract class LinearGenomeIndividual<G extends Gene> implements Individual
 {
     /**
      * Constructs a new LinearGenomeIndividual by using the subtype of this as
@@ -16,4 +16,6 @@ public abstract class LinearGenomeIndividual<G extends Gene> implements Individu
      * @param genome The genome to use in the new individual.
      */
     public abstract LinearGenomeIndividual<G> create(List<G> genome);
+    
+    public abstract List<G> getGenome();
 }

@@ -10,12 +10,11 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NoiseyQuarticObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorIndividual>
 {
     private final Random random;
     private final int numDimensions;
 
-    @Override
     public int getNumDimensions()
     {
         return numDimensions;
@@ -42,7 +41,7 @@ public class NoiseyQuarticObjective extends VectorObjectiveFunction<DoubleVector
     }
 
     @Override
-    public boolean repOK() {
+    final public boolean repOK() {
         return random != null
                 && numDimensions > 0;
     }

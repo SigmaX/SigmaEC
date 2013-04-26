@@ -10,7 +10,7 @@ import SigmaEC.represent.DoubleVectorIndividual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SphereObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+public class SphereObjective implements ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     
@@ -22,7 +22,6 @@ public class SphereObjective extends VectorObjectiveFunction<DoubleVectorIndivid
         assert(repOK());
     }
 
-    @Override
     public int getNumDimensions()
     {
         return numDimensions;

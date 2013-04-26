@@ -11,7 +11,7 @@ import SigmaEC.util.IDoublePoint;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ShekelObjective extends VectorObjectiveFunction<DoubleVectorIndividual>
+public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual>
 {
     IDoublePoint[] optima;
     
@@ -28,7 +28,6 @@ public class ShekelObjective extends VectorObjectiveFunction<DoubleVectorIndivid
         assert(repOK());
     }
 
-    @Override
     public int getNumDimensions() { return 2; }
 
     @Override
