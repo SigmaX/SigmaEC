@@ -11,7 +11,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NPointCrossoverMator<T extends Gene> implements Mator<T>
+public class NPointCrossoverMator<T extends Gene> implements LinearGenomeMator<T>
 {
     final private int numCutPoints;
     final private Random random;

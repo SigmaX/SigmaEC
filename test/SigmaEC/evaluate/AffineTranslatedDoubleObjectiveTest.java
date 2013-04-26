@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.DoubleVector;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;

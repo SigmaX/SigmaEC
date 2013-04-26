@@ -4,12 +4,12 @@ import SigmaEC.represent.Gene;
 import java.util.List;
 
 /**
- * An operator that takes two or more genomes and 'mates' them to produce one or
- * more children.
+ * An operator that takes two or more linear genomes and 'mates' them to produce
+ * one or more children.
  * 
  * @author Eric 'Siggy' Scott
  */
-public interface Mator<T extends Gene>
+public interface LinearGenomeMator<T extends Gene>
 {
     /**
      * @param parents Parent genomes.
