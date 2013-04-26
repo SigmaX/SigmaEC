@@ -41,6 +41,7 @@ public class IterativeSelectorTest
     @Test
     public void testToString()
     {
+        System.out.println("toString");
         assertEquals("[IterativeSelector]", SUT.toString());
         assertTrue(SUT.repOK());
     }

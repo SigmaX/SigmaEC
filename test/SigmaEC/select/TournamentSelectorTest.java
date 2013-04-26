@@ -95,6 +95,7 @@ public class TournamentSelectorTest
     @Test
     public void testToString()
     {
+        System.out.println("toString");
         assertEquals("[TournamentSelector: Random=mockr]", SUT.toString());
         assertTrue(SUT.repOK());
     }
@@ -102,6 +103,7 @@ public class TournamentSelectorTest
     @Test
     public void testEquals()
     {
+        System.out.println("equals & hashcode");
         fail("Test case not implemented");
     }
 }

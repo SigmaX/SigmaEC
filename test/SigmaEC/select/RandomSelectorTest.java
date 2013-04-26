@@ -79,6 +79,7 @@ public class RandomSelectorTest
     @Test
     public void testToString()
     {
+        System.out.println("toString");
         assertEquals("[RandomSelector: Random=" + random.toString() + "]", SUT.toString());
         assertTrue(SUT.repOK());
     }
@@ -86,6 +87,7 @@ public class RandomSelectorTest
     @Test
     public void testEquals()
     {
+        System.out.println("equals & hashcode");
         fail("Test case not implemented");
     }
 }

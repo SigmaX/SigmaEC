@@ -51,14 +51,17 @@ public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G 
         assert(population.size()%mator.getNumChildren() == 0);
         assert(Misc.containsOnlyClass(population, population.get(0).getClass()));
         
-        List<List<G>> parentGenomes = new ArrayList<List<G>>();
-        for (int i = 0; i < mator.getNumParents(); i++)
-            parentGenomes.add(parentSelector.selectIndividual(population).getGenome());
-        
-        List<List<G>> offspringGenomes = mator.mate(parentGenomes);
         List<T> offspring = new ArrayList();
-        for (List<G> genome : offspringGenomes)
-            offspring.add((T) population.get(0).create(genome));
+        for(int totalChildren = 0; totalChildren < population.size(); totalChildren += mator.getNumChildren())
+        {
+            List<List<G>> parentGenomes = new ArrayList<List<G>>();
+            for (int i = 0; i < mator.getNumParents(); i++)
+                parentGenomes.add(parentSelector.selectIndividual(population).getGenome());
+
+            List<List<G>> offspringGenomes = mator.mate(parentGenomes);
+            for (List<G> genome : offspringGenomes)
+                offspring.add((T) population.get(0).create(genome));
+        }
         return offspring;
     }
     

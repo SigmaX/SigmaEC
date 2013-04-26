@@ -74,6 +74,7 @@ public class FitnessProportionateSelectorTest
     @Test
     public void testToString()
     {
+        System.out.println("toString");
         assertEquals("[FitnessProportionateSelector: Random=" + random.toString() + "]", SUT.toString());
         assertTrue(SUT.repOK());
     }
