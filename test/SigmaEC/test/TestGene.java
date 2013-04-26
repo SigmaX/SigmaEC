@@ -32,9 +32,4 @@ public class TestGene implements Gene
     {
         return ((Integer)val).toString();
     }
-
-    @Override
-    public TestGene mutate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
 }

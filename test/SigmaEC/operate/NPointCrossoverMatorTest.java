@@ -1,6 +1,5 @@
 package SigmaEC.operate;
 
-import SigmaEC.represent.Gene;
 import SigmaEC.test.TestGene;
 import SigmaEC.test.TestIndividual;
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class NPointCrossoverMatorTest
         System.out.println("ctor");
         final int NUM_CUT_POINTS = 2;
         final int NUM_PARENTS = 2;
-        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual>(NUM_CUT_POINTS, false, random);
+        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(NUM_CUT_POINTS, false, random);
         assertEquals(NUM_PARENTS, SUT.getNumParents());
         assertEquals(NUM_PARENTS, SUT.getNumChildren());
         assertEquals(NUM_CUT_POINTS, SUT.getNumCutPoints());
@@ -61,7 +60,7 @@ public class NPointCrossoverMatorTest
     public void testConstructorIAE1()
     {
         System.out.println("ctor (IAE1)");
-        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual>(0, false, random);
+        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(0, false, random);
     }
 
     /** Test of constructor method, of class NPointCrossoverMator. */
@@ -69,7 +68,7 @@ public class NPointCrossoverMatorTest
     public void testConstructorIAE2()
     {
         System.out.println("ctor (IAE2)");
-        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual>(2, false, null);
+        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(2, false, null);
     }
     
     
@@ -86,7 +85,7 @@ public class NPointCrossoverMatorTest
     {
         assert(numCutPoints > 0);
         final int NUM_TRIALS = 1000000;
-        NPointCrossoverMator<TestIndividual> SUT = new NPointCrossoverMator<TestIndividual>(numCutPoints, true, random);
+        NPointCrossoverMator<TestIndividual, TestGene> SUT = new NPointCrossoverMator<TestIndividual, TestGene>(numCutPoints, true, random);
         List<TestIndividual> parents = new ArrayList<TestIndividual>() {{ add(parent1); add(parent2); }};
         
         Map<List<TestGene>, Integer> count = testChildSequenceDistribution(NUM_TRIALS, SUT, parents, numCutPoints);
@@ -101,7 +100,7 @@ public class NPointCrossoverMatorTest
      * @return A hash containing the number of times a given genome occurred
      * in the first child.
      */
-    private Map<List<TestGene>, Integer> testChildSequenceDistribution(final int NUM_TRIALS, NPointCrossoverMator<TestIndividual> SUT, List<TestIndividual> parents, int numCutPoints)
+    private Map<List<TestGene>, Integer> testChildSequenceDistribution(final int NUM_TRIALS, NPointCrossoverMator<TestIndividual, TestGene> SUT, List<TestIndividual> parents, int numCutPoints)
     {
         // Count the number of times each type of cut is made
         Map<List<TestGene>, Integer> count = new HashMap();
@@ -203,7 +202,7 @@ public class NPointCrossoverMatorTest
     {
         System.out.println("toString");
         final int NUM_CUT_POINTS = 2;
-        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual>(NUM_CUT_POINTS, false, random);
+        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(NUM_CUT_POINTS, false, random);
         String expResult = "[NPointCrossoverMator: CutPoints=" + NUM_CUT_POINTS + "]";
         String result = SUT.toString();
         assertEquals(expResult, result);
@@ -217,9 +216,9 @@ public class NPointCrossoverMatorTest
         System.out.println("equals & hashcode");
         final int NUM_CUT_POINTS = 2;
         final int NUM_PARENTS = 2;
-        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual>(NUM_CUT_POINTS, false, random);
-        NPointCrossoverMator gRef = new NPointCrossoverMator<TestIndividual>(NUM_CUT_POINTS, false, random);
-        NPointCrossoverMator bRef = new NPointCrossoverMator<TestIndividual>(NUM_CUT_POINTS + 1, false, random);
+        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(NUM_CUT_POINTS, false, random);
+        NPointCrossoverMator gRef = new NPointCrossoverMator<TestIndividual, TestGene>(NUM_CUT_POINTS, false, random);
+        NPointCrossoverMator bRef = new NPointCrossoverMator<TestIndividual, TestGene>(NUM_CUT_POINTS + 1, false, random);
         assertTrue(SUT.equals(gRef));
         assertEquals(SUT.hashCode(), gRef.hashCode());
         assertTrue(gRef.equals(SUT));
