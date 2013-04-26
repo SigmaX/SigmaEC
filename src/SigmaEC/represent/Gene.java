@@ -7,6 +7,4 @@ package SigmaEC.represent;
  */
 public interface Gene
 {
-    /** A producer that non-destructively creates a mutated copy of this gene. */
-    public Gene mutate();
 }

@@ -14,9 +14,10 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearGenomeMutationGenerator<T extends LinearGenomeIndividual> implements Generator<T>
+public class LinearGenomeMutationGenerator<T extends LinearGenomeIndividual<G>, G extends Gene> implements Generator<T>
 {
     private final double mutationRate;
+    private final Mutator<G> mutator;
     private final Random random;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
 
@@ -26,9 +27,10 @@ public class LinearGenomeMutationGenerator<T extends LinearGenomeIndividual> imp
         return parentSelector;
     }
     
-    public LinearGenomeMutationGenerator(double mutationRate, Random random)
+    public LinearGenomeMutationGenerator(double mutationRate, Mutator<G> mutator, Random random)
     {
         this.mutationRate = mutationRate;
+        this.mutator = mutator;
         this.random = random;
         assert(repOK());
     }
@@ -40,12 +42,12 @@ public class LinearGenomeMutationGenerator<T extends LinearGenomeIndividual> imp
         for(int i = 0; i < parentPopulation.size(); i++)
         {
             T individual = parentSelector.selectIndividual(parentPopulation);
-            List<Gene> genome = individual.getGenome();
-            List<Gene> newGenome = new ArrayList<Gene>(genome.size());
-            for (Gene g : genome)
+            List<G> genome = individual.getGenome();
+            List<G> newGenome = new ArrayList<G>(genome.size());
+            for (G g : genome)
             {
                 double roll = random.nextDouble();
-                newGenome.add((roll < mutationRate) ? g.mutate() : g);
+                newGenome.add((roll < mutationRate) ? mutator.mutate(g) : g);
             }
             newPopulation.add((T) (parentPopulation.get(0).create(newGenome)));
         }
