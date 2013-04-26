@@ -1,6 +1,7 @@
 package SigmaEC.util;
 
 import java.util.Collection;
+import java.util.Random;
 
 /**
  *
@@ -21,6 +22,17 @@ public class Misc
             if (o.getClass() != type)
                 return false;
         return true;
+    }
+    
+    /**
+     * Irwin-Hall approximation of a standard Gaussian distribution.
+     */
+    public static double gaussianSample(Random random)
+    {
+        double sum = 0;
+        for (int i = 0; i < 12; i++)
+            sum += random.nextDouble();
+        return sum/6;
     }
     
 }
