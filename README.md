@@ -18,7 +18,7 @@ mixing and matching properties.  For instance, an Individual that has a linear
 genetic representation and a real-vector phenotype should inherit from
 LinearGenomeIndividual and DoubleVectorIndividual.
   - Some commonly used ObjectiveFunctions are implemented, including the
-[De Jong test suite][1].  As a couple of wrapper classes are also provided which
+[De Jong test suite][1].  A couple of wrapper classes are also provided which
 [decorate][2] objectives with bounds (BoundedObjectiveFunction) or rotate/scale
 them according to an linear transformation (AffineTranslatedDoubleObjective).
 
