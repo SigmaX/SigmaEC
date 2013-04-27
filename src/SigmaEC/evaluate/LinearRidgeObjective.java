@@ -71,13 +71,13 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
             throw new IllegalArgumentException("LinearRidgeObjective: interceptVector is null.");
         if (interceptVector.length != numDimensions - 1)
             throw new IllegalArgumentException(String.format("LinearRidgeObjective: interceptVector has %d elements, must have %d.", slopeVector.length, numDimensions - 1));
-        if (!(vectorOK(interceptVector)))
+        if (!(Misc.finiteValued(interceptVector)))
             throw new IllegalArgumentException("LinearRidgeObjective: interceptVector contains non-finite values.");
         if (slopeVector == null)
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector is null.");
         if (slopeVector.length != numDimensions - 1)
             throw new IllegalArgumentException(String.format("LinearRidgeObjective: slopeVector has %d elements, must have %d.", slopeVector.length, numDimensions - 1));
-        if (!(vectorOK(slopeVector)))
+        if (!(Misc.finiteValued(slopeVector)))
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector contains non-finite values.");
         if ((Misc.euclideanNorm(slopeVector) - 1.0) > 0.0001)
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector is not a unit vector.");
@@ -102,18 +102,6 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
         else
             return 0;
     }
-    
-    /** Check for non-finite values in a vector. */
-    private boolean vectorOK(double[] vector)
-    {
-        for (int i = 0; i < vector.length; i++)
-        {
-            double e = vector[i];
-            if (e == Double.NEGATIVE_INFINITY || e == Double.POSITIVE_INFINITY || e == Double.NaN)
-                return false;
-        }
-        return true;
-    }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
@@ -126,10 +114,10 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
                 && numDimensions > 0
                 && interceptVector != null
                 && interceptVector.length == (numDimensions - 1)
-                && vectorOK(interceptVector)
+                && Misc.finiteValued(interceptVector)
                 && slopeVector != null
                 && slopeVector.length == (numDimensions - 1)
-                && vectorOK(slopeVector)
+                && Misc.finiteValued(slopeVector)
                 && (Misc.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
     }
     
