@@ -36,24 +36,27 @@ public class Misc
     /** Mean. */
     public static double mean(double[] values)
     {
+        assert(values != null);
         double sum = 0;
         for(int i = 0; i < values.length; i++)
             sum += values[i];
         return sum/values.length;
     }
     
-    /** Sample standard deviation. */
+    /** Population standard deviation. */
     public static double std(double[] values, double mean)
     {
+        assert(values != null);
         double sum = 0;
         for (int i = 0; i < values.length; i++)
             sum += Math.pow(values[i] - mean, 2);
-        return Math.sqrt(sum/(values.length - 1));
+        return Math.sqrt(sum/(values.length));
     }
     
     /** Maximum value in an array. */
     public static double max(double[] values)
     {
+        assert(values != null);
         double max = Double.NEGATIVE_INFINITY;
         for (int i = 0; i < values.length; i++)
             if (values[i] > max)
@@ -64,6 +67,7 @@ public class Misc
     /** Minimum value in an array. */
     public static double min(double[] values)
     {
+        assert(values != null);
         double min = Double.POSITIVE_INFINITY;
         for (int i = 0; i < values.length; i++)
             if (values[i] < min)
@@ -71,4 +75,15 @@ public class Misc
         return min;
     }
     
+    /** n-dimensional Euclidean distance. */
+    public static double euclideanDistance(double[] v1, double[] v2)
+    {
+        assert(v1 != null);
+        assert(v2 != null);
+        assert(v1.length == v2.length);
+        double sum = 0;
+        for (int i = 0; i < v1.length; i++)
+            sum += Math.pow(v1[i] - v2[i], 2);
+        return Math.sqrt(sum);
+    }
 }
