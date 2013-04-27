@@ -2,13 +2,13 @@ package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
+import SigmaEC.util.Misc;
 import java.util.Arrays;
 
 /**
- * Shekel's "foxholes" function, which contains n (traditionally 25) local
- * optima in R^2.  This is the original Shekel function as used by De Jong --
- * its inverse is also commonly used in the literature.  Traditionally, each
- * variable is bounded between -65.536 and 65.536 (inclusive).
+ * Inverted form of Shekel's "foxholes" function, which contains n
+ * (traditionally 25) local optima in R^2.  Traditionally, each variable is
+ * bounded between -65.536 and 65.536 (inclusive).
  * 
  * @author Eric 'Siggy' Scott
  */
@@ -23,7 +23,7 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual
     {
         if (optima == null)
             throw new IllegalArgumentException("ShekelObjective: optima array is null.");
-        if (!optimaOK())
+        if (Misc.containsNulls(optima))
             throw new IllegalArgumentException("ShekelObjective: optima array is invalid (perhaps contains nulls).");
         this.optima = optima;
         assert(repOK());
@@ -38,17 +38,9 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual
         assert(ind.size() == 2);
         double sum = 0.002;
         for (int i = 0; i < optima.length; i++)
-            sum += 1/(i + (ind.getElement(0) - optima[i].x) + (ind.getElement(1) - optima[i].y));
+            sum += 1/(i + Math.pow(ind.getElement(0) - optima[i].x, 2) + Math.pow(ind.getElement(1) - optima[i].y, 2));
         assert(repOK());
-        return 1/sum;
-    }
-    
-    private boolean optimaOK()
-    {
-        for (IDoublePoint dp : optima)
-            if (dp == null)
-                return false;
-        return true;
+        return sum;
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -56,7 +48,7 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual
     final public boolean repOK()
     {
         return optima != null
-            && optimaOK();
+            && !Misc.containsNulls(optima);
     }
     
     @Override
