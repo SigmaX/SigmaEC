@@ -55,6 +55,8 @@ public class MemoizedObjective<T extends Individual> implements ObjectiveFunctio
     @Override
     public boolean equals(Object o)
     {
+        if (o == this)
+            return true;
         if (!(o instanceof MemoizedObjective))
             return false;
         

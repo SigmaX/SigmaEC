@@ -119,6 +119,8 @@ public class AffineTranslatedDoubleObjective implements ObjectiveFunction<Double
     @Override
     public boolean equals(Object ref)
     {
+        if (ref == this)
+            return true;
         if (!(ref instanceof AffineTranslatedDoubleObjective))
             return false;
         AffineTranslatedDoubleObjective cRef = (AffineTranslatedDoubleObjective) ref;

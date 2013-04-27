@@ -106,6 +106,8 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
     @Override
     public boolean equals(Object ref)
     {
+        if (ref == this)
+            return true;
         if (!(ref instanceof BoundedDoubleObjective))
             return false;
         BoundedDoubleObjective cRef = (BoundedDoubleObjective) ref;
