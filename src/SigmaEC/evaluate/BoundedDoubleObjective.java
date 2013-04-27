@@ -12,11 +12,12 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorIndividual>
+public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
 {
     private final IDoublePoint[] bounds;
     private ObjectiveFunction<DoubleVectorIndividual> objective;
     
+    @Override
     public int getNumDimensions()
     {
         return bounds.length;

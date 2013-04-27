@@ -9,7 +9,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndividual>
+public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
 {
     private final double width;
     private final double highFitness;
@@ -37,6 +37,7 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
         return Arrays.copyOf(slopeVector, slopeVector.length);
     }
 
+    @Override
     public int getNumDimensions() {
         return numDimensions;
     }

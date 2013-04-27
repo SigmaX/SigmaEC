@@ -12,7 +12,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual>
+public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
 {
     IDoublePoint[] optima;
     
@@ -29,6 +29,7 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual
         assert(repOK());
     }
 
+    @Override
     public int getNumDimensions() { return 2; }
 
     @Override

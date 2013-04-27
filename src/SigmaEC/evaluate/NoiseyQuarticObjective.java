@@ -10,11 +10,12 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorIndividual>
+public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
 {
     private final Random random;
     private final int numDimensions;
 
+    @Override
     public int getNumDimensions()
     {
         return numDimensions;
