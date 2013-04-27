@@ -25,7 +25,7 @@ public class Misc
     }
     
     /** Returns true if c contains any null values. */
-    public static boolean containsNulls(Object[] c)
+    public static <T> boolean containsNulls(T[] c)
     {
         assert(c != null);
         for (int i = 0; i < c.length; i++)
