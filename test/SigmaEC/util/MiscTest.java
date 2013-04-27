@@ -126,4 +126,69 @@ public class MiscTest {
         double result = Misc.dotProduct(v1, v2);
         assertEquals(expResult, result, 0.0);
     }
+    
+    /** Test of euclideanNorm method, of class Misc. */
+    @Test
+    public void testEuclideanNorm2D() {
+        System.out.println("euclideanNorm (2 dimensions)");
+        double[] v = new double[] {1, 1};
+        double expResult = Math.sqrt(2);
+        double result = Misc.euclideanNorm(v);
+        assertEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of euclideanNorm method, of class Misc. */
+    @Test
+    public void testEuclideanNorm3D() {
+        System.out.println("euclideanNorm (3 dimensions)");
+        double[] v = new double[] {2, 2, 2};
+        double expResult = 2*Math.sqrt(3);
+        double result = Misc.euclideanNorm(v);
+        assertEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of vectorMinus method, of class Misc. */
+    @Test
+    public void testVectorMinus2D() {
+        System.out.println("vectorMinus (2 dimensions)");
+        double[] v1 = new double[] {4, .5};
+        double[] v2 = new double[] {2, 8};
+        double[] expResult = new double[] {2, -7.5};
+        double[] result = Misc.vectorMinus(v1, v2);
+        assertArrayEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of vectorMinus method, of class Misc. */
+    @Test
+    public void testVectorMinus3D() {
+        System.out.println("vectorMinus (3 dimensions)");
+        double[] v1 = new double[] {4, .5, -2};
+        double[] v2 = new double[] {2, 8, -2};
+        double[] expResult = new double[] {2, -7.5, 0};
+        double[] result = Misc.vectorMinus(v1, v2);
+        assertArrayEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of scalarTimesVector method, of class Misc. */
+    @Test
+    public void testScalarTimesVector() {
+        System.out.println("scalarTimesVector");
+        double s = 4.5;
+        double[] v = new double[] {2, 8};
+        double[] expResult = new double[] {9, 36};
+        double[] result = Misc.scalarTimesVector(s, v);
+        assertArrayEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of pointToLineEuclideanDistance method, of class Misc. */
+    @Test
+    public void testPointToLineEuclideanDistance() {
+        System.out.println("pointToLineEuclideanDistance");
+        double[] point = new double[] { 0, 2 };
+        double[] slopeVector = new double[] {Math.sqrt(0.5), Math.sqrt(0.5)};
+        double[] interceptVector = new double[] { 0, 0 };
+        double expResult = Math.sqrt(2);
+        double result = Misc.pointToLineEuclideanDistance(point, slopeVector, interceptVector);
+        assertEquals(expResult, result, 0.0);
+    }
 }
