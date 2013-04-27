@@ -4,12 +4,13 @@ import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.Selector;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A basic evolutionary loop that mates parents, mutates offspring, and applies
- * selection.  An optional callback function (PopulationMetric) may be provided
- * to be run every generation (ex. for data collection purposes).
+ * selection.  Optionally takes one or more PopulationMetrics to be run every
+ * generation for data collection purposes.
  * 
  * @author Eric 'Siggy' Scott
  */
@@ -18,24 +19,29 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     final private Generator<T> matingGenerator;
     final private Generator<T> mutationGenerator;
     final private Selector<T> selector;
-    final private PopulationMetric<T> metric;
+    final private List<PopulationMetric<T>> metrics;
 
     public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector)
     {
         this.matingGenerator = matingGenerator;
         this.mutationGenerator = mutationGenerator;
         this.selector = selector;
-        metric = null;
+        metrics = null;
         assert(repOK());
     }
     
-    public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector, PopulationMetric<T> metric)
+    public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector, List<PopulationMetric<T>> metrics)
     {
         this.matingGenerator = matingGenerator;
         this.mutationGenerator = mutationGenerator;
         this.selector = selector;
-        this.metric = metric;
+        this.metrics = metrics;
         assert(repOK());
+    }
+    
+    public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector, final PopulationMetric<T> metric)
+    {
+        this(matingGenerator, mutationGenerator, selector, new ArrayList<PopulationMetric<T>>() {{ add(metric); }});
     }
     
     @Override
@@ -46,8 +52,9 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
             population = matingGenerator.produceGeneration(population);
             population = mutationGenerator.produceGeneration(population);
             population = selector.selectMultipleIndividuals(population, population.size());
-            if (metric != null)
-                metric.measurePopulation(population);
+            if (metrics != null)
+                for (PopulationMetric<T> metric : metrics)
+                    metric.measurePopulation(population);
         }
         return population;
     }
@@ -64,7 +71,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     @Override
     public String toString()
     {
-        return String.format("[SimpleCircleOfLife: MatingGenerator=%s, MutationGenerator=%s, Selector=%s]", matingGenerator, mutationGenerator, selector);
+        return String.format("[SimpleCircleOfLife: MatingGenerator=%s, MutationGenerator=%s, Selector=%s, Metrics=%s]", matingGenerator, mutationGenerator, selector, metrics);
     }
     
     @Override
@@ -77,8 +84,8 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
         return matingGenerator.equals(cRef.matingGenerator)
                 && mutationGenerator.equals(cRef.mutationGenerator)
                 && selector.equals(cRef.selector)
-                && ( (metric == null && cRef.metric == null)
-                    || metric.equals(cRef.metric));
+                && ( (metrics == null && cRef.metrics == null)
+                    || metrics.equals(cRef.metrics));
     }
 
     @Override
@@ -87,7 +94,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
         hash = 97 * hash + (this.matingGenerator != null ? this.matingGenerator.hashCode() : 0);
         hash = 97 * hash + (this.mutationGenerator != null ? this.mutationGenerator.hashCode() : 0);
         hash = 97 * hash + (this.selector != null ? this.selector.hashCode() : 0);
-        hash = 97 * hash + (this.metric != null ? this.metric.hashCode() : 0);
+        hash = 97 * hash + (this.metrics != null ? this.metrics.hashCode() : 0);
         return hash;
     }
     //</editor-fold>
