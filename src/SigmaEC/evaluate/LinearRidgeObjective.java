@@ -70,14 +70,14 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
             throw new IllegalArgumentException("LinearRidgeObjective: width is infinite, must be finite.");
         if (interceptVector == null)
             throw new IllegalArgumentException("LinearRidgeObjective: interceptVector is null.");
-        if (interceptVector.length != numDimensions - 1)
-            throw new IllegalArgumentException(String.format("LinearRidgeObjective: interceptVector has %d elements, must have %d.", slopeVector.length, numDimensions - 1));
+        if (interceptVector.length != numDimensions)
+            throw new IllegalArgumentException(String.format("LinearRidgeObjective: interceptVector has %d elements, must have %d.", slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(interceptVector)))
             throw new IllegalArgumentException("LinearRidgeObjective: interceptVector contains non-finite values.");
         if (slopeVector == null)
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector is null.");
-        if (slopeVector.length != numDimensions - 1)
-            throw new IllegalArgumentException(String.format("LinearRidgeObjective: slopeVector has %d elements, must have %d.", slopeVector.length, numDimensions - 1));
+        if (slopeVector.length != numDimensions)
+            throw new IllegalArgumentException(String.format("LinearRidgeObjective: slopeVector has %d elements, must have %d.", slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(slopeVector)))
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector contains non-finite values.");
         if ((Misc.euclideanNorm(slopeVector) - 1.0) > 0.0001)
@@ -114,10 +114,10 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
                 && highFitness != Double.POSITIVE_INFINITY
                 && numDimensions > 0
                 && interceptVector != null
-                && interceptVector.length == (numDimensions - 1)
+                && interceptVector.length == numDimensions
                 && Misc.finiteValued(interceptVector)
                 && slopeVector != null
-                && slopeVector.length == (numDimensions - 1)
+                && slopeVector.length == numDimensions
                 && Misc.finiteValued(slopeVector)
                 && (Misc.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
     }
