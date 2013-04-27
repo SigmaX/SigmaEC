@@ -35,10 +35,35 @@ public class SimpleDoubleVectorIndividual implements Individual, DoubleVectorInd
         return Arrays.copyOf(vector, vector.length);
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public boolean repOK()
     {
         return vector != null;
     }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("[SimpleDoubleVectorIndividual: Vector=%s", vector);
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof SimpleDoubleVectorIndividual))
+            return false;
+        SimpleDoubleVectorIndividual cRef = (SimpleDoubleVectorIndividual) o;
+        return vector.equals(cRef.vector);
+    }
 
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + Arrays.hashCode(this.vector);
+        return hash;
+    }
+    //</editor-fold>
 }
