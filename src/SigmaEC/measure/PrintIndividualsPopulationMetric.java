@@ -1,7 +1,6 @@
 package SigmaEC.measure;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.util.List;
 
 /**
@@ -16,9 +15,9 @@ public class PrintIndividualsPopulationMetric implements PopulationMetric
     }
     
     @Override
-    public String measurePopulation(List population) throws IOException
+    public String measurePopulation(int generation, List population) throws IOException
     {
-        return population.toString() + "\n";
+        return generation + ", " + population.toString() + "\n";
     }
 
     @Override

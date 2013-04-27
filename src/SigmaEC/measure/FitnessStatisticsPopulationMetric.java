@@ -24,14 +24,15 @@ public class FitnessStatisticsPopulationMetric<T extends Individual> implements 
         assert(repOK());
     }
     
+    /** Prints a row of the form "generation, mean, std, max, min". */
     @Override
-    public String measurePopulation(List<T> population) throws IOException
+    public String measurePopulation(int generation, List<T> population) throws IOException
     {
         double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
             fitnesses[i] = objective.fitness(population.get(i));
         double mean = Misc.mean(fitnesses);
-        return String.format("%f, %f, %f, %f\n", mean, Misc.std(fitnesses, mean), Misc.max(fitnesses), Misc.min(fitnesses));
+        return String.format("%d, %f, %f, %f, %f\n", generation, mean, Misc.std(fitnesses, mean), Misc.max(fitnesses), Misc.min(fitnesses));
     }
 
     @Override

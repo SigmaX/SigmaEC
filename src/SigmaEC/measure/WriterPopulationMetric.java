@@ -28,10 +28,10 @@ public class WriterPopulationMetric<T extends Individual> implements PopulationM
     }
     
     @Override
-    public String measurePopulation(List<T> population) throws IOException
+    public String measurePopulation(int generation, List<T> population) throws IOException
     {
         assert(population != null);
-        String measurement = wrappedMetric.measurePopulation(population);
+        String measurement = wrappedMetric.measurePopulation(generation, population);
         writer.write(measurement);
         assert(repOK());
         return measurement;

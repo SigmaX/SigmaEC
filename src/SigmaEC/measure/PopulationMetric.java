@@ -5,13 +5,18 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- *
+ * A PopulationMetric measures some property of a population of individuals,
+ * such as its fitness, diversity, or phenotype, and generates a string
+ * representation that can be written to a CSV file.
+ * 
  * @author Eric 'Siggy' Scott
  */
 public interface PopulationMetric<T extends Individual>
 {
-    /** Gathers some information about a population and does something with it. */
-    public abstract String measurePopulation(List<T> population) throws IOException;
+    /** Gathers some information about a population and does something with it.
+     * @param generation The generation the sample is coming from (will be printed out)
+     */
+    public abstract String measurePopulation(int generation, List<T> population) throws IOException;
     
     /** Flush any I/O buffers. */
     public abstract void flush() throws IOException;
