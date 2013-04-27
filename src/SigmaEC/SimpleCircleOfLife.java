@@ -4,6 +4,7 @@ import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.Selector;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,7 +46,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     }
     
     @Override
-    public List<T> evolve(List<T> population, int generations)
+    public List<T> evolve(List<T> population, int generations) throws IOException
     {
         for (int i = 0; i < generations; i++)
         {
@@ -77,6 +78,8 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     @Override
     public boolean equals(Object o)
     {
+        if (o == this)
+            return true;
         if (!(o instanceof SimpleCircleOfLife))
             return false;
         
