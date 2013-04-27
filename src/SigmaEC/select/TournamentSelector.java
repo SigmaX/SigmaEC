@@ -13,6 +13,7 @@ import java.util.Random;
 public class TournamentSelector<T extends Individual> extends Selector<T>
 {
     final private int tournamentSize;
+    final private Random random;
     final private RandomSelector<T> contestantSelector;
     final private ObjectiveFunction<? super T> objective;
     
@@ -25,6 +26,7 @@ public class TournamentSelector<T extends Individual> extends Selector<T>
         
         this.objective = obj;
         this.tournamentSize = tournamentSize;
+        this.random = random;
         this.contestantSelector = new RandomSelector<T>(random);
     }
     
@@ -41,6 +43,7 @@ public class TournamentSelector<T extends Individual> extends Selector<T>
         return selectedIndividual;
     }
     
+    //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
     {
@@ -48,4 +51,33 @@ public class TournamentSelector<T extends Individual> extends Selector<T>
                 && contestantSelector != null
                 && objective != null;
     }
+    @Override
+    public String toString()
+    {
+        return String.format("[TournamentSelector: TournamentSize=%d, Random=%s, Objective=%s", tournamentSize, random, objective);
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof TournamentSelector))
+            return false;
+        
+        TournamentSelector cRef = (TournamentSelector) o;
+        return tournamentSize == cRef.tournamentSize
+                && random.equals(cRef.random)
+                && objective.equals(cRef.objective);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 11 * hash + this.tournamentSize;
+        hash = 11 * hash + (this.random != null ? this.random.hashCode() : 0);
+        hash = 11 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        return hash;
+    }
+    //</editor-fold>
 }

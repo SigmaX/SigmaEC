@@ -38,10 +38,34 @@ public class SphereObjective implements ObjectiveFunction<DoubleVectorIndividual
         return sum;
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
     {
         return numDimensions > 0;
     }
 
+    @Override
+    public String toString()
+    {
+        return "[SphereObjective: NumDimensions=" + numDimensions;
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof SphereObjective))
+            return false;
+        
+        SphereObjective cRef = (SphereObjective) o;
+        return numDimensions == cRef.numDimensions;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.numDimensions;
+        return hash;
+    }
+    //</editor-fold>
 }
