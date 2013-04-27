@@ -20,7 +20,7 @@ public class MemoizedObjective<T extends Individual> implements ObjectiveFunctio
     public MemoizedObjective(ObjectiveFunction<T> objective)
     {
         if (objective == null)
-            throw new IllegalArgumentException("BoundedDoubleObjective: objective was null.");
+            throw new IllegalArgumentException("MemoizedObjective: objective was null.");
         this.objective = objective;
         assert(repOK());
     }
