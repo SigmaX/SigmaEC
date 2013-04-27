@@ -35,7 +35,7 @@ public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorIndivi
         assert(ind.size() == numDimensions);
         double sum = 0;
         for(int i = 0; i < ind.size() - 1; i++)
-            sum+= 100*(ind.getElement(i+1) - Math.pow(ind.getElement(i), 2)) + Math.pow((1 - ind.getElement(i)), 2);
+            sum+= 100*Math.pow((ind.getElement(i+1) - Math.pow(ind.getElement(i), 2)), 2) + Math.pow((1 - ind.getElement(i)), 2);
         return sum;
     }
 
