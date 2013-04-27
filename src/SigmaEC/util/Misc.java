@@ -24,6 +24,28 @@ public class Misc
         return true;
     }
     
+    /** Returns true if c contains any null values. */
+    public static boolean containsNulls(Object[] c)
+    {
+        assert(c != null);
+        for (int i = 0; i < c.length; i++)
+            if (c[i] == null)
+                return true;
+        return false;
+    }
+    
+    /** Returns false if there are non-finite values in a vector. */
+    public static boolean finiteValued(double[] vector)
+    {
+        for (int i = 0; i < vector.length; i++)
+        {
+            double e = vector[i];
+            if (e == Double.NEGATIVE_INFINITY || e == Double.POSITIVE_INFINITY || e == Double.NaN)
+                return false;
+        }
+        return true;
+    }
+    
     /** Irwin-Hall approximation of a standard Gaussian distribution. */
     public static double gaussianSample(Random random)
     {
