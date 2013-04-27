@@ -17,6 +17,8 @@ public class StepObjective implements ObjectiveFunction<DoubleVectorIndividual>
     {
         if (numDimensions < 1)
             throw new IllegalArgumentException("StepObjective: numDimensions is < 1.");
+        if (numDimensions == Double.POSITIVE_INFINITY)
+            throw new IllegalArgumentException("StepObjective: numDimensions is infinite, must be finite.");
         this.numDimensions = numDimensions;
         assert(repOK());
     }
@@ -38,10 +40,35 @@ public class StepObjective implements ObjectiveFunction<DoubleVectorIndividual>
         return sum;
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
     {
         return numDimensions > 0;
     }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("[StepObjective: NumDimensions=%d]", numDimensions);
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof StepObjective))
+            return false;
+        
+        StepObjective cRef = (StepObjective) o;
+        return numDimensions == cRef.numDimensions;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + this.numDimensions;
+        return hash;
+    }
+    //</editor-fold>
 
 }

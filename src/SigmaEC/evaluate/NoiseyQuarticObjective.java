@@ -24,6 +24,8 @@ public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorInd
     {
         if (numDimensions < 1)
             throw new IllegalArgumentException("NoiseQuarticObjective: numDimensions is < 1.");
+        if (numDimensions == Double.POSITIVE_INFINITY)
+            throw new IllegalArgumentException("NoiseQuarticObjective: numDimensions is infinite, must be finite.");
         this.random = random;
         this.numDimensions = numDimensions;
         assert(repOK());
@@ -40,10 +42,40 @@ public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorInd
         return sum;
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK() {
+    final public boolean repOK() 
+    {
         return random != null
-                && numDimensions > 0;
+                && numDimensions > 0
+                && numDimensions != Double.POSITIVE_INFINITY;
+    }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("[NoiseyQuarticObjective: NumDimensions=%d, Random=%s]", numDimensions, random);
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof NoiseyQuarticObjective))
+            return false;
+        
+        NoiseyQuarticObjective cRef = (NoiseyQuarticObjective) o;
+        return numDimensions == cRef.numDimensions
+                && random.equals(cRef.random);
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 43 * hash + (this.random != null ? this.random.hashCode() : 0);
+        hash = 43 * hash + this.numDimensions;
+        return hash;
+    }
+    // </editor-fold>
 }

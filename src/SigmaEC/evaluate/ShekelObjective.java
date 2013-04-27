@@ -2,6 +2,7 @@ package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
+import java.util.Arrays;
 
 /**
  * Shekel's "foxholes" function, which contains n (traditionally 25) local
@@ -40,13 +41,6 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual
         assert(repOK());
         return 1/sum;
     }
-
-    @Override
-    final public boolean repOK()
-    {
-        return optima != null
-            && optimaOK();
-    }
     
     private boolean optimaOK()
     {
@@ -55,4 +49,38 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual
                 return false;
         return true;
     }
+
+    //<editor-fold defaultstate="collapsed" desc="Standard Methods">
+    @Override
+    final public boolean repOK()
+    {
+        return optima != null
+            && optimaOK();
+    }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("[ShekelObjective: Optima=%s]", optima.toString());
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (o == this)
+            return true;
+        if (!(o instanceof ShekelObjective))
+            return false;
+        
+        ShekelObjective cRef = (ShekelObjective) o;
+        return Arrays.deepEquals(optima, cRef.optima);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + Arrays.deepHashCode(this.optima);
+        return hash;
+    }
+    //</editor-fold>
 }

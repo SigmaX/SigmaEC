@@ -17,6 +17,8 @@ public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorIndivi
     {
         if (numDimensions < 1)
             throw new IllegalArgumentException("RosenbrockObjective: numDimensions is < 1.");
+        if (numDimensions == Double.POSITIVE_INFINITY)
+            throw new IllegalArgumentException("RosenbrockObjective: numDimensions is infinite, must be finite.");
         this.numDimensions = numDimensions;
         assert(repOK());
     }
@@ -36,10 +38,34 @@ public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorIndivi
         return sum;
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
     {
         return numDimensions > 0;
     }
+    
+    @Override
+    public String toString()
+    {
+        return String.format("[RosenbrockObjective: NumDimensionts=%f]", numDimensions);
+    }
+    
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof RosenbrockObjective))
+            return false;
+        
+        RosenbrockObjective cRef = (RosenbrockObjective) o;
+        return numDimensions == cRef.numDimensions;
+    }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + this.numDimensions;
+        return hash;
+    }
+    //</editor-fold>
 }
