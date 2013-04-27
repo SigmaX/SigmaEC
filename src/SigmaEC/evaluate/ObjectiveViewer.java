@@ -33,14 +33,24 @@ public class ObjectiveViewer
         if (outputDestination == null)
             throw new IllegalArgumentException("ObjectiveViewer.viewObjective: outputDestination is null.");
         
+        outputDestination.write(String.valueOf(0));
+        // Print the y grid values along the first row
+        for (double y = bounds[1].x; y <= bounds[1].y; y += granularity)
+        {
+            outputDestination.write(", " + y);
+        }
+        outputDestination.write("\n");
+        
         for (double x = bounds[0].x; x <= bounds[0].y; x += granularity)
         {
+            outputDestination.write(String.valueOf(x));
             for (double y = bounds[1].x; y <= bounds[1].y; y += granularity)
             {
                 SimpleDoubleVectorIndividual ind = new SimpleDoubleVectorIndividual(new double[] { x, y });
                 double fitness = objective.fitness(ind);
-                outputDestination.write(String.format("%f, %f, %f\n", x, y, fitness));
+                outputDestination.write(", " + fitness);
             }
+            outputDestination.write("\n");
         }
         outputDestination.flush();
     }
