@@ -39,7 +39,7 @@ public class ObjectiveViewer
             {
                 SimpleDoubleVectorIndividual ind = new SimpleDoubleVectorIndividual(new double[] { x, y });
                 double fitness = objective.fitness(ind);
-                outputDestination.write(String.format("%d, %d, %f", x, y, fitness));
+                outputDestination.write(String.format("%f, %f, %f\n", x, y, fitness));
             }
         }
         outputDestination.flush();
