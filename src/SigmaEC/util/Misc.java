@@ -24,15 +24,51 @@ public class Misc
         return true;
     }
     
-    /**
-     * Irwin-Hall approximation of a standard Gaussian distribution.
-     */
+    /** Irwin-Hall approximation of a standard Gaussian distribution. */
     public static double gaussianSample(Random random)
     {
         double sum = 0;
         for (int i = 0; i < 12; i++)
             sum += random.nextDouble();
         return sum - 6;
+    }
+    
+    /** Mean. */
+    public static double mean(double[] values)
+    {
+        double sum = 0;
+        for(int i = 0; i < values.length; i++)
+            sum += values[i];
+        return sum/values.length;
+    }
+    
+    /** Sample standard deviation. */
+    public static double std(double[] values, double mean)
+    {
+        double sum = 0;
+        for (int i = 0; i < values.length; i++)
+            sum += Math.pow(values[i] - mean, 2);
+        return Math.sqrt(sum/(values.length - 1));
+    }
+    
+    /** Maximum value in an array. */
+    public static double max(double[] values)
+    {
+        double max = Double.NEGATIVE_INFINITY;
+        for (int i = 0; i < values.length; i++)
+            if (values[i] > max)
+                max = values[i];
+        return max;
+    }
+    
+    /** Minimum value in an array. */
+    public static double min(double[] values)
+    {
+        double min = Double.POSITIVE_INFINITY;
+        for (int i = 0; i < values.length; i++)
+            if (values[i] < min)
+                min = values[i];
+        return min;
     }
     
 }
