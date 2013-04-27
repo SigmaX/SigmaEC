@@ -1,11 +1,13 @@
 package SigmaEC.represent;
 
+import SigmaEC.evaluate.AffineTranslatedDoubleObjective;
 import java.util.Arrays;
 
 /**
  * Simply wraps a double array.
  * 
  * @author Eric 'Siggy' Scott
+ * @see AffineTranslatedDoubleObjective
  */
 public class SimpleDoubleVectorIndividual implements Individual, DoubleVectorIndividual
 {
