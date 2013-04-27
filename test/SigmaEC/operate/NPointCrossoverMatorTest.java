@@ -134,8 +134,8 @@ public class NPointCrossoverMatorTest
         }
         double mean = sum/(count.size() - 2);
         assertEquals(nonClonePrediction, mean, 15.0);
+        assertEquals(clonePrediction, cloneCount, 25000); // Biger delta because we have much fewer data points for clones than other configurations
         
-        // TODO check clonePrediction
         // TODO check count.size()
         
         return count;
