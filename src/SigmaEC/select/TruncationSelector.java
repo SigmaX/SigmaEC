@@ -1,6 +1,7 @@
 package SigmaEC.select;
 
 import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.measure.PopulationMetric;
 import SigmaEC.represent.Individual;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +22,7 @@ public class TruncationSelector<T extends Individual> extends Selector<T>
         return objective;
     }
     
-    public TruncationSelector(ObjectiveFunction objective)
+    public TruncationSelector(ObjectiveFunction<T> objective)
     {
         super();
         if (objective == null)
@@ -77,7 +78,7 @@ public class TruncationSelector<T extends Individual> extends Selector<T>
         return topIndividuals;
     }
     
-    public boolean repOK()
+    final public boolean repOK()
     {
         return (objective != null);
     }
