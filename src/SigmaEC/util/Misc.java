@@ -86,4 +86,16 @@ public class Misc
             sum += Math.pow(v1[i] - v2[i], 2);
         return Math.sqrt(sum);
     }
+    
+    /** Dot product. */
+    public static double dotProduct(double[] v1, double[] v2)
+    {
+        assert(v1 != null);
+        assert(v2 != null);
+        assert(v1.length == v2.length);
+        double sum = 0;
+        for (int i = 0; i < v1.length; i++)
+            sum += v1[i] * v2[i];
+        return sum;
+    }
 }

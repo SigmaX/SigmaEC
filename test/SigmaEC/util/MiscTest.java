@@ -104,4 +104,26 @@ public class MiscTest {
         double result = Misc.euclideanDistance(v1, v2);
         assertEquals(expResult, result, 0.0);
     }
+    
+    /** Test of dotProduct method, of class Misc. */
+    @Test
+    public void testDotProduct1() {
+        System.out.println("dotProduct");
+        double[] v1 = new double[] {4, .5};
+        double[] v2 = new double[] {2, 8};
+        double expResult = 12;
+        double result = Misc.dotProduct(v1, v2);
+        assertEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of dotProduct method, of class Misc. */
+    @Test
+    public void testDotProduct2() {
+        System.out.println("dotProduct (orthogonal)");
+        double[] v1 = new double[] {1, 1};
+        double[] v2 = new double[] {1, -1};
+        double expResult = 0;
+        double result = Misc.dotProduct(v1, v2);
+        assertEquals(expResult, result, 0.0);
+    }
 }
