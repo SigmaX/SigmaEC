@@ -57,7 +57,16 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
                 for (PopulationMetric<T> metric : metrics)
                     metric.measurePopulation(population);
         }
+        flushMetrics();
         return population;
+    }
+    
+    /** Flush I/O buffers. */
+    private void flushMetrics() throws IOException
+    {
+        if (metrics != null)
+            for (PopulationMetric<T> metric: metrics)
+                metric.flush();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
