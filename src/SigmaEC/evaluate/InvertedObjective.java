@@ -10,9 +10,9 @@ import SigmaEC.represent.Individual;
  */
 public class InvertedObjective<T extends Individual> implements ObjectiveFunction<T>
 {
-    final private ObjectiveFunction<T> objective;
+    final private ObjectiveFunction<? super T> objective;
     
-    public InvertedObjective(ObjectiveFunction<T> objective)
+    public InvertedObjective(ObjectiveFunction<? super T> objective)
     {
         if (objective == null)
             throw new IllegalArgumentException("MemoizedObjective: objective was null.");

@@ -14,10 +14,10 @@ import java.util.Map;
  */
 public class MemoizedObjective<T extends Individual> implements ObjectiveFunction<T>
 {
-    final private ObjectiveFunction<T> objective;
+    final private ObjectiveFunction<? super T> objective;
     final private Map<T, Double> memory = new HashMap<T, Double>();
     
-    public MemoizedObjective(ObjectiveFunction<T> objective)
+    public MemoizedObjective(ObjectiveFunction<? super T> objective)
     {
         if (objective == null)
             throw new IllegalArgumentException("MemoizedObjective: objective was null.");
