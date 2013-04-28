@@ -24,6 +24,7 @@ public class MemoizedObjective<T extends Individual> implements ObjectiveFunctio
         this.objective = objective;
         assert(repOK());
     }
+    
     @Override
     public double fitness(T ind)
     {
