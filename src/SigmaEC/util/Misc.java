@@ -9,6 +9,12 @@ import java.util.Random;
  */
 public class Misc
 {
+    /** Private construct throws an error if called. */
+    private Misc() throws AssertionError
+    {
+        throw new AssertionError("Misc: Cannot create instance of static class.");
+    }
+    
     /**
      * Returns false if c contains an object of any other type, true otherwise.
      * This uses getClass() to compare, not instanceof, so subtypes of type will
@@ -19,9 +25,19 @@ public class Misc
         assert(c != null);
         assert(type != null);
         for (Object o : c)
-            if (o.getClass() != type)
+            if (o == null || o.getClass() != type)
                 return false;
         return true;
+    }
+    
+    /** returns true if c contains any null values. */
+    public static boolean containsNulls(Collection c)
+    {
+        assert(c != null);
+        for (Object o : c)
+            if (o == null)
+                return true;
+        return false;
     }
     
     /** Returns true if c contains any null values. */
@@ -43,6 +59,15 @@ public class Misc
             if (e == Double.NEGATIVE_INFINITY || e == Double.POSITIVE_INFINITY || e == Double.NaN)
                 return false;
         }
+        return true;
+    }
+    
+    /** Check that x &lt; y for all IDoublePoints in an array. */
+    public static boolean boundsOK(IDoublePoint[] bounds)
+    {
+        for (IDoublePoint p : bounds)
+            if (p.x >= p.y)
+                return false;
         return true;
     }
     
