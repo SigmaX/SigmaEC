@@ -2,6 +2,7 @@ package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
+import SigmaEC.util.Misc;
 import java.util.Arrays;
 
 /**
@@ -26,14 +27,16 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
     public BoundedDoubleObjective(int dimensions, IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         if (dimensions <= 0)
-            throw new IllegalArgumentException("BoundedDoubleObjective: dimensions was < 1.");
+            throw new IllegalArgumentException("BoundedDoubleObjective: dimensions is < 1.");
         if (bounds == null)
-            throw new IllegalArgumentException("BoundedDoubleObjective: bounds was null.");
+            throw new IllegalArgumentException("BoundedDoubleObjective: bounds is null.");
         if (objective == null)
-            throw new IllegalArgumentException("BoundedDoubleObjective: objective was null.");
+            throw new IllegalArgumentException("BoundedDoubleObjective: objective is null.");
         if (bounds.length != dimensions)
             throw new IllegalArgumentException("BoundedDoubleObjective: dimensions and length of bounds array must be equal.");
-        if (!boundsOK(bounds))
+        if (Misc.containsNulls(bounds))
+            throw new IllegalArgumentException("BoundedDoubleObjective: bounds contains null elements.");
+        if (!Misc.boundsOK(bounds))
             throw new IllegalArgumentException("BoundedDoubleObjective: for each point p in bounds, p.x must be < p.y.");
         this.bounds = Arrays.copyOf(bounds, dimensions);
         this.objective = objective;
@@ -87,15 +90,7 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
         return bounds != null
                 && objective != null
                 && objective.repOK()
-                && boundsOK(bounds);
-    }
-    
-    private static boolean boundsOK(IDoublePoint[] bounds)
-    {
-        for (IDoublePoint p : bounds)
-            if (p.x >= p.y)
-                return false;
-        return true;
+                && Misc.boundsOK(bounds);
     }
     
     @Override
