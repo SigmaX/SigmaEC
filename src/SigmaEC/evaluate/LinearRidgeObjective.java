@@ -9,7 +9,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
+public class LinearRidgeObjective<T extends DoubleVectorIndividual> implements ObjectiveFunction<T>, Dimensioned
 {
     private final double width;
     private final double highFitness;
@@ -58,8 +58,6 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
     {
         if (numDimensions < 1)
             throw new IllegalArgumentException("LinearRidgeObjective: numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("LinearRidgeObjective: numDimensions is infinite, must be finite.");
         if (highFitness < 1)
             throw new IllegalArgumentException("LinearRidgeObjective: highFitness is < 1.");
         if (highFitness == Double.POSITIVE_INFINITY)
@@ -95,7 +93,7 @@ public class LinearRidgeObjective implements ObjectiveFunction<DoubleVectorIndiv
      * within distance this.width from the line, else returns 0.0.
      */
     @Override
-    public double fitness(DoubleVectorIndividual ind)
+    public double fitness(T ind)
     {
         assert(ind != null);
         if (Misc.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector) < width)
