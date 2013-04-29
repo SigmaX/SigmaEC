@@ -20,29 +20,32 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     final private Generator<T> matingGenerator;
     final private Generator<T> mutationGenerator;
     final private Selector<T> selector;
-    final private List<PopulationMetric<T>> metrics;
+    final private List<PopulationMetric<T>> preOperatorMetrics;
+    final private List<PopulationMetric<T>> postOperatorMetrics;
 
     public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector)
     {
         this.matingGenerator = matingGenerator;
         this.mutationGenerator = mutationGenerator;
         this.selector = selector;
-        metrics = null;
+        preOperatorMetrics = null;
+        postOperatorMetrics = null;
         assert(repOK());
     }
     
-    public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector, List<PopulationMetric<T>> metrics)
+    public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector, List<PopulationMetric<T>> preOperatorMetrics, List<PopulationMetric<T>> postOperatorMetrics)
     {
         this.matingGenerator = matingGenerator;
         this.mutationGenerator = mutationGenerator;
         this.selector = selector;
-        this.metrics = metrics;
+        this.preOperatorMetrics = preOperatorMetrics;
+        this.postOperatorMetrics = postOperatorMetrics;
         assert(repOK());
     }
     
-    public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector, final PopulationMetric<T> metric)
+    public SimpleCircleOfLife(Generator<T> matingGenerator, Generator<T> mutationGenerator, Selector<T> selector, final PopulationMetric<T> postMetric)
     {
-        this(matingGenerator, mutationGenerator, selector, new ArrayList<PopulationMetric<T>>() {{ add(metric); }});
+        this(matingGenerator, mutationGenerator, selector, null, new ArrayList<PopulationMetric<T>>() {{ add(postMetric); }});
     }
     
     @Override
@@ -50,12 +53,20 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     {
         for (int i = 0; i < generations; i++)
         {
+            if (preOperatorMetrics != null)
+                for (PopulationMetric<T> metric : preOperatorMetrics)
+                    metric.measurePopulation(i, population);
+            
+            // Apply operators
             population = matingGenerator.produceGeneration(population);
             population = mutationGenerator.produceGeneration(population);
-            population = selector.selectMultipleIndividuals(population, population.size());
-            if (metrics != null)
-                for (PopulationMetric<T> metric : metrics)
+            
+            if (postOperatorMetrics != null)
+                for (PopulationMetric<T> metric : postOperatorMetrics)
                     metric.measurePopulation(i, population);
+            
+            // Apply selection
+            population = selector.selectMultipleIndividuals(population, population.size());
         }
         flushMetrics();
         return population;
@@ -64,8 +75,11 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     /** Flush I/O buffers. */
     private void flushMetrics() throws IOException
     {
-        if (metrics != null)
-            for (PopulationMetric<T> metric: metrics)
+        if (preOperatorMetrics != null)
+            for (PopulationMetric<T> metric : preOperatorMetrics)
+                metric.flush();
+        if (postOperatorMetrics != null)
+            for (PopulationMetric<T> metric: postOperatorMetrics)
                 metric.flush();
     }
 
@@ -81,7 +95,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     @Override
     public String toString()
     {
-        return String.format("[SimpleCircleOfLife: MatingGenerator=%s, MutationGenerator=%s, Selector=%s, Metrics=%s]", matingGenerator, mutationGenerator, selector, metrics);
+        return String.format("[SimpleCircleOfLife: MatingGenerator=%s, MutationGenerator=%s, Selector=%s, Metrics=%s]", matingGenerator, mutationGenerator, selector, postOperatorMetrics);
     }
     
     @Override
@@ -96,8 +110,8 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
         return matingGenerator.equals(cRef.matingGenerator)
                 && mutationGenerator.equals(cRef.mutationGenerator)
                 && selector.equals(cRef.selector)
-                && ( (metrics == null && cRef.metrics == null)
-                    || metrics.equals(cRef.metrics));
+                && ( (postOperatorMetrics == null && cRef.postOperatorMetrics == null)
+                    || postOperatorMetrics.equals(cRef.postOperatorMetrics));
     }
 
     @Override
@@ -106,7 +120,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
         hash = 97 * hash + (this.matingGenerator != null ? this.matingGenerator.hashCode() : 0);
         hash = 97 * hash + (this.mutationGenerator != null ? this.mutationGenerator.hashCode() : 0);
         hash = 97 * hash + (this.selector != null ? this.selector.hashCode() : 0);
-        hash = 97 * hash + (this.metrics != null ? this.metrics.hashCode() : 0);
+        hash = 97 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
         return hash;
     }
     //</editor-fold>
