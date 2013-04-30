@@ -2,6 +2,7 @@ package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.math.Vector;
 import java.util.Arrays;
 
 /**
@@ -78,7 +79,7 @@ public class LinearRidgeObjective<T extends DoubleVectorIndividual> implements O
             throw new IllegalArgumentException(String.format("LinearRidgeObjective: slopeVector has %d elements, must have %d.", slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(slopeVector)))
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector contains non-finite values.");
-        if ((Misc.euclideanNorm(slopeVector) - 1.0) > 0.0001)
+        if ((Vector.euclideanNorm(slopeVector) - 1.0) > 0.0001)
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector is not a unit vector.");
             
         this.numDimensions = numDimensions;
@@ -96,7 +97,7 @@ public class LinearRidgeObjective<T extends DoubleVectorIndividual> implements O
     public double fitness(T ind)
     {
         assert(ind != null);
-        if (Misc.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector) < width)
+        if (Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector) < width)
             return highFitness;
         else
             return 0;
@@ -117,7 +118,7 @@ public class LinearRidgeObjective<T extends DoubleVectorIndividual> implements O
                 && slopeVector != null
                 && slopeVector.length == numDimensions
                 && Misc.finiteValued(slopeVector)
-                && (Misc.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
+                && (Vector.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
     }
     
     @Override

@@ -2,7 +2,7 @@ package SigmaEC.measure;
 
 import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.Individual;
-import SigmaEC.util.Misc;
+import SigmaEC.util.math.Statistics;
 import java.io.IOException;
 import java.util.List;
 
@@ -31,8 +31,8 @@ public class FitnessStatisticsPopulationMetric<T extends Individual> implements 
         double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
             fitnesses[i] = objective.fitness(population.get(i));
-        double mean = Misc.mean(fitnesses);
-        return String.format("%d, %f, %f, %f, %f\n", generation, mean, Misc.std(fitnesses, mean), Misc.max(fitnesses), Misc.min(fitnesses));
+        double mean = Statistics.mean(fitnesses);
+        return String.format("%d, %f, %f, %f, %f\n", generation, mean, Statistics.std(fitnesses, mean), Statistics.max(fitnesses), Statistics.min(fitnesses));
     }
 
     @Override

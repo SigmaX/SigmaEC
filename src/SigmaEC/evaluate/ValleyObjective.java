@@ -2,6 +2,8 @@ package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.math.Vector;
+import java.util.Arrays;
 
 /**
  * A steep valley.
@@ -32,7 +34,7 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorIndividual
             throw new IllegalArgumentException(String.format("ValleyObjective: slopeVector has %d elements, must have %d.", slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(slopeVector)))
             throw new IllegalArgumentException("ValleyObjective: slopeVector contains non-finite values.");
-        if ((Misc.euclideanNorm(slopeVector) - 1.0) > 0.0001)
+        if ((Vector.euclideanNorm(slopeVector) - 1.0) > 0.0001)
             throw new IllegalArgumentException("ValleyObjective: slopeVector is not a unit vector.");
         
         this.numDimensions = numDimensions;
@@ -51,7 +53,7 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorIndividual
     public double fitness(DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
-        double result = Math.abs(ind.getVector()[0]) + 10*Misc.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
+        double result = Math.abs(ind.getVector()[0]) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
         assert(repOK());
         return result;
     }
@@ -60,13 +62,20 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorIndividual
     @Override
     final public boolean repOK()
     {
-        return numDimensions > 0;
+        return numDimensions > 0
+                && interceptVector != null
+                && interceptVector.length == numDimensions
+                && slopeVector != null
+                && slopeVector.length == numDimensions
+                && Misc.finiteValued(slopeVector)
+                && Misc.finiteValued(interceptVector)
+                && (Vector.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
     }
 
     @Override
     public String toString()
     {
-        return String.format("[Valley: NumDimensions=%d]", numDimensions);
+        return String.format("[Valley: NumDimensions=%d, SlopeVector=%s, InterceptVector=%s]", numDimensions, slopeVector.toString(), interceptVector.toString());
     }
     
     @Override
@@ -76,13 +85,17 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorIndividual
             return false;
         
         ValleyObjective cRef = (ValleyObjective) o;
-        return numDimensions == cRef.numDimensions;
+        return numDimensions == cRef.numDimensions
+                && Arrays.equals(slopeVector, cRef.slopeVector)
+                && Arrays.equals(interceptVector, cRef.interceptVector);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
         hash = 97 * hash + this.numDimensions;
+        hash = 97 * hash + Arrays.hashCode(this.slopeVector);
+        hash = 97 * hash + Arrays.hashCode(this.interceptVector);
         return hash;
     }
     //</editor-fold>
