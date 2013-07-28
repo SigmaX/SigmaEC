@@ -15,7 +15,7 @@ public class InvertedObjective<T extends Individual> implements ObjectiveFunctio
     public InvertedObjective(ObjectiveFunction<? super T> objective)
     {
         if (objective == null)
-            throw new IllegalArgumentException("MemoizedObjective: objective was null.");
+            throw new IllegalArgumentException("InvertedObjective: objective was null.");
         this.objective = objective;
         assert(repOK());
     }
