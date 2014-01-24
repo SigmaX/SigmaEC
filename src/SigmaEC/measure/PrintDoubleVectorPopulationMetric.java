@@ -1,6 +1,8 @@
 package SigmaEC.measure;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.Decoder;
+import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.Individual;
 import java.io.IOException;
 import java.util.List;
 
@@ -9,8 +11,18 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PrintDoubleVectorPopulationMetric<T extends DoubleVectorIndividual> implements PopulationMetric<T>
+public class PrintDoubleVectorPopulationMetric<T extends Individual> implements PopulationMetric<T>
 {
+    private final Decoder<T, DoubleVectorPhenotype> decoder;
+    
+    public PrintDoubleVectorPopulationMetric(final Decoder<T, DoubleVectorPhenotype> decoder) throws NullPointerException
+    {
+        if (decoder == null)
+            throw new NullPointerException(this.getClass().getName() + ": decoder is null.");
+        this.decoder = decoder;
+        assert(repOK());
+    }
+    
     /** Prints one line for each individual in the population, with a column for
      * each value in the vector.  For instance, if the population contains the
      * individuals <1, 2, 3, 4> and <5, 6, 7, 8> at generation 5, then this will
@@ -25,11 +37,12 @@ public class PrintDoubleVectorPopulationMetric<T extends DoubleVectorIndividual>
     public String measurePopulation(int run, int generation, List<T> population) throws IOException
     {
         StringBuilder sb = new StringBuilder();
-        for(DoubleVectorIndividual ind : population)
+        for(T ind : population)
         {
-            sb.append(run).append(", ").append(generation).append(", ").append(ind.getVector()[0]);
-            for (int i = 1; i < ind.size(); i++)
-                sb.append(", ").append(ind.getVector()[i]);
+            final double[] phenotype = decoder.decode(ind).getVector();
+            sb.append(run).append(", ").append(generation).append(", ").append(phenotype[0]);
+            for (int i = 1; i < phenotype.length; i++)
+                sb.append(", ").append(phenotype[i]);
             sb.append("\n");
         }
         assert(repOK());
@@ -43,25 +56,29 @@ public class PrintDoubleVectorPopulationMetric<T extends DoubleVectorIndividual>
     @Override
     public boolean repOK()
     {
-        return true;
+        return decoder != null;
     }
     
     @Override
     public String toString()
     {
-        return "[PrintIndividuPrintDoubleVectorPopulationMetricalsPopulationMetric]";
+        return String.format("[PrintDoubleVectorPopulationMetric: decoder=%s]", decoder);
     }
     
     @Override
     public boolean equals(Object o)
     {
-        return (o instanceof PrintIndividualsPopulationMetric);
+        if (!(o instanceof PrintDoubleVectorPopulationMetric))
+            return false;
+        final PrintDoubleVectorPopulationMetric ref = (PrintDoubleVectorPopulationMetric)o;
+        return decoder.equals(ref.decoder);
     }
 
     @Override
-    public int hashCode()
-    {
-        return 21;
+    public int hashCode() {
+        int hash = 5;
+        hash = 71 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        return hash;
     }
     //</editor-fold>
 }

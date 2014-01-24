@@ -1,13 +1,13 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.Individual;
+import SigmaEC.represent.Phenotype;
 
 /**
  * Objective function interface for the Strategy pattern.
  * 
  * @author Eric 'Siggy' Scott
  */
-public interface ObjectiveFunction<T extends Individual>
+public interface ObjectiveFunction<T extends Phenotype>
 {
     /** Evaluate the fitness of an individual. */
     public double fitness(T ind);

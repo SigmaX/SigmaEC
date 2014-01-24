@@ -1,6 +1,7 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
+
 
 /**
  * An n-dimensional generalization of Rosenbrock's objective function:
@@ -9,7 +10,7 @@ import SigmaEC.represent.DoubleVectorIndividual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
+public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
 {
     private final int numDimensions;
     
@@ -30,7 +31,7 @@ public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorIndivi
     }
     
     @Override
-    public double fitness(DoubleVectorIndividual ind)
+    public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;

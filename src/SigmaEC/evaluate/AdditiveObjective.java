@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.Misc;
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class AdditiveObjective<T extends DoubleVectorIndividual> implements ObjectiveFunction<T>, Dimensioned
+public class AdditiveObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>, Dimensioned
 {
     private final List<ObjectiveFunction<? super T>> objectives;
     private final int numDimensions;

@@ -65,7 +65,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
                 for (PopulationMetric<T> metric : postOperatorMetrics)
                     metric.measurePopulation(run, i, population);
             
-            // Apply selection
+            // Apply survival selection
             population = selector.selectMultipleIndividuals(population, population.size());
         }
         flushMetrics();

@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import java.util.Arrays;
@@ -13,10 +13,10 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
+public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
 {
     private final IDoublePoint[] bounds;
-    private ObjectiveFunction<DoubleVectorIndividual> objective;
+    private ObjectiveFunction<DoubleVectorPhenotype> objective;
     
     @Override
     public int getNumDimensions()
@@ -24,7 +24,7 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
         return bounds.length;
     }
     
-    public BoundedDoubleObjective(int dimensions, IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
+    public BoundedDoubleObjective(int dimensions, IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
     {
         if (dimensions <= 0)
             throw new IllegalArgumentException("BoundedDoubleObjective: dimensions is < 1.");
@@ -45,7 +45,7 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
     
     /** Creates an objective bounded by a hyper-cube bound in each dimension by
      * -bound and bound, i.e. with a width of 2*bound. */
-    public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
+    public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
     {
         this(dimensions, scalarBoundToArray(dimensions, bound), objective);
         assert(repOK());
@@ -59,7 +59,7 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
         return bounds;
     }
     
-    private boolean withinBounds(DoubleVectorIndividual ind)
+    private boolean withinBounds(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == bounds.length);
         for (int i = 0; i < bounds.length; i++)
@@ -74,10 +74,9 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorInd
     }
     
     @Override
-    public double fitness(DoubleVectorIndividual ind)
+    public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == bounds.length);
-        assert(ind.repOK());
         if (!withinBounds(ind))
             return -1;
         return objective.fitness(ind);

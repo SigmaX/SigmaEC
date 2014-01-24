@@ -1,6 +1,7 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.Individual;
+import SigmaEC.represent.Phenotype;
+
 
 /**
  * A decorator that turns a maximization problem into a minimization problem and
@@ -8,7 +9,7 @@ import SigmaEC.represent.Individual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class InvertedObjective<T extends Individual> implements ObjectiveFunction<T>
+public class InvertedObjective<T extends Phenotype> implements ObjectiveFunction<T>
 {
     final private ObjectiveFunction<? super T> objective;
     

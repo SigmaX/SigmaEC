@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
 
 /**
  * The so-called "sphere function," f(x) = \sum_i x_i^2.  This is actually a
@@ -10,7 +10,7 @@ import SigmaEC.represent.DoubleVectorIndividual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SphereObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
+public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
 {
     private final int numDimensions;
     
@@ -31,7 +31,7 @@ public class SphereObjective implements ObjectiveFunction<DoubleVectorIndividual
     }
     
     @Override
-    public double fitness(DoubleVectorIndividual ind)
+    public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;

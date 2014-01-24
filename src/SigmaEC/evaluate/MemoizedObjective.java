@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.Individual;
+import SigmaEC.represent.Phenotype;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,7 +12,7 @@ import java.util.Map;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class MemoizedObjective<T extends Individual> implements ObjectiveFunction<T>
+public class MemoizedObjective<T extends Phenotype> implements ObjectiveFunction<T>
 {
     final private ObjectiveFunction<? super T> objective;
     final private Map<T, Double> memory = new HashMap<T, Double>();

@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.Individual;
+import SigmaEC.represent.Phenotype;
 
 /**
  * Returns zero fitness for any individual.
@@ -16,7 +12,7 @@ public class ZeroObjective implements ObjectiveFunction
     public ZeroObjective() { };
     
     @Override
-    public double fitness(Individual ind)
+    public double fitness(Phenotype ind)
     {
         return 0.0;
     }

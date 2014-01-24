@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
+public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
 {
     IDoublePoint[] optima;
     
@@ -33,7 +33,7 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorIndividual
     public int getNumDimensions() { return 2; }
 
     @Override
-    public double fitness(DoubleVectorIndividual ind)
+    public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == 2);
         double sum = 0.002;

@@ -1,7 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
-import SigmaEC.represent.SimpleDoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import java.io.IOException;
@@ -15,7 +14,7 @@ import java.io.Writer;
  */
 public class ObjectiveViewer
 {
-    public static <T extends ObjectiveFunction<DoubleVectorIndividual> & Dimensioned>
+    public static <T extends ObjectiveFunction<DoubleVectorPhenotype> & Dimensioned>
             void viewObjective(T objective, double granularity, IDoublePoint[] bounds, Writer outputDestination) throws IllegalArgumentException, IOException
     {
         if (objective == null)
@@ -46,8 +45,8 @@ public class ObjectiveViewer
             outputDestination.write(String.valueOf(x));
             for (double y = bounds[1].x; y <= bounds[1].y; y += granularity)
             {
-                SimpleDoubleVectorIndividual ind = new SimpleDoubleVectorIndividual(new double[] { x, y });
-                double fitness = objective.fitness(ind);
+                final DoubleVectorPhenotype ind = new DoubleVectorPhenotype(new double[] { x, y });
+                final double fitness = objective.fitness(ind);
                 outputDestination.write(", " + fitness);
             }
             outputDestination.write("\n");

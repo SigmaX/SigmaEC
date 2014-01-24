@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.Misc;
 import SigmaEC.util.math.Vector;
 import java.util.Arrays;
@@ -10,7 +10,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective<T extends DoubleVectorIndividual> implements ObjectiveFunction<T>, Dimensioned
+public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>, Dimensioned
 {
     private final double width;
     private final double highFitness;

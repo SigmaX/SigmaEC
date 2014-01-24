@@ -1,7 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.represent.DoubleVectorIndividual;
-import SigmaEC.represent.SimpleDoubleVectorIndividual;
+import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.IDoublePoint;
 import java.util.Arrays;
 
@@ -11,17 +10,17 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class AffineTranslatedDoubleObjective implements ObjectiveFunction<DoubleVectorIndividual>, Dimensioned
+public class AffineTranslatedDoubleObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
 {
     private final double[][] transformationMatrix;
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorPhenotype> objective;
     
     /** Convenience constructor for creating affine transformation in R^2.
      * @param angle The angle by which the function will be rotated.
      * @param offset The vector by which the function will be offset.
      * @param objective The original objective function.
      */
-    public AffineTranslatedDoubleObjective(double angle, IDoublePoint offset, ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
+    public AffineTranslatedDoubleObjective(double angle, IDoublePoint offset, ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
     {
         this(get2DTransformationMatrix(angle, offset), objective);
     }
@@ -31,7 +30,7 @@ public class AffineTranslatedDoubleObjective implements ObjectiveFunction<Double
      * augmented matrix.
      * @param objective The original objective function.
      */
-    public AffineTranslatedDoubleObjective(double[][] transformationMatrix, ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
+    public AffineTranslatedDoubleObjective(double[][] transformationMatrix, ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
     {
         if (objective == null)
             throw new IllegalArgumentException("AffineTranslatedDoubleObjective: objective is null.");
@@ -74,7 +73,7 @@ public class AffineTranslatedDoubleObjective implements ObjectiveFunction<Double
         return transformationMatrix.length - 1;
     }
     
-    public DoubleVectorIndividual transform(DoubleVectorIndividual ind)
+    public DoubleVectorPhenotype transform(DoubleVectorPhenotype ind)
     {
         assert(ind != null);
         assert(ind.size() == getNumDimensions());
@@ -85,11 +84,11 @@ public class AffineTranslatedDoubleObjective implements ObjectiveFunction<Double
             for(int j = 0; j < getNumDimensions() + 1; j++)
                 newPoint[i] += ind.getElement(j) * transformationMatrix[i][j];
         }
-        return new SimpleDoubleVectorIndividual(newPoint);
+        return new DoubleVectorPhenotype(newPoint);
     }
     
     @Override
-    public double fitness(DoubleVectorIndividual ind)
+    public double fitness(DoubleVectorPhenotype ind)
     {
         return objective.fitness(transform(ind));
     }
