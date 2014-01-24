@@ -49,13 +49,13 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     }
     
     @Override
-    public List<T> evolve(List<T> population, int generations) throws IOException
+    public List<T> evolve(int run, List<T> population, int generations) throws IOException
     {
         for (int i = 0; i < generations; i++)
         {
             if (preOperatorMetrics != null)
                 for (PopulationMetric<T> metric : preOperatorMetrics)
-                    metric.measurePopulation(i, population);
+                    metric.measurePopulation(run, i, population);
             
             // Apply operators
             population = matingGenerator.produceGeneration(population);
@@ -63,7 +63,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
             
             if (postOperatorMetrics != null)
                 for (PopulationMetric<T> metric : postOperatorMetrics)
-                    metric.measurePopulation(i, population);
+                    metric.measurePopulation(run, i, population);
             
             // Apply selection
             population = selector.selectMultipleIndividuals(population, population.size());

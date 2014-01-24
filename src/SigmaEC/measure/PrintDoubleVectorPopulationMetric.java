@@ -22,12 +22,12 @@ public class PrintDoubleVectorPopulationMetric<T extends DoubleVectorIndividual>
      * @throws IOException 
      */
     @Override
-    public String measurePopulation(int generation, List<T> population) throws IOException
+    public String measurePopulation(int run, int generation, List<T> population) throws IOException
     {
         StringBuilder sb = new StringBuilder();
         for(DoubleVectorIndividual ind : population)
         {
-            sb.append(generation).append(", ").append(ind.getVector()[0]);
+            sb.append(run).append(", ").append(generation).append(", ").append(ind.getVector()[0]);
             for (int i = 1; i < ind.size(); i++)
                 sb.append(", ").append(ind.getVector()[i]);
             sb.append("\n");

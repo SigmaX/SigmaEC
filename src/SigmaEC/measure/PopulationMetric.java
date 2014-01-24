@@ -14,9 +14,10 @@ import java.util.List;
 public interface PopulationMetric<T extends Individual>
 {
     /** Gathers some information about a population and does something with it.
-     * @param generation The generation the sample is coming from (will be printed out)
+     * @param run The run the sample is coming from
+     * @param generation The generation the sample is coming from
      */
-    public abstract String measurePopulation(int generation, List<T> population) throws IOException;
+    public abstract String measurePopulation(int run, int generation, List<T> population) throws IOException;
     
     /** Flush any I/O buffers. */
     public abstract void flush() throws IOException;
