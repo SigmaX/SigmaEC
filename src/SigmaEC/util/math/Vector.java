@@ -5,7 +5,7 @@ package SigmaEC.util.math;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class Vector
+public final class Vector
 {
     public Vector() throws AssertionError
     {

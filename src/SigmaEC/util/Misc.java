@@ -8,7 +8,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class Misc
+public final class Misc
 {
     /** Private construct throws an error if called. */
     private Misc() throws AssertionError

@@ -5,7 +5,7 @@ package SigmaEC.util.math;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class Statistics
+public final class Statistics
 {
     public Statistics() throws AssertionError
     {
