@@ -16,7 +16,7 @@ public class WriterPopulationMetric<T extends Individual> implements PopulationM
     final private Writer writer;
     final private PopulationMetric<T> wrappedMetric;
     
-    public WriterPopulationMetric(Writer writer, PopulationMetric<T> wrappedMetric) throws IllegalArgumentException
+    public WriterPopulationMetric(final Writer writer, final PopulationMetric<T> wrappedMetric) throws IllegalArgumentException
     {
         if (writer == null)
             throw new IllegalArgumentException("WriterPopulationMetric: writer is null.");
@@ -28,7 +28,7 @@ public class WriterPopulationMetric<T extends Individual> implements PopulationM
     }
     
     @Override
-    public String measurePopulation(int run, int generation, List<T> population) throws IOException
+    public String measurePopulation(final int run, final int generation, final List<T> population) throws IOException
     {
         assert(population != null);
         String measurement = wrappedMetric.measurePopulation(run, generation, population);
@@ -42,6 +42,13 @@ public class WriterPopulationMetric<T extends Individual> implements PopulationM
     {
         writer.flush();
         wrappedMetric.flush();
+    }
+
+    @Override
+    public void close() throws IOException {
+        writer.close();
+        wrappedMetric.close();
+        assert(repOK());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

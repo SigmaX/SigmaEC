@@ -52,6 +52,9 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
     @Override
     public void flush() throws IOException { }
     
+    @Override
+    public void close() throws IOException { }
+    
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public boolean repOK()
@@ -81,4 +84,5 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
         return hash;
     }
     //</editor-fold>
+
 }

@@ -22,6 +22,11 @@ public interface PopulationMetric<T extends Individual>
     /** Flush any I/O buffers. */
     public abstract void flush() throws IOException;
     
+    /** Close any file resources used by this metric.  Once this is called,
+     * the metric can no longer be used.
+     */
+    public abstract void close() throws IOException;
+    
     /** Representation invariant.  If this returns false, there is something
      * invalid about the Individual's internal state. */
     public boolean repOK();

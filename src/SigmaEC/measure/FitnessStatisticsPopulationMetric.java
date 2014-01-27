@@ -42,6 +42,9 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
     @Override
     public void flush() throws IOException { }
 
+    @Override
+    public void close() throws IOException { }
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

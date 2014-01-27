@@ -23,6 +23,9 @@ public class PrintIndividualsPopulationMetric implements PopulationMetric
     @Override
     public void flush() throws IOException { }
 
+    @Override
+    public void close() throws IOException { }
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public boolean repOK()
