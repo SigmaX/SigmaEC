@@ -14,4 +14,7 @@ import SigmaEC.represent.Phenotype;
 public interface Problem<T extends Individual, P extends Phenotype> {
     public Decoder<T, P> getDecoder();
     public ObjectiveFunction<P> getObjective();
+    /** Representation invariant.  If this returns false, there is something
+     * invalid about this object's internal state. */
+    public abstract boolean repOK();
 }
