@@ -7,12 +7,12 @@ import SigmaEC.represent.Phenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public interface ObjectiveFunction<T extends Phenotype>
+public interface ObjectiveFunction<P extends Phenotype>
 {
     /** Evaluate the fitness of an individual. */
-    public double fitness(T ind);
+    public double fitness(P ind);
     
     /** Representation invariant.  If this returns false, there is something
-     * invalid about the Individual's internal state. */
+     * invalid about the function's internal state. */
     public boolean repOK();
 }
