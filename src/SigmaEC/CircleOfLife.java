@@ -17,6 +17,6 @@ public interface CircleOfLife<T extends Individual>
     public abstract List<T> evolve(int run, List<T> population, int generations) throws IOException;
     
     /** Representation invariant.  If this returns false, there is something
-     * invalid about the Individual's internal state. */
+     * invalid about this object's internal state. */
     public abstract boolean repOK();
 }
