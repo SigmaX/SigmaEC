@@ -8,10 +8,10 @@ import SigmaEC.evaluate.ObjectiveFunction;
  * 
  * @author Eric 'Siggy' Scott
  */ 
-public class TestObjective implements ObjectiveFunction<TestIndividual>
+public class TestObjective implements ObjectiveFunction<TestPhenotype>
 {
     @Override
-    public double fitness(TestIndividual ind) { return ind.getTrait(); }
+    public double fitness(final TestPhenotype ind) { return ind.getTrait(); }
 
     @Override
     public boolean repOK() { return true; }

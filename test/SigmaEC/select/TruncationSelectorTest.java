@@ -1,6 +1,7 @@
 package SigmaEC.select;
 
 import SigmaEC.represent.Individual;
+import SigmaEC.test.TestDecoder;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.test.TestObjective;
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ public class TruncationSelectorTest
     @Before
     public void setUp()
     {
-        SUT = new TruncationSelector(new TestObjective());
+        SUT = new TruncationSelector(new TestObjective(), new TestDecoder());
         population.clear();
         population.add(new TestIndividual(0.5));
         population.add(new TestIndividual(0.4));

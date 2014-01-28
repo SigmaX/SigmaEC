@@ -1,6 +1,7 @@
 package SigmaEC.select;
 
 import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.test.TestDecoder;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.test.TestObjective;
 import java.util.ArrayList;
@@ -54,7 +55,7 @@ public class TournamentSelectorTest
                     returnValue(randomSequence[9])));
         }});
         ObjectiveFunction obj = new TestObjective();
-        SUT = new TournamentSelector(obj, mockRandom, 2);
+        SUT = new TournamentSelector(obj, new TestDecoder(), mockRandom, 2);
         population = new ArrayList(10) {{
             for (int i = 0; i < POP_SIZE; i++)
                 add(new TestIndividual(i));

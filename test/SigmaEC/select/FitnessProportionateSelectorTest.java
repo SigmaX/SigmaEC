@@ -1,9 +1,12 @@
 package SigmaEC.select;
 
 import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.represent.Individual;
+import SigmaEC.test.TestDecoder;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.test.TestObjective;
+import SigmaEC.test.TestPhenotype;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,24 +21,20 @@ import org.junit.Test;
  */
 public class FitnessProportionateSelectorTest
 {
-    private FitnessProportionateSelector<TestIndividual> SUT;
+    private FitnessProportionateSelector<TestIndividual, TestPhenotype> SUT;
     private Random random;
     private List<TestIndividual> population;
     private final static int POP_SIZE = 10;
     private int totalFitness;
     
-    
-    public FitnessProportionateSelectorTest()
-    {
-        
-    }
+    public FitnessProportionateSelectorTest() { }
     
     @Before
     public void setUp()
     {
         random = new Random();
-        ObjectiveFunction<TestIndividual> obj = new TestObjective();
-        SUT = new FitnessProportionateSelector<TestIndividual>(obj, random);
+        final ObjectiveFunction<TestPhenotype> obj = new TestObjective();
+        SUT = new FitnessProportionateSelector<TestIndividual, TestPhenotype>(obj, new TestDecoder(), random);
         population = new ArrayList(POP_SIZE) {{
             totalFitness = 0;
             for (int i = 1; i <= POP_SIZE; i++)
@@ -53,7 +52,7 @@ public class FitnessProportionateSelectorTest
         System.out.println("selectIndividual");
         final int NUM_SAMPLES = 10000000;
         final double EPSILON = 0.001;
-        Map<Individual, Integer> count = new HashMap<Individual, Integer>(POP_SIZE);
+        final Map<Individual, Integer> count = new HashMap<Individual, Integer>(POP_SIZE);
         for (Individual ind : population)
             count.put(ind, 0);
         for (int i = 0; i < NUM_SAMPLES; i++)
@@ -83,9 +82,9 @@ public class FitnessProportionateSelectorTest
     public void testEquals()
     {
         System.out.println("equals & hashcode");
-        FitnessProportionateSelector SUT = new FitnessProportionateSelector(new TestObjective(), random);
-        FitnessProportionateSelector gRef = new FitnessProportionateSelector(new TestObjective(), random);
-        FitnessProportionateSelector bRef = new FitnessProportionateSelector(new TestObjective(), new Random());
+        final FitnessProportionateSelector SUT = new FitnessProportionateSelector(new TestObjective(), new TestDecoder(), random);
+        final FitnessProportionateSelector gRef = new FitnessProportionateSelector(new TestObjective(), new TestDecoder(), random);
+        final FitnessProportionateSelector bRef = new FitnessProportionateSelector(new TestObjective(), new TestDecoder(), new Random());
         assertTrue(SUT.equals(gRef));
         assertEquals(SUT.hashCode(), gRef.hashCode());
         assertTrue(gRef.equals(SUT));
