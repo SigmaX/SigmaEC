@@ -46,7 +46,7 @@ public class PhillipsHeadObjective
 
     public PhillipsHeadObjective() throws IllegalArgumentException
     {
-        this(2, 1, 0.1);
+        this(2, 0.1, 1);
     }
 
     @Override
@@ -71,15 +71,15 @@ public class PhillipsHeadObjective
         double result = 0;
         double s = this.shortAxisFactor;
         double l = this.longAxisFactor;
-        int d, axis;
+        int d, longAxis;
 
-        for (axis = 0; axis < this.getNumDimensions(); axis++)
+        for (longAxis = 0; longAxis < this.getNumDimensions(); longAxis++)
         {
             double interResult = 1.0;
             for (d = 0; d < this.getNumDimensions(); d++)
             {
                 double x = ind.getElement(d);
-                if (d == axis)
+                if (d == longAxis)
                     interResult = interResult * Math.exp(-x*x/l);
                 else
                     interResult = interResult * Math.exp(-x*x/s);

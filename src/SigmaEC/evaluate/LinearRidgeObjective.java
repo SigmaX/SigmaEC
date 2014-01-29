@@ -63,8 +63,8 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
             throw new IllegalArgumentException("LinearRidgeObjective: highFitness is < 1.");
         if (highFitness == Double.POSITIVE_INFINITY)
             throw new IllegalArgumentException("LinearRidgeObjective: highFitness is infinite, must be finite.");
-        if (width < 1)
-            throw new IllegalArgumentException("LinearRidgeObjective: width is < 1.");
+        if (width <= 0)
+            throw new IllegalArgumentException("LinearRidgeObjective: width is <= 0.");
         if (width == Double.POSITIVE_INFINITY)
             throw new IllegalArgumentException("LinearRidgeObjective: width is infinite, must be finite.");
         if (interceptVector == null)

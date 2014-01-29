@@ -41,12 +41,12 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
     }
     //</editor-fold>
     
-    public LatticeObjective(int numDimensions, int ridgeWidth, int meshWidth, int highFitness, IDoublePoint[] bounds)
+    public LatticeObjective(int numDimensions, double ridgeWidth, double meshWidth, double highFitness, IDoublePoint[] bounds)
     {
         if (numDimensions < 2)
             throw new IllegalArgumentException("LatticeObjective: numDimensions is < 2.");
-        if (ridgeWidth < 1)
-            throw new IllegalArgumentException("LatticeObjective: ridgeWidth is < 1.");
+        if (ridgeWidth <= 0)
+            throw new IllegalArgumentException("LatticeObjective: ridgeWidth is <= 0.");
         if (meshWidth < 1)
             throw new IllegalArgumentException("LatticeObjective: meshWidth is < 1.");
         if (highFitness <= 0)
