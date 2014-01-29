@@ -45,13 +45,13 @@ public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G 
      * @see #produceOffspring(java.util.List, SigmaEC.function.ObjectiveFunction) 
      */
     @Override
-    public List<T> produceGeneration(List<T> population)
+    public List<T> produceGeneration(final List<T> population)
     {
         assert(population.size() >= mator.getNumParents());
         assert(population.size()%mator.getNumChildren() == 0);
         assert(Misc.containsOnlyClass(population, population.get(0).getClass()));
         
-        List<T> offspring = new ArrayList();
+        final List<T> offspring = new ArrayList();
         for(int totalChildren = 0; totalChildren < population.size(); totalChildren += mator.getNumChildren())
         {
             List<T> parents = new ArrayList<T>();
@@ -59,6 +59,7 @@ public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G 
                 parents.add(parentSelector.selectIndividual(population));
             offspring.addAll(mator.mate(parents));
         }
+        assert(population.size() == offspring.size());
         return offspring;
     }
     

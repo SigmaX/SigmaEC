@@ -31,7 +31,7 @@ public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>, 
     
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
         int sum = 0;
