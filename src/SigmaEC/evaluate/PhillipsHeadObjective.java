@@ -3,9 +3,9 @@ package SigmaEC.evaluate;
 import SigmaEC.represent.DoubleVectorPhenotype;
 
 /**
- * Several (at lease two) narrow multi-variate gaussian distributions,
+ * Several (at lease two) narrow multi-variate Gaussian distributions,
  * where the major axes are aligned orthogonally to one another.
- * All the gaussians have their optima at the same point.
+ * All the Gaussians have their optima at the same point.
  * 
  * @author Jeff Bassett
  */
@@ -100,8 +100,6 @@ public class PhillipsHeadObjective
                 && shortAxisFactor > 0
                 && longAxisFactor > 0
                 && longAxisFactor > shortAxisFactor;
-
-                //&& (Vector.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
     }
 
 
