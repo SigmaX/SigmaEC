@@ -13,7 +13,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final IDoublePoint[] bounds;
     private ObjectiveFunction<DoubleVectorPhenotype> objective;

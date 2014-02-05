@@ -10,7 +10,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * @author Jeff Bassett
  */
 public class PhillipsHeadObjective
-        implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+        implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     private final double shortAxisFactor;

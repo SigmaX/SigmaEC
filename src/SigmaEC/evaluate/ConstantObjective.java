@@ -7,7 +7,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class ConstantObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>, Dimensioned {
+public class ConstantObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T> {
     
     private final int numDimensions;
     private final double value;

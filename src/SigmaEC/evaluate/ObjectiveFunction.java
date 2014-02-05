@@ -15,4 +15,6 @@ public interface ObjectiveFunction<P extends Phenotype>
     /** Representation invariant.  If this returns false, there is something
      * invalid about the function's internal state. */
     public boolean repOK();
+    
+    public int getNumDimensions();
 }

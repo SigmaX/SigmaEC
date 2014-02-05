@@ -10,7 +10,7 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>, Dimensioned {
+public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T> {
      private final List<ObjectiveFunction<? super T>> objectives;
     private final int numDimensions;
 

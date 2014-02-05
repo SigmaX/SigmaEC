@@ -10,7 +10,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     

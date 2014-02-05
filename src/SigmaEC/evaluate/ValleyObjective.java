@@ -10,7 +10,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     private final double[] slopeVector;

@@ -10,7 +10,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final Random random;
     private final int numDimensions;

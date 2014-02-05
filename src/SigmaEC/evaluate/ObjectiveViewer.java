@@ -14,7 +14,7 @@ import java.io.Writer;
  */
 public class ObjectiveViewer
 {
-    public static <T extends ObjectiveFunction<DoubleVectorPhenotype> & Dimensioned>
+    public static <T extends ObjectiveFunction<DoubleVectorPhenotype>>
             void viewObjective(T objective, double granularity, IDoublePoint[] bounds, Writer outputDestination) throws IllegalArgumentException, IOException
     {
         if (objective == null)

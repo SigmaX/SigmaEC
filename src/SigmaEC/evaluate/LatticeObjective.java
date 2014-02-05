@@ -13,7 +13,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LatticeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>, Dimensioned
+public class LatticeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
 {
     private final int numDimensions;
     private final double ridgeWidth;

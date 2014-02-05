@@ -27,6 +27,11 @@ public class InvertedObjective<T extends Phenotype> implements ObjectiveFunction
         return -objective.fitness(ind);
     }
     
+    @Override
+    public int getNumDimensions() {
+        return objective.getNumDimensions();
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
@@ -60,5 +65,6 @@ public class InvertedObjective<T extends Phenotype> implements ObjectiveFunction
         return hash;
     }
     //</editor-fold>
+
     
 }

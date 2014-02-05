@@ -9,7 +9,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     

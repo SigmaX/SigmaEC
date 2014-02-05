@@ -10,7 +10,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     

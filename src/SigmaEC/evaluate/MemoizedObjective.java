@@ -26,6 +26,11 @@ public class MemoizedObjective<T extends Phenotype> implements ObjectiveFunction
     }
     
     @Override
+    public int getNumDimensions() {
+        return objective.getNumDimensions();
+    }
+    
+    @Override
     public double fitness(T ind)
     {
         assert(ind != null);
@@ -72,4 +77,5 @@ public class MemoizedObjective<T extends Phenotype> implements ObjectiveFunction
         return hash;
     }
     //</editor-fold>
+
 }

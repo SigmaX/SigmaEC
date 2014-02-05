@@ -10,7 +10,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class AffineTranslatedDoubleObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class AffineTranslatedDoubleObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final double[][] transformationMatrix;
     private final ObjectiveFunction<DoubleVectorPhenotype> objective;

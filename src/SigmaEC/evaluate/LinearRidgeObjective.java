@@ -10,7 +10,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>, Dimensioned
+public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
 {
     private final double width;
     private final double highFitness;

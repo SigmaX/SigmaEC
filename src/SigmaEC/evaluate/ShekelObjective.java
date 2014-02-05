@@ -12,7 +12,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>, Dimensioned
+public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     IDoublePoint[] optima;
     
