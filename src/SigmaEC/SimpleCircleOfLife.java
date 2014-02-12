@@ -21,35 +21,50 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     final private Selector<T> selector;
     final private List<PopulationMetric<T>> preOperatorMetrics;
     final private List<PopulationMetric<T>> postOperatorMetrics;
+    final private Problem<T, ?> problem;
 
-    public SimpleCircleOfLife(List<Generator<T>> generators, Selector<T> selector)
+    public SimpleCircleOfLife(final List<Generator<T>> generators,
+                                final Selector<T> selector,
+                                final Problem<T, ?> problem)
     {
         this.generators = generators;
         this.selector = selector;
-        preOperatorMetrics = null;
-        postOperatorMetrics = null;
+        this.preOperatorMetrics = null;
+        this.postOperatorMetrics = null;
+        this.problem = problem;
         assert(repOK());
     }
     
-    public SimpleCircleOfLife(List<Generator<T>> generators, Selector<T> selector, List<PopulationMetric<T>> preOperatorMetrics, List<PopulationMetric<T>> postOperatorMetrics)
+    public SimpleCircleOfLife(final List<Generator<T>> generators,
+                                final Selector<T> selector,
+                                final PopulationMetric<T> postMetric,
+                                final Problem<T, ?> problem)
+    {
+        this(generators, selector, null, new ArrayList<PopulationMetric<T>>() {{ add(postMetric); }}, problem);
+    }
+    
+    public SimpleCircleOfLife(final List<Generator<T>> generators,
+                                final Selector<T> selector,
+                                final List<PopulationMetric<T>> preOperatorMetrics,
+                                final List<PopulationMetric<T>> postOperatorMetrics,
+                                final Problem<T, ?> problem)
     {
         this.generators = generators;
         this.selector = selector;
         this.preOperatorMetrics = preOperatorMetrics;
         this.postOperatorMetrics = postOperatorMetrics;
+        this.problem = problem;
         assert(repOK());
     }
     
-    public SimpleCircleOfLife(List<Generator<T>> generators, Selector<T> selector, final PopulationMetric<T> postMetric)
-    {
-        this(generators, selector, null, new ArrayList<PopulationMetric<T>>() {{ add(postMetric); }});
-    }
-    
     @Override
-    public List<T> evolve(int run, List<T> population, int generations) throws IOException
+    public List<T> evolve(final int run, List<T> population, final int generations) throws IOException
     {
         for (int i = 0; i < generations; i++)
         {
+            // Tell the problem what generation we're on (in case it's a dynamic landscape)
+            problem.setGeneration(i);
+            
             // Take measurements before operators
             if (preOperatorMetrics != null)
                 for (PopulationMetric<T> metric : preOperatorMetrics)
@@ -88,13 +103,14 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     final public boolean repOK()
     {
         return generators != null
+                && problem != null
                 && !generators.isEmpty();
     }
     
     @Override
     public String toString()
     {
-        return String.format("[SimpleCircleOfLife: Generators=%s, Selector=%s, Metrics=%s]", generators, selector, postOperatorMetrics);
+        return String.format("[SimpleCircleOfLife: Generators=%s, Selector=%s, Metrics=%s, Problem=%s]", generators, selector, postOperatorMetrics, problem);
     }
     
     @Override
@@ -107,6 +123,7 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
         
         SimpleCircleOfLife cRef = (SimpleCircleOfLife) o;
         return generators.equals(cRef.generators)
+                && problem.equals(cRef.problem)
                 && ((selector == null) ? cRef.selector == null : selector.equals(cRef.selector))
                 && ((preOperatorMetrics == null) ? cRef.preOperatorMetrics == null : preOperatorMetrics.equals(cRef.preOperatorMetrics))
                 && ((postOperatorMetrics == null) ? cRef.postOperatorMetrics == null : postOperatorMetrics.equals(cRef.postOperatorMetrics));
@@ -115,10 +132,11 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 11 * hash + (this.generators != null ? this.generators.hashCode() : 0);
-        hash = 11 * hash + (this.selector != null ? this.selector.hashCode() : 0);
-        hash = 11 * hash + (this.preOperatorMetrics != null ? this.preOperatorMetrics.hashCode() : 0);
-        hash = 11 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
+        hash = 89 * hash + (this.generators != null ? this.generators.hashCode() : 0);
+        hash = 89 * hash + (this.selector != null ? this.selector.hashCode() : 0);
+        hash = 89 * hash + (this.preOperatorMetrics != null ? this.preOperatorMetrics.hashCode() : 0);
+        hash = 89 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
+        hash = 89 * hash + (this.problem != null ? this.problem.hashCode() : 0);
         return hash;
     }
     //</editor-fold>
