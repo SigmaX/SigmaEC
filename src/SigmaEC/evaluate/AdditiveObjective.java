@@ -64,8 +64,9 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
         if (!(o instanceof AdditiveObjective))
             return false;
         
-        AdditiveObjective cRef = (AdditiveObjective) o;
-        return objectives.size() == cRef.objectives.size()
+        final AdditiveObjective cRef = (AdditiveObjective) o;
+        return numDimensions == cRef.numDimensions
+                && objectives.size() == cRef.objectives.size()
                 && objectives.equals(cRef.objectives);
     }
 
