@@ -3,6 +3,7 @@ package SigmaEC.evaluate;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
     private final double highFitness;
     private final IDoublePoint[] bounds;
     private final ObjectiveFunction<T> objective;
+    private final boolean useGradient;
 
     //<editor-fold defaultstate="collapsed" desc="Accessors">
     @Override
@@ -41,7 +43,7 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
     }
     //</editor-fold>
     
-    public LatticeObjective(int numDimensions, double ridgeWidth, double meshWidth, double highFitness, IDoublePoint[] bounds)
+    public LatticeObjective(final int numDimensions, final double ridgeWidth, final double meshWidth, final double highFitness, final IDoublePoint[] bounds, final boolean useGradient)
     {
         if (numDimensions < 2)
             throw new IllegalArgumentException("LatticeObjective: numDimensions is < 2.");
@@ -63,6 +65,7 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
         this.meshWidth = meshWidth;
         this.highFitness = highFitness;
         this.bounds = bounds;
+        this.useGradient = useGradient;
         
         objective = constructLattice();
         
@@ -71,7 +74,8 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
     
     private ObjectiveFunction<T> constructLattice()
     {
-        List<ObjectiveFunction<? super T>> subObjectives = new ArrayList<ObjectiveFunction<? super T>>();
+        final List<ObjectiveFunction<? super T>> subObjectives = new ArrayList<ObjectiveFunction<? super T>>();
+        final Option<Double> gradientXIntercept = (useGradient ? new Option<Double>(meshWidth/2.0) : Option.NONE);
         
         double[] verticalSlopeVector = new double[numDimensions];
         verticalSlopeVector[0] = 1;
@@ -79,7 +83,7 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
         {
             double[] intercept = new double[numDimensions];
             intercept[1] = x;
-            ObjectiveFunction<T> verticalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, verticalSlopeVector);
+            ObjectiveFunction<T> verticalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, verticalSlopeVector, gradientXIntercept);
             subObjectives.add(verticalLine);
         }
         
@@ -89,18 +93,18 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
         {
             double[] intercept = new double[numDimensions];
             intercept[0] = y;
-            ObjectiveFunction<T> horizontalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, horizontalSlopeVector);
+            ObjectiveFunction<T> horizontalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, horizontalSlopeVector, gradientXIntercept);
             subObjectives.add(horizontalLine);
         }
         
-        return new AdditiveObjective<T>(subObjectives, numDimensions);
+        return new MaxObjective<T>(subObjectives, numDimensions);
     }
     
     @Override
     public double fitness(T ind)
     {
         assert(ind != null);
-        return (objective.fitness(ind) > 0) ? highFitness : 0;
+        return objective.fitness(ind);
     }
 
     @Override

@@ -2,6 +2,7 @@ package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.math.Vector;
 import java.util.Arrays;
 
@@ -17,6 +18,7 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
     private final double[] interceptVector;
     private final double[] slopeVector;
     private final int numDimensions;
+    private final Option<Double> gradientXIntercept;
 
     //<editor-fold defaultstate="collapsed" desc="Accessors">
     public double getWidth() {
@@ -55,7 +57,7 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
      * @param slopeVector Slope vector of the line.
      * @throws IllegalArgumentException 
      */
-    public LinearRidgeObjective(int numDimensions, double width, double highFitness, double[] interceptVector, double[] slopeVector) throws IllegalArgumentException
+    public LinearRidgeObjective(final int numDimensions, final double width, final double highFitness, final double[] interceptVector, final double[] slopeVector, final Option<Double> gradientXIntercept) throws IllegalArgumentException
     {
         if (numDimensions < 1)
             throw new IllegalArgumentException("LinearRidgeObjective: numDimensions is < 1.");
@@ -81,12 +83,15 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector contains non-finite values.");
         if ((Vector.euclideanNorm(slopeVector) - 1.0) > 0.0001)
             throw new IllegalArgumentException("LinearRidgeObjective: slopeVector is not a unit vector.");
+        if (gradientXIntercept == null)
+            throw new IllegalArgumentException("LinearRidgeObjective: gradientXIntercept is null.");
             
         this.numDimensions = numDimensions;
         this.width = width;
         this.highFitness = highFitness;
         this.interceptVector = interceptVector;
         this.slopeVector = slopeVector;
+        this.gradientXIntercept = gradientXIntercept;
         assert(repOK());
     }
     
@@ -97,8 +102,11 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
     public double fitness(T ind)
     {
         assert(ind != null);
-        if (Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector) < width)
+        final double distance = Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
+        if (distance < width)
             return highFitness;
+        else if (gradientXIntercept.isDefined())
+            return Math.max(0.0, -highFitness/gradientXIntercept.get() * distance + highFitness);
         else
             return 0;
     }
@@ -114,6 +122,7 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
                 && numDimensions > 0
                 && interceptVector != null
                 && interceptVector.length == numDimensions
+                && gradientXIntercept != null
                 && Misc.finiteValued(interceptVector)
                 && slopeVector != null
                 && slopeVector.length == numDimensions
