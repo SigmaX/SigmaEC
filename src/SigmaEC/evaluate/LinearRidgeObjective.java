@@ -89,8 +89,8 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
         this.numDimensions = numDimensions;
         this.width = width;
         this.highFitness = highFitness;
-        this.interceptVector = interceptVector;
-        this.slopeVector = slopeVector;
+        this.interceptVector = Arrays.copyOf(interceptVector, interceptVector.length);
+        this.slopeVector = Arrays.copyOf(slopeVector, slopeVector.length);
         this.gradientXIntercept = gradientXIntercept;
         assert(repOK());
     }
@@ -133,7 +133,7 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
     @Override
     public String toString()
     {
-        return String.format("[LinearRidgeObjective: NumDimensions=%d, Width=%f, HighFitness=%f, PointVector=%s, SlopeVector=%s]", numDimensions, width, highFitness, interceptVector, slopeVector);
+        return String.format("[LinearRidgeObjective: NumDimensions=%d, Width=%f, HighFitness=%f, PointVector=%s, SlopeVector=%s]", numDimensions, width, highFitness, Arrays.asList(interceptVector), Arrays.asList(slopeVector));
     }
     
     @Override
@@ -145,11 +145,11 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
             return false;
         
         LinearRidgeObjective cRef = (LinearRidgeObjective) o;
-        return width == cRef.width
-                && highFitness == cRef.highFitness
-                && numDimensions == cRef.numDimensions
-                && Arrays.equals(interceptVector, cRef.interceptVector)
-                && Arrays.equals(slopeVector, cRef.slopeVector);
+        return numDimensions == cRef.numDimensions
+                && Misc.doubleEquals(width, cRef.width)
+                && Misc.doubleEquals(highFitness, cRef.highFitness)
+                && Misc.doubleArrayEquals(interceptVector, cRef.interceptVector)
+                && Misc.doubleArrayEquals(slopeVector, cRef.slopeVector);
     }
 
     @Override

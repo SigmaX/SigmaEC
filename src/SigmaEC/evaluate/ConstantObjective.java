@@ -53,10 +53,10 @@ public class ConstantObjective<T extends DoubleVectorPhenotype> implements Objec
     @Override
     public boolean equals(Object o)
     {
-        if (!(o instanceof SphereObjective))
+        if (!(o instanceof ConstantObjective))
             return false;
         
-        ConstantObjective cRef = (ConstantObjective) o;
+        final ConstantObjective cRef = (ConstantObjective) o;
         return numDimensions == cRef.numDimensions
                 && Math.abs(value - cRef.value) < 0.000001;
     }

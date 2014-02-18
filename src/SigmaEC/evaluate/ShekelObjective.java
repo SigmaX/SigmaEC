@@ -25,7 +25,7 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>
             throw new IllegalArgumentException("ShekelObjective: optima array is null.");
         if (Misc.containsNulls(optima))
             throw new IllegalArgumentException("ShekelObjective: optima array is invalid (perhaps contains nulls).");
-        this.optima = optima;
+        this.optima = Arrays.copyOf(optima, optima.length); // Shallow copy okay because IDoublePoint is immutable.
         assert(repOK());
     }
 
@@ -54,7 +54,7 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     @Override
     public String toString()
     {
-        return String.format("[ShekelObjective: Optima=%s]", optima.toString());
+        return String.format("[ShekelObjective: Optima=%s]", Arrays.toString(optima));
     }
     
     @Override

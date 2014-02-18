@@ -28,11 +28,11 @@ public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotyp
             throw new IllegalArgumentException("GaussianObjective: mean vector contains non-fininte values, must be finite.");
         if (std <= 0)
             throw new IllegalArgumentException("GaussianObjective: std is <= 0, must be positive.");
-        if (std == Double.POSITIVE_INFINITY || std == Double.NaN)
+        if (std == Double.POSITIVE_INFINITY || Double.isNaN(std))
             throw new IllegalArgumentException("GaussianObjective: std is infinite, must be finite.");
         this.numDimensions = numDimensions;
         this.height = height;
-        this.mean = mean;
+        this.mean = Arrays.copyOf(mean, mean.length);
         this.std = std;
         assert(repOK());
     }
@@ -62,14 +62,14 @@ public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotyp
                 && mean.length == numDimensions
                 && Misc.finiteValued(mean)
                 && std != Double.POSITIVE_INFINITY
-                && std != Double.NaN
+                && Double.isNaN(std)
                 && std > 0;
     }
 
     @Override
     public String toString()
     {
-        return String.format("[GaussianObjective: NumDimensions=%d, mean=%s, std=%f, height=%f]", numDimensions, mean.toString(), std, height);
+        return String.format("[GaussianObjective: NumDimensions=%d, mean=%s, std=%f, height=%f]", numDimensions, Arrays.toString(mean), std, height);
     }
     
     @Override

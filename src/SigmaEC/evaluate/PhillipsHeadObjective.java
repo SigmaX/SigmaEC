@@ -1,6 +1,7 @@
 package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.util.Misc;
 
 /**
  * Several (at lease two) narrow multi-variate Gaussian distributions,
@@ -120,8 +121,8 @@ public class PhillipsHeadObjective
         
         PhillipsHeadObjective cRef = (PhillipsHeadObjective) o;
         return numDimensions == cRef.numDimensions
-                && shortAxisFactor == cRef.shortAxisFactor
-                && longAxisFactor == cRef.longAxisFactor;
+                && Misc.doubleEquals(shortAxisFactor, cRef.shortAxisFactor)
+                && Misc.doubleEquals(longAxisFactor, cRef.longAxisFactor);
     }
 
 

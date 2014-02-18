@@ -18,7 +18,7 @@ public class DoubleVectorPhenotype implements Phenotype
     {
         assert(phenotype != null);
         assert(phenotype.length > 0);
-        this.phenotype = phenotype;
+        this.phenotype = Arrays.copyOf(phenotype, phenotype.length);
     }
     
     public int size()

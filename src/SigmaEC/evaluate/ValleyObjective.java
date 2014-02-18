@@ -38,8 +38,8 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
             throw new IllegalArgumentException("ValleyObjective: slopeVector is not a unit vector.");
         
         this.numDimensions = numDimensions;
-        this.slopeVector = slopeVector;
-        this.interceptVector = interceptVector;
+        this.slopeVector = Arrays.copyOf(slopeVector, slopeVector.length);
+        this.interceptVector = Arrays.copyOf(interceptVector, interceptVector.length);
         assert(repOK());
     }
 
@@ -75,7 +75,7 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     @Override
     public String toString()
     {
-        return String.format("[Valley: NumDimensions=%d, SlopeVector=%s, InterceptVector=%s]", numDimensions, slopeVector.toString(), interceptVector.toString());
+        return String.format("[Valley: NumDimensions=%d, SlopeVector=%s, InterceptVector=%s]", numDimensions, Arrays.toString(slopeVector), Arrays.toString(interceptVector));
     }
     
     @Override

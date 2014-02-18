@@ -2,6 +2,7 @@ package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.IDoublePoint;
+import SigmaEC.util.Misc;
 import java.util.Arrays;
 
 /**
@@ -38,7 +39,7 @@ public class AffineTranslatedDoubleObjective implements ObjectiveFunction<Double
             throw new IllegalArgumentException("AffineTranslatedDoubleObjective: transformationMatrix is null.");
         if (!isMatrixSquare(transformationMatrix))
             throw new IllegalArgumentException("AffineTranslatedDoubleObjective: transformationMatrix is not square.");
-        this.transformationMatrix = transformationMatrix;
+        this.transformationMatrix = Misc.deepCopy2DArray(transformationMatrix);
         this.objective = objective;
     }
     

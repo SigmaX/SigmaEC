@@ -32,7 +32,7 @@ public class DoubleGeneMutator implements Mutator<DoubleGene>
     final public boolean repOK()
     {
         return random != null
-                && gaussianStd != Double.NaN;
+                && Double.isNaN(gaussianStd);
     }
     
     @Override
@@ -50,7 +50,7 @@ public class DoubleGeneMutator implements Mutator<DoubleGene>
             return false;
         
         DoubleGeneMutator cRef = (DoubleGeneMutator) o;
-        return gaussianStd == cRef.gaussianStd
+        return Misc.doubleEquals(gaussianStd, cRef.gaussianStd)
                 && random.equals(cRef.random);
     }
 

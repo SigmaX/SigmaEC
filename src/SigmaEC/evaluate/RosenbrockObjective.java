@@ -50,7 +50,7 @@ public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenot
     @Override
     public String toString()
     {
-        return String.format("[RosenbrockObjective: NumDimensionts=%f]", numDimensions);
+        return String.format("[RosenbrockObjective: NumDimensionts=%d]", numDimensions);
     }
     
     @Override

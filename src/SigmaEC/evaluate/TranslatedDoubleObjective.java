@@ -1,6 +1,7 @@
 package SigmaEC.evaluate;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
+import java.util.Arrays;
 
 /**
  *
@@ -18,7 +19,7 @@ public class TranslatedDoubleObjective implements ObjectiveFunction<DoubleVector
             throw new IllegalArgumentException("TranslatedDoubleObjective: offset is null.");
         if (offset.length != objective.getNumDimensions())
             throw new IllegalArgumentException("TranslatedDoubleObjective: offset and objective have different number of dimensions.");
-        this.offset = offset;
+        this.offset = Arrays.copyOf(offset, offset.length);
         this.objective = objective;
         assert(repOK());
     }

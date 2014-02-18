@@ -5,6 +5,7 @@ import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -64,7 +65,7 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
         this.ridgeWidth = ridgeWidth;
         this.meshWidth = meshWidth;
         this.highFitness = highFitness;
-        this.bounds = bounds;
+        this.bounds = Arrays.copyOf(bounds, bounds.length); // Shallow copy okay because IDoublePoint is immutable
         this.useGradient = useGradient;
         
         objective = constructLattice();

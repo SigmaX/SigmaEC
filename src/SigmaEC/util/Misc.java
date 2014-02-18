@@ -1,5 +1,6 @@
 package SigmaEC.util;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
 
@@ -10,7 +11,7 @@ import java.util.Random;
  */
 public final class Misc
 {
-    /** Private construct throws an error if called. */
+    /** Private constructor throws an error if called. */
     private Misc() throws AssertionError
     {
         throw new AssertionError("Misc: Cannot create instance of static class.");
@@ -51,13 +52,20 @@ public final class Misc
         return false;
     }
     
+    public static double[][] deepCopy2DArray(final double[][] original) {
+        final double[][] newArray = new double[original.length][];
+        for (int i = 0; i < original.length; i++)
+            newArray[i] = Arrays.copyOf(original[i], original[i].length);
+        return newArray;
+    }
+    
     /** Returns false if there are non-finite values in a vector. */
     public static boolean finiteValued(final double[] vector)
     {
         for (int i = 0; i < vector.length; i++)
         {
             double e = vector[i];
-            if (e == Double.NEGATIVE_INFINITY || e == Double.POSITIVE_INFINITY || e == Double.NaN)
+            if (e == Double.NEGATIVE_INFINITY || e == Double.POSITIVE_INFINITY || Double.isNaN(e))
                 return false;
         }
         return true;
@@ -97,9 +105,8 @@ public final class Misc
             return false;
         for (int i = 0; i < a.length; i++)
         {
-            if (!doubleEquals(a[i], b[i]));
+            if (!doubleEquals(a[i], b[i]))
                 return false;
-            
         }
         return true;
     }

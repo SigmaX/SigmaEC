@@ -76,7 +76,7 @@ public class TruncationSelector<T extends Individual, P extends Phenotype> exten
             throw new IllegalArgumentException("TruncationSelector.selectMultipleIndividuals(): numToSelect is greater than population size.");
         
         final List<T> sortedPop = new ArrayList(population);
-        Collections.sort(sortedPop, new fitnessComparator());
+        Collections.sort(sortedPop, new FitnessComparator());
         final List<T> topIndividuals = new ArrayList(numToSelect);
         for (int i = 0; i < numToSelect; i++)
             topIndividuals.add(sortedPop.get(sortedPop.size() - 1 - i));
@@ -89,7 +89,7 @@ public class TruncationSelector<T extends Individual, P extends Phenotype> exten
         return (objective != null);
     }
     
-    private class fitnessComparator implements Comparator<T>
+    private class FitnessComparator implements Comparator<T>
     {
         @Override
         public int compare(T ind1, T ind2)

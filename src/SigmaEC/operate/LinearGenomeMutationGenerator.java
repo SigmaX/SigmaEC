@@ -4,6 +4,7 @@ import SigmaEC.represent.Gene;
 import SigmaEC.represent.LinearGenomeIndividual;
 import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;
+import SigmaEC.util.Misc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -76,7 +77,7 @@ public class LinearGenomeMutationGenerator<T extends LinearGenomeIndividual<G>, 
             return false;
         
         LinearGenomeMutationGenerator cRef = (LinearGenomeMutationGenerator) o;
-        return mutationRate == cRef.mutationRate
+        return Misc.doubleEquals(mutationRate, cRef.mutationRate)
                 && random.equals(cRef.random);
     }
 

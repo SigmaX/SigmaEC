@@ -36,7 +36,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
         for (int i = 0; i < fitnesses.length; i++)
             fitnesses[i] = objective.fitness(decoder.decode(population.get(i)));
         double mean = Statistics.mean(fitnesses);
-        return String.format("%d, %d, %f, %f, %f, %f\n", run, generation, mean, Statistics.std(fitnesses, mean), Statistics.max(fitnesses), Statistics.min(fitnesses));
+        return String.format("%d, %d, %f, %f, %f, %f%n", run, generation, mean, Statistics.std(fitnesses, mean), Statistics.max(fitnesses), Statistics.min(fitnesses));
     }
 
     @Override

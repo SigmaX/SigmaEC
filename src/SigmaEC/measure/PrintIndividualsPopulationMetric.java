@@ -17,7 +17,7 @@ public class PrintIndividualsPopulationMetric implements PopulationMetric
     @Override
     public String measurePopulation(int run, int generation, List population) throws IOException
     {
-        return String.format("%d, %d, %s\n", run, generation, population.toString());
+        return String.format("%d, %d, %s%n", run, generation, population.toString());
     }
 
     @Override
