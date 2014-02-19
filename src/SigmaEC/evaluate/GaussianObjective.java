@@ -62,7 +62,7 @@ public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotyp
                 && mean.length == numDimensions
                 && Misc.finiteValued(mean)
                 && std != Double.POSITIVE_INFINITY
-                && Double.isNaN(std)
+                && !Double.isNaN(std)
                 && std > 0;
     }
 
