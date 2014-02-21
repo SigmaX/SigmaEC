@@ -28,7 +28,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
         assert(repOK());
     }
     
-    /** Prints a row of the form "generation, mean, std, max, min". */
+    /** Prints a row of the form "run, generation, mean, std, max, min". */
     @Override
     public String measurePopulation(int run, int generation, List<T> population) throws IOException
     {
