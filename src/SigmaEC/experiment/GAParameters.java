@@ -1,6 +1,5 @@
-package SigmaEC;
+package SigmaEC.experiment;
 
-import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.Phenotype;
 
 /**
@@ -8,9 +7,7 @@ import SigmaEC.represent.Phenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class GAParameters<P extends Phenotype> {
-    public final ObjectiveFunction<P> objective;
-    
+public class GAParameters {
     // Representation parameters
     public final int numBits;
     
@@ -21,8 +18,7 @@ public class GAParameters<P extends Phenotype> {
     public final int numRuns;
     public final int tournamentSize;
     
-    private GAParameters(final Builder<P> builder) {
-        this.objective = builder.objective;
+    private GAParameters(final Builder builder) {
         this.numBits = builder.numBits;
         this.populationSize = builder.populationSize;
         this.numGenerations = builder.numGenerations;
@@ -33,7 +29,6 @@ public class GAParameters<P extends Phenotype> {
     
     // Copy constructor
     private GAParameters(final GAParameters ref) {
-        this.objective = ref.objective;
         this.numBits = ref.numBits;
         this.populationSize = ref.populationSize;
         this.numGenerations = ref.numGenerations;
@@ -56,9 +51,6 @@ public class GAParameters<P extends Phenotype> {
      * The remaining parameters will assume their default values.
      */
     public static class Builder<P extends Phenotype> {
-        // Required parameters
-        private final ObjectiveFunction<P> objective;
-
         // Parameters with default values
         private int numBits = 3;
         private int populationSize = 50;
@@ -67,13 +59,11 @@ public class GAParameters<P extends Phenotype> {
         private int numRuns = 30;
         private int tournamentSize = 2;
         
-        public Builder(final ObjectiveFunction<P> objective) {
-            this.objective = objective;
+        public Builder() {
         }
         
         /** Create a modifiable copy of another PleiotropicParameters. */
         public Builder(final GAParameters ref) {
-            this.objective = ref.objective;
             this.numBits = ref.numBits;
             this.populationSize = ref.populationSize;
             this.numGenerations = ref.numGenerations;
@@ -82,8 +72,8 @@ public class GAParameters<P extends Phenotype> {
             this.tournamentSize = ref.tournamentSize;
         }
         
-        public GAParameters<P> build() {
-            return new GAParameters<P>(this);
+        public GAParameters build() {
+            return new GAParameters(this);
         }
         
         public Builder numBits(final int numBits) {

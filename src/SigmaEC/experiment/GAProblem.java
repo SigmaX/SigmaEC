@@ -1,5 +1,7 @@
-package SigmaEC;
+package SigmaEC.experiment;
 
+import SigmaEC.Problem;
+import SigmaEC.experiment.GAParameters;
 import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.BitGene;
 import SigmaEC.represent.Decoder;
@@ -15,12 +17,12 @@ public class GAProblem<P extends Phenotype> implements Problem<LinearGenomeIndiv
     private final Decoder<LinearGenomeIndividual<BitGene>, P> decoder;
     private final ObjectiveFunction<P> objective;
     
-    public GAProblem(final GAParameters parameters, final Decoder<LinearGenomeIndividual<BitGene>, P> decoder) {
+    public GAProblem(final GAParameters parameters, final Decoder<LinearGenomeIndividual<BitGene>, P> decoder, final ObjectiveFunction<P> objective) {
         assert(parameters != null);
         assert(decoder != null);
         this.parameters = parameters;
         this.decoder = decoder;
-        this.objective = parameters.objective;
+        this.objective = objective;
         assert(repOK());
     }
     
