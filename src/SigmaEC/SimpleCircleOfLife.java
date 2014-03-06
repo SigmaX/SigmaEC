@@ -4,6 +4,8 @@ import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.Selector;
+import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +21,8 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
 {
     final private List<Generator<T>> generators;
     final private Selector<T> selector;
-    final private List<PopulationMetric<T>> preOperatorMetrics;
-    final private List<PopulationMetric<T>> postOperatorMetrics;
+    final private Option<List<PopulationMetric<T>>> preOperatorMetrics;
+    final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
     final private Problem<T, ?> problem;
 
     public SimpleCircleOfLife(final List<Generator<T>> generators,
@@ -29,24 +31,16 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     {
         this.generators = generators;
         this.selector = selector;
-        this.preOperatorMetrics = null;
-        this.postOperatorMetrics = null;
+        this.preOperatorMetrics = Option.NONE;
+        this.postOperatorMetrics = Option.NONE;
         this.problem = problem;
         assert(repOK());
     }
     
     public SimpleCircleOfLife(final List<Generator<T>> generators,
                                 final Selector<T> selector,
-                                final PopulationMetric<T> postMetric,
-                                final Problem<T, ?> problem)
-    {
-        this(generators, selector, null, new ArrayList<PopulationMetric<T>>() {{ add(postMetric); }}, problem);
-    }
-    
-    public SimpleCircleOfLife(final List<Generator<T>> generators,
-                                final Selector<T> selector,
-                                final List<PopulationMetric<T>> preOperatorMetrics,
-                                final List<PopulationMetric<T>> postOperatorMetrics,
+                                final Option<List<PopulationMetric<T>>> preOperatorMetrics,
+                                final Option<List<PopulationMetric<T>>> postOperatorMetrics,
                                 final Problem<T, ?> problem)
     {
         this.generators = generators;
@@ -66,8 +60,8 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
             problem.setGeneration(i);
             
             // Take measurements before operators
-            if (preOperatorMetrics != null)
-                for (PopulationMetric<T> metric : preOperatorMetrics)
+            if (preOperatorMetrics.isDefined())
+                for (PopulationMetric<T> metric : preOperatorMetrics.get())
                     metric.measurePopulation(run, i, population);
             
             // Apply operators
@@ -75,8 +69,8 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
                 population = gen.produceGeneration(population);
             
             // Take measurements after operators
-            if (postOperatorMetrics != null)
-                for (PopulationMetric<T> metric : postOperatorMetrics)
+            if (postOperatorMetrics.isDefined())
+                for (PopulationMetric<T> metric : postOperatorMetrics.get())
                     metric.measurePopulation(run, i, population);
             
             // Survival selection
@@ -90,11 +84,11 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     /** Flush I/O buffers. */
     private void flushMetrics() throws IOException
     {
-        if (preOperatorMetrics != null)
-            for (PopulationMetric<T> metric : preOperatorMetrics)
+        if (preOperatorMetrics.isDefined())
+            for (PopulationMetric<T> metric : preOperatorMetrics.get())
                 metric.flush();
-        if (postOperatorMetrics != null)
-            for (PopulationMetric<T> metric: postOperatorMetrics)
+        if (postOperatorMetrics.isDefined())
+            for (PopulationMetric<T> metric: postOperatorMetrics.get())
                 metric.flush();
     }
 
@@ -104,7 +98,11 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
     {
         return generators != null
                 && problem != null
-                && !generators.isEmpty();
+                && !generators.isEmpty()
+                && preOperatorMetrics != null
+                && postOperatorMetrics != null
+                && !(preOperatorMetrics.isDefined() && Misc.containsNulls(preOperatorMetrics.get()))
+                && !(postOperatorMetrics.isDefined() && Misc.containsNulls(postOperatorMetrics.get()));
     }
     
     @Override

@@ -2,6 +2,7 @@ package SigmaEC.experiment;
 
 import SigmaEC.CircleOfLife;
 import SigmaEC.SimpleCircleOfLife;
+import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.BitGeneMutator;
 import SigmaEC.operate.Generator;
 import SigmaEC.operate.LinearGenomeMatingGenerator;
@@ -15,6 +16,8 @@ import SigmaEC.represent.LinearGenomeIndividual;
 import SigmaEC.select.RandomSelector;
 import SigmaEC.select.Selector;
 import SigmaEC.select.TournamentSelector;
+import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,13 +32,25 @@ public class GAExperiment implements Experiment {
     final private GAParameters params;
     final private GAProblem<DoubleVectorPhenotype> problem;
     final private Random random;
+    final private Option<List<PopulationMetric<LinearGenomeIndividual<BitGene>>>> preOperatorMetrics;
+    final private Option<List<PopulationMetric<LinearGenomeIndividual<BitGene>>>> postOperatorMetrics;
     
-    public GAExperiment(final GAParameters params, final GAProblem<DoubleVectorPhenotype> problem, final Random random) {
+    public GAExperiment(final GAParameters params,
+            final GAProblem<DoubleVectorPhenotype> problem,
+            final Option<List<PopulationMetric<LinearGenomeIndividual<BitGene>>>> preOperatorMetrics,
+            final Option<List<PopulationMetric<LinearGenomeIndividual<BitGene>>>> postOperatorMetrics,
+            final Random random) {
         assert(params != null);
         assert(problem != null);
+        assert(preOperatorMetrics != null);
+        assert(!(preOperatorMetrics.isDefined() && Misc.containsNulls(preOperatorMetrics.get())));
+        assert(postOperatorMetrics != null);
+        assert(!(postOperatorMetrics.isDefined() && Misc.containsNulls(postOperatorMetrics.get())));
         assert(random != null);
         this.params = params;
         this.problem = problem;
+        this.preOperatorMetrics = preOperatorMetrics;
+        this.postOperatorMetrics = postOperatorMetrics;
         this.random = random;
         assert(repOK());
     }
@@ -68,9 +83,8 @@ public class GAExperiment implements Experiment {
         final List<Generator<LinearGenomeIndividual<BitGene>>> generators = generators();
         final Selector<LinearGenomeIndividual<BitGene>> survivalSelector = new TournamentSelector<LinearGenomeIndividual<BitGene>, DoubleVectorPhenotype>(problem.getObjective(), problem.getDecoder(), random, params.tournamentSize);
 
-        
         // Set up the evolutionary loop
-        final CircleOfLife<LinearGenomeIndividual<BitGene>> loop = new SimpleCircleOfLife<LinearGenomeIndividual<BitGene>>(generators, survivalSelector, null, null, problem);
+        final CircleOfLife<LinearGenomeIndividual<BitGene>> loop = new SimpleCircleOfLife<LinearGenomeIndividual<BitGene>>(generators, survivalSelector, preOperatorMetrics, postOperatorMetrics, problem);
         
         // Set up the initial population
         final List<LinearGenomeIndividual<BitGene>> population = initialPopulation();
@@ -98,7 +112,11 @@ public class GAExperiment implements Experiment {
     public final boolean repOK() {
         return params != null
                 && problem != null
-                && random != null;
+                && preOperatorMetrics != null
+                && postOperatorMetrics != null
+                && random != null
+                && !(preOperatorMetrics.isDefined() && Misc.containsNulls(preOperatorMetrics.get()))
+                && !(postOperatorMetrics.isDefined() && Misc.containsNulls(postOperatorMetrics.get()));
     }
     
 }
