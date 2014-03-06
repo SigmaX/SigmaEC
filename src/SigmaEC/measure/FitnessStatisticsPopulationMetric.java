@@ -31,7 +31,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
     
     /** Prints a row of the form "run, generation, mean, std, max, min, bsf". */
     @Override
-    public DoubleArrayMeasurement measurePopulation(int run, int generation, List<T> population) throws IOException
+    public FitnessStatisticsMeasurement measurePopulation(int run, int generation, List<T> population) throws IOException
     {
         final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
@@ -42,7 +42,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
         final double min = Statistics.min(fitnesses);
         if (max > bestSoFar)
             bestSoFar = max;
-        return new DoubleArrayMeasurement(run, generation, new double[] { mean, std, max, min, bestSoFar });
+        return new FitnessStatisticsMeasurement(run, generation, new double[] { mean, std, max, min, bestSoFar });
     }
 
     @Override
