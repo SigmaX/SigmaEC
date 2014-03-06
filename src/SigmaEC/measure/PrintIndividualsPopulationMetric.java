@@ -1,6 +1,8 @@
 package SigmaEC.measure;
 
+import SigmaEC.represent.Individual;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -8,16 +10,20 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PrintIndividualsPopulationMetric implements PopulationMetric
+public class PrintIndividualsPopulationMetric<T extends Individual> implements PopulationMetric<T>
 {
     public PrintIndividualsPopulationMetric()
     {
     }
     
     @Override
-    public String measurePopulation(int run, int generation, List population) throws IOException
+    public MultipleStringMeasurement measurePopulation(int run, int generation, final List<T> population) throws IOException
     {
-        return String.format("%d, %d, %s%n", run, generation, population.toString());
+        final List<String> individualStrings = new ArrayList<String>(population.size()) {{
+           for (final Individual ind : population)
+               add(ind.toString());
+        }};
+        return new MultipleStringMeasurement(run, generation, individualStrings);
     }
 
     @Override

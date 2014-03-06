@@ -8,7 +8,7 @@ import java.util.Random;
  *
  * @author Eric 'Siggy' Scott
  */
-public class BitStringIndividual implements LinearGenomeIndividual<BitGene> {
+public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     private final List<BitGene> genome;
     
     

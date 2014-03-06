@@ -7,7 +7,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public interface LinearGenomeIndividual<G extends Gene> extends Individual
+public abstract class LinearGenomeIndividual<G extends Gene> extends Individual
 {
     /**
      * Constructs a new LinearGenomeIndividual by using the subtype of this as

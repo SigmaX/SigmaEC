@@ -18,6 +18,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
 {
     final private ObjectiveFunction<P> objective;
     final private Decoder<T, P> decoder;
+    private double bestSoFar = Double.NEGATIVE_INFINITY;
     
     public FitnessStatisticsPopulationMetric(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder)
     {
@@ -28,15 +29,20 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
         assert(repOK());
     }
     
-    /** Prints a row of the form "run, generation, mean, std, max, min". */
+    /** Prints a row of the form "run, generation, mean, std, max, min, bsf". */
     @Override
-    public String measurePopulation(int run, int generation, List<T> population) throws IOException
+    public DoubleArrayMeasurement measurePopulation(int run, int generation, List<T> population) throws IOException
     {
-        double[] fitnesses = new double[population.size()];
+        final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
             fitnesses[i] = objective.fitness(decoder.decode(population.get(i)));
-        double mean = Statistics.mean(fitnesses);
-        return String.format("%d, %d, %f, %f, %f, %f%n", run, generation, mean, Statistics.std(fitnesses, mean), Statistics.max(fitnesses), Statistics.min(fitnesses));
+        final double mean = Statistics.mean(fitnesses);
+        final double std = Statistics.std(fitnesses, mean);
+        final double max = Statistics.max(fitnesses);
+        final double min = Statistics.min(fitnesses);
+        if (max > bestSoFar)
+            bestSoFar = max;
+        return new DoubleArrayMeasurement(run, generation, new double[] { mean, std, max, min, bestSoFar });
     }
 
     @Override

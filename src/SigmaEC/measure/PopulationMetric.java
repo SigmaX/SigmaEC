@@ -6,8 +6,10 @@ import java.util.List;
 
 /**
  * A PopulationMetric measures some property of a population of individuals,
- * such as its fitness, diversity, or phenotype, and generates a string
- * representation that can be written to a CSV file.
+ * such as its fitness, diversity, or phenotype, and creates an appropriate
+ * Measurement object to store it.  A Decorator pattern is typically used
+ * to create PopulationMetrics that do something with their measurements, such
+ * as write them to a file or standard out.
  * 
  * @author Eric 'Siggy' Scott
  */
@@ -17,7 +19,7 @@ public interface PopulationMetric<T extends Individual>
      * @param run The run the sample is coming from
      * @param generation The generation the sample is coming from
      */
-    public abstract String measurePopulation(int run, int generation, List<T> population) throws IOException;
+    public abstract Measurement measurePopulation(int run, int generation, List<T> population) throws IOException;
     
     /** Flush any I/O buffers. */
     public abstract void flush() throws IOException;

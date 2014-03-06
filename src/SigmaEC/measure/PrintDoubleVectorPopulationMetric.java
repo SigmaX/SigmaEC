@@ -4,6 +4,7 @@ import SigmaEC.represent.Decoder;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.represent.Individual;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,30 +24,15 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
         assert(repOK());
     }
     
-    /** Prints one line for each individual in the population, with a column for
-     * each value in the vector.  For instance, if the population contains the
-     * individuals <1, 2, 3, 4> and <5, 6, 7, 8> at generation 5, then this will
-     * return:
-     * 
-     * 5, 1, 2, 3, 4
-     * 5, 5, 6, 7, 8
-     * 
-     * @throws IOException 
-     */
     @Override
-    public String measurePopulation(int run, int generation, List<T> population) throws IOException
+    public MultipleDoubleArrayMeasurement measurePopulation(int run, int generation, final List<T> population) throws IOException
     {
-        StringBuilder sb = new StringBuilder();
-        for(T ind : population)
-        {
-            final double[] phenotype = decoder.decode(ind).getVector();
-            sb.append(run).append(", ").append(generation).append(", ").append(phenotype[0]);
-            for (int i = 1; i < phenotype.length; i++)
-                sb.append(", ").append(phenotype[i]);
-            sb.append("\n");
-        }
+        final List<double[]> arrays = new ArrayList<double[]>() {{
+            for(T ind : population)
+                add(decoder.decode(ind).getVector());
+        }};
         assert(repOK());
-        return sb.toString();
+        return new MultipleDoubleArrayMeasurement(run, generation, arrays);
     }
 
     @Override
@@ -57,7 +43,7 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    public boolean repOK()
+    public final boolean repOK()
     {
         return decoder != null;
     }
