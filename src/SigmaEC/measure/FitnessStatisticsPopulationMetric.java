@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Measures the mean, standard deviation, maximum and minimum fitness of a
- * population according to some ObjectiveFunction.
+ * Measures the mean, standard deviation, maximum and minimum, and best-so-far
+ * fitness of a population according to some ObjectiveFunction.
  * 
  * @author Eric 'Siggy' Scott
  */
