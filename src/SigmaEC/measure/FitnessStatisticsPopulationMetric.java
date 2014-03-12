@@ -46,6 +46,9 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
     }
 
     @Override
+    public void reset() { }
+
+    @Override
     public void flush() throws IOException { }
 
     @Override

@@ -21,6 +21,9 @@ public interface PopulationMetric<T extends Individual>
      */
     public abstract Measurement measurePopulation(int run, int generation, List<T> population) throws IOException;
     
+    /** Reset any mutable state to prepare for a fresh run. */
+    public abstract void reset();
+    
     /** Flush any I/O buffers. */
     public abstract void flush() throws IOException;
     

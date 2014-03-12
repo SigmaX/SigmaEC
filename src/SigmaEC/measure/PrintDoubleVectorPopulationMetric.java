@@ -36,6 +36,9 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
     }
 
     @Override
+    public void reset() { }
+
+    @Override
     public void flush() throws IOException { }
     
     @Override

@@ -27,6 +27,9 @@ public class PrintIndividualsPopulationMetric<T extends Individual> implements P
     }
 
     @Override
+    public void reset() { }
+
+    @Override
     public void flush() throws IOException { }
 
     @Override

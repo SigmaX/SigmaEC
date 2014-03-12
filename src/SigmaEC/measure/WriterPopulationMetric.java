@@ -38,6 +38,9 @@ public class WriterPopulationMetric<T extends Individual> implements PopulationM
     }
 
     @Override
+    public void reset() { }
+
+    @Override
     public void flush() throws IOException
     {
         writer.flush();

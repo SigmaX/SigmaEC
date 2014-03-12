@@ -37,6 +37,11 @@ public class MemoryPopulationMetric<T extends Individual> implements PopulationM
     }
 
     @Override
+    public void reset() {
+        mostRecentMeasurement = null;
+    }
+
+    @Override
     public void flush() throws IOException { wrappedMetric.flush(); }
 
     @Override
