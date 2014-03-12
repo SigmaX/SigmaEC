@@ -15,6 +15,7 @@ public abstract class Individual
      * invalid about the Individual's internal state. */
     public abstract boolean repOK();
     
+    /** You *must* implement a valid equals method. */
     @Override
     public abstract boolean equals(Object o);
 

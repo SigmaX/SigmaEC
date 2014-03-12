@@ -5,19 +5,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Decorates an ObjectiveFunction with memoization -- i.e. caches the results of
+ * Decorates an ObjectiveFunction with memoization, caching the results of
  * previous evaluations.  This is effective if evaluating the objective is
  * significantly more expensive than evaluating the Individual's hashcode()
  * method.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class MemoizedObjective<T extends Phenotype> implements ObjectiveFunction<T>
+public class CachedObjective<T extends Phenotype> implements ObjectiveFunction<T>
 {
     final private ObjectiveFunction<? super T> objective;
     final private Map<T, Double> memory = new HashMap<T, Double>();
     
-    public MemoizedObjective(ObjectiveFunction<? super T> objective)
+    public CachedObjective(ObjectiveFunction<? super T> objective)
     {
         if (objective == null)
             throw new IllegalArgumentException("MemoizedObjective: objective was null.");
@@ -63,10 +63,10 @@ public class MemoizedObjective<T extends Phenotype> implements ObjectiveFunction
     {
         if (o == this)
             return true;
-        if (!(o instanceof MemoizedObjective))
+        if (!(o instanceof CachedObjective))
             return false;
         
-        MemoizedObjective cRef = (MemoizedObjective) o;
+        CachedObjective cRef = (CachedObjective) o;
         return objective.equals(cRef.objective);
     }
 
