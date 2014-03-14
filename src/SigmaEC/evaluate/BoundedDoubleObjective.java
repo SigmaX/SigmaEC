@@ -82,6 +82,11 @@ public class BoundedDoubleObjective implements ObjectiveFunction<DoubleVectorPhe
         return objective.fitness(ind);
     }
 
+    @Override
+    public void setGeneration(int i) {
+        objective.setGeneration(i);
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

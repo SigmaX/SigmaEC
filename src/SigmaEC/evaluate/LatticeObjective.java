@@ -109,6 +109,11 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
     }
 
     @Override
+    public void setGeneration(int i) {
+        // Do nothing
+    }
+
+    @Override
     final public boolean repOK()
     {
         return numDimensions > 1

@@ -42,6 +42,13 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
         return product;
     }
 
+
+    @Override
+    public void setGeneration(int i) {
+        for (final ObjectiveFunction o : objectives)
+            o.setGeneration(i);
+    }
+    
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

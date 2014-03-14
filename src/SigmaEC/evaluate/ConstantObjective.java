@@ -37,6 +37,11 @@ public class ConstantObjective<T extends DoubleVectorPhenotype> implements Objec
         return value;
     }
 
+    @Override
+    public void setGeneration(int i) {
+        // Do nothing
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

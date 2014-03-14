@@ -16,5 +16,11 @@ public interface ObjectiveFunction<P extends Phenotype>
      * invalid about the function's internal state. */
     public boolean repOK();
     
+    /** Notify this that the generation has changed.
+     * This may be used, for instance, to update a dynamically changing
+     * landscape.
+     */
+    public void setGeneration(int i);
+    
     public int getNumDimensions();
 }

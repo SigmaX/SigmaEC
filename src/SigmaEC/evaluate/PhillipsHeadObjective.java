@@ -92,6 +92,11 @@ public class PhillipsHeadObjective
         return result;
     }
 
+    @Override
+    public void setGeneration(int i) {
+        // Do nothing
+    }
+
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override

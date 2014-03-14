@@ -48,6 +48,11 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     {
         return numDimensions;
     }
+
+    @Override
+    public void setGeneration(int i) {
+        // Do nothing
+    }
     
     @Override
     public double fitness(DoubleVectorPhenotype ind)

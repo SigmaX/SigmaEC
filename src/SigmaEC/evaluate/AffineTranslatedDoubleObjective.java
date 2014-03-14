@@ -94,6 +94,11 @@ public class AffineTranslatedDoubleObjective implements ObjectiveFunction<Double
         return objective.fitness(transform(ind));
     }
 
+    @Override
+    public void setGeneration(int i) {
+        objective.setGeneration(i);
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public boolean repOK()

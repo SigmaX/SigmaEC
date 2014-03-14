@@ -43,6 +43,12 @@ public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveF
         return max;
     }
 
+    @Override
+    public void setGeneration(int i) {
+        for (final ObjectiveFunction o : objectives)
+            o.setGeneration(i);
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

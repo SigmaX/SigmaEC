@@ -43,6 +43,11 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>
         return sum;
     }
 
+    @Override
+    public void setGeneration(int i) {
+        // Do nothing
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

@@ -31,6 +31,11 @@ public class InvertedObjective<T extends Phenotype> implements ObjectiveFunction
     public int getNumDimensions() {
         return objective.getNumDimensions();
     }
+
+    @Override
+    public void setGeneration(int i) {
+        objective.setGeneration(i);
+    }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override

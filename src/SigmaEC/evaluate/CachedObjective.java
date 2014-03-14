@@ -20,7 +20,7 @@ public class CachedObjective<T extends Phenotype> implements ObjectiveFunction<T
     public CachedObjective(ObjectiveFunction<? super T> objective)
     {
         if (objective == null)
-            throw new IllegalArgumentException("MemoizedObjective: objective was null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
         this.objective = objective;
         assert(repOK());
     }
@@ -44,6 +44,11 @@ public class CachedObjective<T extends Phenotype> implements ObjectiveFunction<T
         }
     }
 
+    @Override
+    public void setGeneration(int i) {
+        objective.setGeneration(i);
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
@@ -55,7 +60,7 @@ public class CachedObjective<T extends Phenotype> implements ObjectiveFunction<T
     @Override
     public String toString()
     {
-        return String.format("[MemoizedObjective: Objective=%s]", objective.toString());
+        return String.format("[%s: objective=%s]", this.getClass().getSimpleName(), objective.toString());
     }
     
     @Override

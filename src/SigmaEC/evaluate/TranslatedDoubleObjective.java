@@ -46,9 +46,19 @@ public class TranslatedDoubleObjective implements ObjectiveFunction<DoubleVector
     }
 
     @Override
-    public boolean repOK() {
+    public void setGeneration(int i) {
+        objective.setGeneration(i);
+    }
+
+    @Override
+    public final boolean repOK() {
         return offset != null
                 && objective != null
                 && offset.length == objective.getNumDimensions();
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("[%s: offset=%s, objective=%s]", this.getClass().getSimpleName(), Arrays.toString(offset), objective);
     }
 }

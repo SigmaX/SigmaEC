@@ -42,6 +42,12 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
         return sum;
     }
 
+    @Override
+    public void setGeneration(int i) {
+        for (final ObjectiveFunction o : objectives)
+            o.setGeneration(i);
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

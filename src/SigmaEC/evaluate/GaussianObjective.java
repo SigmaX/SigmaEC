@@ -54,6 +54,11 @@ public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotyp
         return height*Math.exp(-exponent);
     }
 
+    @Override
+    public void setGeneration(int i) {
+        // Do nothing
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()

@@ -94,6 +94,11 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
         this.gradientXIntercept = gradientXIntercept;
         assert(repOK());
     }
+
+    @Override
+    public void setGeneration(int i) {
+        // Do nothing
+    }
     
     /** Returns this.highFitness if the vector of the given individual is
      * within distance this.width from the line, else returns 0.0.
