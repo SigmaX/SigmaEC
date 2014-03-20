@@ -1,5 +1,10 @@
 package SigmaEC.util;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Random;
@@ -109,5 +114,26 @@ public final class Misc
                 return false;
         }
         return true;
+    }
+    public static Writer openFile(String path)
+    {
+        try
+        {
+            File file = new File(path);
+
+            // if file doesnt exists, then create it
+            if (!file.exists()) {
+                    file.createNewFile();
+            }
+
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            return bw;
+        }
+        catch(IOException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

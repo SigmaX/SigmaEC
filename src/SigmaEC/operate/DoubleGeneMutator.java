@@ -32,7 +32,7 @@ public class DoubleGeneMutator implements Mutator<DoubleGene>
     final public boolean repOK()
     {
         return random != null
-                && Double.isNaN(gaussianStd);
+                && !Double.isNaN(gaussianStd);
     }
     
     @Override
