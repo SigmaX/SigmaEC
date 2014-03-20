@@ -18,7 +18,7 @@ public class Option<T> {
     
     @Override
     public String toString() {
-        return String.format("[Option: val=%s]", val.toString());
+        return String.format("[Option: val=%s]", val);
     }
     
     @Override
