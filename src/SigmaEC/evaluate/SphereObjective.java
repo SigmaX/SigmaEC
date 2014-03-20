@@ -18,8 +18,6 @@ public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     {
         if (numDimensions < 1)
             throw new IllegalArgumentException("SphereObjective: numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("SphereObjective: numDimensions is infinite, must be finite.");
         this.numDimensions = numDimensions;
         assert(repOK());
     }
