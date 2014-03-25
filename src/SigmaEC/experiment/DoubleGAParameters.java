@@ -1,6 +1,7 @@
 package SigmaEC.experiment;
 
 import SigmaEC.represent.Phenotype;
+import SigmaEC.util.Option;
 
 /**
  * Parameters for specifying a vanilla genetic algorithm.
@@ -15,6 +16,7 @@ public class DoubleGAParameters {
     // Evolutionary parameters
     public final int populationSize;
     public final int numGenerations;
+    public final Option<Integer> numEvaluations;
     public final double mutationRate;
     public final double mutationStd;
     public final int numRuns;
@@ -25,6 +27,7 @@ public class DoubleGAParameters {
         this.initialBound = builder.initialBound;
         this.populationSize = builder.populationSize;
         this.numGenerations = builder.numGenerations;
+        this.numEvaluations = builder.numEvaluations;
         this.mutationRate = builder.mutationRate;
         this.mutationStd = builder.mutationStd;
         this.numRuns = builder.numRuns;
@@ -37,6 +40,7 @@ public class DoubleGAParameters {
         this.initialBound = ref.initialBound;
         this.populationSize = ref.populationSize;
         this.numGenerations = ref.numGenerations;
+        this.numEvaluations = ref.numEvaluations;
         this.mutationRate = ref.mutationRate;
         this.mutationStd = ref.mutationStd;
         this.numRuns = ref.numRuns;
@@ -62,6 +66,7 @@ public class DoubleGAParameters {
         private double initialBound = 1.0;
         private int populationSize = 50;
         private int numGenerations = 1000;
+        private Option<Integer> numEvaluations = Option.NONE;
         private double mutationRate = 0.03;
         private double mutationStd = 0.5;
         private int numRuns = 30;
@@ -76,6 +81,7 @@ public class DoubleGAParameters {
             this.initialBound = ref.initialBound;
             this.populationSize = ref.populationSize;
             this.numGenerations = ref.numGenerations;
+            this.numEvaluations = ref.numEvaluations;
             this.mutationRate = ref.mutationRate;
             this.mutationStd = ref.mutationStd;
             this.numRuns = ref.numRuns;
@@ -108,6 +114,12 @@ public class DoubleGAParameters {
         public Builder numGenerations(final int numGenerations) {
             assert(numGenerations > 0);
             this.numGenerations = numGenerations;
+            return this;
+        }
+        
+        public Builder numEvaluations(final Option<Integer> numEvaluations) {
+            assert(numEvaluations == Option.NONE || numEvaluations.get() > 0);
+            this.numEvaluations = numEvaluations;
             return this;
         }
         

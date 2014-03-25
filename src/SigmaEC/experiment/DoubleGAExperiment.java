@@ -42,13 +42,15 @@ public class DoubleGAExperiment implements Experiment {
     final private Option<String> phenotypeFile;
     final private Option<String> genotypeFile;
     final private Option<String> fitnessFile;
+    final private boolean writeFitnessToStandardOut;
     
     public DoubleGAExperiment(final DoubleGAParameters params,
             final Problem<LinearGenomeIndividual<DoubleGene>, DoubleVectorPhenotype> problem,
             final Option<String> phenotypeFile,
             final Option<String> genotypeFile,
             final Option<String> fitnessFile,
-            final Random random) {
+            final Random random,
+            final boolean writeFitnessToStandardOut) {
         assert(params != null);
         assert(problem != null);
         assert(random != null);
@@ -58,6 +60,7 @@ public class DoubleGAExperiment implements Experiment {
         this.genotypeFile = genotypeFile;
         this.fitnessFile = fitnessFile;
         this.random = random;
+        this.writeFitnessToStandardOut = writeFitnessToStandardOut;
         assert(repOK());
     }
     
@@ -87,10 +90,11 @@ public class DoubleGAExperiment implements Experiment {
             metrics.add(genotypeFileMetric);
         }*/
         
-        // Always write fitness to stdout.
-        final Writer standardOut = new BufferedWriter(new OutputStreamWriter(System.out));
         PopulationMetric<LinearGenomeIndividual<DoubleGene>> fitnessMetric = new FitnessStatisticsPopulationMetric<LinearGenomeIndividual<DoubleGene>, DoubleVectorPhenotype>(problem.getObjective(), problem.getDecoder());
-        fitnessMetric = new WriterPopulationMetric<LinearGenomeIndividual<DoubleGene>>(standardOut, fitnessMetric);
+        if (writeFitnessToStandardOut) {
+            final Writer standardOut = new BufferedWriter(new OutputStreamWriter(System.out));
+            fitnessMetric = new WriterPopulationMetric<LinearGenomeIndividual<DoubleGene>>(standardOut, fitnessMetric);
+        }
         if (fitnessFile.isDefined()) {
             final Writer fitnessFileWriter = Misc.openFile(fitnessFile.get());
             fitnessMetric = new WriterPopulationMetric<LinearGenomeIndividual<DoubleGene>>(fitnessFileWriter, fitnessMetric);
@@ -126,10 +130,13 @@ public class DoubleGAExperiment implements Experiment {
         // GO!
         try
         {
+            final int numGenerations = (params.numEvaluations.isDefined()) ?
+                    Math.min(params.numGenerations, (int) Math.floor(params.numEvaluations.get()/params.populationSize)) :
+                    params.numGenerations;
             for (int i = 0; i < params.numRuns; i++)
             {
                 System.out.println("Run " + i);
-                loop.evolve(i, population, params.numGenerations);
+                loop.evolve(i, population, numGenerations);
             }
         }
         catch(IOException e)
