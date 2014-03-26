@@ -58,6 +58,14 @@ public final class Vector
         return difference;
     }
     
+    public static double[] vectorNegate(double[] v1) {
+        assert(v1 != null);
+        final double[] neg = new double[v1.length];
+        for (int i = 0; i < v1.length; i++)
+            neg[i] = -v1[i];
+        return neg;
+    }
+    
     /** Multiply a scalar times a vector. */
     public static double[] scalarTimesVector(double s, double[] v)
     {
