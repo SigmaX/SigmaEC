@@ -3,6 +3,7 @@ package SigmaEC.measure;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Misc;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
     {
         final List<double[]> arrays = new ArrayList<double[]>() {{
             for(T ind : population)
-                add(decoder.decode(ind).getVector());
+                add(Misc.prepend(ind.getID(), decoder.decode(ind).getVector()));
         }};
         assert(repOK());
         return new MultipleDoubleArrayMeasurement(run, generation, arrays);

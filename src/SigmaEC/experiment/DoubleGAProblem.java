@@ -38,7 +38,7 @@ public class DoubleGAProblem<P extends Phenotype> implements Problem<LinearGenom
 
     @Override
     public void setGeneration(int i) {
-        // Does nothing
+        objective.setGeneration(i);
     }
 
     @Override

@@ -11,6 +11,11 @@ package SigmaEC.represent;
  */
 public abstract class Individual
 {
+    /** An ID that can be used to uniquely identify this individual in logged output.
+     * No two individuals should ever have the same ID.
+     */
+    public abstract long getID();
+    
     /** Representation invariant.  If this returns false, there is something
      * invalid about the Individual's internal state. */
     public abstract boolean repOK();

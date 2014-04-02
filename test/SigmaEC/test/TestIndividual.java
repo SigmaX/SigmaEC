@@ -13,12 +13,15 @@ import java.util.List;
  */
 public class TestIndividual extends LinearGenomeIndividual<TestGene>
 {
+    final private long id;
+    private static long nextId = 0;
+    
     final private List<TestGene> genome;
     final private double trait;
     public double getTrait() { return trait; }
 
-    public TestIndividual(double trait) { this.trait = trait; this.genome = null; }
-    public TestIndividual(double trait, List<TestGene> genome) { this.trait = trait; this.genome = genome; }
+    public TestIndividual(double trait) { this.trait = trait; this.genome = null; this.id = nextId++; }
+    public TestIndividual(double trait, List<TestGene> genome) { this.trait = trait; this.genome = genome; this.id = nextId++; }
     
     @Override
     public boolean repOK() { return true; }
@@ -52,6 +55,9 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
 
     @Override
     public String toString() {
-        return String.format("[%s: trait=%f, genome=%s]", this.getClass().getSimpleName(), genome.toString());
+        return String.format("[%s: id=%d, trait=%f, genome=%s]", this.getID(), this.getClass().getSimpleName(), genome.toString());
     }
+
+    @Override
+    public long getID() { return id; }
 }

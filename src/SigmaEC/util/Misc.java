@@ -136,4 +136,12 @@ public final class Misc
         }
         return null;
     }
+    
+    public static double[] prepend(final double value, final double[] array) {
+        assert(array != null);
+        final double[] newArray = new double[array.length + 1];
+        newArray[0] = value;
+        System.arraycopy(array, 0, newArray, 1, array.length);
+        return newArray;
+    }
 }

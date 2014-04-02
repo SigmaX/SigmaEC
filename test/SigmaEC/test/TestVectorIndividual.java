@@ -10,10 +10,13 @@ import java.util.Arrays;
  */
 public class TestVectorIndividual extends Individual
 {
+    private final long id;
+    private static long nextId = 0;
     private final double[] vector;
     public TestVectorIndividual(final double[] vector)
     {
         this.vector = vector;
+        this.id = nextId++;
     }
 
     public double[] getVector() {
@@ -37,4 +40,7 @@ public class TestVectorIndividual extends Individual
     public String toString() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public long getID() { return id; }
 }

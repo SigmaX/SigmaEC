@@ -10,7 +10,8 @@ import java.util.Random;
  */
 public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     private final List<BitGene> genome;
-    
+    private final long id;
+    private static long nextId = 0;
     
     /** Construct a random bitstring with an equal probability that any given
      * bit is T or F.
@@ -35,14 +36,19 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
                add(new BitGene(roll < pTrue));
            } 
         }};
+        this.id = nextId++;
         assert(repOK());
     }
     
     public BitStringIndividual(final List<BitGene> genome) {
         assert(genome != null);
         this.genome = new ArrayList<BitGene>(genome);
+        this.id = nextId++;
         assert(repOK());
     }
+
+    @Override
+    public long getID() { return id; }
     
     @Override
     public LinearGenomeIndividual<BitGene> create(final List<BitGene> genome) {
@@ -78,7 +84,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     
     @Override
     public String toString() {
-        return String.format("[%s: genome=%s]", this.getClass().getSimpleName(), genome.toString());
+        return String.format("[%s: id=%d, genome=%s]", this.getID(), this.getClass().getSimpleName(), genome.toString());
     }
     
     // </editor-fold>

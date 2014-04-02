@@ -10,6 +10,8 @@ import java.util.Random;
  */
 public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     private final List<DoubleGene> genome;
+    private final long id;
+    private static long nextId;
     
     /** Construct a random double vector.
      * 
@@ -24,14 +26,19 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
                add(new DoubleGene(roll));
            } 
         }};
+        this.id = nextId++;
         assert(repOK());
     }
     
     public DoubleVectorIndividual(final List<DoubleGene> genome) {
         assert(genome != null);
         this.genome = new ArrayList<DoubleGene>(genome);
+        this.id = nextId++;
         assert(repOK());
     }
+
+    @Override
+    public long getID() { return id; }
     
     @Override
     public LinearGenomeIndividual<DoubleGene> create(final List<DoubleGene> genome) {
@@ -67,7 +74,7 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     
     @Override
     public String toString() {
-        return String.format("[%s: genome=%s]", this.getClass().getSimpleName(), genome.toString());
+        return String.format("[%s: id=%s, genome=%s]", this.getID(), this.getClass().getSimpleName(), genome.toString());
     }
     
     // </editor-fold>
