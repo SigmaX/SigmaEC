@@ -2,6 +2,7 @@ package SigmaEC.operate;
 
 import SigmaEC.represent.Gene;
 import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import java.util.ArrayList;
@@ -16,26 +17,17 @@ import java.util.List;
  */
 public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G extends Gene> implements Generator<T>
 {
-    private final Selector<T> parentSelector;
     private final Mator<T> mator;
+    private final Selector<T> parentSelector = new IterativeSelector<T>();
     
-    public LinearGenomeMatingGenerator(Selector<T> selector, Mator<T> mator) throws IllegalArgumentException
+    public LinearGenomeMatingGenerator(final Mator<T> mator) throws IllegalArgumentException
     {
-        if (selector == null)
-            throw new IllegalArgumentException("LinearGenomeMatingGenerator: selector is null.");
         if (mator == null)
             throw new IllegalArgumentException("LinearGenomeMatingGenerator: procreator is null.");
         if (mator.getNumChildren() != mator.getNumParents())
             throw new IllegalArgumentException("LinearGenomeMatingGenerator: mator.getNumChildren() must equal mator.getNumParents()");
         
-        this.parentSelector = selector;
         this.mator = mator;
-    }
-
-    @Override
-    public Selector<T> getParentSelector()
-    {
-        return parentSelector;
     }
     
     /**

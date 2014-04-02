@@ -66,9 +66,8 @@ public class DoubleGAExperiment implements Experiment {
     
     private List<Generator<LinearGenomeIndividual<DoubleGene>>> generators() {
         // Crossover operator
-        final Selector<LinearGenomeIndividual<DoubleGene>> parentSelector = new TournamentSelector<LinearGenomeIndividual<DoubleGene>, DoubleVectorPhenotype>(problem.getObjective(), problem.getDecoder(), random, params.tournamentSize);
         final Mator<LinearGenomeIndividual<DoubleGene>> mator = new NPointCrossoverMator<LinearGenomeIndividual<DoubleGene>, DoubleGene>(2, true, random);
-        final Generator<LinearGenomeIndividual<DoubleGene>> matingGenerator = new LinearGenomeMatingGenerator<LinearGenomeIndividual<DoubleGene>, DoubleGene>(parentSelector, mator);
+        final Generator<LinearGenomeIndividual<DoubleGene>> matingGenerator = new LinearGenomeMatingGenerator<LinearGenomeIndividual<DoubleGene>, DoubleGene>(mator);
         
         // Mutation operator
         final DoubleGeneMutator mutator = new DoubleGeneMutator(params.mutationStd, random);
@@ -116,10 +115,13 @@ public class DoubleGAExperiment implements Experiment {
     public void run() {
         final List<PopulationMetric<LinearGenomeIndividual<DoubleGene>>> postMetrics = postMetrics();
         final List<Generator<LinearGenomeIndividual<DoubleGene>>> generators = generators();
-        final Selector<LinearGenomeIndividual<DoubleGene>> survivalSelector = new IterativeSelector<LinearGenomeIndividual<DoubleGene>>();
+        final Selector<LinearGenomeIndividual<DoubleGene>> parentSelector = new TournamentSelector<LinearGenomeIndividual<DoubleGene>, DoubleVectorPhenotype>(problem.getObjective(), problem.getDecoder(), random, params.tournamentSize);
 
         // Set up the evolutionary loop
-        final CircleOfLife<LinearGenomeIndividual<DoubleGene>> loop = new SimpleCircleOfLife<LinearGenomeIndividual<DoubleGene>>(generators, survivalSelector, Option.NONE, new Option(postMetrics), problem);
+        final CircleOfLife<LinearGenomeIndividual<DoubleGene>> loop = new SimpleCircleOfLife.Builder<LinearGenomeIndividual<DoubleGene>>(generators, problem)
+                    .parentSelector(parentSelector)
+                    .postOperatorMetrics(postMetrics)
+                    .build();
         
         // Set up the initial population
         final List<LinearGenomeIndividual<DoubleGene>> population = initialPopulation();

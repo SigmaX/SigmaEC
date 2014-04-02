@@ -13,8 +13,6 @@ import SigmaEC.represent.BitGene;
 import SigmaEC.represent.BitStringIndividual;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.represent.LinearGenomeIndividual;
-import SigmaEC.select.IterativeSelector;
-import SigmaEC.select.RandomSelector;
 import SigmaEC.select.Selector;
 import SigmaEC.select.TournamentSelector;
 import SigmaEC.util.Misc;
@@ -58,9 +56,8 @@ public class GAExperiment implements Experiment {
     
     private List<Generator<LinearGenomeIndividual<BitGene>>> generators() {
         // Crossover operator
-        final Selector<LinearGenomeIndividual<BitGene>> parentSelector = new TournamentSelector<LinearGenomeIndividual<BitGene>, DoubleVectorPhenotype>(problem.getObjective(), problem.getDecoder(), random, params.tournamentSize);
         final Mator<LinearGenomeIndividual<BitGene>> mator = new NPointCrossoverMator<LinearGenomeIndividual<BitGene>, BitGene>(2, true, random);
-        final Generator<LinearGenomeIndividual<BitGene>> matingGenerator = new LinearGenomeMatingGenerator<LinearGenomeIndividual<BitGene>, BitGene>(parentSelector, mator);
+        final Generator<LinearGenomeIndividual<BitGene>> matingGenerator = new LinearGenomeMatingGenerator<LinearGenomeIndividual<BitGene>, BitGene>(mator);
         
         // Mutation operator
         final BitGeneMutator bitMutator = new BitGeneMutator();
@@ -81,12 +78,16 @@ public class GAExperiment implements Experiment {
     
     @Override
     public void run() {
+        final Selector<LinearGenomeIndividual<BitGene>> parentSelector = new TournamentSelector<LinearGenomeIndividual<BitGene>, DoubleVectorPhenotype>(problem.getObjective(), problem.getDecoder(), random, params.tournamentSize);
         final List<Generator<LinearGenomeIndividual<BitGene>>> generators = generators();
-        final Selector<LinearGenomeIndividual<BitGene>> survivalSelector = new IterativeSelector<LinearGenomeIndividual<BitGene>>();
 
         // Set up the evolutionary loop
-        final CircleOfLife<LinearGenomeIndividual<BitGene>> loop = new SimpleCircleOfLife<LinearGenomeIndividual<BitGene>>(generators, survivalSelector, preOperatorMetrics, postOperatorMetrics, problem);
-        
+        final CircleOfLife<LinearGenomeIndividual<BitGene>> loop = new SimpleCircleOfLife.Builder<LinearGenomeIndividual<BitGene>>(generators, problem)
+                        .parentSelector(parentSelector)
+                        .preOperatorMetrics(preOperatorMetrics.get())
+                        .postOperatorMetrics(postOperatorMetrics.get())
+                        .build();
+    
         // Set up the initial population
         final List<LinearGenomeIndividual<BitGene>> population = initialPopulation();
         

@@ -21,12 +21,6 @@ public class LinearGenomeMutationGenerator<T extends LinearGenomeIndividual<G>, 
     private final Mutator<G> mutator;
     private final Random random;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
-
-    @Override
-    public Selector getParentSelector()
-    {
-        return parentSelector;
-    }
     
     public LinearGenomeMutationGenerator(double mutationRate, Mutator<G> mutator, Random random)
     {

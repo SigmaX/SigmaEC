@@ -10,9 +10,7 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public interface Generator<T extends Individual>
-{
-    public Selector<T> getParentSelector();
-    
+{   
     public List<T> produceGeneration(List<T> parentPopulation);
     
     /** Representation invariant.  If this returns false, there is something

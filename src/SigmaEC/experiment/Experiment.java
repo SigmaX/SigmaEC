@@ -1,7 +1,5 @@
 package SigmaEC.experiment;
 
-import java.util.Random;
-
 /**
  * Defines a complete evolutionary experiment which can be called from the
  * program's main method.
