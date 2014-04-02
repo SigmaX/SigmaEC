@@ -50,9 +50,11 @@ public class IterativeSelectorTest
     public void testEquals()
     {
         System.out.println("equals & hashcode");
-        IterativeSelector SUT = new IterativeSelector<TestIndividual>();
-        IterativeSelector gRef = new IterativeSelector<TestIndividual>();
-        IterativeSelector bRef = new IterativeSelector<Individual>();
+        final IterativeSelector SUT = new IterativeSelector<TestIndividual>();
+        final IterativeSelector gRef = new IterativeSelector<TestIndividual>();
+        final IterativeSelector bRef = new IterativeSelector<Individual>();
+        bRef.selectIndividual(new ArrayList<TestIndividual>() {{ add(new TestIndividual(0)); }});
+        
         assertTrue(SUT.equals(gRef));
         assertEquals(SUT.hashCode(), gRef.hashCode());
         assertTrue(gRef.equals(SUT));

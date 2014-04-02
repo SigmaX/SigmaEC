@@ -27,4 +27,14 @@ public class TestObjective implements ObjectiveFunction<TestPhenotype>
         int hash = 7;
         return hash;
     }
+
+    @Override
+    public void setGeneration(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getNumDimensions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

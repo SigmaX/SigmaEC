@@ -36,7 +36,9 @@ public class IterativeSelector<T extends Individual> extends Selector<T>
     @Override 
     public boolean equals(Object o)
     {
-        return (o instanceof IterativeSelector);
+        if (!(o instanceof IterativeSelector))
+            return false;
+        return i == ((IterativeSelector)o).i;
     }
     
     // </editor-fold>

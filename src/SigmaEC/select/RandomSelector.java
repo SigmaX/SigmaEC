@@ -30,6 +30,20 @@ public class RandomSelector<T extends Individual> extends Selector<T>
     }
     
     @Override
+    public boolean equals(final Object o) {
+        if (!(o instanceof RandomSelector))
+            return false;
+        return random.equals(((RandomSelector)o).random);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 47 * hash + (this.random != null ? this.random.hashCode() : 0);
+        return hash;
+    }
+    
+    @Override
     public boolean repOK()
     {
         return (random != null);

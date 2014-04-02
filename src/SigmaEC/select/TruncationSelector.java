@@ -89,6 +89,11 @@ public class TruncationSelector<T extends Individual, P extends Phenotype> exten
         return (objective != null);
     }
     
+    @Override
+    final public String toString() {
+        return String.format("[%s: objective=%s, decoder=%s]", this.getClass().getSimpleName(), objective.toString(), decoder.toString());
+    }
+    
     private class FitnessComparator implements Comparator<T>
     {
         @Override

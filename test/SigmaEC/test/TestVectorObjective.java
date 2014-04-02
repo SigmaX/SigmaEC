@@ -24,4 +24,9 @@ public class TestVectorObjective implements ObjectiveFunction<DoubleVectorPhenot
     @Override
     public String toString() { return "[TestVectorObjective]"; } 
     public int getNumDimensions() { return 3;}
+
+    @Override
+    public void setGeneration(int i) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }

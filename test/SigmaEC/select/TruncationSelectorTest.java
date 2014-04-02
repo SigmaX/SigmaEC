@@ -133,18 +133,11 @@ public class TruncationSelectorTest
         SUT.selectMultipleIndividuals(population, 0);
     }
     
-    @Test
-    public void testToString()
-    {
-        System.out.println("toString");
-        assertEquals("[TruncationSelector]", SUT.toString());
-        assertTrue(SUT.repOK());
-    }
-    
+    /*
     @Test
     public void testEquals()
     {
         System.out.println("equals & hashcode");
         fail("Test case not implemented");
-    }
+    } */
 }

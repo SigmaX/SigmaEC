@@ -130,6 +130,7 @@ public class AffineTransformedDoubleObjectiveTest {
     /**
      * Test of equals method, of class AffineTransformedDoubleObjective.
      */
+    /*
     @Test
     public void testEquals() {
         System.out.println("equals");
@@ -140,11 +141,12 @@ public class AffineTransformedDoubleObjectiveTest {
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
-    }
+    } */
 
     /**
      * Test of hashCode method, of class AffineTransformedDoubleObjective.
      */
+    /*
     @Test
     public void testHashCode() {
         System.out.println("hashCode");
@@ -154,5 +156,5 @@ public class AffineTransformedDoubleObjectiveTest {
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
-    }
+    } */
 }
