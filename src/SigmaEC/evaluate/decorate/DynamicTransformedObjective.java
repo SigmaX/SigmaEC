@@ -17,9 +17,9 @@ public class DynamicTransformedObjective implements ObjectiveFunction<DoubleVect
     private final TransformedObjectiveGenerator generator;
     private ObjectiveFunction<DoubleVectorPhenotype> currentObjective;
     
-    public DynamicTransformedObjective(ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TranformationStrategy transformationStrategy, final Random random, final double bounds)
+    public DynamicTransformedObjective(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TranformationStrategy transformationStrategy, final Random random)
     {
-        generator = new TransformedObjectiveGenerator(objective, transformationStrategy, random, bounds);
+        generator = new TransformedObjectiveGenerator(objective, transformationStrategy, random);
         assert(repOK());
     }
     

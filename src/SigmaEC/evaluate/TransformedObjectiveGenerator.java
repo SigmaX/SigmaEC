@@ -13,18 +13,16 @@ import java.util.Random;
  * @author Eric 'Siggy' Scott
  */
 public class TransformedObjectiveGenerator extends ObjectiveGenerator<TranslatedDoubleObjective, DoubleVectorPhenotype> {
-    private final double bounds;
     private final ObjectiveFunction<DoubleVectorPhenotype> prototype;
     private final Strategy.TranformationStrategy strategy;
     private final Random random;
     
-    public TransformedObjectiveGenerator(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TranformationStrategy strategy, final Random random, final double bounds) {
+    public TransformedObjectiveGenerator(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TranformationStrategy strategy, final Random random) {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
         this.prototype = objective;
         this.strategy = strategy;
         this.random = random;
-        this.bounds = bounds;
         assert(repOK());
     }
     
@@ -39,9 +37,7 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
     {
         return prototype != null
                 && strategy != null
-                && random != null
-                && !Double.isNaN(bounds)
-                && !Double.isInfinite(bounds);
+                && random != null;
     }
 
     @Override
@@ -51,8 +47,7 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
         if (!(o instanceof TransformedObjectiveGenerator))
             return false;
         final TransformedObjectiveGenerator ref = (TransformedObjectiveGenerator) o;
-        return Misc.doubleEquals(bounds, ref.bounds)
-                && strategy.equals(ref.strategy)
+        return strategy.equals(ref.strategy)
                 && random.equals(ref.random)
                 && prototype.equals(ref.prototype);
     }
@@ -60,7 +55,6 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 67 * hash + (int) (Double.doubleToLongBits(this.bounds) ^ (Double.doubleToLongBits(this.bounds) >>> 32));
         hash = 67 * hash + (this.prototype != null ? this.prototype.hashCode() : 0);
         hash = 67 * hash + (this.strategy != null ? this.strategy.hashCode() : 0);
         hash = 67 * hash + (this.random != null ? this.random.hashCode() : 0);
@@ -69,22 +63,23 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
 
     @Override
     public String toString() {
-        return String.format("[%s: prototype=%s, strategy=%s,bounds=%f,  random=%s]", this.getClass().getSimpleName(), prototype.toString(), strategy.toString(), bounds, random.toString());
+        return String.format("[%s: prototype=%s, strategy=%s,  random=%s]", this.getClass().getSimpleName(), prototype.toString(), strategy.toString(), random.toString());
     }
     // </editor-fold>
     
     public static class Strategy {
         public static abstract class TranformationStrategy {
             public abstract TranslatedDoubleObjective getNewInstance(ObjectiveFunction<DoubleVectorPhenotype> objective, Random random);
+            public abstract boolean repOK();
             @Override public abstract boolean equals(Object o);
             @Override public abstract int hashCode();
             @Override public abstract String toString();
         }
         
-        public static class RandomOffsetCubic extends TranformationStrategy {
+        public static class RandomOffset extends TranformationStrategy {
             private final double bounds;
             
-            public RandomOffsetCubic(final double bounds) { this.bounds = bounds; }
+            public RandomOffset(final double bounds) { this.bounds = bounds; }
             
             @Override public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Random random) {
                 final double[] offset = new double[objective.getNumDimensions()];
@@ -92,19 +87,33 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
                     offset[j] = (2*random.nextDouble() -1)*bounds;
                 return new TranslatedDoubleObjective(offset, objective);
             }
-
+            
+            // <editor-fold defaultstate="collapsed" desc="Standard Methods">
             @Override
             public boolean equals(Object o) {
                 if (this == o)
                     return true;
-                return (o instanceof RandomOffsetCubic);
+                if (!(o instanceof RandomOffset))
+                    return false;
+                final RandomOffset ref = (RandomOffset) o;
+                return Misc.doubleEquals(bounds, ref.bounds);
             }
 
             @Override
-            public int hashCode() { return 5; }
+            public int hashCode() {
+                int hash = 5;
+                hash = 43 * hash + (int) (Double.doubleToLongBits(this.bounds) ^ (Double.doubleToLongBits(this.bounds) >>> 32));
+                return hash;
+            }
 
             @Override
             public String toString() { return String.format("[%s]", this.getClass().getSimpleName());  }
+
+            @Override
+            public boolean repOK() {
+                return !Double.isNaN(bounds) && !Double.isInfinite(bounds);
+            }
+            //</editor-fold>
         }
         
         private TranformationStrategy strategy;
