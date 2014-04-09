@@ -6,7 +6,9 @@ import SigmaEC.util.math.Vector;
 import java.util.Arrays;
 
 /**
- * A steep valley.
+ * A steep valley.  Taken from Jeff Bassett's dissertation.
+ * 
+ * This is a minimization problem.
  * 
  * @author Eric 'Siggy' Scott
  */
@@ -15,7 +17,10 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     private final int numDimensions;
     private final double[] slopeVector;
     private final double[] interceptVector;
-    
+    /**
+     * @param slopeVector The direction along which the valley lies.
+     * @param interceptVector The location of the global optima.
+     */
     public ValleyObjective(int numDimensions, double[] interceptVector, double[] slopeVector)
     {
         if (numDimensions < 1)
@@ -58,19 +63,7 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
-
-        // I think Siggy took this from an equation in my dissertation, but
-        // he may have misinterpreted (or I miswrote) the first term.  It
-        // should be the distance from the individual to the global optima.  
-        // If the optima is at the origin, this is the norm of the vector, not
-        // the absolute value.  JKB
-
-        //double result = Math.abs(ind.getVector()[0]) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
-
-        // The slopeVector defines the direction along which the valley lies.
-        // The interceptVector defines the location of the global optima.
-        // This is a minimization problem.
-
+       
         double result = Vector.euclideanDistance(ind.getVector(), interceptVector) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
         assert(repOK());
         return result;
