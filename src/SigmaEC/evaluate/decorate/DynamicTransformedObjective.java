@@ -20,6 +20,7 @@ public class DynamicTransformedObjective implements ObjectiveFunction<DoubleVect
     public DynamicTransformedObjective(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TransformationStrategy transformationStrategy, final Random random)
     {
         generator = new TransformedObjectiveGenerator(objective, transformationStrategy, random);
+        currentObjective = objective;
         assert(repOK());
     }
     
