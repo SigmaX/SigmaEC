@@ -58,7 +58,20 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
-        double result = Math.abs(ind.getVector()[0]) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
+
+        // I think Siggy took this from an equation in my dissertation, but
+        // he may have misinterpreted (or I miswrote) the first term.  It
+        // should be the distance from the individual to the global optima.  
+        // If the optima is at the origin, this is the norm of the vector, not
+        // the absolute value.  JKB
+
+        //double result = Math.abs(ind.getVector()[0]) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
+
+        // The slopeVector defines the direction along which the valley lies.
+        // The interceptVector defines the location of the global optima.
+        // This is a minimization problem.
+
+        double result = Vector.euclideanDistance(ind.getVector(), interceptVector) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
         assert(repOK());
         return result;
     }
