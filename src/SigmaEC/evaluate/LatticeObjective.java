@@ -1,5 +1,6 @@
 package SigmaEC.evaluate;
 
+import SigmaEC.evaluate.decorate.MaxObjective;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;

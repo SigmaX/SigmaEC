@@ -1,5 +1,6 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.decorate;
 
+import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.Phenotype;
 import java.util.HashMap;
 import java.util.Map;

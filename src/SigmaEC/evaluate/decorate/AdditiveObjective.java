@@ -1,17 +1,18 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.decorate;
 
+import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.Misc;
 import java.util.List;
 
 /**
- * A decorator that multiplies two or more objective functions.
+ * A decorator that sums two or more objective functions.
  * 
  * @author Eric 'Siggy' Scott
- * @author Jeff Bassett
  */
-public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T> {
-     private final List<ObjectiveFunction<? super T>> objectives;
+public class AdditiveObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
+{
+    private final List<ObjectiveFunction<? super T>> objectives;
     private final int numDimensions;
 
     @Override
@@ -20,12 +21,12 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
         return numDimensions;
     }
     
-    public MultiplicativeObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
+    public AdditiveObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
     {
         if (objectives == null)
-            throw new IllegalArgumentException("MultiplicativeObjective: objectives is null.");
+            throw new IllegalArgumentException("AdditiveObjective: objectives is null.");
         if (Misc.containsNulls(objectives))
-            throw new IllegalArgumentException("MultiplicativeObjective: objectives contains null value.");
+            throw new IllegalArgumentException("AdditiveObjective: objectives contains null value.");
         
         this.objectives = objectives;
         this.numDimensions = numDimensions;
@@ -35,20 +36,19 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
     @Override
     public double fitness(T ind)
     {
-        double product = 1.0;
+        double sum = 0;
         for (ObjectiveFunction<? super T> obj : objectives)
-            product *= obj.fitness(ind);
+            sum += obj.fitness(ind);
         assert(repOK());
-        return product;
+        return sum;
     }
-
 
     @Override
     public void setGeneration(int i) {
         for (final ObjectiveFunction o : objectives)
             o.setGeneration(i);
     }
-    
+
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
@@ -60,7 +60,7 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
     @Override
     public String toString()
     {
-        return String.format("[MultiplicativeObjective: Objectives=%s]", objectives);
+        return String.format("[AdditiveObjective: Objectives=%s]", objectives);
     }
     
     @Override
@@ -68,11 +68,12 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
     {
         if (o == this)
             return true;
-        if (!(o instanceof MultiplicativeObjective))
+        if (!(o instanceof AdditiveObjective))
             return false;
         
-        MultiplicativeObjective cRef = (MultiplicativeObjective) o;
-        return objectives.size() == cRef.objectives.size()
+        final AdditiveObjective cRef = (AdditiveObjective) o;
+        return numDimensions == cRef.numDimensions
+                && objectives.size() == cRef.objectives.size()
                 && objectives.equals(cRef.objectives);
     }
 

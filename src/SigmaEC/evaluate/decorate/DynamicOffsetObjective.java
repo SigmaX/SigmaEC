@@ -1,5 +1,6 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.decorate;
 
+import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.Misc;
 import java.util.Random;
@@ -40,9 +41,10 @@ public class DynamicOffsetObjective implements ObjectiveFunction<DoubleVectorPhe
 
     @Override
     public void setGeneration(int i) {
-        final double xOffset = random.nextDouble()*bounds;
-        final double yOffset = random.nextDouble()*bounds;
-        currentObjective = new TranslatedDoubleObjective(new double[] { xOffset, yOffset }, originalObjective);
+        final double[] offset = new double[originalObjective.getNumDimensions()];
+        for (int j = 0; j < offset.length; j++)
+            offset[j] = (2*random.nextDouble() -1)*bounds;
+        currentObjective = new TranslatedDoubleObjective(offset, originalObjective);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

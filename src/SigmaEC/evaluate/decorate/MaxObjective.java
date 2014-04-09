@@ -1,5 +1,6 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.decorate;
 
+import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.Misc;
 import java.util.List;
@@ -8,8 +9,9 @@ import java.util.List;
  * A decorator that sums two or more objective functions.
  * 
  * @author Eric 'Siggy' Scott
+ * @author Jeff Bassett
  */
-public class AdditiveObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
+public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
 {
     private final List<ObjectiveFunction<? super T>> objectives;
     private final int numDimensions;
@@ -20,7 +22,7 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
         return numDimensions;
     }
     
-    public AdditiveObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
+    public MaxObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
     {
         if (objectives == null)
             throw new IllegalArgumentException("AdditiveObjective: objectives is null.");
@@ -35,11 +37,11 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
     @Override
     public double fitness(T ind)
     {
-        double sum = 0;
+        double max = Double.NEGATIVE_INFINITY;
         for (ObjectiveFunction<? super T> obj : objectives)
-            sum += obj.fitness(ind);
+            max = Math.max(max, obj.fitness(ind));
         assert(repOK());
-        return sum;
+        return max;
     }
 
     @Override
@@ -59,7 +61,7 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
     @Override
     public String toString()
     {
-        return String.format("[AdditiveObjective: Objectives=%s]", objectives);
+        return String.format("[MaxObjective: Objectives=%s]", objectives);
     }
     
     @Override
@@ -67,10 +69,10 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
     {
         if (o == this)
             return true;
-        if (!(o instanceof AdditiveObjective))
+        if (!(o instanceof MaxObjective))
             return false;
         
-        final AdditiveObjective cRef = (AdditiveObjective) o;
+        final MaxObjective cRef = (MaxObjective) o;
         return numDimensions == cRef.numDimensions
                 && objectives.size() == cRef.objectives.size()
                 && objectives.equals(cRef.objectives);
@@ -79,7 +81,8 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 47 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
+        hash = 67 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
+        hash = 67 * hash + this.numDimensions;
         return hash;
     }
     //</editor-fold>

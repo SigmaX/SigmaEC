@@ -1,18 +1,18 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.decorate;
 
+import SigmaEC.evaluate.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.Misc;
 import java.util.List;
 
 /**
- * A decorator that sums two or more objective functions.
+ * A decorator that multiplies two or more objective functions.
  * 
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
-{
-    private final List<ObjectiveFunction<? super T>> objectives;
+public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T> {
+     private final List<ObjectiveFunction<? super T>> objectives;
     private final int numDimensions;
 
     @Override
@@ -21,12 +21,12 @@ public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveF
         return numDimensions;
     }
     
-    public MaxObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
+    public MultiplicativeObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
     {
         if (objectives == null)
-            throw new IllegalArgumentException("AdditiveObjective: objectives is null.");
+            throw new IllegalArgumentException("MultiplicativeObjective: objectives is null.");
         if (Misc.containsNulls(objectives))
-            throw new IllegalArgumentException("AdditiveObjective: objectives contains null value.");
+            throw new IllegalArgumentException("MultiplicativeObjective: objectives contains null value.");
         
         this.objectives = objectives;
         this.numDimensions = numDimensions;
@@ -36,19 +36,20 @@ public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveF
     @Override
     public double fitness(T ind)
     {
-        double max = Double.NEGATIVE_INFINITY;
+        double product = 1.0;
         for (ObjectiveFunction<? super T> obj : objectives)
-            max = Math.max(max, obj.fitness(ind));
+            product *= obj.fitness(ind);
         assert(repOK());
-        return max;
+        return product;
     }
+
 
     @Override
     public void setGeneration(int i) {
         for (final ObjectiveFunction o : objectives)
             o.setGeneration(i);
     }
-
+    
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
@@ -60,7 +61,7 @@ public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveF
     @Override
     public String toString()
     {
-        return String.format("[MaxObjective: Objectives=%s]", objectives);
+        return String.format("[MultiplicativeObjective: Objectives=%s]", objectives);
     }
     
     @Override
@@ -68,20 +69,18 @@ public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveF
     {
         if (o == this)
             return true;
-        if (!(o instanceof MaxObjective))
+        if (!(o instanceof MultiplicativeObjective))
             return false;
         
-        final MaxObjective cRef = (MaxObjective) o;
-        return numDimensions == cRef.numDimensions
-                && objectives.size() == cRef.objectives.size()
+        MultiplicativeObjective cRef = (MultiplicativeObjective) o;
+        return objectives.size() == cRef.objectives.size()
                 && objectives.equals(cRef.objectives);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 67 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
-        hash = 67 * hash + this.numDimensions;
+        hash = 47 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
         return hash;
     }
     //</editor-fold>
