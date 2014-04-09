@@ -7,19 +7,19 @@ import SigmaEC.represent.DoubleVectorPhenotype;
 import java.util.Random;
 
 /**
- * A dynamic fitness function that applies a new random offset to the wrapped
- * ObjectiveFunction at every generation.
+ * A dynamic fitness function that applies a new random transformation to the
+ * wrapped ObjectiveFunction at every generation.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DynamicOffsetObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class DynamicTransformedObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final TransformedObjectiveGenerator generator;
     private ObjectiveFunction<DoubleVectorPhenotype> currentObjective;
     
-    public DynamicOffsetObjective(ObjectiveFunction<DoubleVectorPhenotype> objective, final Random random, final double bounds)
+    public DynamicTransformedObjective(ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TranformationStrategy transformationStrategy, final Random random, final double bounds)
     {
-        generator = new TransformedObjectiveGenerator(objective, new Strategy.RandomOffsetCubic(bounds), random, bounds);
+        generator = new TransformedObjectiveGenerator(objective, transformationStrategy, random, bounds);
         assert(repOK());
     }
     
@@ -54,10 +54,10 @@ public class DynamicOffsetObjective implements ObjectiveFunction<DoubleVectorPhe
     public boolean equals(Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof DynamicOffsetObjective))
+        if (!(o instanceof DynamicTransformedObjective))
             return false;
         
-        final DynamicOffsetObjective cRef = (DynamicOffsetObjective) o;
+        final DynamicTransformedObjective cRef = (DynamicTransformedObjective) o;
         return generator.equals(cRef.generator)
                 && currentObjective.equals(cRef.currentObjective);
     }
