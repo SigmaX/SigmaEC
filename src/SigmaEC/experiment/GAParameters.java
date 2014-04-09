@@ -18,6 +18,8 @@ public class GAParameters {
     public final int numRuns;
     public final int tournamentSize;
     
+    public final boolean isDynamic;
+    
     private GAParameters(final Builder builder) {
         this.numBits = builder.numBits;
         this.populationSize = builder.populationSize;
@@ -25,6 +27,7 @@ public class GAParameters {
         this.bitMutationRate = builder.bitMutationRate;
         this.numRuns = builder.numRuns;
         this.tournamentSize = builder.tournamentSize;
+        this.isDynamic = builder.isDynamic;
     }
     
     // Copy constructor
@@ -35,6 +38,7 @@ public class GAParameters {
         this.bitMutationRate = ref.bitMutationRate;
         this.numRuns = ref.numRuns;
         this.tournamentSize = ref.tournamentSize;
+        this.isDynamic = ref.isDynamic;
     }
     
     /** The Builder pattern allows us to concisely create an immutable
@@ -58,6 +62,7 @@ public class GAParameters {
         private double bitMutationRate = 0.03;
         private int numRuns = 30;
         private int tournamentSize = 2;
+        private boolean isDynamic = false;
         
         public Builder() {
         }
@@ -70,6 +75,7 @@ public class GAParameters {
             this.bitMutationRate = ref.bitMutationRate;
             this.numRuns = ref.numRuns;
             this.tournamentSize = ref.tournamentSize;
+            this.isDynamic = ref.isDynamic;
         }
         
         public GAParameters build() {
@@ -110,6 +116,11 @@ public class GAParameters {
         public Builder tournamentSize(final int tournamentSize) {
             assert(tournamentSize > 1);
             this.tournamentSize = tournamentSize;
+            return this;
+        }
+        
+        public Builder isDynamic(final boolean isDynamic) {
+            this.isDynamic = isDynamic;
             return this;
         }
     }

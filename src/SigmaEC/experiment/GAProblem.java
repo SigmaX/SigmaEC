@@ -38,7 +38,8 @@ public class GAProblem<P extends Phenotype> implements Problem<LinearGenomeIndiv
 
     @Override
     public void setGeneration(int i) {
-        objective.setGeneration(i);
+        if (parameters.isDynamic)
+            objective.setGeneration(i);
     }
 
     @Override
