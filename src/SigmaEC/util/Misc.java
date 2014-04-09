@@ -106,6 +106,8 @@ public final class Misc
     
     public static boolean doubleArrayEquals(final double[] a, final double[] b)
     {
+        assert(a != null);
+        assert(b != null);
         if (a.length != b.length)
             return false;
         for (int i = 0; i < a.length; i++)
@@ -115,6 +117,15 @@ public final class Misc
         }
         return true;
     }
+    
+    public static boolean allFinite(final double[] a) {
+        assert(a != null);
+        for (final double d : a)
+            if (Double.isNaN(d) || Double.isInfinite(d))
+                return false;
+        return true;
+    }
+    
     public static Writer openFile(String path)
     {
         try
