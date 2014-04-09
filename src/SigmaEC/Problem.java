@@ -1,6 +1,6 @@
 package SigmaEC;
 
-import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Phenotype;

@@ -1,6 +1,6 @@
 package SigmaEC.select;
 
-import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.test.TestDecoder;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.test.TestObjective;

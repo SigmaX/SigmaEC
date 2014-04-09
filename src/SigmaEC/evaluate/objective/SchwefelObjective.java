@@ -1,4 +1,4 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
 

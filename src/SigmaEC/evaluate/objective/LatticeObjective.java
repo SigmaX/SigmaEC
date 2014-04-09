@@ -1,4 +1,4 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.objective;
 
 import SigmaEC.evaluate.decorate.MaxObjective;
 import SigmaEC.represent.DoubleVectorPhenotype;

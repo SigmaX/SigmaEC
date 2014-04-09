@@ -1,25 +1,26 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
 
+
 /**
- *
+ * An n-dimensional generalization of Rosenbrock's objective function:
+ * f(x) = \sum_i^{n-1} 100(x_i^2 - x_{i+1})^2 + (1 - x_i)^2.  Traditionally,
+ * each variable is bound between -2.048 and 2.048 (inclusive).
+ * 
  * @author Eric 'Siggy' Scott
- * @author Jeff Bassett
  */
-public class ConstantObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T> {
-    
+public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+{
     private final int numDimensions;
-    private final double value;
     
-    public ConstantObjective(final int numDimensions, final double fitnessValue)
+    public RosenbrockObjective(int numDimensions)
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("ConstantObjective: numDimensions is < 1.");
+            throw new IllegalArgumentException("RosenbrockObjective: numDimensions is < 1.");
         if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("ConstantObjective: numDimensions is infinite, must be finite.");
+            throw new IllegalArgumentException("RosenbrockObjective: numDimensions is infinite, must be finite.");
         this.numDimensions = numDimensions;
-        this.value = fitnessValue;
         assert(repOK());
     }
 
@@ -33,8 +34,10 @@ public class ConstantObjective<T extends DoubleVectorPhenotype> implements Objec
     public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
-        assert(repOK());
-        return value;
+        double sum = 0;
+        for(int i = 0; i < ind.size() - 1; i++)
+            sum+= 100*Math.pow((ind.getElement(i+1) - Math.pow(ind.getElement(i), 2)), 2) + Math.pow((1 - ind.getElement(i)), 2);
+        return sum;
     }
 
     @Override
@@ -48,22 +51,21 @@ public class ConstantObjective<T extends DoubleVectorPhenotype> implements Objec
     {
         return numDimensions > 0;
     }
-
+    
     @Override
     public String toString()
     {
-        return String.format("[ConstantObjective: NumDimensions=%d, Value=%f]", numDimensions, value);
+        return String.format("[RosenbrockObjective: NumDimensionts=%d]", numDimensions);
     }
     
     @Override
     public boolean equals(Object o)
     {
-        if (!(o instanceof ConstantObjective))
+        if (!(o instanceof RosenbrockObjective))
             return false;
         
-        final ConstantObjective cRef = (ConstantObjective) o;
-        return numDimensions == cRef.numDimensions
-                && Math.abs(value - cRef.value) < 0.000001;
+        RosenbrockObjective cRef = (RosenbrockObjective) o;
+        return numDimensions == cRef.numDimensions;
     }
 
     @Override

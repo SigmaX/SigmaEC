@@ -1,6 +1,6 @@
 package SigmaEC.test;
 
-import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 
 /**
  * A simple objective for use with TestIndividual -- fitness is equal to the

@@ -1,6 +1,6 @@
 package SigmaEC.select;
 
-import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.represent.Individual;
 import SigmaEC.test.TestDecoder;

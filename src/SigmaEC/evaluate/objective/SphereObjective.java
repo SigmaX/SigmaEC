@@ -1,24 +1,23 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
 
 /**
- * A piecewise continuous step function from De Jong's original suite.  Sums the
- * floor of a vector's elements.  Traditionally, each variable is bounded
- * between -5.12 and 5.12 (inclusive).
+ * The so-called "sphere function," f(x) = \sum_i x_i^2.  This is actually a
+ * paraboloid, but De Jong (1975) introduced it originally as a function over
+ * three variables, which has "spherical constant-cost contours." 
+ * Traditionally, each variable is bounded between -5.12 and 5.12 (inclusive).
  * 
  * @author Eric 'Siggy' Scott
  */
-public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     
-    public StepObjective(int numDimensions)
+    public SphereObjective(int numDimensions)
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("StepObjective: numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("StepObjective: numDimensions is infinite, must be finite.");
+            throw new IllegalArgumentException("SphereObjective: numDimensions is < 1.");
         this.numDimensions = numDimensions;
         assert(repOK());
     }
@@ -29,14 +28,13 @@ public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>
         return numDimensions;
     }
     
-    
     @Override
-    public double fitness(final DoubleVectorPhenotype ind)
+    public double fitness(DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
-        int sum = 0;
-        for(double d : ind.getVector())
-            sum += (int) d;
+        double sum = 0;
+        for (double d : ind.getVector())
+            sum+= Math.pow(d,2);
         assert(repOK());
         return sum;
     }
@@ -52,29 +50,28 @@ public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     {
         return numDimensions > 0;
     }
-    
+
     @Override
     public String toString()
     {
-        return String.format("[StepObjective: NumDimensions=%d]", numDimensions);
+        return String.format("[SphereObjective: NumDimensions=%d]", numDimensions);
     }
     
     @Override
     public boolean equals(Object o)
     {
-        if (!(o instanceof StepObjective))
+        if (!(o instanceof SphereObjective))
             return false;
         
-        StepObjective cRef = (StepObjective) o;
+        SphereObjective cRef = (SphereObjective) o;
         return numDimensions == cRef.numDimensions;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 37 * hash + this.numDimensions;
+        hash = 97 * hash + this.numDimensions;
         return hash;
     }
     //</editor-fold>
-
 }

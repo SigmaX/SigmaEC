@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.decorate;
 
-import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import java.util.Arrays;
 

@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.decorate;
 
-import SigmaEC.evaluate.ConstantObjective;
-import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.evaluate.objective.ConstantObjective;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.util.math.Matrix;
 import SigmaEC.util.math.Vector;

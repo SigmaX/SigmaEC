@@ -1,7 +1,7 @@
 package SigmaEC.experiment;
 
 import SigmaEC.Problem;
-import SigmaEC.evaluate.ObjectiveFunction;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.BitGene;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.DoubleGene;
