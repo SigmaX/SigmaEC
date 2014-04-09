@@ -115,10 +115,6 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
             }
             //</editor-fold>
         }
-        
-        private TranformationStrategy strategy;
-        private Strategy(final TranformationStrategy strategy) { this.strategy = strategy; };
-        public TranformationStrategy get() { return strategy; }
     }
     
 }
