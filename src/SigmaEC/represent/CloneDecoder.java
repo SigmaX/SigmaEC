@@ -5,11 +5,33 @@ package SigmaEC.represent;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class CloneDecoder<T extends Individual & Phenotype> implements Decoder<T, T> {
+public class CloneDecoder<T extends Individual & Phenotype> extends Decoder<T, T> {
 
     @Override
     public T decode(T individual) {
         return individual;
     }
-    
+
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
+    @Override
+    public final boolean repOK() {
+        return true;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        return (o instanceof CloneDecoder);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s]", this.getClass().getSimpleName());
+    }
+    // </editor-fold>
 }
