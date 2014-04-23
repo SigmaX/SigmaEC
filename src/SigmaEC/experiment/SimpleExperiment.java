@@ -18,6 +18,12 @@ public class SimpleExperiment<T extends Individual> extends Experiment {
     private final CircleOfLife<T> circleOfLife;
     private final int numRuns;
     
+    public static <T extends Individual> SimpleExperiment<T> create(final Properties properties, final String base) {
+        assert(properties != null);
+        assert(base != null);
+        return new Builder<T>(properties, base).build();
+    }
+    
     private SimpleExperiment(final Builder builder) {
         assert(builder != null);
         this.initializer = builder.initializer;
@@ -45,9 +51,31 @@ public class SimpleExperiment<T extends Individual> extends Experiment {
         public Builder(final Properties properties, final String base) {
             assert(properties != null);
             assert(base != null);
-            this.initializer = Parameters.getInstanceFromParameter(properties, P_INITIALIZER, Initializer.class);
-            this.circleOfLife = Parameters.getInstanceFromParameter(properties, P_CIRCLE_OF_LIFE, CircleOfLife.class);
-            this.numRuns = Parameters.getIntParameter(properties, P_NUM_RUNS);
+            this.initializer = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_INITIALIZER), Initializer.class);
+            this.circleOfLife = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_CIRCLE_OF_LIFE), CircleOfLife.class);
+            this.numRuns = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_RUNS));
+        }
+        
+        public SimpleExperiment<T> build() {
+            return new SimpleExperiment<T>(this);
+        }
+
+        public Builder<T> initializer(final Initializer<T> initializer) {
+            assert(initializer != null);
+            this.initializer = initializer;
+            return this;
+        }
+
+        public Builder<T> circleOfLife(final CircleOfLife<T> circleOfLife) {
+            assert(circleOfLife != null);
+            this.circleOfLife = circleOfLife;
+            return this;
+        }
+
+        public Builder<T> numRuns(final int numRuns) {
+            assert(numRuns > 0);
+            this.numRuns = numRuns;
+            return this;
         }
     }
     

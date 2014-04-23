@@ -1,7 +1,7 @@
 package SigmaEC.measure;
 
+import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -13,26 +13,21 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public interface PopulationMetric<T extends Individual>
+public abstract class PopulationMetric<T extends Individual> extends ContractObject
 {
     /** Gathers some information about a population and does something with it.
      * @param run The run the sample is coming from
      * @param generation The generation the sample is coming from
      */
-    public abstract Measurement measurePopulation(int run, int generation, List<T> population) throws IOException;
+    public abstract Measurement measurePopulation(int run, int generation, List<T> population);
     
     /** Reset any mutable state to prepare for a fresh run. */
     public abstract void reset();
     
     /** Flush any I/O buffers. */
-    public abstract void flush() throws IOException;
+    public abstract void flush();
     
     /** Close any file resources used by this metric.  Once this is called,
-     * the metric can no longer be used.
-     */
-    public abstract void close() throws IOException;
-    
-    /** Representation invariant.  If this returns false, there is something
-     * invalid about the Individual's internal state. */
-    public boolean repOK();
+     * the metric can no longer be used. */
+    public abstract void close();
 }
