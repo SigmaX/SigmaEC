@@ -23,7 +23,7 @@ public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndi
     {
         final List<String> arrays = new ArrayList<String>() {{
             for(T ind : population) {
-                final StringBuilder sb = new StringBuilder(run).append(",").append(generation).append(",").append(Long.toString(ind.getID()));
+                final StringBuilder sb = new StringBuilder().append(run).append(",").append(generation).append(",").append(Long.toString(ind.getID()));
                 for(final BitGene g : ind.getGenome())
                     sb.append(",").append(g.value);
                 add(sb.toString());
