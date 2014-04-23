@@ -69,8 +69,8 @@ public class Parameters {
         assert(expectedSuperClass != null);
         final String[] classNames = getParameter(properties, parameterName).split(LIST_DELIMITER);
         return new ArrayList<T>() {{
-            for (final String name : classNames)
-                add((T) getInstanceFromClassName(properties, name, parameterName, expectedSuperClass));
+            for (int i = 0; i < classNames.length; i++)
+                add((T) getInstanceFromClassName(properties, classNames[i], push(parameterName, String.valueOf(i)), expectedSuperClass));
         }};
     }
     
@@ -83,24 +83,24 @@ public class Parameters {
             return Option.NONE;
         final String[] classNames = classNamesOption.get().split(LIST_DELIMITER);
         return new Option<List<T>>(new ArrayList<T>() {{
-            for (final String name : classNames)
-                add((T) getInstanceFromClassName(properties, name, parameterName, expectedSuperClass));
+            for (int i = 0; i < classNames.length; i++)
+                add((T) getInstanceFromClassName(properties, classNames[i], push(parameterName, String.valueOf(i)), expectedSuperClass));
         }});
     }
 
-    private static <T> T getInstanceFromClassName(final Properties properties, final String className, final String parameterName, final Class expectedSuperClass) throws IllegalStateException {
+    private static <T> T getInstanceFromClassName(final Properties properties, final String className, final String base, final Class expectedSuperClass) throws IllegalStateException {
         final Class c;
         try {
             c = Class.forName(className);
         } catch (final ClassNotFoundException ex) {
-            throw new IllegalStateException(String.format("%s: No such class '%s', requested by parameter '%s' (%s).", Parameters.class.getSimpleName(), className, parameterName, ex.getMessage()));
+            throw new IllegalStateException(String.format("%s: No such class '%s', requested by parameter '%s' (%s).", Parameters.class.getSimpleName(), className, base, ex.getMessage()));
         }
         if (!expectedSuperClass.isAssignableFrom(c))
-            throw new IllegalStateException(String.format("%s: The class requested by the parameter '%s' is not a subtype of '%s'.", Parameters.class.getSimpleName(), parameterName, expectedSuperClass.getSimpleName()));
+            throw new IllegalStateException(String.format("%s: The class requested by the parameter '%s' is not a subtype of '%s'.", Parameters.class.getSimpleName(), base, expectedSuperClass.getSimpleName()));
         final T result;
         try {
             final Method factoryMethod = c.getMethod("create", String.class, Properties.class);
-            result = (T) factoryMethod.invoke(null, properties, parameterName);
+            result = (T) factoryMethod.invoke(null, properties, base);
         } catch (final Exception ex) {
             throw new IllegalStateException(String.format("%s: failed to create instance of class '%s' (%s).", Parameters.class.getSimpleName(), className, ex.getMessage()));
         }

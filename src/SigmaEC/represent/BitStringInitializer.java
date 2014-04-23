@@ -1,5 +1,6 @@
 package SigmaEC.represent;
 
+import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -9,23 +10,66 @@ import java.util.Properties;
  * @author Eric 'Siggy' Scott
  */
 public class BitStringInitializer extends Initializer<BitStringIndividual> {
-    private final static String P_POPULATION_SIZE = "populationSize";
     private final int populationSize;
+    private final int numBits;
     
-    public static class Builder
+    private BitStringInitializer(final Builder builder) {
+        assert(builder != null);
+        this.populationSize = builder.populationSize;
+        this.numBits = builder.numBits;
+        assert(repOK());
+    }
+    
+    public static class Builder {
+        private final static String P_POPULATION_SIZE = "populationSize";
+        private final static String P_NUM_BITS = "numBits";
+        
+        private int populationSize;
+        private int numBits;
+        
+        public Builder(final int populationSize, final int numBits) {
+            assert(populationSize > 1);
+            assert(numBits > 0);
+            this.populationSize = populationSize;
+            this.numBits = numBits;
+        }
+        
+        public Builder(final Properties properties, final String base) {
+            assert(properties != null);
+            assert(base != null);
+            this.populationSize = Parameters.getIntParameter(properties, Parameters.push(base, P_POPULATION_SIZE));
+            this.numBits = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_BITS));
+        }
+        
+        public BitStringInitializer build() {
+            return new BitStringInitializer(this);
+        }
+        
+        public Builder populationSize(final int populationSize) {
+            assert(populationSize > 1);
+            this.populationSize = populationSize;
+            return this;
+        }
+        
+        public Builder numBits(final int numBits) {
+            assert(numBits > 0);
+            this.numBits = numBits;
+            return this;
+        }
+    }
     
     
     @Override
-    public List<BitStringIndividual> generateInitialPopulation(final Properties properties, final String base) {
+    public List<BitStringIndividual> generateInitialPopulation() {
         
-        return new ArrayList<BitStringIndividual>(params.populationSize) {{
-            for (int i = 0; i < params.populationSize; i++)
-                add(new BitStringIndividual(random, params.numBits));
+        return new ArrayList<BitStringIndividual>(populationSize) {{
+            for (int i = 0; i < populationSize; i++)
+                add(new BitStringIndividual(random, numBits));
         }};
     }
 
     @Override
-    public boolean repOK() {
+    public final boolean repOK() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
