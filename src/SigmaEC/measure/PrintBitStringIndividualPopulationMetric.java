@@ -19,11 +19,11 @@ public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndi
     }
     
     @Override
-    public MultipleStringMeasurement measurePopulation(int run, int generation, final List<T> population) throws IOException
+    public MultipleStringMeasurement measurePopulation(final int run, final int generation, final List<T> population) throws IOException
     {
         final List<String> arrays = new ArrayList<String>() {{
             for(T ind : population) {
-                final StringBuilder sb = new StringBuilder(Long.toString(ind.getID()));
+                final StringBuilder sb = new StringBuilder(run).append(",").append(generation).append(",").append(Long.toString(ind.getID()));
                 for(final BitGene g : ind.getGenome())
                     sb.append(",").append(g.value);
                 add(sb.toString());
