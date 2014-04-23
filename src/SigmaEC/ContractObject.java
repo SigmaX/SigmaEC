@@ -1,14 +1,10 @@
-package SigmaEC.experiment;
+package SigmaEC;
 
 /**
- * Defines a complete evolutionary experiment which can be called from the
- * program's main method.
- * 
+ *
  * @author Eric 'Siggy' Scott
  */
-public abstract class Experiment {
-    public abstract void run();
-    
+public abstract class ContractObject {
     /** Representation invariant.  If this returns false, there is something
      * invalid about this object's internal state. */
     public abstract boolean repOK();

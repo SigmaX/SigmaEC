@@ -1,5 +1,7 @@
 package SigmaEC.measure;
 
+import SigmaEC.ContractObject;
+
 /**
  * Represents a measurement taken of a population at a given generation in an
  * evolutionary algorithm.
@@ -9,10 +11,9 @@ package SigmaEC.measure;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class Measurement {
+public abstract class Measurement extends ContractObject {
     public abstract int getRun();
     public abstract int getGeneration();
-    public abstract boolean repOK();
     
     /** @return A CSV representation of the measurement suitable for
      * printing to a file.  This may be more than one line, but every line
