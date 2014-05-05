@@ -12,6 +12,12 @@ public class StatisticsTest {
     public StatisticsTest() {
     }
     
+    @Test(expected = AssertionError.class)
+    public void testNoInstantiation() throws Exception {
+        System.out.println("instantiation");
+        final Object o = Statistics.class.newInstance();
+    }
+    
     /** Test of mean method, of class Misc. */
     @Test
     public void testMean() {
@@ -36,8 +42,38 @@ public class StatisticsTest {
     /** Test of max method, of class Misc. */
     @Test
     public void testMax() {
-        System.out.println("max");
+        System.out.println("max (even index)");
         double[] values = new double[] { 5, 1, 9, 16, -3, 8, -15, 22, 7.5, 5, 0.1 };
+        double expResult = 22;
+        double result = Statistics.max(values);
+        assertEquals(expResult, result, 0.0);
+    }
+
+    /** Test of max method, of class Misc. */
+    @Test
+    public void testMaxOddIndex() {
+        System.out.println("max (odd index)");
+        double[] values = new double[] { 5, 1, 9, 16, -3, 8, 22, -15, 7.5, 5, 0.1 };
+        double expResult = 22;
+        double result = Statistics.max(values);
+        assertEquals(expResult, result, 0.0);
+    }
+
+    /** Test of max method, of class Misc. */
+    @Test
+    public void testMaxFirst() {
+        System.out.println("max (first element)");
+        double[] values = new double[] { 22, 1, 9, 16, -3, 8, -15, 5, 7.5, 5, 0.1 };
+        double expResult = 22;
+        double result = Statistics.max(values);
+        assertEquals(expResult, result, 0.0);
+    }
+
+    /** Test of max method, of class Misc. */
+    @Test
+    public void testMaxLast() {
+        System.out.println("max (last element)");
+        double[] values = new double[] { 0.1, 1, 9, 16, -3, 8, -15, 5, 7.5, 5, 22 };
         double expResult = 22;
         double result = Statistics.max(values);
         assertEquals(expResult, result, 0.0);
@@ -48,6 +84,26 @@ public class StatisticsTest {
     public void testMin() {
         System.out.println("min");
         double[] values = new double[] { 5, 1, 9, 16, -3, 8, -15, 22, 7.5, 5, 0.1 };
+        double expResult = -15;
+        double result = Statistics.min(values);
+        assertEquals(expResult, result, 0.0);
+    }
+
+    /** Test of min method, of class Misc. */
+    @Test
+    public void testMinFirst() {
+        System.out.println("min (first element)");
+        double[] values = new double[] { -15, 1, 9, 16, -3, 8, 5, 22, 7.5, 5, 0.1 };
+        double expResult = -15;
+        double result = Statistics.min(values);
+        assertEquals(expResult, result, 0.0);
+    }
+
+    /** Test of min method, of class Misc. */
+    @Test
+    public void testMinLast() {
+        System.out.println("min (last element)");
+        double[] values = new double[] { 5, 1, 9, 16, -3, 8, 0.1, 22, 7.5, 5, -15 };
         double expResult = -15;
         double result = Statistics.min(values);
         assertEquals(expResult, result, 0.0);
