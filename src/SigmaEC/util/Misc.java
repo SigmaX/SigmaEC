@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -43,6 +44,16 @@ public final class Misc
         assert(c != null);
         for (Object o : c)
             if (o == null)
+                return true;
+        return false;
+    }
+    
+    /** returns true if c contains any NaN values. */
+    public static boolean containsNaNs(final double[] c)
+    {
+        assert(c != null);
+        for (int i = 0; i < c.length; i++)
+            if (Double.isNaN(c[i]))
                 return true;
         return false;
     }
@@ -86,33 +97,44 @@ public final class Misc
     }
     
     /** Irwin-Hall approximation of a standard Gaussian distribution. */
-    public static double gaussianSample(final Random random)
-    {
+    public static double gaussianSample(final Random random) {
         double sum = 0;
         for (int i = 0; i < 12; i++)
             sum += random.nextDouble();
         return sum - 6;
     }
     
-    public static boolean doubleEquals(final double a, final double b)
-    {
+    public static boolean doubleEquals(final double a, final double b) {
         return doubleEquals(a, b, 0.000001);
     }
     
-    public static boolean doubleEquals(final double a, final double b, final double epsilon)
-    {
+    public static boolean doubleEquals(final double a, final double b, final double epsilon) {
         return Math.abs(a - b) < epsilon;
     }
     
-    public static boolean doubleArrayEquals(final double[] a, final double[] b)
-    {
+    public static boolean doubleArrayEquals(final double[] a, final double[] b) {
         assert(a != null);
         assert(b != null);
+        if (a == b)
+            return true;
         if (a.length != b.length)
             return false;
-        for (int i = 0; i < a.length; i++)
-        {
+        for (int i = 0; i < a.length; i++) {
             if (!doubleEquals(a[i], b[i]))
+                return false;
+        }
+        return true;
+    }
+    
+    public static boolean listOfDoubleArraysEquals(final List<double[]> a, final List<double[]> b) {
+        assert(a != null);
+        assert(b != null);
+        if (a == b)
+            return true;
+        if (a.size() != b.size())
+            return false;
+        for (int i = 0; i < a.size(); i++) {
+            if (!doubleArrayEquals(a.get(i), b.get(i)))
                 return false;
         }
         return true;

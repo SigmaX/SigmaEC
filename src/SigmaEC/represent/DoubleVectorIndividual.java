@@ -16,13 +16,21 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     /** Construct a random double vector.
      * 
      * @param random PRNG
-     * @param numBits Length of the double vector.
+     * @param numDimensions Length of the double vector.
      * @param pTrue Probability that any given bit is assigned a value of T (as opposed to F).
      */
-    public DoubleVectorIndividual(final Random random, final int numBits, final double bound) {
-        this.genome = new ArrayList<DoubleGene>(numBits) {{
-           for (int i = 0; i < numBits; i++) {
-               final double roll = (2*random.nextDouble() - 1)*bound;
+    public DoubleVectorIndividual(final Random random, final int numDimensions, final double[] minValues, final double[] maxValues) {
+        assert(random != null);
+        assert(numDimensions > 0);
+        assert(minValues != null);
+        assert(maxValues != null);
+        assert(minValues.length == numDimensions);
+        assert(maxValues.length == numDimensions);
+        this.genome = new ArrayList<DoubleGene>(numDimensions) {{
+           for (int i = 0; i < numDimensions; i++) {
+               final double delta = maxValues[i] - minValues[i];
+               assert(delta >= 0);
+               final double roll = minValues[i] + (random.nextDouble()*delta);
                add(new DoubleGene(roll));
            } 
         }};

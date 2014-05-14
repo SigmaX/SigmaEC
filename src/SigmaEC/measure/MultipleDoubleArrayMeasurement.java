@@ -43,6 +43,7 @@ public class MultipleDoubleArrayMeasurement extends Measurement {
     @Override
     public int getGeneration() { return generation; }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
         return run >= 0
@@ -59,5 +60,25 @@ public class MultipleDoubleArrayMeasurement extends Measurement {
             sb.append((new DoubleArrayMeasurement(run, generation, v)).toString());
         return sb.toString();
     }
+    
+    @Override
+    public boolean equals(final Object o) {
+        if (!(o instanceof MultipleDoubleArrayMeasurement))
+            return false;
+        final MultipleDoubleArrayMeasurement ref = (MultipleDoubleArrayMeasurement) o;
+        return run == ref.run
+                && generation == ref.generation
+                && Misc.listOfDoubleArraysEquals(vectors, vectors);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + this.run;
+        hash = 67 * hash + this.generation;
+        hash = 67 * hash + (this.vectors != null ? this.vectors.hashCode() : 0);
+        return hash;
+    }
+    // </editor-fold>
     
 }

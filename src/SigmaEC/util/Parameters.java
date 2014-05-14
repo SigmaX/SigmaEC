@@ -31,6 +31,23 @@ public class Parameters {
         return Integer.parseInt(value);
     }
     
+    public static double getDoubleParameter(final Properties properties, final String parameterName) {
+        assert(properties != null);
+        assert(parameterName != null);
+        final String value = properties.getProperty(parameterName);
+        if (value == null)
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was no found in properties.", Parameters.class.getSimpleName(), parameterName));
+        return Double.parseDouble(value);
+    }
+    
+    public static double[] getDoubleArrayParameter(final Properties properties, final String parameterName) {
+        final String[] doubleStrings = getParameter(properties, parameterName).split(LIST_DELIMITER);
+        final double[] array = new double[doubleStrings.length];
+        for (int i = 0; i < doubleStrings.length; i++)
+            array[i] = Double.parseDouble(doubleStrings[i]);
+        return array;
+    }
+    
     public static String getParameter(final Properties properties, final String parameterName) {
         assert(properties != null);
         assert(parameterName != null);

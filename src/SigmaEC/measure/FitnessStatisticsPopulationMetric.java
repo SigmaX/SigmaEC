@@ -4,8 +4,8 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Phenotype;
+import SigmaEC.util.Misc;
 import SigmaEC.util.math.Statistics;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -14,7 +14,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class FitnessStatisticsPopulationMetric<T extends Individual, P extends Phenotype> implements PopulationMetric<T>
+public class FitnessStatisticsPopulationMetric<T extends Individual, P extends Phenotype> extends PopulationMetric<T>
 {
     final private ObjectiveFunction<P> objective;
     final private Decoder<T, P> decoder;
@@ -23,7 +23,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
     public FitnessStatisticsPopulationMetric(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder)
     {
         if (objective == null)
-            throw new IllegalArgumentException("FitnessStatisticsPopulationMetric: objective was null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
         this.objective = objective;
         this.decoder = decoder;
         assert(repOK());
@@ -31,7 +31,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
     
     /** Prints a row of the form "run, generation, mean, std, max, min, bsf". */
     @Override
-    public FitnessStatisticsMeasurement measurePopulation(int run, int generation, List<T> population) throws IOException
+    public FitnessStatisticsMeasurement measurePopulation(int run, int generation, List<T> population)
     {
         final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
@@ -49,42 +49,41 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P extends P
     public void reset() { }
 
     @Override
-    public void flush() throws IOException { }
+    public void flush() { }
 
     @Override
-    public void close() throws IOException { }
+    public void close() { }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return objective != null
                 && decoder != null;
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[FitnessStatisticsPopulationMetric: Objective=%s, Decoder=%s]", objective, decoder);
+    public String toString() {
+        return String.format("[%s: objective=%s, decoder=%s, bestSoFar=%f]", this.getClass().getSimpleName(), objective, decoder, bestSoFar);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof FitnessStatisticsPopulationMetric))
             return false;
-        FitnessStatisticsPopulationMetric cRef = (FitnessStatisticsPopulationMetric) o;
+        final FitnessStatisticsPopulationMetric cRef = (FitnessStatisticsPopulationMetric) o;
         return objective.equals(cRef.objective)
-                && decoder.equals(cRef.decoder);
+                && decoder.equals(cRef.decoder)
+                && Misc.doubleEquals(bestSoFar, cRef.bestSoFar);
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 29 * hash + (this.objective != null ? this.objective.hashCode() : 0);
-        hash = 29 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        int hash = 7;
+        hash = 79 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 79 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.bestSoFar) ^ (Double.doubleToLongBits(this.bestSoFar) >>> 32));
         return hash;
     }
     //</editor-fold>

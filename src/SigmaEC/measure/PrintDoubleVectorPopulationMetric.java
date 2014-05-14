@@ -13,7 +13,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PrintDoubleVectorPopulationMetric<T extends Individual> implements PopulationMetric<T>
+public class PrintDoubleVectorPopulationMetric<T extends Individual> extends PopulationMetric<T>
 {
     private final Decoder<T, DoubleVectorPhenotype> decoder;
     
@@ -26,7 +26,7 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
     }
     
     @Override
-    public MultipleDoubleArrayMeasurement measurePopulation(int run, int generation, final List<T> population) throws IOException
+    public MultipleDoubleArrayMeasurement measurePopulation(int run, int generation, final List<T> population)
     {
         final List<double[]> arrays = new ArrayList<double[]>() {{
             for(T ind : population)
@@ -40,10 +40,10 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
     public void reset() { }
 
     @Override
-    public void flush() throws IOException { }
+    public void flush() { }
     
     @Override
-    public void close() throws IOException { }
+    public void close() { }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
@@ -55,7 +55,7 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> implements 
     @Override
     public String toString()
     {
-        return String.format("[PrintDoubleVectorPopulationMetric: decoder=%s]", decoder);
+        return String.format("[%s: decoder=%s]", this.getClass().getSimpleName(), decoder);
     }
     
     @Override

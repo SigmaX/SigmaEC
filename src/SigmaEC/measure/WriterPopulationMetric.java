@@ -4,6 +4,8 @@ import SigmaEC.represent.Individual;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Decorates a PopulationMetric with a Writer which is written to every time
@@ -11,28 +13,30 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class WriterPopulationMetric<T extends Individual> implements PopulationMetric<T>
+public class WriterPopulationMetric<T extends Individual> extends PopulationMetric<T>
 {
     final private Writer writer;
     final private PopulationMetric<T> wrappedMetric;
     
-    public WriterPopulationMetric(final Writer writer, final PopulationMetric<T> wrappedMetric) throws IllegalArgumentException
-    {
+    public WriterPopulationMetric(final Writer writer, final PopulationMetric<T> wrappedMetric) throws IllegalArgumentException {
         if (writer == null)
-            throw new IllegalArgumentException("WriterPopulationMetric: writer is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": writer is null.");
         if (wrappedMetric == null)
-            throw new IllegalArgumentException("WriterPopulationMetric: wrappedMetric is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": wrappedMetric is null.");
         this.writer = writer;
         this.wrappedMetric = wrappedMetric;
         assert(repOK());
     }
     
     @Override
-    public Measurement measurePopulation(final int run, final int generation, final List<T> population) throws IOException
-    {
+    public Measurement measurePopulation(final int run, final int generation, final List<T> population) {
         assert(population != null);
         final Measurement measurement = wrappedMetric.measurePopulation(run, generation, population);
-        writer.write(measurement.toString());
+        try {
+            writer.write(measurement.toString());
+        } catch (IOException ex) {
+            Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+        }
         assert(repOK());
         return measurement;
     }
@@ -41,37 +45,41 @@ public class WriterPopulationMetric<T extends Individual> implements PopulationM
     public void reset() { }
 
     @Override
-    public void flush() throws IOException
-    {
-        writer.flush();
+    public void flush() {
+        try {
+            writer.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+        }
         wrappedMetric.flush();
     }
 
     @Override
-    public void close() throws IOException {
-        writer.close();
+    public void close() {
+        try {
+            writer.close();
+        } catch (IOException ex) {
+            Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+        }
         wrappedMetric.close();
         assert(repOK());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return writer != null
                 && wrappedMetric != null
                 && wrappedMetric.repOK();
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[WriterPopulationMetric: Writer=%s, WrappedMetric=%s]", writer, wrappedMetric);
+    public String toString() {
+        return String.format("[%s: Writer=%s, WrappedMetric=%s]", this.getClass().getSimpleName(), writer, wrappedMetric);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof WriterPopulationMetric))
