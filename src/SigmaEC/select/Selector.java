@@ -1,8 +1,12 @@
 package SigmaEC.select;
 
+import SigmaEC.BuilderT;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Interface for a function that selects an individual from a single population.
@@ -22,6 +26,12 @@ public abstract class Selector<T extends Individual>
         for (int i = 0; i < count; i++)
             output.add(selectIndividual(population));
         return output;
+    }
+    
+    public interface SelectorBuilder<T extends Individual> extends BuilderT<Selector<T>> {
+        SelectorBuilder<T> decoder(final Decoder decoder);
+        SelectorBuilder<T> objective(final ObjectiveFunction objective);
+        SelectorBuilder<T> random(final Random random);
     }
     
     /** Representation invariant.  If this returns false, there is something

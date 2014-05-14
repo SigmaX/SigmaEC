@@ -4,6 +4,7 @@ import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 /**
  *
@@ -12,20 +13,23 @@ import java.util.Properties;
 public class BitStringInitializer extends Initializer<BitStringIndividual> {
     private final int populationSize;
     private final int numBits;
+    private final Random random;
     
     private BitStringInitializer(final Builder builder) {
         assert(builder != null);
         this.populationSize = builder.populationSize;
         this.numBits = builder.numBits;
+        this.random = builder.random;
         assert(repOK());
     }
     
-    public static class Builder {
+    public static class Builder implements InitializerBuilder<BitStringIndividual> {
         private final static String P_POPULATION_SIZE = "populationSize";
         private final static String P_NUM_BITS = "numBits";
         
         private int populationSize;
         private int numBits;
+        private Random random;
         
         public Builder(final int populationSize, final int numBits) {
             assert(populationSize > 1);
@@ -41,8 +45,15 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
             this.numBits = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_BITS));
         }
         
+        @Override
         public BitStringInitializer build() {
             return new BitStringInitializer(this);
+        }
+
+        @Override
+        public Builder random(final Random random) {
+            this.random = random;
+            return this;
         }
         
         public Builder populationSize(final int populationSize) {
