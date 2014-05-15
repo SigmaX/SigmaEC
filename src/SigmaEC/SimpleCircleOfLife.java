@@ -3,6 +3,7 @@ package SigmaEC;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
+import SigmaEC.operate.Generator.GeneratorBuilder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Phenotype;
@@ -10,8 +11,10 @@ import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 /**
  * A basic evolutionary loop that mates parents, mutates offspring, and applies
@@ -30,21 +33,26 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
     final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
     final private Decoder<T, P> decoder;
     final private ObjectiveFunction<P> objective;
+    final private Random random;
     
     private SimpleCircleOfLife(final Builder<T,P> builder)
     {
         this.numGenerations = builder.numGenerations;
-        this.generators = builder.generators;
+        this.generators = new ArrayList<Generator<T>>() {{
+           for (final GeneratorBuilder<T> b : builder.generatorBuilders)
+               add(b.build());
+        }};
         this.parentSelector = builder.parentSelector;
         this.survivalSelector = builder.survivalSelector;
         this.preOperatorMetrics = builder.preOperatorMetrics;
         this.postOperatorMetrics = builder.postOperatorMetrics;
         this.decoder = builder.decoder;
         this.objective = builder.objective;
+        this.random = builder.random;
         assert(repOK());
     }
     
-    public static class Builder<T extends Individual, P extends Phenotype> implements BuilderT<SimpleCircleOfLife<T,P>> {
+    public static class Builder<T extends Individual, P extends Phenotype> implements CircleOfLifeBuilder<T> {
         final private static String P_NUM_GENERATIONS = "numGenerations";
         final private static String P_GENERATORS = "generators";
         final private static String P_DECODER = "decoder";
@@ -55,28 +63,20 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
         final private static String P_POST_METRICS = "postMetrics";
         
         private int numGenerations;
-        private List<Generator<T>> generators;
+        private List<GeneratorBuilder<T>> generatorBuilders;
         private Option<Selector<T>> parentSelector = Option.NONE;
         private Option<Selector<T>> survivalSelector = Option.NONE;
         private Option<List<PopulationMetric<T>>> preOperatorMetrics = Option.NONE;
         private Option<List<PopulationMetric<T>>> postOperatorMetrics = Option.NONE;
         private Decoder<T, P> decoder;
         private ObjectiveFunction<P> objective;
-        
-        public Builder(final int numGenerations, final List<Generator<T>> generators, final Decoder<T, P> decoder, final ObjectiveFunction<P> objective) {
-            assert(generators != null);
-            assert(objective != null);
-            this.numGenerations = numGenerations;
-            this.generators = generators;
-            this.decoder = decoder;
-            this.objective = objective;
-        }
+        private Random random;
         
         public Builder(final Properties properties, final String base) {
             assert(properties != null);
             assert(base != null);
             this.numGenerations = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_GENERATIONS));
-            this.generators = Parameters.getInstancesFromParameter(properties, Parameters.push(base, P_GENERATORS), Generator.class);
+            this.generatorBuilders = Parameters.getBuildersFromParameter(properties, Parameters.push(base, P_GENERATORS), Generator.class);
             this.decoder = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_DECODER), Decoder.class);
             this.objective = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
             
@@ -106,17 +106,19 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
         public SimpleCircleOfLife<T,P> build() {
             return new SimpleCircleOfLife(this);
         }
+
+        @Override
+        public Builder<T, P> random(final Random random) {
+            assert(random != null);
+            this.random = random;
+            for (final GeneratorBuilder<T> b : generatorBuilders)
+                b.random(random);
+            return this;
+        }
         
         public Builder<T,P> numGenerations(final int numGenerations) {
             assert(numGenerations > 0);
             this.numGenerations = numGenerations;
-            return this;
-        }
-        
-        public Builder<T,P> generators(final List<Generator<T>> generators) {
-            assert(generators != null);
-            assert(!Misc.containsNulls(generators));
-            this.generators = generators;
             return this;
         }
         

@@ -203,7 +203,7 @@ public class NPointCrossoverMatorTest
         System.out.println("toString");
         final int NUM_CUT_POINTS = 2;
         NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(NUM_CUT_POINTS, false, random);
-        String expResult = "[NPointCrossoverMator: CutPoints=" + NUM_CUT_POINTS + "]";
+        String expResult = String.format("[NPointCrossoverMator: numCutPoints=%d, allowCloning=false, random=%s]", NUM_CUT_POINTS, random.toString());
         String result = SUT.toString();
         assertEquals(expResult, result);
         assertTrue(SUT.repOK());

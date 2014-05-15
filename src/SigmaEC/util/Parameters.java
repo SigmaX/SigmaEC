@@ -25,6 +25,7 @@ public class Parameters {
         return String.format("%s%s%s", base, PROPERTY_DELIMITER, param);
     }
     
+    // <editor-fold defaultstate="collapsed" desc="Basic Types">
     public static int getIntParameter(final Properties properties, final String parameterName) {
         assert(properties != null);
         assert(parameterName != null);
@@ -39,6 +40,23 @@ public class Parameters {
         assert(parameterName != null);
         if (properties.containsKey(parameterName))
             return new Option<Integer>(getIntParameter(properties, parameterName));
+        else
+            return Option.NONE;
+    }
+    public static boolean getBooleanParameter(final Properties properties, final String parameterName) {
+        assert(properties != null);
+        assert(parameterName != null);
+        final String value = properties.getProperty(parameterName);
+        if (value == null)
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        return Boolean.parseBoolean(value);
+    }
+    
+    public static Option<Boolean> getOptionalBooleanParameter(final Properties properties, final String parameterName) {
+        assert(properties != null);
+        assert(parameterName != null);
+        if (properties.containsKey(parameterName))
+            return new Option<Boolean>(getBooleanParameter(properties, parameterName));
         else
             return Option.NONE;
     }
@@ -84,6 +102,7 @@ public class Parameters {
         final String value = properties.getProperty(parameterName);
         return (value == null) ? Option.NONE : new Option<String>(value);
     }
+    //</editor-fold
     
     // <editor-fold defaultstate="collapsed" desc="Builders">
     public static <T extends BuilderT> T getBuilderFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {

@@ -1,20 +1,21 @@
 package SigmaEC.operate;
 
+import SigmaEC.BuilderT;
+import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
-import SigmaEC.select.Selector;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Takes a population of individuals and creates a new generation.
  *
  * @author Eric 'Siggy' Scott
  */
-public interface Generator<T extends Individual>
+public abstract class Generator<T extends Individual> extends ContractObject
 {   
-    public List<T> produceGeneration(List<T> parentPopulation);
+    public abstract List<T> produceGeneration(List<T> parentPopulation);
     
-    /** Representation invariant.  If this returns false, there is something
-     * invalid about the Individual's internal state. */
-    public boolean repOK();
-    
+    public interface GeneratorBuilder<T extends Individual> extends BuilderT<Generator<T>> {
+        GeneratorBuilder<T> random(final Random random);
+    }
 }

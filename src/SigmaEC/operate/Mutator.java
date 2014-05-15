@@ -1,17 +1,20 @@
 package SigmaEC.operate;
 
+import SigmaEC.BuilderT;
+import SigmaEC.ContractObject;
 import SigmaEC.represent.Gene;
+import java.util.Random;
 
 /**
  *
  * @author Eric 'Siggy' Scott
  */
-public interface Mutator<T extends Gene>
+public abstract class Mutator<G extends Gene> extends ContractObject
 {
     /** Non-destructively produce a mutated copy of a Gene. */
-    public abstract T mutate(T gene);
+    public abstract G mutate(G gene);
     
-    /** Representation invariant.  If this returns false, there is something
-     * invalid about the Individual's internal state. */
-    public boolean repOK();
+    public interface MutatorBuilder<G extends Gene> extends BuilderT<Mutator<G>> {
+        MutatorBuilder<G> random(final Random random);
+    }
 }

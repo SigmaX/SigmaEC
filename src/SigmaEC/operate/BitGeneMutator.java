@@ -1,21 +1,40 @@
 package SigmaEC.operate;
 
 import SigmaEC.represent.BitGene;
+import java.util.Properties;
+import java.util.Random;
 
 /**
  * Bit flip mutation.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BitGeneMutator implements Mutator<BitGene> {
+public class BitGeneMutator extends Mutator<BitGene> {
     
-    public BitGeneMutator() {
+    private BitGeneMutator(final Builder builder) {
         assert(repOK());
     }
     
     @Override
     public BitGene mutate(final BitGene gene) {
         return new BitGene(!gene.value);
+    }
+    
+    public static class Builder implements MutatorBuilder<BitGene> {
+        
+        public Builder(final Properties properties, final String base) { }
+        
+        @Override
+        public MutatorBuilder<BitGene> random(final Random random) {
+            // This mutator doesn' need PRNGs.
+            return this;
+        }
+
+        @Override
+        public Mutator<BitGene> build() {
+            return new BitGeneMutator(this);
+        }
+    
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -30,7 +49,7 @@ public class BitGeneMutator implements Mutator<BitGene> {
     }
     
     @Override
-    final public boolean equals(Object o) {
+    final public boolean equals(final Object o) {
         return (o instanceof BitGeneMutator);
     }
     
