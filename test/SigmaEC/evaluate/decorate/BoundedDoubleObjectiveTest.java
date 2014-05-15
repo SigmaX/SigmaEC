@@ -3,15 +3,11 @@ package SigmaEC.evaluate.decorate;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.DoubleVectorPhenotype;
-import SigmaEC.represent.Individual;
 import SigmaEC.test.TestVectorDecoder;
 import SigmaEC.test.TestVectorIndividual;
 import SigmaEC.test.TestVectorObjective;
 import SigmaEC.util.IDoublePoint;
 import java.util.Arrays;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -147,11 +143,11 @@ public class BoundedDoubleObjectiveTest
     public void testToString()
     {
         System.out.println("toString");
-        String expResult = "[BoundedDoubleObjective: Dimensions=3, Bounds=["
+        String expResult = "[BoundedDoubleObjective: dimensions=3, bounds=["
                 + "[IDoublePoint: x=-3.0, y=3.0], "
                 + "[IDoublePoint: x=-8.0, y=4.0], "
                 + "[IDoublePoint: x=3.3, y=17.0]], "
-                + "Objective=[TestVectorObjective]]";
+                + "objective=[TestVectorObjective], outsideValue=-1.000000]";
         String result = SUT.toString();
         assertEquals(expResult, result);
         assertTrue(SUT.repOK());

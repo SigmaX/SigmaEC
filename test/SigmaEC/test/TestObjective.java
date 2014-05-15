@@ -8,7 +8,7 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
  * 
  * @author Eric 'Siggy' Scott
  */ 
-public class TestObjective implements ObjectiveFunction<TestPhenotype>
+public class TestObjective extends ObjectiveFunction<TestPhenotype>
 {
     @Override
     public double fitness(final TestPhenotype ind) { return ind.getTrait(); }
@@ -35,6 +35,11 @@ public class TestObjective implements ObjectiveFunction<TestPhenotype>
 
     @Override
     public int getNumDimensions() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toString() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
