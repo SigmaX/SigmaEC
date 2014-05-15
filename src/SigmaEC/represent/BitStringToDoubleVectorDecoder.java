@@ -6,27 +6,41 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- *
+ * Interpret a string of bits as a vector of doubles via big-endian encoding.
  * @author Eric 'Siggy' Scott
  */
 public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual, DoubleVectorPhenotype> {
     final private int numBitsPerDimension;
     final private int numDimensions;
-    final private int highestSignificance;
+    final private int lowestSignificance;
+
+    // <editor-fold defaultstate="collapsed" desc="Accessors">
+    public int getNumBitsPerDimension() {
+        return numBitsPerDimension;
+    }
+
+    public int getNumDimensions() {
+        return numDimensions;
+    }
+
+    public int getLowestSignificance() {
+        return lowestSignificance;
+    }
+    // </editor-fold>
     
-    public BitStringToDoubleVectorDecoder(final int numBitsPerDimension, final int numDimensions, final int highestSignificance) {
+    public BitStringToDoubleVectorDecoder(final int numBitsPerDimension, final int numDimensions, final int lowestSignificance) {
         if (numBitsPerDimension <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numBitsPerDimension is <= 0, must be positive.");
         if (numDimensions <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
         this.numBitsPerDimension = numBitsPerDimension;
         this.numDimensions = numDimensions;
-        this.highestSignificance = highestSignificance;
+        this.lowestSignificance = lowestSignificance;
         assert(repOK());
     }
     
     private BitStringToDoubleVectorDecoder(final Builder builder) {
-        this(builder.numBitsPerDimension, builder.numDimensions, builder.highestSignificance);
+        this(builder.numBitsPerDimension, builder.numDimensions, builder.lowestSignificance);
         assert(repOK());
     } 
 
@@ -37,7 +51,7 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
         final double[] phenotype = new double[numDimensions];
         for (int dimension = 0; dimension < numDimensions; dimension++) {
             for (int place = 0; place < numBitsPerDimension; place++) {
-                final int power = highestSignificance - place;
+                final int power = lowestSignificance + place;
                 if (genome.get(dimension*numBitsPerDimension + place).value)
                     phenotype[dimension] += Math.pow(2, power);
             }
@@ -46,13 +60,13 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
     }
     
     public static class Builder implements BuilderT<BitStringToDoubleVectorDecoder> {
-        private final static String P_NUM_BITS_PER_DIMENSION = "numBitsPerDimension";
-        private final static String P_NUM_DIMENSIONS = "numDimensions";
-        private final static String P_HIGHEST_SIGNIFICANCE = "highestSignificance";
+        public final static String P_NUM_BITS_PER_DIMENSION = "numBitsPerDimension";
+        public final static String P_NUM_DIMENSIONS = "numDimensions";
+        public final static String P_LOWEST_SIGNIFICANCE = "lowestSignificance";
         
         private int numBitsPerDimension;
         private int numDimensions;
-        private int highestSignificance;
+        private int lowestSignificance;
         
         public Builder(final Properties properties, final String base) {
             assert(properties != null);
@@ -60,7 +74,7 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
             
             this.numBitsPerDimension = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_BITS_PER_DIMENSION));
             this.numDimensions = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_DIMENSIONS));
-            this.highestSignificance = Parameters.getIntParameter(properties, Parameters.push(base, P_HIGHEST_SIGNIFICANCE));
+            this.lowestSignificance = Parameters.getIntParameter(properties, Parameters.push(base, P_LOWEST_SIGNIFICANCE));
         }
 
         @Override
@@ -83,20 +97,22 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
             return false;
         final BitStringToDoubleVectorDecoder ref = (BitStringToDoubleVectorDecoder) o;
         return numBitsPerDimension == ref.numBitsPerDimension
-                && numDimensions == ref.numDimensions;
+                && numDimensions == ref.numDimensions
+                && lowestSignificance == ref.lowestSignificance;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 59 * hash + this.numBitsPerDimension;
-        hash = 59 * hash + this.numDimensions;
+        int hash = 3;
+        hash = 37 * hash + this.numBitsPerDimension;
+        hash = 37 * hash + this.numDimensions;
+        hash = 37 * hash + this.lowestSignificance;
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: numBitsPerDimension=%d, numDimensions=%d]", this.getClass().getSimpleName(), numBitsPerDimension, numDimensions);
+        return String.format("[%s: numDimensions=%d, numBitsPerDimension=%d, lowestSignificance=%d]", this.getClass().getSimpleName(), numDimensions, numBitsPerDimension, lowestSignificance);
     }
     // </editor-fold>
     

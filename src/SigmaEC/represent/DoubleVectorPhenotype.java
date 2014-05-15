@@ -1,5 +1,6 @@
 package SigmaEC.represent;
 
+import SigmaEC.util.Misc;
 import java.util.Arrays;
 
 /**
@@ -19,10 +20,10 @@ public class DoubleVectorPhenotype implements Phenotype
         assert(phenotype != null);
         assert(phenotype.length > 0);
         this.phenotype = Arrays.copyOf(phenotype, phenotype.length);
+        assert(repOK());
     }
     
-    public int size()
-    {
+    public int size() {
         return phenotype.length;
     }
     
@@ -33,8 +34,35 @@ public class DoubleVectorPhenotype implements Phenotype
     }
     
     /** Returns a defensive copy of the phenotype vector. */
-    public double[] getVector()
-    {
+    public double[] getVector() {
         return Arrays.copyOf(phenotype, phenotype.length);
     }
+
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
+    @Override
+    public final boolean repOK() {
+        return phenotype != null
+                && !Misc.containsNaNs(phenotype);
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (!(o instanceof DoubleVectorPhenotype))
+            return false;
+        final DoubleVectorPhenotype ref = (DoubleVectorPhenotype)o;
+        return Misc.doubleArrayEquals(phenotype, ref.phenotype);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 41 * hash + Arrays.hashCode(this.phenotype);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s: phenotype=%s]", this.getClass().getSimpleName(), Arrays.toString(phenotype));
+    }
+    // </editor-fold>
 }
