@@ -1,11 +1,14 @@
 package SigmaEC.experiment;
 
+import SigmaEC.BuilderT;
 import SigmaEC.CircleOfLife;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +17,7 @@ import java.util.logging.Logger;
  * @author Eric 'Siggy' Scott
  */
 public class SimpleExperiment<T extends Individual> extends Experiment {
+    private final Random random;
     private final Initializer<T> initializer;
     private final CircleOfLife<T> circleOfLife;
     private final int numRuns;
@@ -29,14 +33,17 @@ public class SimpleExperiment<T extends Individual> extends Experiment {
         this.initializer = builder.initializer;
         this.circleOfLife = builder.circleOfLife;
         this.numRuns = builder.numRuns;
+        this.random = builder.random;
         assert(repOK());
     }
     
-    public static class Builder<T extends Individual> {
+    public static class Builder<T extends Individual> implements BuilderT<SimpleExperiment<T>> {
+        private final static String P_RANDOM_SEED = "seed";
         private final static String P_INITIALIZER = "initializer";
         private final static String P_CIRCLE_OF_LIFE = "circleOfLife";
         private final static String P_NUM_RUNS = "numRuns";
         
+        private Random random;
         private Initializer<T> initializer;
         private CircleOfLife<T> circleOfLife;
         private int numRuns = 1;
@@ -51,13 +58,30 @@ public class SimpleExperiment<T extends Individual> extends Experiment {
         public Builder(final Properties properties, final String base) {
             assert(properties != null);
             assert(base != null);
-            this.initializer = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_INITIALIZER), Initializer.class);
+            
+            final Option<Integer> randomSeed = Parameters.getOptionalIntParameter(properties, Parameters.push(base, P_RANDOM_SEED));
+            if (randomSeed.isDefined())
+                this.random = new Random(randomSeed.get());
+            else
+                this.random = new Random();
+            
+            final Initializer.InitializerBuilder<T> initializerBuilder = (Initializer.InitializerBuilder<T>) Parameters.getBuilderFromParameter(properties, Parameters.push(base, P_INITIALIZER), Initializer.class);
+            this.initializer = initializerBuilder
+                    .random(random)
+                    .build();
+            
             this.circleOfLife = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_CIRCLE_OF_LIFE), CircleOfLife.class);
             this.numRuns = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_RUNS));
         }
         
         public SimpleExperiment<T> build() {
             return new SimpleExperiment<T>(this);
+        }
+
+        public Builder<T> random(final Random random) {
+            assert(random != null);
+            this.random = random;
+            return this;
         }
 
         public Builder<T> initializer(final Initializer<T> initializer) {

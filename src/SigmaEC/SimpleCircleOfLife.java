@@ -80,18 +80,18 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
             this.decoder = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_DECODER), Decoder.class);
             this.objective = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
             
-            final Option<BuilderT<Selector>> parentSelectorBuilder = Parameters.getOptionalBuilderFromParameter(properties, Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
+            final Option<Selector.SelectorBuilder<T>> parentSelectorBuilder = Parameters.getOptionalBuilderFromParameter(properties, Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
             if (parentSelectorBuilder.isDefined())
-                this.parentSelector = new Option<Selector<T>>(((Selector.SelectorBuilder<T>)parentSelectorBuilder)
+                this.parentSelector = new Option<Selector<T>>(parentSelectorBuilder.get()
                         .decoder(decoder)
                         .objective(objective)
                         .build());
             else
                 this.parentSelector = Option.NONE;
             
-            final Option<BuilderT<Selector>> survivalSelectorBuilder = Parameters.getOptionalBuilderFromParameter(properties, Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
+            final Option<Selector.SelectorBuilder<T>> survivalSelectorBuilder = Parameters.getOptionalBuilderFromParameter(properties, Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
             if (survivalSelectorBuilder.isDefined())
-                this.survivalSelector = new Option<Selector<T>>(((Selector.SelectorBuilder<T>)survivalSelectorBuilder)
+                this.survivalSelector = new Option<Selector<T>>(survivalSelectorBuilder.get()
                         .decoder(decoder)
                         .objective(objective)
                         .build());

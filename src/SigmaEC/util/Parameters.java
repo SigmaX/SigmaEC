@@ -2,10 +2,13 @@ package SigmaEC.util;
 
 import SigmaEC.BuilderT;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,8 +30,17 @@ public class Parameters {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
-            throw new IllegalStateException(String.format("%s: Parameter '%s' was no found in properties.", Parameters.class.getSimpleName(), parameterName));
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         return Integer.parseInt(value);
+    }
+    
+    public static Option<Integer> getOptionalIntParameter(final Properties properties, final String parameterName) {
+        assert(properties != null);
+        assert(parameterName != null);
+        if (properties.containsKey(parameterName))
+            return new Option<Integer>(getIntParameter(properties, parameterName));
+        else
+            return Option.NONE;
     }
     
     public static double getDoubleParameter(final Properties properties, final String parameterName) {
@@ -36,8 +48,17 @@ public class Parameters {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
-            throw new IllegalStateException(String.format("%s: Parameter '%s' was no found in properties.", Parameters.class.getSimpleName(), parameterName));
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         return Double.parseDouble(value);
+    }
+    
+    public static Option<Double> getOptionalDoubleParameter(final Properties properties, final String parameterName) {
+        assert(properties != null);
+        assert(parameterName != null);
+        if (properties.containsKey(parameterName))
+            return new Option<Double>(getDoubleParameter(properties, parameterName));
+        else
+            return Option.NONE;
     }
     
     public static double[] getDoubleArrayParameter(final Properties properties, final String parameterName) {
@@ -53,7 +74,7 @@ public class Parameters {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
-            throw new IllegalStateException(String.format("%s: Parameter '%s' was no found in properties.", Parameters.class.getSimpleName(), parameterName));
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         return value;
     }
     
@@ -119,22 +140,26 @@ public class Parameters {
         if (!expectedSuperClass.isAssignableFrom(c))
             throw new IllegalStateException(String.format("%s: Class '%s', requested by the parameter '%s' is not a subtype of '%s'.", Parameters.class.getSimpleName(), className, base, expectedSuperClass.getSimpleName()));
         
-        // Check that the builder exists and is the expected subtype
+        // Check that the Builder exists and is the expected subtype
         try {
-            builder = Class.forName(className + ".Builder");
+            builder = Class.forName(className + "$Builder");
         } catch (final ClassNotFoundException ex) {
+            Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
             throw new IllegalStateException(String.format("%s: Class '%s', requested by parameter '%s', has no Builder (%s).", Parameters.class.getSimpleName(), className, base, ex.getMessage()));
         }
         if (!BuilderT.class.isAssignableFrom(builder))
             throw new IllegalStateException(String.format("%s: Builder '%s', requested by the parameter '%s' is not a subtype of '%s'.", Parameters.class.getSimpleName(), className, base, BuilderT.class.getSimpleName()));
         
+        // Construct the Builder
         final T result;
         try {
             final Constructor constructor = builder.getDeclaredConstructor(new Class[] { Properties.class, String.class });
             result = (T) constructor.newInstance(properties, base);
         } catch (final Exception ex) {
+            Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
             throw new IllegalStateException(String.format("%s: failed to create instance of class '%s' (%s).", Parameters.class.getSimpleName(), className, ex.getMessage()));
         }
+        
         return result;
     }
     // </editor-fold>

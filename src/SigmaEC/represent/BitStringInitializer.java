@@ -20,6 +20,13 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
         this.populationSize = builder.populationSize;
         this.numBits = builder.numBits;
         this.random = builder.random;
+        
+        if (populationSize <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": populationSize is <= 0, must be positive.");
+        if (numBits <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numBits is <= 0, must be positive.");
+        if (random == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
         assert(repOK());
     }
     
@@ -79,24 +86,37 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
         }};
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return populationSize > 0
+                && numBits > 0
+                && random != null;
     }
 
     @Override
     public boolean equals(final Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (!(o instanceof BitStringInitializer))
+            return false;
+        final BitStringInitializer ref = (BitStringInitializer) o;
+        return populationSize == ref.populationSize
+                && numBits == ref.numBits
+                && random.equals(random);
     }
 
     @Override
     public int hashCode() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int hash = 5;
+        hash = 67 * hash + this.populationSize;
+        hash = 67 * hash + this.numBits;
+        hash = 67 * hash + (this.random != null ? this.random.hashCode() : 0);
+        return hash;
     }
 
     @Override
     public String toString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return String.format("[%s: populationSize=%d, numBits=%d, random=%s]", this.getClass().getSimpleName(), populationSize, numBits, random.toString());
     }
+    // </editor-fold>
     
 }

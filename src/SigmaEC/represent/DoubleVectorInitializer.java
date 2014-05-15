@@ -54,12 +54,12 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
             this.populationSize = Parameters.getIntParameter(properties, Parameters.push(base, P_POPULATION_SIZE));
             this.numDimensions = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_DIMENSIONS));
             
-            if (properties.contains(Parameters.push(base, P_DEFAULT_MAX_VALUE)))
+            if (properties.containsKey(Parameters.push(base, P_DEFAULT_MAX_VALUE)))
                 this.maxValues = repeatValue(Parameters.getDoubleParameter(properties, Parameters.push(base, P_DEFAULT_MAX_VALUE)), numDimensions);
             else
                 this.maxValues = Parameters.getDoubleArrayParameter(properties, Parameters.push(base, P_MAX_VALUES));
             
-            if (properties.contains(Parameters.push(base, P_DEFAULT_MIN_VALUE)))
+            if (properties.containsKey(Parameters.push(base, P_DEFAULT_MIN_VALUE)))
                 this.minValues = repeatValue(Parameters.getDoubleParameter(properties, Parameters.push(base, P_DEFAULT_MIN_VALUE)), numDimensions);
             else
                 this.minValues = Parameters.getDoubleArrayParameter(properties, Parameters.push(base, P_MIN_VALUES));
