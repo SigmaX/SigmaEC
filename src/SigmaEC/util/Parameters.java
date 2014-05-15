@@ -17,6 +17,8 @@ import java.util.logging.Logger;
 public class Parameters {
     private final static String LIST_DELIMITER = ",";
     private final static String PROPERTY_DELIMITER = ".";
+    private final static char REFERENCE_SYMBOL = '%';
+    
     private Parameters() {
         throw new AssertionError(String.format("%s: Cannot create instance of static utility class.", this.getClass().getSimpleName()));
     }
@@ -32,6 +34,8 @@ public class Parameters {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (value.charAt(0) == REFERENCE_SYMBOL)
+            return getIntParameter(properties, value.substring(1));
         return Integer.parseInt(value);
     }
     
@@ -49,6 +53,8 @@ public class Parameters {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (value.charAt(0) == REFERENCE_SYMBOL)
+            return getBooleanParameter(properties, value.substring(1));
         return Boolean.parseBoolean(value);
     }
     
@@ -67,6 +73,8 @@ public class Parameters {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (value.charAt(0) == REFERENCE_SYMBOL)
+            return getDoubleParameter(properties, value.substring(1));
         return Double.parseDouble(value);
     }
     
@@ -93,6 +101,8 @@ public class Parameters {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (value.charAt(0) == REFERENCE_SYMBOL)
+            return getParameter(properties, value.substring(1));
         return value;
     }
     

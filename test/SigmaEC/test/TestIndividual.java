@@ -60,4 +60,9 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
 
     @Override
     public long getID() { return id; }
+
+    @Override
+    public int size() {
+        return genome.size();
+    }
 }

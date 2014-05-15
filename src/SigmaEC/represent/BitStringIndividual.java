@@ -51,6 +51,9 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     public long getID() { return id; }
     
     @Override
+    public int size() { return genome.size(); }
+    
+    @Override
     public LinearGenomeIndividual<BitGene> create(final List<BitGene> genome) {
         assert(genome != null);
         return new BitStringIndividual(genome);

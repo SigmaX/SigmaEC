@@ -49,6 +49,9 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     public long getID() { return id; }
     
     @Override
+    public int size() { return genome.size(); }
+    
+    @Override
     public LinearGenomeIndividual<DoubleGene> create(final List<DoubleGene> genome) {
         assert(genome != null);
         return new DoubleVectorIndividual(genome);
