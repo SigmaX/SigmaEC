@@ -11,8 +11,8 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T> {
-     private final List<ObjectiveFunction<? super T>> objectives;
+public class MultiplicativeObjective<T extends DoubleVectorPhenotype> extends ObjectiveFunction<T> {
+    private final List<ObjectiveFunction<T>> objectives;
     private final int numDimensions;
 
     @Override
@@ -21,12 +21,15 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
         return numDimensions;
     }
     
-    public MultiplicativeObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
-    {
+    public MultiplicativeObjective(final List<ObjectiveFunction<T>> objectives, final int numDimensions) throws IllegalArgumentException {
+        if (numDimensions <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
         if (objectives == null)
-            throw new IllegalArgumentException("MultiplicativeObjective: objectives is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null.");
         if (Misc.containsNulls(objectives))
-            throw new IllegalArgumentException("MultiplicativeObjective: objectives contains null value.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives contains null value.");
+        if (!Misc.allElementsHaveDimension(objectives, numDimensions))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions does not match the dimensionality of all objectives.");
         
         this.objectives = objectives;
         this.numDimensions = numDimensions;
@@ -34,8 +37,7 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
     }
     
     @Override
-    public double fitness(T ind)
-    {
+    public double fitness(final T ind) {
         double product = 1.0;
         for (ObjectiveFunction<? super T> obj : objectives)
             product *= obj.fitness(ind);
@@ -52,28 +54,29 @@ public class MultiplicativeObjective<T extends DoubleVectorPhenotype> implements
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return objectives != null
-                && !Misc.containsNulls(objectives);
+                && numDimensions > 0
+                && !Misc.containsNulls(objectives)
+                && Misc.allElementsHaveDimension(objectives, numDimensions);
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[MultiplicativeObjective: Objectives=%s]", objectives);
+    public String toString() {
+        return String.format("[%s: Objectives=%s]", this.getClass().getSimpleName(), objectives);
     }
     
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         if (o == this)
             return true;
         if (!(o instanceof MultiplicativeObjective))
             return false;
         
-        MultiplicativeObjective cRef = (MultiplicativeObjective) o;
-        return objectives.size() == cRef.objectives.size()
+        final MultiplicativeObjective cRef = (MultiplicativeObjective) o;
+        return numDimensions == cRef.numDimensions
+                && objectives.size() == cRef.objectives.size()
                 && objectives.equals(cRef.objectives);
     }
 

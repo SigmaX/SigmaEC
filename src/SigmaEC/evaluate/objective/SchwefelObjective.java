@@ -6,7 +6,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  *
  * @author Eric 'Siggy' Scott
  */
-public class SchwefelObjective implements ObjectiveFunction<DoubleVectorPhenotype> {
+public class SchwefelObjective extends ObjectiveFunction<DoubleVectorPhenotype> {
 
     private final int numDimensions;
     
@@ -27,7 +27,7 @@ public class SchwefelObjective implements ObjectiveFunction<DoubleVectorPhenotyp
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
 
@@ -41,14 +41,12 @@ public class SchwefelObjective implements ObjectiveFunction<DoubleVectorPhenotyp
     }
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("[%s: numDimensions=%d]", this.getClass().getSimpleName(), numDimensions);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (!(o instanceof SchwefelObjective))
             return false;
         

@@ -10,30 +10,27 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final Random random;
     private final int numDimensions;
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
-    public NoiseyQuarticObjective(Random random, int numDimensions)
+    public NoiseyQuarticObjective(final Random random, final int numDimensions)
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("NoiseQuarticObjective: numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("NoiseQuarticObjective: numDimensions is infinite, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         this.random = random;
         this.numDimensions = numDimensions;
         assert(repOK());
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;
@@ -44,34 +41,30 @@ public class NoiseyQuarticObjective implements ObjectiveFunction<DoubleVectorPhe
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK() 
-    {
+    final public boolean repOK() {
         return random != null
-                && numDimensions > 0
-                && numDimensions != Double.POSITIVE_INFINITY;
+                && numDimensions > 0;
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[NoiseyQuarticObjective: NumDimensions=%d, Random=%s]", numDimensions, random);
+    public String toString() {
+        return String.format("[%s: numDimensions=%d, random=%s]", this.getClass().getSimpleName(), numDimensions, random);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof NoiseyQuarticObjective))
             return false;
         
-        NoiseyQuarticObjective cRef = (NoiseyQuarticObjective) o;
+        final NoiseyQuarticObjective cRef = (NoiseyQuarticObjective) o;
         return numDimensions == cRef.numDimensions
                 && random.equals(cRef.random);
     }

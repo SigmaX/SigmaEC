@@ -12,7 +12,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class ValleyObjective extends ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     private final double[] slopeVector;
@@ -21,26 +21,24 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
      * @param slopeVector The direction along which the valley lies.
      * @param interceptVector The location of the global optima.
      */
-    public ValleyObjective(int numDimensions, double[] interceptVector, double[] slopeVector)
+    public ValleyObjective(final int numDimensions, final double[] interceptVector, final double[] slopeVector)
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("ValleyObjective: numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("ValleyObjective: numDimensions is infinite, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         if (interceptVector == null)
-            throw new IllegalArgumentException("ValleyObjective: interceptVector is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": interceptVector is null.");
         if (interceptVector.length != numDimensions)
-            throw new IllegalArgumentException(String.format("LinearRidgeObjective: interceptVector has %d elements, must have %d.", slopeVector.length, numDimensions));
+            throw new IllegalArgumentException(String.format("%s: interceptVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(interceptVector)))
-            throw new IllegalArgumentException("ValleyObjective: interceptVector contains non-finite values.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": interceptVector contains non-finite values.");
         if (slopeVector == null)
-            throw new IllegalArgumentException("ValleyObjective: slopeVector is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector is null.");
         if (slopeVector.length != numDimensions)
-            throw new IllegalArgumentException(String.format("ValleyObjective: slopeVector has %d elements, must have %d.", slopeVector.length, numDimensions));
+            throw new IllegalArgumentException(String.format("%s: slopeVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(slopeVector)))
-            throw new IllegalArgumentException("ValleyObjective: slopeVector contains non-finite values.");
-        if ((Vector.euclideanNorm(slopeVector) - 1.0) > 0.0001)
-            throw new IllegalArgumentException("ValleyObjective: slopeVector is not a unit vector.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector contains non-finite values.");
+        if (!Misc.doubleEquals(Vector.euclideanNorm(slopeVector), 1.0))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector is not a unit vector.");
         
         this.numDimensions = numDimensions;
         this.slopeVector = Arrays.copyOf(slopeVector, slopeVector.length);
@@ -49,19 +47,17 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
-    {
+    public double fitness(final DoubleVectorPhenotype ind) {
         assert(ind.size() == numDimensions);
        
         double result = Vector.euclideanDistance(ind.getVector(), interceptVector) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
@@ -71,8 +67,7 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numDimensions > 0
                 && interceptVector != null
                 && interceptVector.length == numDimensions
@@ -80,25 +75,23 @@ public class ValleyObjective implements ObjectiveFunction<DoubleVectorPhenotype>
                 && slopeVector.length == numDimensions
                 && Misc.finiteValued(slopeVector)
                 && Misc.finiteValued(interceptVector)
-                && (Vector.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
+                && Misc.doubleEquals(Vector.euclideanNorm(slopeVector), 1.0);
     }
 
     @Override
-    public String toString()
-    {
-        return String.format("[Valley: NumDimensions=%d, SlopeVector=%s, InterceptVector=%s]", numDimensions, Arrays.toString(slopeVector), Arrays.toString(interceptVector));
+    public String toString() {
+        return String.format("[%s: numDimensions=%d, slopeVector=%s, interceptVector=%s]", this.getClass().getSimpleName(), numDimensions, Arrays.toString(slopeVector), Arrays.toString(interceptVector));
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (!(o instanceof ValleyObjective))
             return false;
         
-        ValleyObjective cRef = (ValleyObjective) o;
+        final ValleyObjective cRef = (ValleyObjective) o;
         return numDimensions == cRef.numDimensions
-                && Arrays.equals(slopeVector, cRef.slopeVector)
-                && Arrays.equals(interceptVector, cRef.interceptVector);
+                && Misc.doubleArrayEquals(slopeVector, cRef.slopeVector)
+                && Misc.doubleArrayEquals(interceptVector, cRef.interceptVector);
     }
 
     @Override

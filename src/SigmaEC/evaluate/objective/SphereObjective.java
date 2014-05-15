@@ -10,26 +10,25 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class SphereObjective extends ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     
     public SphereObjective(int numDimensions)
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("SphereObjective: numDimensions is < 1.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         this.numDimensions = numDimensions;
         assert(repOK());
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;
@@ -40,30 +39,27 @@ public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numDimensions > 0;
     }
 
     @Override
-    public String toString()
-    {
-        return String.format("[SphereObjective: NumDimensions=%d]", numDimensions);
+    public String toString() {
+        return String.format("[%s: NumDimensions=%d]", this.getClass().getSimpleName(), numDimensions);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (!(o instanceof SphereObjective))
             return false;
         
-        SphereObjective cRef = (SphereObjective) o;
+        final SphereObjective cRef = (SphereObjective) o;
         return numDimensions == cRef.numDimensions;
     }
 

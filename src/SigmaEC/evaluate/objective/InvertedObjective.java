@@ -9,21 +9,19 @@ import SigmaEC.represent.Phenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class InvertedObjective<T extends Phenotype> implements ObjectiveFunction<T>
+public class InvertedObjective<T extends Phenotype> extends ObjectiveFunction<T>
 {
     final private ObjectiveFunction<? super T> objective;
     
-    public InvertedObjective(ObjectiveFunction<? super T> objective)
-    {
+    public InvertedObjective(ObjectiveFunction<? super T> objective) {
         if (objective == null)
-            throw new IllegalArgumentException("InvertedObjective: objective was null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
         this.objective = objective;
         assert(repOK());
     }
 
     @Override
-    public double fitness(T ind)
-    {
+    public double fitness(T ind) {
         return -objective.fitness(ind);
     }
     
@@ -39,27 +37,24 @@ public class InvertedObjective<T extends Phenotype> implements ObjectiveFunction
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return objective != null
                 && objective.repOK();
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[InvertedObjective: Objective=%s]", objective.toString());
+    public String toString() {
+        return String.format("[%s: Objective=%s]", this.getClass().getSimpleName(), objective.toString());
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof InvertedObjective))
             return false;
         
-        InvertedObjective cRef = (InvertedObjective) o;
+        final InvertedObjective cRef = (InvertedObjective) o;
         return objective.equals(cRef.objective);
     }
 

@@ -11,23 +11,25 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
+public class MaxObjective<T extends DoubleVectorPhenotype> extends ObjectiveFunction<T>
 {
-    private final List<ObjectiveFunction<? super T>> objectives;
+    private final List<ObjectiveFunction<T>> objectives;
     private final int numDimensions;
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
-    public MaxObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
-    {
+    public MaxObjective(final List<ObjectiveFunction<T>> objectives, final int numDimensions) throws IllegalArgumentException {
+        if (numDimensions <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
         if (objectives == null)
-            throw new IllegalArgumentException("AdditiveObjective: objectives is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null.");
         if (Misc.containsNulls(objectives))
-            throw new IllegalArgumentException("AdditiveObjective: objectives contains null value.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives contains null value.");
+        if (!Misc.allElementsHaveDimension(objectives, numDimensions))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions does not match the dimensionality of all objectives.");
         
         this.objectives = objectives;
         this.numDimensions = numDimensions;
@@ -35,8 +37,7 @@ public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveF
     }
     
     @Override
-    public double fitness(T ind)
-    {
+    public double fitness(final T ind) {
         double max = Double.NEGATIVE_INFINITY;
         for (ObjectiveFunction<? super T> obj : objectives)
             max = Math.max(max, obj.fitness(ind));
@@ -45,28 +46,27 @@ public class MaxObjective<T extends DoubleVectorPhenotype> implements ObjectiveF
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         for (final ObjectiveFunction o : objectives)
             o.setGeneration(i);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return objectives != null
-                && !Misc.containsNulls(objectives);
+                && numDimensions > 0
+                && !Misc.containsNulls(objectives)
+                && Misc.allElementsHaveDimension(objectives, numDimensions);
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[MaxObjective: Objectives=%s]", objectives);
+    public String toString() {
+        return String.format("[%s: numDimensions=%d, objectives=%s]", this.getClass().getSimpleName(), numDimensions, objectives);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof MaxObjective))

@@ -9,9 +9,9 @@ import SigmaEC.util.Misc;
  * All the Gaussians have their optima at the same point.
  * 
  * @author Jeff Bassett
+ * @author Eric 'Siggy' Scott
  */
-public class PhillipsHeadObjective
-        implements ObjectiveFunction<DoubleVectorPhenotype>
+public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     private final double shortAxisFactor;
@@ -21,13 +21,16 @@ public class PhillipsHeadObjective
                                  double shortAxisFactor,
                                  double longAxisFactor)
     {
-        String funcName = "PhillipsHeadObjective";
+        String funcName = this.getClass().getSimpleName();
         if (numDimensions < 1)
             throw new IllegalArgumentException(funcName +
                             ": numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
+        if (Double.isInfinite(longAxisFactor) || Double.isNaN(longAxisFactor))
             throw new IllegalArgumentException(funcName +
-                            ": numDimensions is infinite, must be finite.");
+                            ": longAxisFactor is infinite, must be finite.");
+        if (Double.isInfinite(shortAxisFactor) || Double.isNaN(shortAxisFactor))
+            throw new IllegalArgumentException(funcName +
+                            ": shortAxisFactor is infinite, must be finite.");
         if (longAxisFactor <= 0)
             throw new IllegalArgumentException(funcName +
                             ": longAxisFactor is <= 0.");
@@ -45,14 +48,12 @@ public class PhillipsHeadObjective
     }
 
 
-    public PhillipsHeadObjective() throws IllegalArgumentException
-    {
+    public PhillipsHeadObjective() throws IllegalArgumentException {
         this(2, 0.1, 1);
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
 
@@ -65,13 +66,13 @@ public class PhillipsHeadObjective
      * where s = shortAxisFactor and l = longAxisFactor.
      */
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorPhenotype ind)
     {
         assert(ind.size() == numDimensions);
 
         double result = 0;
-        double s = this.shortAxisFactor;
-        double l = this.longAxisFactor;
+        final double s = this.shortAxisFactor;
+        final double l = this.longAxisFactor;
         int d, longAxis;
 
         for (longAxis = 0; longAxis < this.getNumDimensions(); longAxis++)
@@ -93,38 +94,39 @@ public class PhillipsHeadObjective
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
 
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numDimensions > 0
+                && !Double.isInfinite(shortAxisFactor)
+                && !Double.isNaN(shortAxisFactor)
                 && shortAxisFactor > 0
+                && !Double.isInfinite(longAxisFactor)
+                && !Double.isNaN(longAxisFactor)
                 && longAxisFactor > 0
                 && longAxisFactor > shortAxisFactor;
     }
 
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format(
-        "[PhillipsHead: NumDimensions=%d, shortAxisFactor=%f, longAxisFactor=%f]",
-         numDimensions, shortAxisFactor, longAxisFactor);
+        "[%s: numDimensions=%d, shortAxisFactor=%f, longAxisFactor=%f]",
+         this.getClass().getSimpleName(), numDimensions, shortAxisFactor, longAxisFactor);
     }
     
 
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (!(o instanceof PhillipsHeadObjective))
             return false;
         
-        PhillipsHeadObjective cRef = (PhillipsHeadObjective) o;
+        final PhillipsHeadObjective cRef = (PhillipsHeadObjective) o;
         return numDimensions == cRef.numDimensions
                 && Misc.doubleEquals(shortAxisFactor, cRef.shortAxisFactor)
                 && Misc.doubleEquals(longAxisFactor, cRef.longAxisFactor);

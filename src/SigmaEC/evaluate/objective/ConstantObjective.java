@@ -1,13 +1,14 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.util.Misc;
 
 /**
  *
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class ConstantObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T> {
+public class ConstantObjective<T extends DoubleVectorPhenotype> extends ObjectiveFunction<T> {
     
     private final int numDimensions;
     private final double value;
@@ -15,17 +16,16 @@ public class ConstantObjective<T extends DoubleVectorPhenotype> implements Objec
     public ConstantObjective(final int numDimensions, final double fitnessValue)
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("ConstantObjective: numDimensions is < 1.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("ConstantObjective: numDimensions is infinite, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is infinite, must be finite.");
         this.numDimensions = numDimensions;
         this.value = fitnessValue;
         assert(repOK());
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
@@ -44,32 +44,31 @@ public class ConstantObjective<T extends DoubleVectorPhenotype> implements Objec
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
-        return numDimensions > 0;
+    final public boolean repOK() {
+        return numDimensions > 0
+                && (!Double.isInfinite(value));
     }
 
     @Override
-    public String toString()
-    {
-        return String.format("[ConstantObjective: NumDimensions=%d, Value=%f]", numDimensions, value);
+    public String toString() {
+        return String.format("[%s: NumDimensions=%d, Value=%f]", this.getClass().getSimpleName(), numDimensions, value);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (!(o instanceof ConstantObjective))
             return false;
         
         final ConstantObjective cRef = (ConstantObjective) o;
         return numDimensions == cRef.numDimensions
-                && Math.abs(value - cRef.value) < 0.000001;
+                && Misc.doubleEquals(value, cRef.value);
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + this.numDimensions;
+        int hash = 5;
+        hash = 59 * hash + this.numDimensions;
+        hash = 59 * hash + (int) (Double.doubleToLongBits(this.value) ^ (Double.doubleToLongBits(this.value) >>> 32));
         return hash;
     }
     //</editor-fold>

@@ -9,7 +9,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class HolderTableObjective implements ObjectiveFunction<DoubleVectorPhenotype> {
+public class HolderTableObjective extends ObjectiveFunction<DoubleVectorPhenotype> {
     
     public HolderTableObjective() {
         assert(repOK());
@@ -38,14 +38,12 @@ public class HolderTableObjective implements ObjectiveFunction<DoubleVectorPheno
     }
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("[%s]", this.getClass().getSimpleName());
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         return (o instanceof HolderTableObjective);
     }
 

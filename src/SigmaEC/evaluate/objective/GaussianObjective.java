@@ -9,7 +9,7 @@ import java.util.Arrays;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class GaussianObjective extends ObjectiveFunction<DoubleVectorPhenotype>
 {
     private final int numDimensions;
     private final double height;
@@ -19,17 +19,17 @@ public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotyp
     public GaussianObjective(final int numDimensions, final double[] mean, final double std, final double height)
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("GaussianObjective: numDimensions is < 1.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         if (height <= 0.0)
-            throw new IllegalArgumentException("GaussianObjective: height is <= 0, must be positive.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": height is <= 0, must be positive.");
         if (mean.length != numDimensions)
-            throw new IllegalArgumentException("GaussianObjective: length of mean vector must match numDimensions.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": length of mean vector must match numDimensions.");
         if (!Misc.finiteValued(mean))
-            throw new IllegalArgumentException("GaussianObjective: mean vector contains non-fininte values, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": mean vector contains non-fininte values, must be finite.");
         if (std <= 0)
-            throw new IllegalArgumentException("GaussianObjective: std is <= 0, must be positive.");
-        if (std == Double.POSITIVE_INFINITY || Double.isNaN(std))
-            throw new IllegalArgumentException("GaussianObjective: std is infinite, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": std is <= 0, must be positive.");
+        if (Double.isInfinite(std) || Double.isNaN(std))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": std is infinite, must be finite.");
         this.numDimensions = numDimensions;
         this.height = height;
         this.mean = Arrays.copyOf(mean, mean.length);
@@ -38,8 +38,7 @@ public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotyp
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
@@ -61,25 +60,23 @@ public class GaussianObjective implements ObjectiveFunction<DoubleVectorPhenotyp
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numDimensions > 0
                 && mean.length == numDimensions
                 && Misc.finiteValued(mean)
                 && std != Double.POSITIVE_INFINITY
                 && !Double.isNaN(std)
+                && !Double.isInfinite(std)
                 && std > 0;
     }
 
     @Override
-    public String toString()
-    {
-        return String.format("[GaussianObjective: NumDimensions=%d, mean=%s, std=%f, height=%f]", numDimensions, Arrays.toString(mean), std, height);
+    public String toString() {
+        return String.format("[%s: NumDimensions=%d, mean=%s, std=%f, height=%f]", this.getClass().getSimpleName(), numDimensions, Arrays.toString(mean), std, height);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (!(o instanceof GaussianObjective))
             return false;
         

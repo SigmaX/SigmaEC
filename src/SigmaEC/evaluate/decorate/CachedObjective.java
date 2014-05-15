@@ -13,13 +13,12 @@ import java.util.Map;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class CachedObjective<T extends Phenotype> implements ObjectiveFunction<T>
+public class CachedObjective<T extends Phenotype> extends ObjectiveFunction<T>
 {
-    final private ObjectiveFunction<? super T> objective;
+    final private ObjectiveFunction<T> objective;
     final private Map<T, Double> memory = new HashMap<T, Double>();
     
-    public CachedObjective(ObjectiveFunction<? super T> objective)
-    {
+    public CachedObjective(final ObjectiveFunction<T> objective) {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
         this.objective = objective;
@@ -32,13 +31,11 @@ public class CachedObjective<T extends Phenotype> implements ObjectiveFunction<T
     }
     
     @Override
-    public double fitness(T ind)
-    {
+    public double fitness(final T ind) {
         assert(ind != null);
         if (memory.containsKey(ind))
             return memory.get(ind);
-        else
-        {
+        else {
             double fitness = objective.fitness(ind);
             memory.put(ind, fitness);
             return fitness;
@@ -46,33 +43,30 @@ public class CachedObjective<T extends Phenotype> implements ObjectiveFunction<T
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         objective.setGeneration(i);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return objective != null
-                && objective.repOK();
+                && memory != null;
     }
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("[%s: objective=%s]", this.getClass().getSimpleName(), objective.toString());
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof CachedObjective))
             return false;
         
-        CachedObjective cRef = (CachedObjective) o;
+        final CachedObjective cRef = (CachedObjective) o;
         return objective.equals(cRef.objective);
     }
 
