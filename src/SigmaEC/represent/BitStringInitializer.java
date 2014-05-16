@@ -3,7 +3,6 @@ package SigmaEC.represent;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -11,15 +10,20 @@ import java.util.Random;
  * @author Eric 'Siggy' Scott
  */
 public class BitStringInitializer extends Initializer<BitStringIndividual> {
+    private final static String P_POPULATION_SIZE = "populationSize";
+    private final static String P_NUM_BITS = "numBits";
+    private final static String P_RANDOM = "random";
+    
     private final int populationSize;
     private final int numBits;
     private final Random random;
     
-    private BitStringInitializer(final Builder builder) {
-        assert(builder != null);
-        this.populationSize = builder.populationSize;
-        this.numBits = builder.numBits;
-        this.random = builder.random;
+    public BitStringInitializer(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
+        this.numBits = parameters.getIntParameter(Parameters.push(base, P_NUM_BITS));
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         
         if (populationSize <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": populationSize is <= 0, must be positive.");
@@ -29,53 +33,6 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
         assert(repOK());
     }
-    
-    public static class Builder implements InitializerBuilder<BitStringIndividual> {
-        private final static String P_POPULATION_SIZE = "populationSize";
-        private final static String P_NUM_BITS = "numBits";
-        
-        private int populationSize;
-        private int numBits;
-        private Random random;
-        
-        public Builder(final int populationSize, final int numBits) {
-            assert(populationSize > 1);
-            assert(numBits > 0);
-            this.populationSize = populationSize;
-            this.numBits = numBits;
-        }
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            this.populationSize = Parameters.getIntParameter(properties, Parameters.push(base, P_POPULATION_SIZE));
-            this.numBits = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_BITS));
-        }
-        
-        @Override
-        public BitStringInitializer build() {
-            return new BitStringInitializer(this);
-        }
-
-        @Override
-        public Builder random(final Random random) {
-            this.random = random;
-            return this;
-        }
-        
-        public Builder populationSize(final int populationSize) {
-            assert(populationSize > 1);
-            this.populationSize = populationSize;
-            return this;
-        }
-        
-        public Builder numBits(final int numBits) {
-            assert(numBits > 0);
-            this.numBits = numBits;
-            return this;
-        }
-    }
-    
     
     @Override
     public List<BitStringIndividual> generateInitialPopulation() {

@@ -6,7 +6,6 @@ import SigmaEC.represent.Individual;
 import SigmaEC.represent.Phenotype;
 import SigmaEC.util.Parameters;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -16,76 +15,27 @@ import java.util.Random;
  */
 public class TournamentSelector<T extends Individual, P extends Phenotype> extends Selector<T>
 {
+    private final static String P_TOURNAMENT_SIZE = "tournamentSize";
+    final private static String P_OBJECTIVE = "objective";
+    final private static String P_DECODER = "decoder";
+    final private static String P_RANDOM = "random";
+    
     final private int tournamentSize;
-    final private Random random;
-    final private RandomSelector<T> contestantSelector;
-    final private ObjectiveFunction<? super P> objective;
+    final private ObjectiveFunction<P> objective;
     final private Decoder<T, P> decoder;
+    final private Random random;
     
-    public TournamentSelector(final ObjectiveFunction<? super P> obj, final Decoder<T, P> decoder, final Random random, final int tournamentSize) throws NullPointerException, IllegalArgumentException
-    {
-        if (obj == null)
-            throw new NullPointerException(this.getClass().getSimpleName() + ": obj is null.");
-        if (decoder == null)
-            throw new NullPointerException(this.getClass().getSimpleName() + ": decoder is null.");
-        if (random == null)
-            throw new NullPointerException(this.getClass().getSimpleName() + ": random is null.");
-        else if (tournamentSize <= 0)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": tournamentSize is less than 1.");
-        
-        this.objective = obj;
-        this.decoder = decoder;
-        this.tournamentSize = tournamentSize;
-        this.random = random;
-        this.contestantSelector = new RandomSelector<T>(random);
-    }
+    final private RandomSelector<T> contestantSelector;
     
-    private TournamentSelector(final Builder<T, P> builder) {
-        this(builder.objective, builder.decoder, builder.random, builder.tournamentSize);
-    }
-    
-    public static class Builder<T extends Individual, P extends Phenotype> implements Selector.SelectorBuilder<T> {
-        private final static String P_TOURNAMENT_SIZE = "tournamentSize";
-        private int tournamentSize;
-        private Random random;
-        private ObjectiveFunction<? super P> objective;
-        private Decoder<T, P> decoder;
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            
-            tournamentSize = Parameters.getIntParameter(properties, Parameters.push(base, P_TOURNAMENT_SIZE));
-            // The remaining fields must be set by the caller before build() is called.
-        }
-
-        @Override
-        public TournamentSelector<T, P> build() {
-            return new TournamentSelector<T, P>(this);
-        }
-        
-        @Override
-        public Builder<T, P> decoder(final Decoder decoder) {
-            this.decoder = decoder;
-            return this;
-        }
-
-        @Override
-        public Builder<T, P> objective(final ObjectiveFunction objective) {
-            this.objective = objective;
-            return this;
-        }
-
-        @Override
-        public Builder<T, P> random(final Random random) {
-            this.random = random;
-            return this;
-        }
-        
-        public Builder<T, P> tournamentSize(final int tournamentSize) {
-            this.tournamentSize = tournamentSize;
-            return this;
-        }
+    public TournamentSelector(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        tournamentSize = parameters.getIntParameter(Parameters.push(base, P_TOURNAMENT_SIZE));
+        objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
+        random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
+        contestantSelector = new RandomSelector<T>(random);
+        assert(repOK());
     }
     
     @Override

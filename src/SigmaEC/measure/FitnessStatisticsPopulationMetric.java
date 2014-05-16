@@ -5,6 +5,7 @@ import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Phenotype;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
 import java.util.List;
 
@@ -16,16 +17,18 @@ import java.util.List;
  */
 public class FitnessStatisticsPopulationMetric<T extends Individual, P extends Phenotype> extends PopulationMetric<T>
 {
+    final private static String P_OBJECTIVE = "objective";
+    final private static String P_DECODER = "decoder";
+    
     final private ObjectiveFunction<P> objective;
     final private Decoder<T, P> decoder;
     private double bestSoFar = Double.NEGATIVE_INFINITY;
     
-    public FitnessStatisticsPopulationMetric(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder)
-    {
-        if (objective == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
-        this.objective = objective;
-        this.decoder = decoder;
+    public FitnessStatisticsPopulationMetric(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         assert(repOK());
     }
     

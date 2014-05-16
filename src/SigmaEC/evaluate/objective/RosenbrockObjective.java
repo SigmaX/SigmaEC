@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
-
+import SigmaEC.util.Parameters;
 
 /**
  * An n-dimensional generalization of Rosenbrock's objective function:
@@ -12,13 +12,16 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  */
 public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorPhenotype>
 {
+    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    
     private final int numDimensions;
     
-    public RosenbrockObjective(int numDimensions)
-    {
+    public RosenbrockObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
-        this.numDimensions = numDimensions;
         assert(repOK());
     }
 

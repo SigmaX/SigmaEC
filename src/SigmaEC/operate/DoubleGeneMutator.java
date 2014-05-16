@@ -1,9 +1,9 @@
 package SigmaEC.operate;
 
+import SigmaEC.SRandom;
 import SigmaEC.represent.DoubleGene;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
-import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -11,14 +11,16 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleGeneMutator extends Mutator<DoubleGene>
-{
+public class DoubleGeneMutator extends Mutator<DoubleGene> {
+    private final static String P_GAUSSIAN_STD = "gaussianStd";
+    private final static String P_RANDOM = "random";
     final private Random random;
     final private double gaussianStd;
     
-    private DoubleGeneMutator(final Builder builder) {
-        this.gaussianStd = builder.gaussianStd;
-        this.random = builder.random;
+    public DoubleGeneMutator(final Parameters parameters, final String base) {
+        this.gaussianStd = parameters.getDoubleParameter(Parameters.push(base, P_GAUSSIAN_STD));
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
+        
         if (Double.isInfinite(gaussianStd) || Double.isNaN(gaussianStd))
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": gaussianStd is infinite, must be finite.");
         if (gaussianStd <= 0)
@@ -26,34 +28,6 @@ public class DoubleGeneMutator extends Mutator<DoubleGene>
         if (random == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
         assert(repOK());
-    }
-    
-    public static class Builder implements MutatorBuilder<DoubleGene> {
-        private final static String P_GAUSSIAN_STD = "gaussianStd";
-        
-        private double gaussianStd;
-        private Random random;
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            this.gaussianStd = Parameters.getDoubleParameter(properties, Parameters.push(base, P_GAUSSIAN_STD));
-        }
-        
-        @Override
-        public MutatorBuilder<DoubleGene> random(final Random random) {
-            assert(random != null);
-            this.random = random;
-            return this;
-        }
-
-        @Override
-        public Mutator<DoubleGene> build() {
-            if (random == null)
-                throw new IllegalStateException(this.getClass().getSimpleName() + ": trying to build before random has been initialized.");
-            return new DoubleGeneMutator(this);
-        }
-        
     }
     
     @Override

@@ -1,10 +1,8 @@
 package SigmaEC.operate;
 
-import SigmaEC.BuilderT;
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import java.util.List;
-import java.util.Random;
 
 /**
  * An operator that takes two or more individuals and 'mates' them to produce
@@ -26,8 +24,4 @@ public abstract class Mator<T extends Individual> extends ContractObject
     /** @return The number of children the mate() function will produce, or -1
      * if this number varies. */
     public abstract int getNumChildren();
-    
-    public interface MatorBuilder<T extends Individual> extends BuilderT<Mator<T>> {
-        Mator.MatorBuilder<T> random(final Random random);
-    }
 }

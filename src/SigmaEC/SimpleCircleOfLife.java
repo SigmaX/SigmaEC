@@ -3,7 +3,6 @@ package SigmaEC;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
-import SigmaEC.operate.Generator.GeneratorBuilder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Phenotype;
@@ -11,9 +10,7 @@ import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -25,6 +22,16 @@ import java.util.Random;
  */
 public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> extends CircleOfLife<T>
 {
+    final public static String P_NUM_GENERATIONS = "numGenerations";
+    final public static String P_GENERATORS = "generators";
+    final public static String P_DECODER = "decoder";
+    final public static String P_OBJECTIVE = "objective";
+    final public static String P_PARENT_SELECTOR = "parentSelector";
+    final public static String P_SURVIVAL_SELECTOR = "survivalSelector";
+    final public static String P_PRE_METRICS = "preMetrics";
+    final public static String P_POST_METRICS = "postMetrics";
+    final public static String P_RANDOM = "random";
+        
     final private int numGenerations;
     final private List<Generator<T>> generators;
     final private Option<Selector<T>> parentSelector;
@@ -35,130 +42,18 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
     final private ObjectiveFunction<P> objective;
     final private Random random;
     
-    private SimpleCircleOfLife(final Builder<T,P> builder)
+    public SimpleCircleOfLife(final Parameters parameters, final String base)
     {
-        this.numGenerations = builder.numGenerations;
-        this.generators = new ArrayList<Generator<T>>() {{
-           for (final GeneratorBuilder<T> b : builder.generatorBuilders)
-               add(b.build());
-        }};
-        this.parentSelector = builder.parentSelector;
-        this.survivalSelector = builder.survivalSelector;
-        this.preOperatorMetrics = builder.preOperatorMetrics;
-        this.postOperatorMetrics = builder.postOperatorMetrics;
-        this.decoder = builder.decoder;
-        this.objective = builder.objective;
-        this.random = builder.random;
+        this.numGenerations = parameters.getIntParameter(Parameters.push(base, P_NUM_GENERATIONS));
+        this.generators = parameters.getInstancesFromParameter(Parameters.push(base, P_GENERATORS), Generator.class);
+        this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
+        this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        this.parentSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
+        this.survivalSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
+        this.preOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_PRE_METRICS), PopulationMetric.class);
+        this.postOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_POST_METRICS), PopulationMetric.class);
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         assert(repOK());
-    }
-    
-    public static class Builder<T extends Individual, P extends Phenotype> implements CircleOfLifeBuilder<T> {
-        final private static String P_NUM_GENERATIONS = "numGenerations";
-        final private static String P_GENERATORS = "generators";
-        final private static String P_DECODER = "decoder";
-        final private static String P_OBJECTIVE = "objective";
-        final private static String P_PARENT_SELECTOR = "parentSelector";
-        final private static String P_SURVIVAL_SELECTOR = "survivalSelector";
-        final private static String P_PRE_METRICS = "preMetrics";
-        final private static String P_POST_METRICS = "postMetrics";
-        
-        private int numGenerations;
-        private List<GeneratorBuilder<T>> generatorBuilders;
-        private Option<Selector<T>> parentSelector = Option.NONE;
-        private Option<Selector<T>> survivalSelector = Option.NONE;
-        private Option<List<PopulationMetric<T>>> preOperatorMetrics = Option.NONE;
-        private Option<List<PopulationMetric<T>>> postOperatorMetrics = Option.NONE;
-        private Decoder<T, P> decoder;
-        private ObjectiveFunction<P> objective;
-        private Random random;
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            this.numGenerations = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_GENERATIONS));
-            this.generatorBuilders = Parameters.getBuildersFromParameter(properties, Parameters.push(base, P_GENERATORS), Generator.class);
-            this.decoder = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_DECODER), Decoder.class);
-            this.objective = Parameters.getInstanceFromParameter(properties, Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
-            
-            final Option<Selector.SelectorBuilder<T>> parentSelectorBuilder = Parameters.getOptionalBuilderFromParameter(properties, Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
-            if (parentSelectorBuilder.isDefined())
-                this.parentSelector = new Option<Selector<T>>(parentSelectorBuilder.get()
-                        .decoder(decoder)
-                        .objective(objective)
-                        .build());
-            else
-                this.parentSelector = Option.NONE;
-            
-            final Option<Selector.SelectorBuilder<T>> survivalSelectorBuilder = Parameters.getOptionalBuilderFromParameter(properties, Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
-            if (survivalSelectorBuilder.isDefined())
-                this.survivalSelector = new Option<Selector<T>>(survivalSelectorBuilder.get()
-                        .decoder(decoder)
-                        .objective(objective)
-                        .build());
-            else
-                this.survivalSelector = Option.NONE;
-            
-            this.preOperatorMetrics = Parameters.getOptionalInstancesFromParameter(properties, Parameters.push(base, P_PRE_METRICS), Selector.class);
-            this.postOperatorMetrics = Parameters.getOptionalInstancesFromParameter(properties, Parameters.push(base, P_POST_METRICS), Selector.class);
-        }
-        
-        @Override
-        public SimpleCircleOfLife<T,P> build() {
-            return new SimpleCircleOfLife(this);
-        }
-
-        @Override
-        public Builder<T, P> random(final Random random) {
-            assert(random != null);
-            this.random = random;
-            for (final GeneratorBuilder<T> b : generatorBuilders)
-                b.random(random);
-            return this;
-        }
-        
-        public Builder<T,P> numGenerations(final int numGenerations) {
-            assert(numGenerations > 0);
-            this.numGenerations = numGenerations;
-            return this;
-        }
-        
-        public Builder<T,P> problem(final ObjectiveFunction<P> objective) {
-            assert(objective != null);
-            this.objective = objective;
-            return this;
-        }
-        
-        public Builder<T,P> parentSelector(final Selector<T> parentSelector) {
-            if (parentSelector == null)
-                this.parentSelector = Option.NONE;
-            else
-                this.parentSelector = new Option<Selector<T>>(parentSelector);
-            return this;
-        }
-        
-        public Builder<T,P> survivalSelector(final Selector<T> survivalSelector) {
-            if (survivalSelector == null)
-                this.survivalSelector = Option.NONE;
-            else
-                this.survivalSelector = new Option<Selector<T>>(survivalSelector);
-            return this;
-        }
-        
-        public Builder<T,P> preOperatorMetrics(final List<PopulationMetric<T>> preOperatorMetrics) {
-            if (preOperatorMetrics == null)
-                this.preOperatorMetrics = Option.NONE;
-            else
-                this.preOperatorMetrics = new Option<List<PopulationMetric<T>>>(preOperatorMetrics);
-            return this;
-        }
-        
-        public Builder<T,P> postOperatorMetrics(final List<PopulationMetric<T>> postOperatorMetrics) {
-            if (postOperatorMetrics == null)
-                this.postOperatorMetrics = Option.NONE;
-            else
-                this.postOperatorMetrics = new Option<List<PopulationMetric<T>>>(postOperatorMetrics);
-            return this;
-        }
     }
     
     @Override

@@ -1,12 +1,13 @@
 package SigmaEC.util;
 
-import SigmaEC.BuilderT;
+import SigmaEC.ContractObject;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,228 +15,230 @@ import java.util.logging.Logger;
  *
  * @author Eric 'Siggy' Scott
  */
-public class Parameters {
+public class Parameters extends ContractObject {
     private final static String LIST_DELIMITER = ",";
     private final static String PROPERTY_DELIMITER = ".";
     private final static char REFERENCE_SYMBOL = '%';
     
-    private Parameters() {
-        throw new AssertionError(String.format("%s: Cannot create instance of static utility class.", this.getClass().getSimpleName()));
+    private final Properties properties;
+    // Used to store instances that are referenced by other parameters with the "%param" syntax.
+    private final Map<String, Object> instanceRegistry = new HashMap<String, Object>();
+    
+    public Parameters(final Properties properties, final Random random) {
+        assert(properties != null);
+        this.properties = properties;
+        assert(repOK());
     }
     
     public static String push(final String base, final String param) {
+        assert(base != null);
+        assert(param != null);
         return String.format("%s%s%s", base, PROPERTY_DELIMITER, param);
     }
     
+    private static boolean isReference(final String parameterValue) {
+        assert(parameterValue != null);
+        return parameterValue.charAt(0) == REFERENCE_SYMBOL;
+    }
+    
+    private static String dereference(final String parameterValue) {
+        assert(parameterValue != null);
+        assert(isReference(parameterValue));
+        return parameterValue.substring(1);
+    }
+    
+    public boolean isDefined(final String parameterName) {
+        assert(parameterName != null);
+        return properties.containsKey(parameterName);
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="Basic Types">
-    public static int getIntParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    public int getIntParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         if (value.charAt(0) == REFERENCE_SYMBOL)
-            return getIntParameter(properties, value.substring(1));
+            return getIntParameter(value.substring(1));
         return Integer.parseInt(value);
     }
     
-    public static Option<Integer> getOptionalIntParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    public Option<Integer> getOptionalIntParameter(final String parameterName) {
         assert(parameterName != null);
         if (properties.containsKey(parameterName))
-            return new Option<Integer>(getIntParameter(properties, parameterName));
+            return new Option<Integer>(getIntParameter(parameterName));
         else
             return Option.NONE;
     }
-    public static boolean getBooleanParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    
+    public boolean getBooleanParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         if (value.charAt(0) == REFERENCE_SYMBOL)
-            return getBooleanParameter(properties, value.substring(1));
+            return getBooleanParameter(value.substring(1));
         return Boolean.parseBoolean(value);
     }
     
-    public static Option<Boolean> getOptionalBooleanParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    public Option<Boolean> getOptionalBooleanParameter(final String parameterName) {
         assert(parameterName != null);
         if (properties.containsKey(parameterName))
-            return new Option<Boolean>(getBooleanParameter(properties, parameterName));
+            return new Option<Boolean>(getBooleanParameter(parameterName));
         else
             return Option.NONE;
     }
     
-    public static double getDoubleParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    public double getDoubleParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        if (value.charAt(0) == REFERENCE_SYMBOL)
-            return getDoubleParameter(properties, value.substring(1));
+        if (isReference(value))
+            return getDoubleParameter(dereference(value));
         return Double.parseDouble(value);
     }
     
-    public static Option<Double> getOptionalDoubleParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    public Option<Double> getOptionalDoubleParameter(final String parameterName) {
         assert(parameterName != null);
         if (properties.containsKey(parameterName))
-            return new Option<Double>(getDoubleParameter(properties, parameterName));
+            return new Option<Double>(getDoubleParameter(parameterName));
         else
             return Option.NONE;
     }
     
-    public static double[] getDoubleArrayParameter(final Properties properties, final String parameterName) {
-        final String[] doubleStrings = getParameter(properties, parameterName).split(LIST_DELIMITER);
+    public double[] getDoubleArrayParameter(final String parameterName) {
+        final String[] doubleStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
         final double[] array = new double[doubleStrings.length];
         for (int i = 0; i < doubleStrings.length; i++)
             array[i] = Double.parseDouble(doubleStrings[i]);
         return array;
     }
     
-    public static String getParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    public String getStringParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         if (value.charAt(0) == REFERENCE_SYMBOL)
-            return getParameter(properties, value.substring(1));
+            return getStringParameter(value.substring(1));
         return value;
     }
     
-    public static Option<String> getOptionalParameter(final Properties properties, final String parameterName) {
-        assert(properties != null);
+    public Option<String> getOptionalStringParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         return (value == null) ? Option.NONE : new Option<String>(value);
     }
-    //</editor-fold
+    //</editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Builders">
-    public static <T extends BuilderT> T getBuilderFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
-        assert(parameterName != null);
-        assert(expectedSuperClass != null);
-        final String className = getParameter(properties, parameterName);
-        return getBuilderFromClassName(properties, className, parameterName, expectedSuperClass);
-    }
-    
-    public static <T extends BuilderT> Option<T> getOptionalBuilderFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
-        assert(parameterName != null);
-        assert(expectedSuperClass != null);
-        final Option<String> className = getOptionalParameter(properties, parameterName);
-        if (!className.isDefined())
-            return Option.NONE;
-        return new Option<T>((T) getBuilderFromClassName(properties, className.get(), parameterName, expectedSuperClass));
-    }
-    
-    public static <T extends BuilderT> List<T> getBuildersFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
-        assert(parameterName != null);
-        assert(expectedSuperClass != null);
-        final String[] classNames = getParameter(properties, parameterName).split(LIST_DELIMITER);
-        return new ArrayList<T>() {{
-            for (int i = 0; i < classNames.length; i++)
-                add((T) getBuilderFromClassName(properties, classNames[i], push(parameterName, String.valueOf(i)), expectedSuperClass));
-        }};
-    }
-    
-    public static <T extends BuilderT> Option<List<T>> getOptionalBuildersFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
-        assert(parameterName != null);
-        assert(expectedSuperClass != null);
-        final Option<String> classNamesOption = getOptionalParameter(properties, parameterName);
-        if (!classNamesOption.isDefined())
-            return Option.NONE;
-        final String[] classNames = classNamesOption.get().split(LIST_DELIMITER);
-        return new Option<List<T>>(new ArrayList<T>() {{
-            for (int i = 0; i < classNames.length; i++)
-                add((T) getBuilderFromClassName(properties, classNames[i], push(parameterName, String.valueOf(i)), expectedSuperClass));
-        }});
-    }
-
-    private static <T extends BuilderT> T getBuilderFromClassName(final Properties properties, final String className, final String base, final Class expectedSuperClass) throws IllegalStateException {
+    // <editor-fold defaultstate="collapsed" desc="Instances">
+    private <T> T getInstanceFromClassName(final String className, final String parameterName, final Class expectedSuperClass) {
         // Check that the class exists and is the expected subtype
-        final Class c, builder;
+        final Class c;
         try {
             c = Class.forName(className);
         } catch (final ClassNotFoundException ex) {
-            throw new IllegalStateException(String.format("%s: No such class '%s', requested by parameter '%s' (%s).", Parameters.class.getSimpleName(), className, base, ex.getMessage()));
+            throw new IllegalStateException(String.format("%s: No such class '%s', requested by parameter '%s' (%s).", this.getClass().getSimpleName(), className, parameterName, ex.getMessage()));
         }
         if (!expectedSuperClass.isAssignableFrom(c))
-            throw new IllegalStateException(String.format("%s: Class '%s', requested by the parameter '%s' is not a subtype of '%s'.", Parameters.class.getSimpleName(), className, base, expectedSuperClass.getSimpleName()));
-        
-        // Check that the Builder exists and is the expected subtype
+            throw new IllegalStateException(String.format("%s: Class '%s', requested by the parameter '%s' is not a subtype of '%s'.", this.getClass().getSimpleName(), className, parameterName, expectedSuperClass.getSimpleName()));
         try {
-            builder = Class.forName(className + "$Builder");
-        } catch (final ClassNotFoundException ex) {
-            Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
-            throw new IllegalStateException(String.format("%s: Class '%s', requested by parameter '%s', has no Builder (%s).", Parameters.class.getSimpleName(), className, base, ex.getMessage()));
-        }
-        if (!BuilderT.class.isAssignableFrom(builder))
-            throw new IllegalStateException(String.format("%s: Builder '%s', requested by the parameter '%s' is not a subtype of '%s'.", Parameters.class.getSimpleName(), className, base, BuilderT.class.getSimpleName()));
-        
-        // Construct the Builder
-        final T result;
-        try {
-            final Constructor constructor = builder.getDeclaredConstructor(new Class[] { Properties.class, String.class });
-            result = (T) constructor.newInstance(properties, base);
+            final Constructor constructor = c.getDeclaredConstructor(new Class[] { Parameters.class, String.class });
+            return (T) constructor.newInstance(this, parameterName);
         } catch (final Exception ex) {
             Logger.getLogger(Parameters.class.getName()).log(Level.SEVERE, null, ex);
             throw new IllegalStateException(String.format("%s: failed to create instance of class '%s' (%s).", Parameters.class.getSimpleName(), className, ex.getMessage()));
         }
-        
+    }
+   
+    private void registerInstanceIfReferenced(final String parameterName, final Object instance) {
+        assert(parameterName != null);
+        assert(instance != null);
+        if (properties.containsValue(REFERENCE_SYMBOL + parameterName))
+            instanceRegistry.put(parameterName, instance);
+    }
+    
+    public <T> T getInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(expectedSuperClass != null);
+        final String value = properties.getProperty(parameterName);
+        if (value == null)
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (isReference(value))
+            return (T) instanceRegistry.get(dereference(value));
+
+        final T result = getInstanceFromClassName(value, parameterName, expectedSuperClass);
+        registerInstanceIfReferenced(parameterName, result);
         return result;
     }
-    // </editor-fold>
     
-    // <editor-fold defaultstate="collapsed" desc="Instances">
-    public static <T> T getInstanceFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
+    public <T> Option<T> getOptionalInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(expectedSuperClass != null);
-        final String className = getParameter(properties, parameterName);
-        return (T) getBuilderFromClassName(properties, className, parameterName, expectedSuperClass).build();
-    }
-    
-    public static <T> Option<T> getOptionalInstanceFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
-        assert(parameterName != null);
-        assert(expectedSuperClass != null);
-        final Option<BuilderT<T>> builder = getOptionalBuilderFromParameter(properties, parameterName, expectedSuperClass);
-        if (builder.isDefined())
-            return new Option<T>((T) builder.get().build());
+        if (properties.containsKey(parameterName))
+            return new Option<T>((T) getInstanceFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;
     }
     
-    public static <T> List<T> getInstancesFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
+    public <T> List<T> getInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(expectedSuperClass != null);
-        final List<BuilderT<T>> builders = getBuildersFromParameter(properties, parameterName, expectedSuperClass);
-        return new ArrayList<T>() {{
-           for (final BuilderT<T> b : builders)
-               add((T) b.build());
+        final String value = properties.getProperty(parameterName);
+        if (value == null)
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (isReference(value))
+            return (List<T>) instanceRegistry.get(dereference(value));
+        
+        final String[] classNames = value.split(LIST_DELIMITER);
+        final List<T> result =  new ArrayList<T>() {{
+            for (int i = 0; i < classNames.length; i++)
+                add((T) getInstanceFromClassName(classNames[i], push(parameterName, String.valueOf(i)), expectedSuperClass));
         }};
+        registerInstanceIfReferenced(parameterName, result);
+        return result;
     }
     
-    public static <T> Option<List<T>> getOptionalInstancesFromParameter(final Properties properties, final String parameterName, final Class expectedSuperClass) {
-        assert(properties != null);
+    public <T> Option<List<T>> getOptionalInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(expectedSuperClass != null);
-        final Option<List<BuilderT<T>>> builders = getOptionalBuildersFromParameter(properties, parameterName, expectedSuperClass);
-        if (builders.isDefined())
-            return new Option(new ArrayList<T>() {{
-                for (final BuilderT<T> b : builders.get())
-                    add((T) b.build());
-            }});
+        if (properties.containsKey(parameterName))
+            return new Option<List<T>>((List<T>) getInstancesFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
+    @Override
+    public final boolean repOK() {
+        return properties != null
+                && instanceRegistry != null;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Parameters))
+            return false;
+        final Parameters ref = (Parameters)o;
+        return properties.equals(ref.properties)
+                && instanceRegistry.equals(ref.instanceRegistry);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + (this.properties != null ? this.properties.hashCode() : 0);
+        hash = 97 * hash + (this.instanceRegistry != null ? this.instanceRegistry.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s: properties=%s, instanceRegistry=%s]", this.getClass().getSimpleName(), properties, instanceRegistry);
     }
     // </editor-fold>
 }

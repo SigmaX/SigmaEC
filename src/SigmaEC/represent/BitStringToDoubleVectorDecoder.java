@@ -1,15 +1,17 @@
 package SigmaEC.represent;
 
-import SigmaEC.BuilderT;
 import SigmaEC.util.Parameters;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Interpret a string of bits as a vector of doubles via big-endian encoding.
  * @author Eric 'Siggy' Scott
  */
 public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual, DoubleVectorPhenotype> {
+    public final static String P_NUM_BITS_PER_DIMENSION = "numBitsPerDimension";
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_LOWEST_SIGNIFICANCE = "lowestSignificance";
+        
     final private int numBitsPerDimension;
     final private int numDimensions;
     final private int lowestSignificance;
@@ -28,21 +30,19 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
     }
     // </editor-fold>
     
-    public BitStringToDoubleVectorDecoder(final int numBitsPerDimension, final int numDimensions, final int lowestSignificance) {
+    public BitStringToDoubleVectorDecoder(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numBitsPerDimension = parameters.getIntParameter(Parameters.push(base, P_NUM_BITS_PER_DIMENSION));
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        this.lowestSignificance = parameters.getIntParameter(Parameters.push(base, P_LOWEST_SIGNIFICANCE));
+        
         if (numBitsPerDimension <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numBitsPerDimension is <= 0, must be positive.");
         if (numDimensions <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
-        this.numBitsPerDimension = numBitsPerDimension;
-        this.numDimensions = numDimensions;
-        this.lowestSignificance = lowestSignificance;
         assert(repOK());
     }
-    
-    private BitStringToDoubleVectorDecoder(final Builder builder) {
-        this(builder.numBitsPerDimension, builder.numDimensions, builder.lowestSignificance);
-        assert(repOK());
-    } 
 
     @Override
     public DoubleVectorPhenotype decode(final BitStringIndividual individual) {
@@ -59,31 +59,6 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
         return new DoubleVectorPhenotype(phenotype);
     }
     
-    public static class Builder implements BuilderT<BitStringToDoubleVectorDecoder> {
-        public final static String P_NUM_BITS_PER_DIMENSION = "numBitsPerDimension";
-        public final static String P_NUM_DIMENSIONS = "numDimensions";
-        public final static String P_LOWEST_SIGNIFICANCE = "lowestSignificance";
-        
-        private int numBitsPerDimension;
-        private int numDimensions;
-        private int lowestSignificance;
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            
-            this.numBitsPerDimension = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_BITS_PER_DIMENSION));
-            this.numDimensions = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_DIMENSIONS));
-            this.lowestSignificance = Parameters.getIntParameter(properties, Parameters.push(base, P_LOWEST_SIGNIFICANCE));
-        }
-
-        @Override
-        public BitStringToDoubleVectorDecoder build() {
-            return new BitStringToDoubleVectorDecoder(this);
-        }
-    
-    }
-
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {

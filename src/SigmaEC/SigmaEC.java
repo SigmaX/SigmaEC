@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 /**
  *
@@ -35,8 +36,9 @@ public class SigmaEC {
             final Properties properties = new Properties();
             final FileInputStream pInput = new FileInputStream(parameterFileName);
             properties.load(pInput);
+            final Parameters parameters = new Parameters(properties, new Random());
             
-            final Experiment experiment = Parameters.getInstanceFromParameter(properties, P_EXPERIMENT, Experiment.class);
+            final Experiment experiment = parameters.getInstanceFromParameter(P_EXPERIMENT, Experiment.class);
             experiment.run();
         }
         catch (final Exception e) {

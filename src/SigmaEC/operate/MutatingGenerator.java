@@ -1,8 +1,7 @@
 package SigmaEC.operate;
 
-import SigmaEC.operate.Mutator.MutatorBuilder;
+import SigmaEC.SRandom;
 import SigmaEC.represent.Gene;
-import SigmaEC.represent.Individual;
 import SigmaEC.represent.LinearGenomeIndividual;
 import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;
@@ -10,8 +9,6 @@ import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import java.util.Random;
 
 /**
  * Takes a population of LinearGenomeIndividuals and mutates them according to
@@ -19,51 +16,23 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class MutatingGenerator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Generator<T>
-{
+public class MutatingGenerator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Generator<T> {
+    private final static String P_MUTATION_RATE = "mutationRate";
+    private final static String P_MUTATOR = "mutator";
+    private final static String P_RANDOM = "random";
+    
     private final double mutationRate;
     private final Mutator<G> mutator;
-    private final Random random;
+    private final SRandom random;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
     
-    private MutatingGenerator(final Builder<T, G> builder)
-    {
-        this.mutationRate = builder.mutationRate;
-        this.mutator = builder.mutatorBuilder.build();
-        this.random = builder.random;
+    public MutatingGenerator(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.mutationRate = parameters.getDoubleParameter(Parameters.push(base, P_MUTATION_RATE));
+        this.mutator = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATOR), Mutator.class);
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         assert(repOK());
-    }
-    
-    public static class Builder<T extends LinearGenomeIndividual<G>, G extends Gene> implements GeneratorBuilder<T> {
-        private final static String P_MUTATION_RATE = "mutationRate";
-        private final static String P_MUTATOR = "mutator";
-        
-        private double mutationRate;
-        private MutatorBuilder<G> mutatorBuilder;
-        private Random random;
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            mutationRate = Parameters.getDoubleParameter(properties, Parameters.push(base, P_MUTATION_RATE));
-            mutatorBuilder = Parameters.getBuilderFromParameter(properties, Parameters.push(base, P_MUTATOR), Mutator.class);
-        }
-        
-        @Override
-        public Builder<T, G> random(final Random random) {
-            assert(random != null);
-            this.random = random;
-            mutatorBuilder = mutatorBuilder.random(random);
-            return this;
-        }
-
-        @Override
-        public MutatingGenerator<T, G> build() {
-            if (random == null)
-                throw new IllegalStateException(this.getClass().getSimpleName() + ": trying to build before random has been initialized.");
-            return new MutatingGenerator<T, G>(this);
-        }
-        
     }
 
     @Override

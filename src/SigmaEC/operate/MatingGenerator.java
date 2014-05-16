@@ -7,8 +7,6 @@ import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import java.util.Random;
 
 /**
  * Takes a population of individuals represented by linear genomes and creates
@@ -17,48 +15,22 @@ import java.util.Random;
  * @see LinearGenomeMator
  * @author Eric 'Siggy' Scott
  */
-public class MatingGenerator<T extends Individual> extends Generator<T>
-{
+public class MatingGenerator<T extends Individual> extends Generator<T> {
+    private final static String P_MATOR = "mator";
+        
     private final Mator<T> mator;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
     
-    private MatingGenerator(final Builder<T> builder) throws IllegalArgumentException {        
-        assert(builder != null);
-        this.mator = builder.matorBuilder.build();
+    public MatingGenerator(final Parameters parameters, final String base) throws IllegalArgumentException {        
+        assert(parameters != null);
+        assert(base != null);
+        this.mator = parameters.getInstanceFromParameter(Parameters.push(base, P_MATOR), Mator.class);
         
         if (mator == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": procreator is null.");
         if (mator.getNumChildren() != mator.getNumParents())
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": mator.getNumChildren() must equal mator.getNumParents()");
         assert(repOK());
-    }
-    
-    public static class Builder<T extends Individual> implements Generator.GeneratorBuilder<T> {
-        private final static String P_MATOR = "mator";
-        
-        private Mator.MatorBuilder<T> matorBuilder;
-        private Random random;
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            matorBuilder = Parameters.getBuilderFromParameter(properties, Parameters.push(base, P_MATOR), Mator.class);
-        }
-        
-        @Override
-        public Builder<T> random(final Random random) {
-            assert(random != null);
-            this.random = random;
-            matorBuilder = matorBuilder.random(random);
-            return this;
-        }
-
-        @Override
-        public MatingGenerator<T> build() {
-            if (random == null)
-                throw new IllegalStateException(this.getClass().getSimpleName() + ": trying to build before random has been initialized.");
-            return new MatingGenerator(this);
-        }
     }
     
     /**

@@ -7,7 +7,6 @@ import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 import java.util.Random;
 
 /**
@@ -17,6 +16,10 @@ import java.util.Random;
  */
 public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Mator<T>
 {
+    final private static String P_NUM_CUT_POINTS = "numCutPoints";
+    final private static String P_ALLOW_CLONING = "allowCloning";
+    final private static String P_RANDOM = "random";
+    
     final private int numCutPoints;
     final private Random random;
     final private boolean allowCloning;
@@ -29,52 +32,22 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
 
     public int getNumCutPoints() { return numCutPoints; }
     
-    public NPointCrossoverMator(final int numCutPoints, final boolean allowCloning, final Random random) {
+    public NPointCrossoverMator(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numCutPoints = parameters.getIntParameter(Parameters.push(base, P_NUM_CUT_POINTS));
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
+        final Option<Boolean> allowCloningOpt = parameters.getOptionalBooleanParameter(Parameters.push(base, P_ALLOW_CLONING));
+        if (allowCloningOpt.isDefined())
+            allowCloning = allowCloningOpt.get();
+        else
+            allowCloning = true;
+        
         if (numCutPoints < 1)
             throw new IllegalArgumentException(String.format("%s: numCutPoints is %d, but must be > 0.", this.getClass().getSimpleName(), numCutPoints));
         if (random == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
-        this.numCutPoints = numCutPoints;
-        this.random = random;
-        this.allowCloning = allowCloning;
         assert(repOK());
-    }
-    
-    private NPointCrossoverMator(final Builder builder) {
-        this(builder.numCutPoints, builder.allowCloning, builder.random);
-    }
-    
-    public static class Builder<T extends LinearGenomeIndividual<G>, G extends Gene> implements MatorBuilder<T> {
-        final private static String P_NUM_CUT_POINTS = "numCutPoints";
-        final private static String P_ALLOW_CLONING = "allowCloning";
-        
-        private int numCutPoints;
-        private boolean allowCloning = true;
-        private Random random;
-        
-        public Builder(final Properties properties, final String base) {
-            assert(properties != null);
-            assert(base != null);
-            numCutPoints = Parameters.getIntParameter(properties, Parameters.push(base, P_NUM_CUT_POINTS));
-            final Option<Boolean> allowCloningOpt = Parameters.getOptionalBooleanParameter(properties, Parameters.push(base, P_ALLOW_CLONING));
-            if (allowCloningOpt.isDefined())
-                allowCloning = allowCloningOpt.get();
-        }
-        
-        @Override
-        public MatorBuilder<T> random(final Random random) {
-            assert(random != null);
-            this.random = random;
-            return this;
-        }
-
-        @Override
-        public Mator<T> build() {
-            if (random == null)
-                throw new IllegalStateException(this.getClass().getSimpleName() + ": trying to build before random has been initialized.");
-            return new NPointCrossoverMator<T, G>(this);
-        }
-        
     }
     
     /**
