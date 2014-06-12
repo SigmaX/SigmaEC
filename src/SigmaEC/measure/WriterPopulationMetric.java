@@ -1,7 +1,11 @@
 package SigmaEC.measure;
 
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Option;
+import SigmaEC.util.Parameters;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.logging.Level;
@@ -15,16 +19,32 @@ import java.util.logging.Logger;
  */
 public class WriterPopulationMetric<T extends Individual> extends PopulationMetric<T>
 {
+    final public static String P_FILE = "file";
+    final public static String P_METRIC = "metric";
+    
     final private Writer writer;
     final private PopulationMetric<T> wrappedMetric;
     
-    public WriterPopulationMetric(final Writer writer, final PopulationMetric<T> wrappedMetric) throws IllegalArgumentException {
+    public WriterPopulationMetric(final Parameters parameters, final String base) throws IllegalArgumentException {
+        assert(parameters != null);
+        assert(base != null);
+        final Option<String> file = parameters.getOptionalStringParameter(Parameters.push(base, P_FILE));
+        if (file.isDefined()) {
+            try {
+            writer = new FileWriter(file.get());
+            }
+            catch (final IOException e) {
+                throw new IllegalArgumentException(this.getClass().getSimpleName() +": could not open file " + file.get(), e);
+            }
+        }
+        else
+            writer = new OutputStreamWriter(System.out);
+        wrappedMetric = parameters.getInstanceFromParameter(Parameters.push(base, P_METRIC), PopulationMetric.class);
+        
         if (writer == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": writer is null.");
         if (wrappedMetric == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": wrappedMetric is null.");
-        this.writer = writer;
-        this.wrappedMetric = wrappedMetric;
         assert(repOK());
     }
     
