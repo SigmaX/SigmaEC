@@ -36,7 +36,7 @@ public class SigmaEC {
             final Properties properties = new Properties();
             final FileInputStream pInput = new FileInputStream(parameterFileName);
             properties.load(pInput);
-            final Parameters parameters = new Parameters(properties, new Random());
+            final Parameters parameters = new Parameters(properties);
             
             final Experiment experiment = parameters.getInstanceFromParameter(P_EXPERIMENT, Experiment.class);
             experiment.run();

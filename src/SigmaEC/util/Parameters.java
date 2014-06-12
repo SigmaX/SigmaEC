@@ -24,9 +24,9 @@ public class Parameters extends ContractObject {
     // Used to store instances that are referenced by other parameters with the "%param" syntax.
     private final Map<String, Object> instanceRegistry = new HashMap<String, Object>();
     
-    public Parameters(final Properties properties, final Random random) {
+    public Parameters(final Properties properties) {
         assert(properties != null);
-        this.properties = properties;
+        this.properties = new Properties(properties);
         assert(repOK());
     }
     

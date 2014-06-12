@@ -16,9 +16,9 @@ import java.util.Random;
  */
 public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Mator<T>
 {
-    final private static String P_NUM_CUT_POINTS = "numCutPoints";
-    final private static String P_ALLOW_CLONING = "allowCloning";
-    final private static String P_RANDOM = "random";
+    final public static String P_NUM_CUT_POINTS = "numCutPoints";
+    final public static String P_ALLOW_CLONING = "allowCloning";
+    final public static String P_RANDOM = "random";
     
     final private int numCutPoints;
     final private Random random;
@@ -157,14 +157,16 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
             return false;
         NPointCrossoverMator cRef = (NPointCrossoverMator) ref;
         return numCutPoints == cRef.numCutPoints
-                && random.equals(cRef.random);
+                && random.equals(cRef.random)
+                && allowCloning == cRef.allowCloning;
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
+        int hash = 7;
         hash = 97 * hash + this.numCutPoints;
         hash = 97 * hash + (this.random != null ? this.random.hashCode() : 0);
+        hash = 97 * hash + (this.allowCloning ? 1 : 0);
         return hash;
     }
     //</editor-fold>
