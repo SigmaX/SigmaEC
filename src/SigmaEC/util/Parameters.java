@@ -21,12 +21,40 @@ public class Parameters extends ContractObject {
     
     private final Properties properties;
     // Used to store instances that are referenced by other parameters with the "%param" syntax.
-    private final Map<String, Object> instanceRegistry = new HashMap<String, Object>();
+    private final Map<String, Object> instanceRegistry;
     
     public Parameters(final Properties properties) {
         assert(properties != null);
         this.properties = (Properties) properties.clone();
+        this.instanceRegistry = new HashMap<String, Object>();
         assert(repOK());
+    }
+    
+    private Parameters(final Builder builder) {
+        assert(builder != null);
+        this.properties = builder.properties;
+        this.instanceRegistry = builder.instanceRegistry;
+    }
+    
+    public static class Builder {
+        final Properties properties;
+        final Map<String, Object> instanceRegistry = new HashMap<String, Object>();
+        
+        public Builder(final Properties properties) {
+            assert(properties != null);
+            this.properties = properties;
+        }
+        
+        public Builder registerInstance(final String parameter, final Object object) {
+            assert(parameter != null);
+            assert(object != null);
+            instanceRegistry.put(parameter, object);
+            return this;
+        }
+        
+        public Parameters build() {
+            return new Parameters(this);
+        }
     }
     
     public static String push(final String base, final String param) {
