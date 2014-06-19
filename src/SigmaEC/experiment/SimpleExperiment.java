@@ -1,9 +1,11 @@
 package SigmaEC.experiment;
 
 import SigmaEC.CircleOfLife;
+import SigmaEC.CircleOfLife.EvolutionResult;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
 import SigmaEC.util.Parameters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -13,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author Eric 'Siggy' Scott
  */
-public class SimpleExperiment<T extends Individual> extends Experiment {
+public class SimpleExperiment<T extends Individual> extends Experiment<Double> {
     private final static String P_INITIALIZER = "initializer";
     private final static String P_CIRCLE_OF_LIFE = "circleOfLife";
     private final static String P_NUM_RUNS = "numRuns";
@@ -23,6 +25,7 @@ public class SimpleExperiment<T extends Individual> extends Experiment {
     private final Initializer<T> initializer;
     private final CircleOfLife<T> circleOfLife;
     private final int numRuns;
+    private final List<EvolutionResult<T>> results;
     
     public SimpleExperiment(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -32,6 +35,7 @@ public class SimpleExperiment<T extends Individual> extends Experiment {
         this.initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
         this.circleOfLife = parameters.getInstanceFromParameter(Parameters.push(base, P_CIRCLE_OF_LIFE), CircleOfLife.class);
         this.numRuns = parameters.getIntParameter(Parameters.push(base, P_NUM_RUNS));
+        this.results = new ArrayList<EvolutionResult<T>>(numRuns);
         assert(repOK());
     }
     
@@ -40,12 +44,19 @@ public class SimpleExperiment<T extends Individual> extends Experiment {
         final List<T> initialPopulation = initializer.generateInitialPopulation();
         
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, String.format("Beginning evolutionary run with the following configuration: %s.", circleOfLife.toString()));
-        
         for (int i = 0; i < numRuns; i++) {
-            Logger.getLogger(this.getClass().getName()).log(Level.INFO, String.format("Run %d", i));
-            circleOfLife.evolve(i, initialPopulation);
+            Logger.getLogger(SimpleExperiment.class.getName()).log(Level.INFO, String.format("Run %d", i));
+            results.add(circleOfLife.evolve(i, initialPopulation));
         }
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finished");
+    }
+
+    @Override
+    public Double getResult() {
+        double fitnessSum = 0.0;
+        for (final EvolutionResult<T> result : results)
+            fitnessSum += result.getBestFitness();
+        return fitnessSum/results.size();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

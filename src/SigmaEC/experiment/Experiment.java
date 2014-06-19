@@ -8,6 +8,7 @@ import SigmaEC.ContractObject;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class Experiment extends ContractObject {
+public abstract class Experiment<T> extends ContractObject {
     public abstract void run();
+    public abstract T getResult();
 }
