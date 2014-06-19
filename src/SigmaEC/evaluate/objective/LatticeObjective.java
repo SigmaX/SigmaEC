@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.evaluate.decorate.MaxObjective;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -16,7 +16,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LatticeObjective<T extends DoubleVectorPhenotype> extends ObjectiveFunction<T>
+public class LatticeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
 {
     private final int numDimensions;
     private final double ridgeWidth;

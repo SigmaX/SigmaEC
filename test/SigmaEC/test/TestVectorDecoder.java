@@ -1,7 +1,7 @@
 package SigmaEC.test;
 
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 
 /**
  * Decoder for use with TestVectorIndividual -- the phenotype vector is
@@ -9,10 +9,10 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TestVectorDecoder extends Decoder<TestVectorIndividual, DoubleVectorPhenotype> {
+public class TestVectorDecoder extends Decoder<TestVectorIndividual, DoubleVectorIndividual> {
     @Override
-    public DoubleVectorPhenotype decode(final TestVectorIndividual individual) {
-        return new DoubleVectorPhenotype(individual.getVector());
+    public DoubleVectorIndividual decode(final TestVectorIndividual individual) {
+        return new DoubleVectorIndividual(individual.getVector());
     }
 
     @Override

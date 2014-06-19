@@ -10,7 +10,7 @@ import java.util.Map;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class CachedDecoder<T extends Individual, P extends Phenotype> extends Decoder<T, P> {
+public class CachedDecoder<T extends Individual, P> extends Decoder<T, P> {
     private final static String P_DECODER = "decoder";
     
     private final Decoder<T, P> decoder;

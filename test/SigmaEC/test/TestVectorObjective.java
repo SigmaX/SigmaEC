@@ -1,20 +1,20 @@
 package SigmaEC.test;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 
 /**
  * Simple fitness function for R^n, the sum of all the elements.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TestVectorObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class TestVectorObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(DoubleVectorIndividual ind)
     {
         double sum = 0;
-        for(double d : ind.getVector())
+        for(double d : ind.getGenomeArray())
             sum += d;
         return sum;
     }

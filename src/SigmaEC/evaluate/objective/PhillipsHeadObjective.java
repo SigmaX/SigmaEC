@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 
 /**
@@ -11,7 +11,7 @@ import SigmaEC.util.Misc;
  * @author Jeff Bassett
  * @author Eric 'Siggy' Scott
  */
-public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     private final double shortAxisFactor;
@@ -66,7 +66,7 @@ public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorPhenoty
      * where s = shortAxisFactor and l = longAxisFactor.
      */
     @Override
-    public double fitness(final DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
 

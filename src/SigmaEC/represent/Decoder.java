@@ -7,6 +7,6 @@ import SigmaEC.ContractObject;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class Decoder<T extends Individual, P extends Phenotype> extends ContractObject {
+public abstract class Decoder<T extends Individual, P> extends ContractObject {
     public abstract P decode(T individual);
 }

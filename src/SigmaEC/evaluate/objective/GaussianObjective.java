@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import java.util.Arrays;
 
@@ -9,7 +9,7 @@ import java.util.Arrays;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class GaussianObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     private final double height;
@@ -43,11 +43,11 @@ public class GaussianObjective extends ObjectiveFunction<DoubleVectorPhenotype>
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double exponent = 0;
-        for (double d : ind.getVector())
+        for (double d : ind.getGenomeArray())
             exponent+= Math.pow(d, 2)/(2*Math.pow(std, 2));
         assert(repOK());
         return height*Math.exp(-exponent);

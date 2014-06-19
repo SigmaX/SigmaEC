@@ -1,7 +1,7 @@
 package SigmaEC.util;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -180,7 +180,7 @@ public final class Misc
         return newArray;
     }
     
-    public static <T extends DoubleVectorPhenotype> boolean allElementsHaveDimension(final List<ObjectiveFunction<T>> objectives, final int dimensions) {
+    public static <T extends DoubleVectorIndividual> boolean allElementsHaveDimension(final List<ObjectiveFunction<T>> objectives, final int dimensions) {
         assert(objectives != null);
         assert(objectives.size() > 0);
         for (int i = 0; i < objectives.size(); i++)

@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import java.util.Random;
 
 /**
@@ -10,7 +10,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final Random random;
     private final int numDimensions;
@@ -30,7 +30,7 @@ public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorPhenot
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;

@@ -3,7 +3,6 @@ package SigmaEC.measure;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.Phenotype;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
@@ -15,7 +14,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class FitnessStatisticsPopulationMetric<T extends Individual, P extends Phenotype> extends PopulationMetric<T>
+public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T>
 {
     final private static String P_OBJECTIVE = "objective";
     final private static String P_DECODER = "decoder";

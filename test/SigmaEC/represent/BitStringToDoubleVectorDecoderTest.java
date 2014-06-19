@@ -3,7 +3,6 @@ package SigmaEC.represent;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -64,8 +63,8 @@ public class BitStringToDoubleVectorDecoderTest {
     public void testDecode() {
         System.out.println("decode");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorPhenotype expResult = new DoubleVectorPhenotype(new double[] { 1.625, 0.625, 1.75, 0.125, 1.875 });
-        final DoubleVectorPhenotype result = sut.decode(goodInd);
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 1.625, 0.625, 1.75, 0.125, 1.875 });
+        final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
     }
@@ -76,8 +75,8 @@ public class BitStringToDoubleVectorDecoderTest {
         System.out.println("decode");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_LOWEST_SIGNIFICANCE), "-2");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorPhenotype expResult = new DoubleVectorPhenotype(new double[] { 3.25, 1.25, 3.5, 0.25, 3.75 });
-        final DoubleVectorPhenotype result = sut.decode(goodInd);
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 3.25, 1.25, 3.5, 0.25, 3.75 });
+        final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
     }
@@ -90,8 +89,8 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_BITS_PER_DIMENSION), "5");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_LOWEST_SIGNIFICANCE), "0");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorPhenotype expResult = new DoubleVectorPhenotype(new double[] { 29.0, 18.0, 7.0, 30.0});
-        final DoubleVectorPhenotype result = sut.decode(goodInd);
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 29.0, 18.0, 7.0, 30.0});
+        final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
     }

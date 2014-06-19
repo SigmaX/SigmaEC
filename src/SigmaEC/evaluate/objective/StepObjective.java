@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 
 /**
  * A piecewise continuous step function from De Jong's original suite.  Sums the
@@ -9,7 +9,7 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class StepObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class StepObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     
@@ -27,10 +27,10 @@ public class StepObjective extends ObjectiveFunction<DoubleVectorPhenotype>
     
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         int sum = 0;
-        for(double d : ind.getVector())
+        for(double d : ind.getGenomeArray())
             sum += (int) d;
         assert(repOK());
         return sum;

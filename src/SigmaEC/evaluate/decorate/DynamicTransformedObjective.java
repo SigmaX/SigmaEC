@@ -3,7 +3,7 @@ package SigmaEC.evaluate.decorate;
 import SigmaEC.evaluate.TransformedObjectiveGenerator;
 import SigmaEC.evaluate.TransformedObjectiveGenerator.Strategy;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import java.util.Random;
 
 /**
@@ -12,12 +12,12 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DynamicTransformedObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class DynamicTransformedObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final TransformedObjectiveGenerator generator;
-    private ObjectiveFunction<DoubleVectorPhenotype> currentObjective;
+    private ObjectiveFunction<DoubleVectorIndividual> currentObjective;
     
-    public DynamicTransformedObjective(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TransformationStrategy transformationStrategy, final Random random) {
+    public DynamicTransformedObjective(final ObjectiveFunction<DoubleVectorIndividual> objective, final Strategy.TransformationStrategy transformationStrategy, final Random random) {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
         if (transformationStrategy == null)
@@ -35,7 +35,7 @@ public class DynamicTransformedObjective extends ObjectiveFunction<DoubleVectorP
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         return currentObjective.fitness(ind);
     }
 

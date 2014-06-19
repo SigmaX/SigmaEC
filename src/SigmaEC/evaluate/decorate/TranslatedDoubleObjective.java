@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import java.util.Arrays;
 
@@ -9,12 +9,12 @@ import java.util.Arrays;
  *
  * @author Eric 'Siggy' Scott
  */
-public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final double[] offset;
-    private final ObjectiveFunction<DoubleVectorPhenotype> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual> objective;
     
-    public TranslatedDoubleObjective(final double[] offset, final ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException {
+    public TranslatedDoubleObjective(final double[] offset, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
         if (offset == null)
@@ -33,17 +33,17 @@ public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorPhe
         return offset.length;
     }
     
-    public DoubleVectorPhenotype translate(final DoubleVectorPhenotype ind)
+    public DoubleVectorIndividual translate(final DoubleVectorIndividual ind)
     {
-        final double[] newPoint = ind.getVector();
+        final double[] newPoint = ind.getGenomeArray();
         assert(newPoint.length == offset.length);
         for (int i = 0; i < offset.length; i++)
             newPoint[i] += offset[i];
-        return new DoubleVectorPhenotype(newPoint);
+        return new DoubleVectorIndividual(newPoint);
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         return objective.fitness(translate(ind));
     }
 

@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
 
 /**
@@ -11,7 +11,7 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SphereObjective extends ObjectiveFunction<DoubleVectorPhenotype> {
+public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     private final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;
@@ -31,11 +31,11 @@ public class SphereObjective extends ObjectiveFunction<DoubleVectorPhenotype> {
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;
-        for (double d : ind.getVector())
+        for (double d : ind.getGenomeArray())
             sum+= Math.pow(d,2);
         assert(repOK());
         return sum;

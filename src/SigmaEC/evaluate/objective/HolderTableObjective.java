@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 
 /**
  * Typical bounds are [-10, 10].
@@ -9,17 +9,18 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class HolderTableObjective extends ObjectiveFunction<DoubleVectorPhenotype> {
+public class HolderTableObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     
     public HolderTableObjective() {
         assert(repOK());
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == 2);
-        final double x1 = ind.getVector()[0];
-        final double x2 = ind.getVector()[1];
+        final double[] genome = ind.getGenomeArray();
+        final double x1 = genome[0];
+        final double x2 = genome[1];
         return -Math.abs(Math.sin(x1)*Math.cos(x2)*Math.exp(Math.abs(1-Math.sqrt(x1*x1 + x2*x2)/Math.PI)));
     }
 

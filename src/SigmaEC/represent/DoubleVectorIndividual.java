@@ -44,6 +44,15 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         this.id = nextId++;
         assert(repOK());
     }
+    
+    public DoubleVectorIndividual(final double[] genome) {
+        assert(genome != null);
+        this.genome = new ArrayList<DoubleGene>(genome.length);
+        for (int i = 0; i < genome.length; i++)
+            this.genome.add(new DoubleGene(genome[i]));
+        this.id = nextId++;
+        assert(repOK());
+    }
 
     @Override
     public long getID() { return id; }
@@ -60,6 +69,19 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     @Override
     public List<DoubleGene> getGenome() {
         return new ArrayList<DoubleGene>(genome); // Defensive copy
+    }
+    
+    public double[] getGenomeArray() {
+        final double[] array = new double[genome.size()];
+        for (int i = 0; i < array.length; i++)
+            array[i] = genome.get(i).value;
+        return array;
+    }
+    
+    public double getElement(final int i) {
+        assert(i >= 0);
+        assert(i < genome.size());
+        return genome.get(i).value;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

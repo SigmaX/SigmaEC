@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.math.Matrix;
 import java.util.Arrays;
@@ -18,10 +18,10 @@ import java.util.Arrays;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final double[][] transformationMatrix;
-    private final ObjectiveFunction<DoubleVectorPhenotype> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual> objective;
     private final int numDimensions;
     
     /** Convenience constructor for creating affine transformation in R^2.
@@ -29,7 +29,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
      * @param scale The value by which the function will be scaled.
      * @param objective The original objective function.
      */
-    public AffineTransformedDoubleObjective(final double[] angles, final double scale, final ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
+    public AffineTransformedDoubleObjective(final double[] angles, final double scale, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         this(getTransformationMatrix(angles, scale, objective.getNumDimensions()), objective);
     }
@@ -39,7 +39,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
      * augmented matrix.
      * @param objective The original objective function.
      */
-    public AffineTransformedDoubleObjective(final double[][] transformationMatrix, final ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
+    public AffineTransformedDoubleObjective(final double[][] transformationMatrix, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
@@ -110,7 +110,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
         return numDimensions;
     }
     
-    public ObjectiveFunction<DoubleVectorPhenotype> getWrappedObjective() {
+    public ObjectiveFunction<DoubleVectorIndividual> getWrappedObjective() {
         return objective;
     }
     
@@ -118,7 +118,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
         return Matrix.copy(transformationMatrix);
     }
     
-    public DoubleVectorPhenotype transform(final DoubleVectorPhenotype ind) {
+    public DoubleVectorIndividual transform(final DoubleVectorIndividual ind) {
         assert(ind != null);
         assert(ind.size() == getNumDimensions());
         double[] newPoint = new double[getNumDimensions()];
@@ -127,11 +127,11 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
             for(int j = 0; j < getNumDimensions(); j++)
                 newPoint[i] += ind.getElement(j) * transformationMatrix[i][j];
         }
-        return new DoubleVectorPhenotype(newPoint);
+        return new DoubleVectorIndividual(newPoint);
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         return objective.fitness(transform(ind));
     }
 

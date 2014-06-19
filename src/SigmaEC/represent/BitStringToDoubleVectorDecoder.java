@@ -7,7 +7,7 @@ import java.util.List;
  * Interpret a string of bits as a vector of doubles via big-endian encoding.
  * @author Eric 'Siggy' Scott
  */
-public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual, DoubleVectorPhenotype> {
+public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual, DoubleVectorIndividual> {
     public final static String P_NUM_BITS_PER_DIMENSION = "numBitsPerDimension";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_LOWEST_SIGNIFICANCE = "lowestSignificance";
@@ -45,7 +45,7 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
     }
 
     @Override
-    public DoubleVectorPhenotype decode(final BitStringIndividual individual) {
+    public DoubleVectorIndividual decode(final BitStringIndividual individual) {
         assert(individual.size() == numBitsPerDimension*numDimensions);
         final List<BitGene> genome = individual.getGenome();
         final double[] phenotype = new double[numDimensions];
@@ -56,7 +56,7 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
                     phenotype[dimension] += Math.pow(2, power);
             }
         }
-        return new DoubleVectorPhenotype(phenotype);
+        return new DoubleVectorIndividual(phenotype);
     }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

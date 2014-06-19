@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MultiplicativeObjective<T extends DoubleVectorPhenotype> extends ObjectiveFunction<T> {
+public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
     private final List<ObjectiveFunction<T>> objectives;
     private final int numDimensions;
 

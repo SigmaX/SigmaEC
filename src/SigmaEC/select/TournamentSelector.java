@@ -3,7 +3,6 @@ package SigmaEC.select;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.Phenotype;
 import SigmaEC.util.Parameters;
 import java.util.List;
 import java.util.Random;
@@ -13,7 +12,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TournamentSelector<T extends Individual, P extends Phenotype> extends Selector<T>
+public class TournamentSelector<T extends Individual, P> extends Selector<T>
 {
     private final static String P_TOURNAMENT_SIZE = "tournamentSize";
     final private static String P_OBJECTIVE = "objective";

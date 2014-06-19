@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
 
 /**
@@ -10,7 +10,7 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final static String P_NUM_DIMENSIONS = "numDimensions";
     
@@ -31,7 +31,7 @@ public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorPhenotype
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;

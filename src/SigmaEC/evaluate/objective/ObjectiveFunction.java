@@ -1,14 +1,13 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.ContractObject;
-import SigmaEC.represent.Phenotype;
 
 /**
  * Objective function interface for the Strategy pattern.
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class ObjectiveFunction<P extends Phenotype> extends ContractObject
+public abstract class ObjectiveFunction<P> extends ContractObject
 {
     /** Evaluate the fitness of an individual. */
     public abstract double fitness(P ind);

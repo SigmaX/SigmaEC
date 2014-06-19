@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.math.Vector;
@@ -11,7 +11,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective<T extends DoubleVectorPhenotype> extends ObjectiveFunction<T>
+public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
 {
     private final double width;
     private final double highFitness;
@@ -107,7 +107,7 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> extends Objec
     public double fitness(T ind)
     {
         assert(ind != null);
-        final double distance = Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
+        final double distance = Vector.pointToLineEuclideanDistance(ind.getGenomeArray(), slopeVector, interceptVector);
         if (distance < width)
             return highFitness;
         else if (gradientXIntercept.isDefined())

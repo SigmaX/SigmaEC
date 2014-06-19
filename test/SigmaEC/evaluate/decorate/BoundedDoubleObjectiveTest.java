@@ -2,7 +2,7 @@ package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.test.TestVectorDecoder;
 import SigmaEC.test.TestVectorIndividual;
 import SigmaEC.test.TestVectorObjective;
@@ -20,7 +20,7 @@ public class BoundedDoubleObjectiveTest
     private BoundedDoubleObjective SUT;
     private final int numDimensions = 3;
     private final double singleBound = 5;
-    private final ObjectiveFunction<DoubleVectorPhenotype> objective = new TestVectorObjective();
+    private final ObjectiveFunction<DoubleVectorIndividual> objective = new TestVectorObjective();
     private final IDoublePoint[] bounds = new IDoublePoint[] {
         new IDoublePoint(-3, 3),
         new IDoublePoint(-8, 4),
@@ -121,7 +121,7 @@ public class BoundedDoubleObjectiveTest
         final TestVectorIndividual bInd3 = new TestVectorIndividual(new double[] {3.1, 0, 5.0});
         final TestVectorIndividual bInd4 = new TestVectorIndividual(new double[] {0, 0, 18.0});
         
-        final Decoder<TestVectorIndividual, DoubleVectorPhenotype> d = new TestVectorDecoder();
+        final Decoder<TestVectorIndividual, DoubleVectorIndividual> d = new TestVectorDecoder();
         
         assertEquals(5.0, SUT.fitness(d.decode(gInd1)), 0);
         assertEquals(-7.7, SUT.fitness(d.decode(gInd2)), 0);

@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 
 /**
@@ -8,7 +8,7 @@ import SigmaEC.util.Misc;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class ConstantObjective<T extends DoubleVectorPhenotype> extends ObjectiveFunction<T> {
+public class ConstantObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
     
     private final int numDimensions;
     private final double value;
@@ -30,7 +30,7 @@ public class ConstantObjective<T extends DoubleVectorPhenotype> extends Objectiv
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         assert(repOK());

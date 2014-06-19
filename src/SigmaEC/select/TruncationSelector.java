@@ -3,7 +3,6 @@ package SigmaEC.select;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.Phenotype;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -14,7 +13,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TruncationSelector<T extends Individual, P extends Phenotype> extends Selector<T>
+public class TruncationSelector<T extends Individual, P> extends Selector<T>
 {
     private final ObjectiveFunction<P> objective;
     private final Decoder<T, P> decoder;

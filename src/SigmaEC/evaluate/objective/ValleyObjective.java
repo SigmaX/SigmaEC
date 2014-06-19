@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.math.Vector;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ValleyObjective extends ObjectiveFunction<DoubleVectorPhenotype>
+public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     private final double[] slopeVector;
@@ -57,10 +57,10 @@ public class ValleyObjective extends ObjectiveFunction<DoubleVectorPhenotype>
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
-       
-        double result = Vector.euclideanDistance(ind.getVector(), interceptVector) + 10*Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
+        final double[] genome = ind.getGenomeArray();
+        double result = Vector.euclideanDistance(genome, interceptVector) + 10*Vector.pointToLineEuclideanDistance(genome, slopeVector, interceptVector);
         assert(repOK());
         return result;
     }

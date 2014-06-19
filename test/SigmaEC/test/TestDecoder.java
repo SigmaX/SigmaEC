@@ -8,10 +8,10 @@ import SigmaEC.represent.Decoder;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TestDecoder extends Decoder<TestIndividual, TestPhenotype> {
+public class TestDecoder extends Decoder<TestIndividual, Double> {
     @Override
-    public TestPhenotype decode(final TestIndividual individual) {
-        return new TestPhenotype(individual.getTrait());
+    public Double decode(final TestIndividual individual) {
+        return individual.getTrait();
     }
 
     @Override

@@ -5,7 +5,7 @@ package SigmaEC.represent;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class CloneDecoder<T extends Individual & Phenotype> extends Decoder<T, T> {
+public class CloneDecoder<T extends Individual> extends Decoder<T, T> {
 
     @Override
     public T decode(T individual) {

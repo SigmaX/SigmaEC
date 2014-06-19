@@ -1,7 +1,6 @@
 package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.Phenotype;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,12 +12,12 @@ import java.util.Map;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class CachedObjective<T extends Phenotype> extends ObjectiveFunction<T>
+public class CachedObjective<P> extends ObjectiveFunction<P>
 {
-    final private ObjectiveFunction<T> objective;
-    final private Map<T, Double> memory = new HashMap<T, Double>();
+    final private ObjectiveFunction<P> objective;
+    final private Map<P, Double> memory = new HashMap<P, Double>();
     
-    public CachedObjective(final ObjectiveFunction<T> objective) {
+    public CachedObjective(final ObjectiveFunction<P> objective) {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
         this.objective = objective;
@@ -31,7 +30,7 @@ public class CachedObjective<T extends Phenotype> extends ObjectiveFunction<T>
     }
     
     @Override
-    public double fitness(final T ind) {
+    public double fitness(final P ind) {
         assert(ind != null);
         if (memory.containsKey(ind))
             return memory.get(ind);

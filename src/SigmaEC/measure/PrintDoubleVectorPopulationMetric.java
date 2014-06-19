@@ -1,10 +1,9 @@
 package SigmaEC.measure;
 
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,9 +14,9 @@ import java.util.List;
  */
 public class PrintDoubleVectorPopulationMetric<T extends Individual> extends PopulationMetric<T>
 {
-    private final Decoder<T, DoubleVectorPhenotype> decoder;
+    private final Decoder<T, DoubleVectorIndividual> decoder;
     
-    public PrintDoubleVectorPopulationMetric(final Decoder<T, DoubleVectorPhenotype> decoder) throws NullPointerException
+    public PrintDoubleVectorPopulationMetric(final Decoder<T, DoubleVectorIndividual> decoder) throws NullPointerException
     {
         if (decoder == null)
             throw new NullPointerException(this.getClass().getName() + ": decoder is null.");
@@ -30,7 +29,7 @@ public class PrintDoubleVectorPopulationMetric<T extends Individual> extends Pop
     {
         final List<double[]> arrays = new ArrayList<double[]>() {{
             for(T ind : population)
-                add(Misc.prepend(ind.getID(), decoder.decode(ind).getVector()));
+                add(Misc.prepend(ind.getID(), decoder.decode(ind).getGenomeArray()));
         }};
         assert(repOK());
         return new MultipleDoubleArrayMeasurement(run, generation, arrays);

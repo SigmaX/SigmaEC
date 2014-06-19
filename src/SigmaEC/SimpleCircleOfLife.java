@@ -5,7 +5,6 @@ import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.Phenotype;
 import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -20,7 +19,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> extends CircleOfLife<T>
+public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
 {
     final public static String P_NUM_GENERATIONS = "numGenerations";
     final public static String P_GENERATORS = "generators";
