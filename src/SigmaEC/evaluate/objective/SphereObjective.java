@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.util.Parameters;
 
 /**
  * The so-called "sphere function," f(x) = \sum_i x_i^2.  This is actually a
@@ -10,15 +11,17 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SphereObjective extends ObjectiveFunction<DoubleVectorPhenotype>
-{
+public class SphereObjective extends ObjectiveFunction<DoubleVectorPhenotype> {
+    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    
     private final int numDimensions;
     
-    public SphereObjective(int numDimensions)
-    {
+    public SphereObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
-        this.numDimensions = numDimensions;
         assert(repOK());
     }
 
