@@ -57,8 +57,9 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
     }
     
     @Override
-    public List<T> evolve(final int run, List<T> population)
+    public EvolutionResult<T> evolve(final int run, List<T> population)
     {
+        T bestIndividual = null;
         for (int i = 0; i < numGenerations; i++)
         {
             // Tell the problem what generation we're on (in case it's a dynamic landscape)
@@ -82,12 +83,14 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
                 for (PopulationMetric<T> metric : postOperatorMetrics.get())
                     metric.measurePopulation(run, i, population);
             
+            bestIndividual = getBestIndividual(bestIndividual, population);
+            
             // Survival selection
             if (survivalSelector.isDefined())
                 population = survivalSelector.get().selectMultipleIndividuals(population, population.size());
         }
         flushMetrics();
-        return population;
+        return new EvolutionResult<T>(population, bestIndividual, objective.fitness(decoder.decode(bestIndividual)));
     }
     
     /** Flush I/O buffers. */
@@ -99,6 +102,19 @@ public class SimpleCircleOfLife<T extends Individual, P extends Phenotype> exten
         if (postOperatorMetrics.isDefined())
             for (PopulationMetric<T> metric: postOperatorMetrics.get())
                 metric.flush();
+    }
+    
+    private T getBestIndividual(T bestIndividual, final List<T> population) {
+        assert(population != null);
+        double bestFitness = (bestIndividual == null) ? Double.NEGATIVE_INFINITY : objective.fitness(decoder.decode(bestIndividual));
+        for (final T ind : population) {
+            final double fitness = objective.fitness(decoder.decode(ind));
+            if (fitness > bestFitness) { // XXX Hardcoding maximization
+                bestIndividual = ind;
+                bestFitness = fitness;
+            }
+        }
+        return bestIndividual;               
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
