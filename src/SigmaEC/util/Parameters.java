@@ -68,10 +68,18 @@ public class Parameters extends ContractObject {
         return parameterValue.charAt(0) == REFERENCE_SYMBOL;
     }
     
-    private static String dereference(final String parameterValue) {
+    private String dereference(final String parameterValue) {
         assert(parameterValue != null);
         assert(isReference(parameterValue));
-        return parameterValue.substring(1);
+        final String targetName = parameterValue.substring(1);
+        if (instanceRegistry.containsKey(targetName))
+            return targetName;
+        final String targetValue = properties.getProperty(targetName);
+        if (isReference(targetValue))
+            return dereference(targetValue);
+        else
+            return targetName;
+        
     }
     
     public boolean isDefined(final String parameterName) {
