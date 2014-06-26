@@ -2,6 +2,7 @@ package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 
 /**
  * Several (at lease two) narrow multi-variate Gaussian distributions,
@@ -11,17 +12,24 @@ import SigmaEC.util.Misc;
  * @author Jeff Bassett
  * @author Eric 'Siggy' Scott
  */
-public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
+public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    private final static String P_SHORT_AXIS = "shortAxis";
+    private final static String P_LONG_AXIS = "longAxis";
+    
     private final int numDimensions;
     private final double shortAxisFactor;
     private final double longAxisFactor;
 
-    public PhillipsHeadObjective(int numDimensions,
-                                 double shortAxisFactor,
-                                 double longAxisFactor)
-    {
-        String funcName = this.getClass().getSimpleName();
+    public PhillipsHeadObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        this.shortAxisFactor = parameters.getIntParameter(Parameters.push(base, P_SHORT_AXIS));
+        this.longAxisFactor = parameters.getIntParameter(Parameters.push(base, P_LONG_AXIS));
+        
+        final String funcName = this.getClass().getSimpleName();
         if (numDimensions < 1)
             throw new IllegalArgumentException(funcName +
                             ": numDimensions is < 1.");
@@ -40,23 +48,13 @@ public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndivid
         if (longAxisFactor <= shortAxisFactor)
             throw new IllegalArgumentException(funcName +
                             ": longAxisFactor is <= shortAxisFactor.");
-        
-        this.numDimensions = numDimensions;
-        this.shortAxisFactor = shortAxisFactor;
-        this.longAxisFactor = longAxisFactor;
         assert(repOK());
-    }
-
-
-    public PhillipsHeadObjective() throws IllegalArgumentException {
-        this(2, 0.1, 1);
     }
 
     @Override
     public int getNumDimensions() {
         return numDimensions;
     }
-
 
     /**
      * Calculate fitness for multiple crossing thin Gaussians. The form is:
@@ -66,8 +64,7 @@ public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndivid
      * where s = shortAxisFactor and l = longAxisFactor.
      */
     @Override
-    public double fitness(final DoubleVectorIndividual ind)
-    {
+    public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
 
         double result = 0;
@@ -75,11 +72,9 @@ public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndivid
         final double l = this.longAxisFactor;
         int d, longAxis;
 
-        for (longAxis = 0; longAxis < this.getNumDimensions(); longAxis++)
-        {
+        for (longAxis = 0; longAxis < this.getNumDimensions(); longAxis++) {
             double interResult = 1.0;
-            for (d = 0; d < this.getNumDimensions(); d++)
-            {
+            for (d = 0; d < this.getNumDimensions(); d++) {
                 double x = ind.getElement(d);
                 if (d == longAxis)
                     interResult = interResult * Math.exp(-x*x/l);

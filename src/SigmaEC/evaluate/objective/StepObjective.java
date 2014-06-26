@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
 
 /**
  * A piecewise continuous step function from De Jong's original suite.  Sums the
@@ -9,14 +10,17 @@ import SigmaEC.represent.DoubleVectorIndividual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class StepObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
+public class StepObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    
     private final int numDimensions;
     
-    public StepObjective(int numDimensions) {
+    public StepObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
-        this.numDimensions = numDimensions;
         assert(repOK());
     }
 

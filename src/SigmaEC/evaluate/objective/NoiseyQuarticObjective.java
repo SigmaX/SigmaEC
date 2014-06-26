@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
 import java.util.Random;
 
 /**
@@ -10,8 +11,10 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
+public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    private final static String P_RANDOM = "random";
+    
     private final Random random;
     private final int numDimensions;
 
@@ -20,12 +23,13 @@ public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorIndivi
         return numDimensions;
     }
     
-    public NoiseyQuarticObjective(final Random random, final int numDimensions)
-    {
+    public NoiseyQuarticObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
-        this.random = random;
-        this.numDimensions = numDimensions;
         assert(repOK());
     }
     
