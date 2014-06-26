@@ -1,7 +1,7 @@
 package SigmaEC.test;
 
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 
 /**
  * Decoder for use with TestVectorIndividual -- the phenotype vector is
@@ -9,9 +9,29 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TestVectorDecoder implements Decoder<TestVectorIndividual, DoubleVectorPhenotype> {
+public class TestVectorDecoder extends Decoder<TestVectorIndividual, DoubleVectorIndividual> {
     @Override
-    public DoubleVectorPhenotype decode(final TestVectorIndividual individual) {
-        return new DoubleVectorPhenotype(individual.getVector());
+    public DoubleVectorIndividual decode(final TestVectorIndividual individual) {
+        return new DoubleVectorIndividual(individual.getVector());
+    }
+
+    @Override
+    public boolean repOK() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int hashCode() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toString() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

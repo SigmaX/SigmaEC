@@ -1,7 +1,9 @@
 package SigmaEC.operate;
 
+import SigmaEC.SRandom;
 import SigmaEC.represent.DoubleGene;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import java.util.Random;
 
 /**
@@ -9,41 +11,46 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleGeneMutator implements Mutator<DoubleGene>
-{
+public class DoubleGeneMutator extends Mutator<DoubleGene> {
+    private final static String P_GAUSSIAN_STD = "gaussianStd";
+    private final static String P_RANDOM = "random";
     final private Random random;
     final private double gaussianStd;
     
-    public DoubleGeneMutator(double gaussianStd, Random random)
-    {
-        this.gaussianStd = gaussianStd;
-        this.random = random;
+    public DoubleGeneMutator(final Parameters parameters, final String base) {
+        this.gaussianStd = parameters.getDoubleParameter(Parameters.push(base, P_GAUSSIAN_STD));
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
+        
+        if (Double.isInfinite(gaussianStd) || Double.isNaN(gaussianStd))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": gaussianStd is infinite, must be finite.");
+        if (gaussianStd <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": gaussianStd is <= 0, must be positive.");
+        if (random == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
         assert(repOK());
     }
     
     @Override
-    public DoubleGene mutate(DoubleGene gene)
-    {
+    public DoubleGene mutate(final DoubleGene gene) {
         return new DoubleGene(gene.value + Misc.gaussianSample(random)*gaussianStd);
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return random != null
-                && !Double.isNaN(gaussianStd);
+                && !Double.isNaN(gaussianStd)
+                && !Double.isInfinite(gaussianStd)
+                && gaussianStd > 0;
     }
     
     @Override
-    final public String toString()
-    {
-        return String.format("[DoubleGeneMutator: GaussianStd=%f, Random=%s]", gaussianStd, random);
+    final public String toString() {
+        return String.format("[%s: GaussianStd=%f, Random=%s]", this.getClass().getSimpleName(), gaussianStd, random);
     }
     
     @Override
-    final public boolean equals(Object o)
-    {
+    final public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof DoubleGeneMutator))

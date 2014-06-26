@@ -1,5 +1,6 @@
 package SigmaEC.select;
 
+import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class Selector<T extends Individual>
+public abstract class Selector<T extends Individual> extends ContractObject
 {     
     protected Selector() { }
     
@@ -23,8 +24,4 @@ public abstract class Selector<T extends Individual>
             output.add(selectIndividual(population));
         return output;
     }
-    
-    /** Representation invariant.  If this returns false, there is something
-     * invalid about the Individual's internal state. */
-    public abstract boolean repOK();
 }

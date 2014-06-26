@@ -1,0 +1,21 @@
+package SigmaEC;
+
+import SigmaEC.util.Option;
+import SigmaEC.util.Parameters;
+
+/**
+ *
+ * @author Eric 'Siggy' Scott
+ */
+public class SRandom extends java.util.Random {
+    private final static String P_SEED = "seed";
+    
+    public SRandom(final Parameters parameters, final String base) {
+        super();
+        assert(parameters != null);
+        assert(base != null);
+        final Option<Integer> seedOpt = parameters.getOptionalIntParameter(Parameters.push(base, P_SEED));
+        if (seedOpt.isDefined())
+            setSeed(seedOpt.get());
+    }
+}

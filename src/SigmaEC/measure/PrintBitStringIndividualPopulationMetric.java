@@ -2,7 +2,6 @@ package SigmaEC.measure;
 
 import SigmaEC.represent.BitGene;
 import SigmaEC.represent.LinearGenomeIndividual;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndividual<BitGene>> implements PopulationMetric<T>
+public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndividual<BitGene>> extends PopulationMetric<T>
 {
     
     public PrintBitStringIndividualPopulationMetric() {
@@ -19,7 +18,7 @@ public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndi
     }
     
     @Override
-    public MultipleStringMeasurement measurePopulation(final int run, final int generation, final List<T> population) throws IOException
+    public MultipleStringMeasurement measurePopulation(final int run, final int generation, final List<T> population)
     {
         final List<String> arrays = new ArrayList<String>() {{
             for(T ind : population) {
@@ -37,10 +36,10 @@ public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndi
     public void reset() { }
 
     @Override
-    public void flush() throws IOException { }
+    public void flush() { }
     
     @Override
-    public void close() throws IOException { }
+    public void close() { }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override

@@ -1,12 +1,12 @@
 # SigmaEC
 
-An evolutionary computation framework by Eric 'Siggy' Scott.  Provides common
-representations, operators, selection mechanisms, and objective functions.
-
-Currently only genetic algorithms with real-valued genes and real-vector
-phenotypes are implemented.
+A flexible evolutionary computation framework by Eric 'Siggy' Scott.
 
 ## Overview
+
+  - Java properties files are used to specify all the operators used in
+experiments and their parameters, including sophisticated set-ups like
+meta-evolution.
 
   - A CircleOfLife defines the outer evolutionary loop.
 
@@ -17,13 +17,10 @@ creating a new generation).
 
   - Selectors apply selection according to an ObjectiveFunction.
 
-  - Multiple inheritance of interfaces is used to define types of Individuals by
-mixing and matching properties.  For instance, an Individual that has a linear
-genetic representation and a real-vector phenotype should inherit from
-LinearGenomeIndividual and DoubleVectorIndividual.
+  - Metrics measure characteristics of a population.
 
   - Some commonly used ObjectiveFunctions are implemented, including the
-[De Jong test suite][1].  A couple of wrapper classes are also provided which
+[De Jong test suite][1].  Some wrapper classes are also provided which
 [decorate][2] objectives with bounds (BoundedObjectiveFunction) or rotate/scale
 them according to an linear transformation (AffineTranslatedDoubleObjective).
 

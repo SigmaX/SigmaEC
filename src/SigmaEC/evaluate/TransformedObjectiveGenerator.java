@@ -2,7 +2,7 @@ package SigmaEC.evaluate;
 
 import SigmaEC.evaluate.decorate.TranslatedDoubleObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.math.Vector;
 import java.util.Arrays;
@@ -14,12 +14,12 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TransformedObjectiveGenerator extends ObjectiveGenerator<TranslatedDoubleObjective, DoubleVectorPhenotype> {
-    private final ObjectiveFunction<DoubleVectorPhenotype> prototype;
+public class TransformedObjectiveGenerator extends ObjectiveGenerator<TranslatedDoubleObjective, DoubleVectorIndividual> {
+    private final ObjectiveFunction<DoubleVectorIndividual> prototype;
     private final Strategy.TransformationStrategy strategy;
     private final Random random;
     
-    public TransformedObjectiveGenerator(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TransformationStrategy strategy, final Random random) {
+    public TransformedObjectiveGenerator(final ObjectiveFunction<DoubleVectorIndividual> objective, final Strategy.TransformationStrategy strategy, final Random random) {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
         this.prototype = objective;
@@ -43,7 +43,7 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof TransformedObjectiveGenerator))
@@ -71,7 +71,7 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
     
     public static class Strategy {
         public static abstract class TransformationStrategy {
-            public abstract TranslatedDoubleObjective getNewInstance(ObjectiveFunction<DoubleVectorPhenotype> objective, Random random);
+            public abstract TranslatedDoubleObjective getNewInstance(ObjectiveFunction<DoubleVectorIndividual> objective, Random random);
             public abstract boolean repOK();
             @Override public abstract boolean equals(Object o);
             @Override public abstract int hashCode();
@@ -83,7 +83,7 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
             
             public RandomOffset(final double bounds) { this.bounds = bounds; assert(repOK()); }
             
-            @Override public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Random random) {
+            @Override public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual> objective, final Random random) {
                 assert(objective != null);
                 assert(random != null);
                 final double[] offset = new double[objective.getNumDimensions()];
@@ -139,7 +139,7 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
             }
 
             @Override
-            public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Random random) {
+            public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual> objective, final Random random) {
                 assert(objective != null);
                 assert(random != null);
                 final double magnitude = (2*random.nextDouble() - 1)*bounds;

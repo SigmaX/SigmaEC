@@ -2,7 +2,7 @@ package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ConstantObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.math.Matrix;
 import SigmaEC.util.math.Vector;
 import org.junit.Before;
@@ -18,7 +18,7 @@ public class AffineTransformedDoubleObjectiveTest {
     final private static double MAX_FITNESS = 1.0;
     final private static double MIN_FITNESS = Double.NEGATIVE_INFINITY;
     final private static double SPIKE_WIDTH = 0.01;
-    private ObjectiveFunction<DoubleVectorPhenotype> wrappedObjective;
+    private ObjectiveFunction<DoubleVectorIndividual> wrappedObjective;
     private AffineTransformedDoubleObjective sut;
     
     public AffineTransformedDoubleObjectiveTest() {
@@ -30,8 +30,8 @@ public class AffineTransformedDoubleObjectiveTest {
         sut = new AffineTransformedDoubleObjective(new double[] { 0.0, 0.0, 0.0 }, 1.0, wrappedObjective);
     }
     
-    private static ObjectiveFunction<DoubleVectorPhenotype> spikeObjective(final double[] position, final double width) {
-        ObjectiveFunction<DoubleVectorPhenotype> obj = new ConstantObjective<DoubleVectorPhenotype>(position.length, MAX_FITNESS);
+    private static ObjectiveFunction<DoubleVectorIndividual> spikeObjective(final double[] position, final double width) {
+        ObjectiveFunction<DoubleVectorIndividual> obj = new ConstantObjective<DoubleVectorIndividual>(position.length, MAX_FITNESS);
         obj = new BoundedDoubleObjective(position.length, width, obj, MIN_FITNESS);
         return new TranslatedDoubleObjective(Vector.vectorNegate(position), obj);
     }
@@ -89,42 +89,42 @@ public class AffineTransformedDoubleObjectiveTest {
     public void testTransform() {
         System.out.println("transform");
         final AffineTransformedDoubleObjective sut2 = new AffineTransformedDoubleObjective(new double[] { 0.0, Math.PI/4, 0.0 }, 1.0, wrappedObjective);
-        assertEquals(MAX_FITNESS, sut2.fitness(new DoubleVectorPhenotype(new double[] { Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorPhenotype(new double[] { -Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorPhenotype(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorPhenotype(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
+        assertEquals(MAX_FITNESS, sut2.fitness(new DoubleVectorIndividual(new double[] { Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual(new double[] { -Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
         
         final AffineTransformedDoubleObjective sut3 = new AffineTransformedDoubleObjective(new double[] { 0.0, 0.0, Math.PI/3 }, 1.0, wrappedObjective);
-        assertEquals(MAX_FITNESS, sut3.fitness(new DoubleVectorPhenotype(new double[] { 0.0, Math.sqrt(3)/2, 0.5 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorPhenotype(new double[] { 0.0, -Math.sqrt(3)/2, 0.5 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorPhenotype(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorPhenotype(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
+        assertEquals(MAX_FITNESS, sut3.fitness(new DoubleVectorIndividual(new double[] { 0.0, Math.sqrt(3)/2, 0.5 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual(new double[] { 0.0, -Math.sqrt(3)/2, 0.5 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
         
         final AffineTransformedDoubleObjective sut4 = new AffineTransformedDoubleObjective(new double[] { Math.PI/2, Math.PI/2, Math.PI/2 }, 1.0, wrappedObjective);
-        assertEquals(MAX_FITNESS, sut4.fitness(new DoubleVectorPhenotype(new double[] { 1.0, 0.0, 0.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorPhenotype(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorPhenotype(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
+        assertEquals(MAX_FITNESS, sut4.fitness(new DoubleVectorIndividual(new double[] { 1.0, 0.0, 0.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
     }
 
     /** Test of fitness method, of class AffineTransformedDoubleObjective. */
     @Test
     public void testFitness() {
         System.out.println("fitness");
-        assertEquals(MAX_FITNESS, wrappedObjective.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, wrappedObjective.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 0.0, 2.0 })), 0.000001);
+        assertEquals(MAX_FITNESS, wrappedObjective.fitness(new DoubleVectorIndividual(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, wrappedObjective.fitness(new DoubleVectorIndividual(new double[] { 0.0, 0.0, 2.0 })), 0.000001);
         
-        assertEquals(MAX_FITNESS, sut.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 0.0, 2.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorPhenotype(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorPhenotype(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorPhenotype(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
+        assertEquals(MAX_FITNESS, sut.fitness(new DoubleVectorIndividual(new double[] { 0.0, 0.0, 1.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual(new double[] { 0.0, 0.0, 2.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual(new double[] { 0.0, 1.0, 0.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual(new double[] { 1.0, 0.0, 2.0 })), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual(new double[] { 2.0, 2.0, 2.0 })), 0.000001);
         
         assertTrue(sut.repOK());
     }

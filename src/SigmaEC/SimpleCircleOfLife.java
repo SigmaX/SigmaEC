@@ -1,14 +1,16 @@
 package SigmaEC;
 
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
+import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
-import java.io.IOException;
-import java.util.ArrayList;
+import SigmaEC.util.Parameters;
 import java.util.List;
+import java.util.Random;
 
 /**
  * A basic evolutionary loop that mates parents, mutates offspring, and applies
@@ -17,86 +19,50 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
+public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
 {
+    final public static String P_NUM_GENERATIONS = "numGenerations";
+    final public static String P_GENERATORS = "generators";
+    final public static String P_DECODER = "decoder";
+    final public static String P_OBJECTIVE = "objective";
+    final public static String P_PARENT_SELECTOR = "parentSelector";
+    final public static String P_SURVIVAL_SELECTOR = "survivalSelector";
+    final public static String P_PRE_METRICS = "preMetrics";
+    final public static String P_POST_METRICS = "postMetrics";
+    final public static String P_RANDOM = "random";
+        
+    final private int numGenerations;
     final private List<Generator<T>> generators;
     final private Option<Selector<T>> parentSelector;
     final private Option<Selector<T>> survivalSelector;
     final private Option<List<PopulationMetric<T>>> preOperatorMetrics;
     final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
-    final private Problem<T, ?> problem;
+    final private Decoder<T, P> decoder;
+    final private ObjectiveFunction<P> objective;
+    final private Random random;
     
-    private SimpleCircleOfLife(final Builder<T> builder)
+    public SimpleCircleOfLife(final Parameters parameters, final String base)
     {
-        this.generators = builder.generators;
-        this.parentSelector = builder.parentSelector;
-        this.survivalSelector = builder.survivalSelector;
-        this.preOperatorMetrics = builder.preOperatorMetrics;
-        this.postOperatorMetrics = builder.postOperatorMetrics;
-        this.problem = builder.problem;
+        this.numGenerations = parameters.getIntParameter(Parameters.push(base, P_NUM_GENERATIONS));
+        this.generators = parameters.getInstancesFromParameter(Parameters.push(base, P_GENERATORS), Generator.class);
+        this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
+        this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        this.parentSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
+        this.survivalSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
+        this.preOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_PRE_METRICS), PopulationMetric.class);
+        this.postOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_POST_METRICS), PopulationMetric.class);
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         assert(repOK());
     }
     
-    public static class Builder<T extends Individual> {
-        final private List<Generator<T>> generators;
-        final private Problem<T, ?> problem;
-        
-        private Option<Selector<T>> parentSelector = Option.NONE;
-        private Option<Selector<T>> survivalSelector = Option.NONE;
-        private Option<List<PopulationMetric<T>>> preOperatorMetrics = Option.NONE;
-        private Option<List<PopulationMetric<T>>> postOperatorMetrics = Option.NONE;
-        
-        public Builder(final List<Generator<T>> generators, final Problem<T, ?> problem) {
-            assert(generators != null);
-            assert(problem != null);
-            this.generators = generators;
-            this.problem = problem;
-        }
-        
-        public SimpleCircleOfLife<T> build() {
-            return new SimpleCircleOfLife(this);
-        }
-        
-        public Builder<T> parentSelector(final Selector<T> parentSelector) {
-            if (parentSelector == null)
-                this.parentSelector = Option.NONE;
-            else
-                this.parentSelector = new Option<Selector<T>>(parentSelector);
-            return this;
-        }
-        
-        public Builder<T> survivalSelector(final Selector<T> survivalSelector) {
-            if (survivalSelector == null)
-                this.survivalSelector = Option.NONE;
-            else
-                this.survivalSelector = new Option<Selector<T>>(survivalSelector);
-            return this;
-        }
-        
-        public Builder<T> preOperatorMetrics(final List<PopulationMetric<T>> preOperatorMetrics) {
-            if (preOperatorMetrics == null)
-                this.preOperatorMetrics = Option.NONE;
-            else
-                this.preOperatorMetrics = new Option<List<PopulationMetric<T>>>(preOperatorMetrics);
-            return this;
-        }
-        
-        public Builder<T> postOperatorMetrics(final List<PopulationMetric<T>> postOperatorMetrics) {
-            if (postOperatorMetrics == null)
-                this.postOperatorMetrics = Option.NONE;
-            else
-                this.postOperatorMetrics = new Option<List<PopulationMetric<T>>>(postOperatorMetrics);
-            return this;
-        }
-    }
-    
     @Override
-    public List<T> evolve(final int run, List<T> population, final int generations) throws IOException
+    public EvolutionResult<T> evolve(final int run, List<T> population)
     {
-        for (int i = 0; i < generations; i++)
+        T bestIndividual = null;
+        for (int i = 0; i < numGenerations; i++)
         {
             // Tell the problem what generation we're on (in case it's a dynamic landscape)
-            problem.setGeneration(i);
+            objective.setGeneration(i);
             
             // Parent selection
             if (parentSelector.isDefined())
@@ -116,16 +82,18 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
                 for (PopulationMetric<T> metric : postOperatorMetrics.get())
                     metric.measurePopulation(run, i, population);
             
+            bestIndividual = getBestIndividual(bestIndividual, population);
+            
             // Survival selection
             if (survivalSelector.isDefined())
                 population = survivalSelector.get().selectMultipleIndividuals(population, population.size());
         }
         flushMetrics();
-        return population;
+        return new EvolutionResult<T>(population, bestIndividual, objective.fitness(decoder.decode(bestIndividual)));
     }
     
     /** Flush I/O buffers. */
-    private void flushMetrics() throws IOException
+    private void flushMetrics()
     {
         if (preOperatorMetrics.isDefined())
             for (PopulationMetric<T> metric : preOperatorMetrics.get())
@@ -134,37 +102,52 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
             for (PopulationMetric<T> metric: postOperatorMetrics.get())
                 metric.flush();
     }
+    
+    private T getBestIndividual(T bestIndividual, final List<T> population) {
+        assert(population != null);
+        double bestFitness = (bestIndividual == null) ? Double.NEGATIVE_INFINITY : objective.fitness(decoder.decode(bestIndividual));
+        for (final T ind : population) {
+            final double fitness = objective.fitness(decoder.decode(ind));
+            if (fitness > bestFitness) { // XXX Hardcoding maximization
+                bestIndividual = ind;
+                bestFitness = fitness;
+            }
+        }
+        return bestIndividual;               
+    }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return generators != null
-                && problem != null
-                && !generators.isEmpty()
+                && decoder != null
+                && objective != null
                 && preOperatorMetrics != null
                 && postOperatorMetrics != null
+                && !generators.isEmpty()
+                && !Misc.containsNulls(generators)
                 && !(preOperatorMetrics.isDefined() && Misc.containsNulls(preOperatorMetrics.get()))
                 && !(postOperatorMetrics.isDefined() && Misc.containsNulls(postOperatorMetrics.get()));
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[SimpleCircleOfLife: Generators=%s, Selector=%s, Metrics=%s, Problem=%s]", generators, survivalSelector, postOperatorMetrics, problem);
+    public String toString() {
+        return String.format("[%s: numGenerations=%d, decoder=%s, objective=%s, parentSelector = %s, preMetrics=%s, generators=%s, postMetrics=%s, survivalSelector=%s]", this.getClass().getSimpleName(), numGenerations, decoder, objective, parentSelector, preOperatorMetrics, generators, postOperatorMetrics, survivalSelector);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof SimpleCircleOfLife))
             return false;
         
-        SimpleCircleOfLife cRef = (SimpleCircleOfLife) o;
-        return generators.equals(cRef.generators)
-                && problem.equals(cRef.problem)
+        final SimpleCircleOfLife cRef = (SimpleCircleOfLife) o;
+        return numGenerations == cRef.numGenerations
+                && generators.equals(cRef.generators)
+                && decoder.equals(cRef.decoder)
+                && objective.equals(cRef.objective)
+                && ((parentSelector == null) ? cRef.parentSelector == null : parentSelector.equals(cRef.parentSelector))
                 && ((survivalSelector == null) ? cRef.survivalSelector == null : survivalSelector.equals(cRef.survivalSelector))
                 && ((preOperatorMetrics == null) ? cRef.preOperatorMetrics == null : preOperatorMetrics.equals(cRef.preOperatorMetrics))
                 && ((postOperatorMetrics == null) ? cRef.postOperatorMetrics == null : postOperatorMetrics.equals(cRef.postOperatorMetrics));
@@ -172,12 +155,15 @@ public class SimpleCircleOfLife<T extends Individual> implements CircleOfLife<T>
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 89 * hash + (this.generators != null ? this.generators.hashCode() : 0);
-        hash = 89 * hash + (this.survivalSelector != null ? this.survivalSelector.hashCode() : 0);
-        hash = 89 * hash + (this.preOperatorMetrics != null ? this.preOperatorMetrics.hashCode() : 0);
-        hash = 89 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
-        hash = 89 * hash + (this.problem != null ? this.problem.hashCode() : 0);
+        int hash = 5;
+        hash = 37 * hash + this.numGenerations;
+        hash = 37 * hash + (this.generators != null ? this.generators.hashCode() : 0);
+        hash = 37 * hash + (this.parentSelector != null ? this.parentSelector.hashCode() : 0);
+        hash = 37 * hash + (this.survivalSelector != null ? this.survivalSelector.hashCode() : 0);
+        hash = 37 * hash + (this.preOperatorMetrics != null ? this.preOperatorMetrics.hashCode() : 0);
+        hash = 37 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
+        hash = 37 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        hash = 37 * hash + (this.objective != null ? this.objective.hashCode() : 0);
         return hash;
     }
     //</editor-fold>

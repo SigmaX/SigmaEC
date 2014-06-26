@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.math.Vector;
@@ -11,7 +11,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
+public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
 {
     private final double width;
     private final double highFitness;
@@ -60,31 +60,31 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
     public LinearRidgeObjective(final int numDimensions, final double width, final double highFitness, final double[] interceptVector, final double[] slopeVector, final Option<Double> gradientXIntercept) throws IllegalArgumentException
     {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("LinearRidgeObjective: numDimensions is < 1.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         if (highFitness < 1)
-            throw new IllegalArgumentException("LinearRidgeObjective: highFitness is < 1.");
-        if (highFitness == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("LinearRidgeObjective: highFitness is infinite, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": highFitness is < 1.");
+        if (Double.isInfinite(highFitness) || Double.isNaN(highFitness))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": highFitness is infinite, must be finite.");
         if (width <= 0)
-            throw new IllegalArgumentException("LinearRidgeObjective: width is <= 0.");
-        if (width == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("LinearRidgeObjective: width is infinite, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": width is <= 0.");
+        if (Double.isInfinite(width) || Double.isNaN(width))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": width is infinite, must be finite.");
         if (interceptVector == null)
-            throw new IllegalArgumentException("LinearRidgeObjective: interceptVector is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": interceptVector is null.");
         if (interceptVector.length != numDimensions)
-            throw new IllegalArgumentException(String.format("LinearRidgeObjective: interceptVector has %d elements, must have %d.", slopeVector.length, numDimensions));
+            throw new IllegalArgumentException(String.format("%s: interceptVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(interceptVector)))
-            throw new IllegalArgumentException("LinearRidgeObjective: interceptVector contains non-finite values.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": interceptVector contains non-finite values.");
         if (slopeVector == null)
-            throw new IllegalArgumentException("LinearRidgeObjective: slopeVector is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector is null.");
         if (slopeVector.length != numDimensions)
-            throw new IllegalArgumentException(String.format("LinearRidgeObjective: slopeVector has %d elements, must have %d.", slopeVector.length, numDimensions));
+            throw new IllegalArgumentException(String.format("%s: slopeVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
         if (!(Misc.finiteValued(slopeVector)))
-            throw new IllegalArgumentException("LinearRidgeObjective: slopeVector contains non-finite values.");
-        if ((Vector.euclideanNorm(slopeVector) - 1.0) > 0.0001)
-            throw new IllegalArgumentException("LinearRidgeObjective: slopeVector is not a unit vector.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector contains non-finite values.");
+        if (!Misc.doubleEquals(Vector.euclideanNorm(slopeVector), 1.0))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector is not a unit vector.");
         if (gradientXIntercept == null)
-            throw new IllegalArgumentException("LinearRidgeObjective: gradientXIntercept is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": gradientXIntercept is null.");
             
         this.numDimensions = numDimensions;
         this.width = width;
@@ -107,7 +107,7 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
     public double fitness(T ind)
     {
         assert(ind != null);
-        final double distance = Vector.pointToLineEuclideanDistance(ind.getVector(), slopeVector, interceptVector);
+        final double distance = Vector.pointToLineEuclideanDistance(ind.getGenomeArray(), slopeVector, interceptVector);
         if (distance < width)
             return highFitness;
         else if (gradientXIntercept.isDefined())
@@ -118,12 +118,13 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return width > 0
-                && width != Double.POSITIVE_INFINITY
+                && !Double.isInfinite(width)
+                && !Double.isNaN(width)
                 && highFitness > 0
-                && highFitness != Double.POSITIVE_INFINITY
+                && !Double.isInfinite(highFitness)
+                && !Double.isNaN(highFitness)
                 && numDimensions > 0
                 && interceptVector != null
                 && interceptVector.length == numDimensions
@@ -132,18 +133,16 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
                 && slopeVector != null
                 && slopeVector.length == numDimensions
                 && Misc.finiteValued(slopeVector)
-                && (Vector.euclideanNorm(slopeVector) - 1.0) <= 0.0001;
+                && Misc.doubleEquals(Vector.euclideanNorm(slopeVector), 1.0);
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[LinearRidgeObjective: NumDimensions=%d, Width=%f, HighFitness=%f, PointVector=%s, SlopeVector=%s]", numDimensions, width, highFitness, Arrays.asList(interceptVector), Arrays.asList(slopeVector));
+    public String toString() {
+        return String.format("[%s: NumDimensions=%d, Width=%f, HighFitness=%f, PointVector=%s, SlopeVector=%s]", this.getClass().getSimpleName(), numDimensions, width, highFitness, Arrays.asList(interceptVector), Arrays.asList(slopeVector));
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (o == this)
             return true;
         if(!(o instanceof LinearRidgeObjective))
@@ -151,6 +150,7 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
         
         LinearRidgeObjective cRef = (LinearRidgeObjective) o;
         return numDimensions == cRef.numDimensions
+                && gradientXIntercept.equals(cRef.gradientXIntercept)
                 && Misc.doubleEquals(width, cRef.width)
                 && Misc.doubleEquals(highFitness, cRef.highFitness)
                 && Misc.doubleArrayEquals(interceptVector, cRef.interceptVector)
@@ -159,12 +159,13 @@ public class LinearRidgeObjective<T extends DoubleVectorPhenotype> implements Ob
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + (int) (Double.doubleToLongBits(this.width) ^ (Double.doubleToLongBits(this.width) >>> 32));
-        hash = 97 * hash + (int) (Double.doubleToLongBits(this.highFitness) ^ (Double.doubleToLongBits(this.highFitness) >>> 32));
-        hash = 97 * hash + Arrays.hashCode(this.interceptVector);
-        hash = 97 * hash + Arrays.hashCode(this.slopeVector);
-        hash = 97 * hash + this.numDimensions;
+        int hash = 3;
+        hash = 31 * hash + (int) (Double.doubleToLongBits(this.width) ^ (Double.doubleToLongBits(this.width) >>> 32));
+        hash = 31 * hash + (int) (Double.doubleToLongBits(this.highFitness) ^ (Double.doubleToLongBits(this.highFitness) >>> 32));
+        hash = 31 * hash + Arrays.hashCode(this.interceptVector);
+        hash = 31 * hash + Arrays.hashCode(this.slopeVector);
+        hash = 31 * hash + this.numDimensions;
+        hash = 31 * hash + (this.gradientXIntercept != null ? this.gradientXIntercept.hashCode() : 0);
         return hash;
     }
     //</editor-fold>

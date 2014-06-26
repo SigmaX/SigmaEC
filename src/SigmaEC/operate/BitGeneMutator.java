@@ -1,15 +1,16 @@
 package SigmaEC.operate;
 
 import SigmaEC.represent.BitGene;
+import SigmaEC.util.Parameters;
 
 /**
  * Bit flip mutation.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BitGeneMutator implements Mutator<BitGene> {
+public class BitGeneMutator extends Mutator<BitGene> {
     
-    public BitGeneMutator() {
+    public BitGeneMutator(final Parameters parameters, final String base) {
         assert(repOK());
     }
     
@@ -30,7 +31,7 @@ public class BitGeneMutator implements Mutator<BitGene> {
     }
     
     @Override
-    final public boolean equals(Object o) {
+    final public boolean equals(final Object o) {
         return (o instanceof BitGeneMutator);
     }
     

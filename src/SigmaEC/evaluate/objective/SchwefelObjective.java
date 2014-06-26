@@ -1,12 +1,12 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 
 /**
  *
  * @author Eric 'Siggy' Scott
  */
-public class SchwefelObjective implements ObjectiveFunction<DoubleVectorPhenotype> {
+public class SchwefelObjective extends ObjectiveFunction<DoubleVectorIndividual> {
 
     private final int numDimensions;
     
@@ -18,16 +18,16 @@ public class SchwefelObjective implements ObjectiveFunction<DoubleVectorPhenotyp
     }
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         double sum = 418.9829*numDimensions;
-        for (final double x : ind.getVector())
+        for (final double x : ind.getGenomeArray())
             sum -= x * Math.sin(Math.sqrt(Math.abs(x)));
         return sum;
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
 
@@ -41,14 +41,12 @@ public class SchwefelObjective implements ObjectiveFunction<DoubleVectorPhenotyp
     }
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("[%s: numDimensions=%d]", this.getClass().getSimpleName(), numDimensions);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(Object o) {
         if (!(o instanceof SchwefelObjective))
             return false;
         

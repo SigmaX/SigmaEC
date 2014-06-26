@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 
 /**
  * A piecewise continuous step function from De Jong's original suite.  Sums the
@@ -9,33 +9,28 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class StepObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final int numDimensions;
     
-    public StepObjective(int numDimensions)
-    {
+    public StepObjective(int numDimensions) {
         if (numDimensions < 1)
-            throw new IllegalArgumentException("StepObjective: numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("StepObjective: numDimensions is infinite, must be finite.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         this.numDimensions = numDimensions;
         assert(repOK());
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
     
     @Override
-    public double fitness(final DoubleVectorPhenotype ind)
-    {
+    public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         int sum = 0;
-        for(double d : ind.getVector())
+        for(double d : ind.getGenomeArray())
             sum += (int) d;
         assert(repOK());
         return sum;
@@ -48,24 +43,21 @@ public class StepObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numDimensions > 0;
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[StepObjective: NumDimensions=%d]", numDimensions);
+    public String toString() {
+        return String.format("[%s: NumDimensions=%d]", this.getClass().getSimpleName(), numDimensions);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (!(o instanceof StepObjective))
             return false;
         
-        StepObjective cRef = (StepObjective) o;
+        final StepObjective cRef = (StepObjective) o;
         return numDimensions == cRef.numDimensions;
     }
 

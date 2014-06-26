@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.evaluate.decorate.MaxObjective;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -16,7 +16,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LatticeObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
+public class LatticeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
 {
     private final int numDimensions;
     private final double ridgeWidth;
@@ -48,19 +48,23 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
     public LatticeObjective(final int numDimensions, final double ridgeWidth, final double meshWidth, final double highFitness, final IDoublePoint[] bounds, final boolean useGradient)
     {
         if (numDimensions < 2)
-            throw new IllegalArgumentException("LatticeObjective: numDimensions is < 2.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 2.");
         if (ridgeWidth <= 0)
-            throw new IllegalArgumentException("LatticeObjective: ridgeWidth is <= 0.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": ridgeWidth is <= 0.");
         if (meshWidth < 1)
-            throw new IllegalArgumentException("LatticeObjective: meshWidth is < 1.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": meshWidth is < 1.");
+        if (Double.isInfinite(meshWidth) || Double.isNaN(meshWidth))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": meshWidth is infinite, must be finite.");
         if (highFitness <= 0)
-            throw new IllegalArgumentException(String.format("LatticeObjective: highFitness is %f, but must be > 0.", highFitness));
+            throw new IllegalArgumentException(String.format("%s: highFitness is %f, but must be > 0.", this.getClass().getSimpleName(), highFitness));
+        if (Double.isInfinite(highFitness) || Double.isNaN(highFitness))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": highFitness is infinite, must be finite.");
         if (bounds == null)
-            throw new IllegalArgumentException("LatticeObjective: bounds is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": bounds is null.");
         if (Misc.containsNulls(bounds))
-            throw new IllegalArgumentException("LatticeObjective: bounds contains null elements.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": bounds contains null elements.");
         if (!Misc.boundsOK(bounds))
-            throw new IllegalArgumentException("LatticeObjective: for each point p in bounds, p.x must be < p.y.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": for each point p in bounds, p.x must be < p.y.");
         
         this.numDimensions = numDimensions;
         this.ridgeWidth = ridgeWidth;
@@ -76,7 +80,7 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
     
     private ObjectiveFunction<T> constructLattice()
     {
-        final List<ObjectiveFunction<? super T>> subObjectives = new ArrayList<ObjectiveFunction<? super T>>();
+        final List<ObjectiveFunction<T>> subObjectives = new ArrayList<ObjectiveFunction<T>>();
         final Option<Double> gradientXIntercept = (useGradient ? new Option<Double>(meshWidth/2.0) : Option.NONE);
         
         double[] verticalSlopeVector = new double[numDimensions];
@@ -114,17 +118,55 @@ public class LatticeObjective<T extends DoubleVectorPhenotype> implements Object
         // Do nothing
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK()
     {
         return numDimensions > 1
                 && ridgeWidth > 0
+                && !Double.isNaN(meshWidth)
+                && !Double.isInfinite(meshWidth)
                 && meshWidth > 0
+                && !Double.isInfinite(highFitness)
+                && !Double.isNaN(highFitness)
                 && highFitness > 0
                 && bounds != null
                 && !Misc.containsNulls(bounds)
                 && Misc.boundsOK(bounds)
                 && objective != null;
     }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (!(o instanceof LatticeObjective))
+            return false;
+        final LatticeObjective ref = (LatticeObjective) o;
+        return numDimensions == ref.numDimensions
+                && useGradient == ref.useGradient
+                && Misc.doubleEquals(ridgeWidth, ref.ridgeWidth)
+                && Misc.doubleEquals(meshWidth, ref.meshWidth)
+                && Misc.doubleEquals(highFitness, ref.highFitness)
+                && Arrays.equals(bounds, ref.bounds)
+                && objective.equals(ref.objective);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + this.numDimensions;
+        hash = 67 * hash + (int) (Double.doubleToLongBits(this.ridgeWidth) ^ (Double.doubleToLongBits(this.ridgeWidth) >>> 32));
+        hash = 67 * hash + (int) (Double.doubleToLongBits(this.meshWidth) ^ (Double.doubleToLongBits(this.meshWidth) >>> 32));
+        hash = 67 * hash + (int) (Double.doubleToLongBits(this.highFitness) ^ (Double.doubleToLongBits(this.highFitness) >>> 32));
+        hash = 67 * hash + Arrays.deepHashCode(this.bounds);
+        hash = 67 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 67 * hash + (this.useGradient ? 1 : 0);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s: numDimensions=%d, useGradient=%s, ridgeWidth=%f, meshWidth=%f, highFitness=%f, bounds=%s, objective=%s]", this.getClass().getSimpleName(), numDimensions, useGradient, ridgeWidth, meshWidth, highFitness, Arrays.toString(bounds), objective.toString());
+    }
+    // </editor-fold>
     
 }

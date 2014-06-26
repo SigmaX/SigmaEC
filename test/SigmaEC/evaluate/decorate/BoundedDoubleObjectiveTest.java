@@ -2,16 +2,12 @@ package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorPhenotype;
-import SigmaEC.represent.Individual;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.test.TestVectorDecoder;
 import SigmaEC.test.TestVectorIndividual;
 import SigmaEC.test.TestVectorObjective;
 import SigmaEC.util.IDoublePoint;
 import java.util.Arrays;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnit4Mockery;
-import org.jmock.lib.legacy.ClassImposteriser;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +20,7 @@ public class BoundedDoubleObjectiveTest
     private BoundedDoubleObjective SUT;
     private final int numDimensions = 3;
     private final double singleBound = 5;
-    private final ObjectiveFunction<DoubleVectorPhenotype> objective = new TestVectorObjective();
+    private final ObjectiveFunction<DoubleVectorIndividual> objective = new TestVectorObjective();
     private final IDoublePoint[] bounds = new IDoublePoint[] {
         new IDoublePoint(-3, 3),
         new IDoublePoint(-8, 4),
@@ -125,7 +121,7 @@ public class BoundedDoubleObjectiveTest
         final TestVectorIndividual bInd3 = new TestVectorIndividual(new double[] {3.1, 0, 5.0});
         final TestVectorIndividual bInd4 = new TestVectorIndividual(new double[] {0, 0, 18.0});
         
-        final Decoder<TestVectorIndividual, DoubleVectorPhenotype> d = new TestVectorDecoder();
+        final Decoder<TestVectorIndividual, DoubleVectorIndividual> d = new TestVectorDecoder();
         
         assertEquals(5.0, SUT.fitness(d.decode(gInd1)), 0);
         assertEquals(-7.7, SUT.fitness(d.decode(gInd2)), 0);
@@ -147,11 +143,11 @@ public class BoundedDoubleObjectiveTest
     public void testToString()
     {
         System.out.println("toString");
-        String expResult = "[BoundedDoubleObjective: Dimensions=3, Bounds=["
+        String expResult = "[BoundedDoubleObjective: dimensions=3, bounds=["
                 + "[IDoublePoint: x=-3.0, y=3.0], "
                 + "[IDoublePoint: x=-8.0, y=4.0], "
                 + "[IDoublePoint: x=3.3, y=17.0]], "
-                + "Objective=[TestVectorObjective]]";
+                + "objective=[TestVectorObjective], outsideValue=-1.000000]";
         String result = SUT.toString();
         assertEquals(expResult, result);
         assertTrue(SUT.repOK());

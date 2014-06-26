@@ -16,13 +16,21 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     /** Construct a random double vector.
      * 
      * @param random PRNG
-     * @param numBits Length of the double vector.
+     * @param numDimensions Length of the double vector.
      * @param pTrue Probability that any given bit is assigned a value of T (as opposed to F).
      */
-    public DoubleVectorIndividual(final Random random, final int numBits, final double bound) {
-        this.genome = new ArrayList<DoubleGene>(numBits) {{
-           for (int i = 0; i < numBits; i++) {
-               final double roll = (2*random.nextDouble() - 1)*bound;
+    public DoubleVectorIndividual(final Random random, final int numDimensions, final double[] minValues, final double[] maxValues) {
+        assert(random != null);
+        assert(numDimensions > 0);
+        assert(minValues != null);
+        assert(maxValues != null);
+        assert(minValues.length == numDimensions);
+        assert(maxValues.length == numDimensions);
+        this.genome = new ArrayList<DoubleGene>(numDimensions) {{
+           for (int i = 0; i < numDimensions; i++) {
+               final double delta = maxValues[i] - minValues[i];
+               assert(delta >= 0);
+               final double roll = minValues[i] + (random.nextDouble()*delta);
                add(new DoubleGene(roll));
            } 
         }};
@@ -36,9 +44,21 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         this.id = nextId++;
         assert(repOK());
     }
+    
+    public DoubleVectorIndividual(final double[] genome) {
+        assert(genome != null);
+        this.genome = new ArrayList<DoubleGene>(genome.length);
+        for (int i = 0; i < genome.length; i++)
+            this.genome.add(new DoubleGene(genome[i]));
+        this.id = nextId++;
+        assert(repOK());
+    }
 
     @Override
     public long getID() { return id; }
+    
+    @Override
+    public int size() { return genome.size(); }
     
     @Override
     public LinearGenomeIndividual<DoubleGene> create(final List<DoubleGene> genome) {
@@ -49,6 +69,19 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     @Override
     public List<DoubleGene> getGenome() {
         return new ArrayList<DoubleGene>(genome); // Defensive copy
+    }
+    
+    public double[] getGenomeArray() {
+        final double[] array = new double[genome.size()];
+        for (int i = 0; i < array.length; i++)
+            array[i] = genome.get(i).value;
+        return array;
+    }
+    
+    public double getElement(final int i) {
+        assert(i >= 0);
+        assert(i < genome.size());
+        return genome.get(i).value;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

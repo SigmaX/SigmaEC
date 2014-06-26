@@ -1,26 +1,22 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.Phenotype;
+import SigmaEC.ContractObject;
 
 /**
  * Objective function interface for the Strategy pattern.
  * 
  * @author Eric 'Siggy' Scott
  */
-public interface ObjectiveFunction<P extends Phenotype>
+public abstract class ObjectiveFunction<P> extends ContractObject
 {
     /** Evaluate the fitness of an individual. */
-    public double fitness(P ind);
-    
-    /** Representation invariant.  If this returns false, there is something
-     * invalid about the function's internal state. */
-    public boolean repOK();
+    public abstract double fitness(P ind);
     
     /** Notify this that the generation has changed.
      * This may be used, for instance, to update a dynamically changing
      * landscape.
      */
-    public void setGeneration(int i);
+    public abstract void setGeneration(int i);
     
-    public int getNumDimensions();
+    public abstract int getNumDimensions();
 }

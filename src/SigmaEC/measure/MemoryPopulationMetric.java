@@ -10,7 +10,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class MemoryPopulationMetric<T extends Individual> implements PopulationMetric<T> {
+public class MemoryPopulationMetric<T extends Individual> extends PopulationMetric<T> {
     final private PopulationMetric<T> wrappedMetric;
     
     private Measurement mostRecentMeasurement;
@@ -18,16 +18,16 @@ public class MemoryPopulationMetric<T extends Individual> implements PopulationM
     public MemoryPopulationMetric(final PopulationMetric<T> wrappedMetric) throws IllegalArgumentException
     {
         if (wrappedMetric == null)
-            throw new IllegalArgumentException("WriterPopulationMetric: wrappedMetric is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": wrappedMetric is null.");
         this.wrappedMetric = wrappedMetric;
         assert(repOK());
     }
     
-    /** @return The value that was returned by the laste call of this.measurePopulation(). */
+    /** @return The value that was returned by the last call of this.measurePopulation(). */
     public Measurement getMostRecentMeasurement() { return mostRecentMeasurement; }
     
     @Override
-    public Measurement measurePopulation(final int run, final int generation, final List<T> population) throws IOException
+    public Measurement measurePopulation(final int run, final int generation, final List<T> population)
     {
         assert(population != null);
         final Measurement measurement = wrappedMetric.measurePopulation(run, generation, population);
@@ -42,36 +42,33 @@ public class MemoryPopulationMetric<T extends Individual> implements PopulationM
     }
 
     @Override
-    public void flush() throws IOException { wrappedMetric.flush(); }
+    public void flush() { wrappedMetric.flush(); }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         wrappedMetric.close();
         assert(repOK());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return wrappedMetric != null;
     }
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("[%s: mostRecentMeasurement=%s, wrappedMetric=%s]", this.getClass().getSimpleName(), mostRecentMeasurement, wrappedMetric);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof MemoryPopulationMetric))
             return false;
         
-        MemoryPopulationMetric cRef = (MemoryPopulationMetric) o;
+        final MemoryPopulationMetric cRef = (MemoryPopulationMetric) o;
         return mostRecentMeasurement.equals(cRef.mostRecentMeasurement)
                 && wrappedMetric.equals(cRef.wrappedMetric);
     }

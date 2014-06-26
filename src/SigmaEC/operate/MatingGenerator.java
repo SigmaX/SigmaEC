@@ -1,10 +1,10 @@
 package SigmaEC.operate;
 
-import SigmaEC.represent.Gene;
-import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.represent.Individual;
 import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,19 +15,22 @@ import java.util.List;
  * @see LinearGenomeMator
  * @author Eric 'Siggy' Scott
  */
-public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G extends Gene> implements Generator<T>
-{
+public class MatingGenerator<T extends Individual> extends Generator<T> {
+    private final static String P_MATOR = "mator";
+        
     private final Mator<T> mator;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
     
-    public LinearGenomeMatingGenerator(final Mator<T> mator) throws IllegalArgumentException
-    {
-        if (mator == null)
-            throw new IllegalArgumentException("LinearGenomeMatingGenerator: procreator is null.");
-        if (mator.getNumChildren() != mator.getNumParents())
-            throw new IllegalArgumentException("LinearGenomeMatingGenerator: mator.getNumChildren() must equal mator.getNumParents()");
+    public MatingGenerator(final Parameters parameters, final String base) throws IllegalArgumentException {        
+        assert(parameters != null);
+        assert(base != null);
+        this.mator = parameters.getInstanceFromParameter(Parameters.push(base, P_MATOR), Mator.class);
         
-        this.mator = mator;
+        if (mator == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": procreator is null.");
+        if (mator.getNumChildren() != mator.getNumParents())
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": mator.getNumChildren() must equal mator.getNumParents()");
+        assert(repOK());
     }
     
     /**
@@ -57,26 +60,21 @@ public class LinearGenomeMatingGenerator<T extends LinearGenomeIndividual<G>, G 
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return parentSelector != null
-                && mator != null
-                && parentSelector.repOK()
-                && mator.repOK();
+                && mator != null;
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[LinearGenomeGenerator: Selector=%s, Mator=%s]", parentSelector.toString(), mator.toString());
+    public String toString() {
+        return String.format("[%s: Selector=%s, Mator=%s]", this.getClass().getSimpleName(), parentSelector.toString(), mator.toString());
     }
     
     @Override
-    public boolean equals(Object ref)
-    {
-        if (!(ref instanceof LinearGenomeMatingGenerator))
+    public boolean equals(final Object ref) {
+        if (!(ref instanceof MatingGenerator))
             return false;
-        LinearGenomeMatingGenerator cRef = (LinearGenomeMatingGenerator) ref;
+        final MatingGenerator cRef = (MatingGenerator) ref;
         return parentSelector.equals(cRef.parentSelector)
                 && mator.equals(cRef.mator)
                 && mator.getNumChildren() == mator.getNumParents();

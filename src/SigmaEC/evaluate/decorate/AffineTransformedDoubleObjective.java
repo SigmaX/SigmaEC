@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.math.Matrix;
 import java.util.Arrays;
@@ -18,10 +18,10 @@ import java.util.Arrays;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class AffineTransformedDoubleObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final double[][] transformationMatrix;
-    private final ObjectiveFunction<DoubleVectorPhenotype> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual> objective;
     private final int numDimensions;
     
     /** Convenience constructor for creating affine transformation in R^2.
@@ -29,7 +29,7 @@ public class AffineTransformedDoubleObjective implements ObjectiveFunction<Doubl
      * @param scale The value by which the function will be scaled.
      * @param objective The original objective function.
      */
-    public AffineTransformedDoubleObjective(double[] angles, double scale, ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
+    public AffineTransformedDoubleObjective(final double[] angles, final double scale, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         this(getTransformationMatrix(angles, scale, objective.getNumDimensions()), objective);
     }
@@ -39,14 +39,14 @@ public class AffineTransformedDoubleObjective implements ObjectiveFunction<Doubl
      * augmented matrix.
      * @param objective The original objective function.
      */
-    public AffineTransformedDoubleObjective(double[][] transformationMatrix, ObjectiveFunction<DoubleVectorPhenotype> objective) throws IllegalArgumentException
+    public AffineTransformedDoubleObjective(final double[][] transformationMatrix, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException
     {
         if (objective == null)
-            throw new IllegalArgumentException("AffineTransformedDoubleObjective: objective is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
         if (transformationMatrix == null)
-            throw new IllegalArgumentException("AffineTransformedDoubleObjective: transformationMatrix is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": transformationMatrix is null.");
         if (!Matrix.isSquare(transformationMatrix))
-            throw new IllegalArgumentException("AffineTransformedDoubleObjective: transformationMatrix is not square.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": transformationMatrix is not square.");
         this.transformationMatrix = Misc.deepCopy2DArray(transformationMatrix);
         this.objective = objective;
         this.numDimensions = transformationMatrix.length;
@@ -54,13 +54,13 @@ public class AffineTransformedDoubleObjective implements ObjectiveFunction<Doubl
     
     /** @return A matrix representation of an affine transformation
      * in R^2 with the specified rotations and scale . */
-    private static double[][] getTransformationMatrix(double[] angles, double scale, int numDimensions) throws IllegalArgumentException
+    private static double[][] getTransformationMatrix(final double[] angles, final double scale, final int numDimensions) throws IllegalArgumentException
     {
         if (angles == null)
-            throw new IllegalArgumentException("AffineTransformedDoubleObjective: angle array is null.");
+            throw new IllegalArgumentException(AffineTransformedDoubleObjective.class.getSimpleName() + ": angle array is null.");
         // N choose 2 = N (N-1) / 2
         if (angles.length != numDimensions * (numDimensions - 1) / 2)
-            throw new IllegalArgumentException("AffineTransformedDoubleObjective: incorrect number of angles.");
+            throw new IllegalArgumentException(AffineTransformedDoubleObjective.class.getSimpleName() + ": incorrect number of angles.");
 
         double[][] transformationMatrix = getScaleMatrix(scale, numDimensions);
 
@@ -80,12 +80,12 @@ public class AffineTransformedDoubleObjective implements ObjectiveFunction<Doubl
     
     /** @return A rotation matrix for a single axis.  The two dimensions
      * define the axis of rotation. */
-    private static double[][] getAxisRotationMatrix(double angle, int dimension1, int dimension2, int numDimensions) throws IllegalArgumentException
+    private static double[][] getAxisRotationMatrix(final double angle, final int dimension1, final int dimension2, final int numDimensions) throws IllegalArgumentException
     {
         if (dimension1 >= numDimensions || dimension2 >= numDimensions)
-            throw new IllegalArgumentException("AffineTransformedDoubleObjective: bad dimension.");
+            throw new IllegalArgumentException(AffineTransformedDoubleObjective.class.getSimpleName() + ": bad dimension.");
         if (dimension1 == dimension2)
-            throw new IllegalArgumentException("AffineTransformedDoubleObjective: dimensions are equal.");
+            throw new IllegalArgumentException(AffineTransformedDoubleObjective.class.getSimpleName() + ": dimensions are equal.");
         double[][] rotationMatrix = getScaleMatrix(1.0, numDimensions);
 
         rotationMatrix[dimension1][dimension1] = Math.cos(angle);
@@ -97,31 +97,20 @@ public class AffineTransformedDoubleObjective implements ObjectiveFunction<Doubl
     }
         
     /** @return A scale matrix. */
-    private static double[][] getScaleMatrix(double scale, int numDimensions) //throws IllegalArgumentException
-    {
-        // Hmmm. A negative scale might be useful.
-        //if (scale < 0)
-        //    throw new IllegalArgumentException("AffineTransformedDoubleObjective: negative scale.");
-        double[][] scaleMatrix = new double[numDimensions][numDimensions];
-
+    private static double[][] getScaleMatrix(final double scale, final int numDimensions) {
+        final double[][] scaleMatrix = new double[numDimensions][numDimensions];
         for (int i = 0; i < scaleMatrix.length; i++)
-        {
             scaleMatrix[i][i] = scale;
-        }
         // All other values in the matrix are automatically 0.
-
         return scaleMatrix;
     }
-        
     
-
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
-    public ObjectiveFunction<DoubleVectorPhenotype> getWrappedObjective() {
+    public ObjectiveFunction<DoubleVectorIndividual> getWrappedObjective() {
         return objective;
     }
     
@@ -129,49 +118,43 @@ public class AffineTransformedDoubleObjective implements ObjectiveFunction<Doubl
         return Matrix.copy(transformationMatrix);
     }
     
-    public DoubleVectorPhenotype transform(DoubleVectorPhenotype ind)
-    {
+    public DoubleVectorIndividual transform(final DoubleVectorIndividual ind) {
         assert(ind != null);
         assert(ind.size() == getNumDimensions());
         double[] newPoint = new double[getNumDimensions()];
-        for(int i = 0; i < getNumDimensions(); i++)
-        {
+        for(int i = 0; i < getNumDimensions(); i++) {
             newPoint[i] = 0;
             for(int j = 0; j < getNumDimensions(); j++)
                 newPoint[i] += ind.getElement(j) * transformationMatrix[i][j];
         }
-        return new DoubleVectorPhenotype(newPoint);
+        return new DoubleVectorIndividual(newPoint);
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
-    {
+    public double fitness(final DoubleVectorIndividual ind) {
         return objective.fitness(transform(ind));
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         objective.setGeneration(i);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    public boolean repOK()
-    {
+    public boolean repOK() {
         return objective != null
                 && numDimensions > 0
                 && Matrix.isSquare(transformationMatrix);
     }
     
     @Override
-    public String toString()
-    {
+    public String toString() {
         return String.format("[%s: Dimensions=%d, Matrix=%s, Objective=%s]", this.getClass().getSimpleName(), getNumDimensions(), Arrays.deepToString(transformationMatrix), objective.toString());
     }
     
     @Override
-    public boolean equals(Object ref)
-    {
+    public boolean equals(final Object ref) {
         if (ref == this)
             return true;
         if (!(ref instanceof AffineTransformedDoubleObjective))

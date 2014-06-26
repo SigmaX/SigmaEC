@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.decorate;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import java.util.List;
 
@@ -10,23 +10,26 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class AdditiveObjective<T extends DoubleVectorPhenotype> implements ObjectiveFunction<T>
+public class AdditiveObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
 {
-    private final List<ObjectiveFunction<? super T>> objectives;
+    private final List<ObjectiveFunction<T>> objectives;
     private final int numDimensions;
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
-    public AdditiveObjective(List<ObjectiveFunction<? super T>> objectives, int numDimensions) throws IllegalArgumentException
-    {
+    public AdditiveObjective(final List<ObjectiveFunction<T>> objectives, final int numDimensions) throws IllegalArgumentException {
+        if (numDimensions <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
         if (objectives == null)
-            throw new IllegalArgumentException("AdditiveObjective: objectives is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null.");
         if (Misc.containsNulls(objectives))
-            throw new IllegalArgumentException("AdditiveObjective: objectives contains null value.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives contains null value.");
+        if (!Misc.allElementsHaveDimension(objectives, numDimensions))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions does not match the dimensionality of all objectives.");
+        
         
         this.objectives = objectives;
         this.numDimensions = numDimensions;
@@ -34,7 +37,7 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
     }
     
     @Override
-    public double fitness(T ind)
+    public double fitness(final T ind)
     {
         double sum = 0;
         for (ObjectiveFunction<? super T> obj : objectives)
@@ -51,10 +54,10 @@ public class AdditiveObjective<T extends DoubleVectorPhenotype> implements Objec
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return objectives != null
-                && !Misc.containsNulls(objectives);
+                && !Misc.containsNulls(objectives)
+                && Misc.allElementsHaveDimension(objectives, numDimensions);
     }
     
     @Override

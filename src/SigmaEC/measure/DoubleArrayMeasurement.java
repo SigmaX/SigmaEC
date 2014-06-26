@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.util.Misc;
 import java.util.Arrays;
 
 /**
@@ -31,6 +32,7 @@ public class DoubleArrayMeasurement extends Measurement {
     @Override
     public int getGeneration() { return generation; }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     /**
      * @return A CSV string of the form
      * run, generation, array[0], array[1], array[2], ... \n
@@ -54,4 +56,23 @@ public class DoubleArrayMeasurement extends Measurement {
                 && array.length > 0;
     }
     
+    @Override
+    public boolean equals(final Object o) {
+        if(!(o instanceof DoubleArrayMeasurement))
+            return false;
+        final DoubleArrayMeasurement ref = (DoubleArrayMeasurement)o;
+        return run == ref.run
+                && generation == ref.generation
+                && Misc.doubleArrayEquals(array, ref.array);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + this.run;
+        hash = 53 * hash + this.generation;
+        hash = 53 * hash + Arrays.hashCode(this.array);
+        return hash;
+    }
+    // </editor-fold>
 }

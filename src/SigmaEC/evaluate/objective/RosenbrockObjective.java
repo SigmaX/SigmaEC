@@ -1,7 +1,7 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
-
+import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
 
 /**
  * An n-dimensional generalization of Rosenbrock's objective function:
@@ -10,28 +10,28 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
+    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    
     private final int numDimensions;
     
-    public RosenbrockObjective(int numDimensions)
-    {
+    public RosenbrockObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
-            throw new IllegalArgumentException("RosenbrockObjective: numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException("RosenbrockObjective: numDimensions is infinite, must be finite.");
-        this.numDimensions = numDimensions;
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         assert(repOK());
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;
@@ -41,21 +41,19 @@ public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenot
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numDimensions > 0;
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[RosenbrockObjective: NumDimensionts=%d]", numDimensions);
+    public String toString() {
+        return String.format("[%s: numDimensionts=%d]", this.getClass().getSimpleName(), numDimensions);
     }
     
     @Override
@@ -64,7 +62,7 @@ public class RosenbrockObjective implements ObjectiveFunction<DoubleVectorPhenot
         if (!(o instanceof RosenbrockObjective))
             return false;
         
-        RosenbrockObjective cRef = (RosenbrockObjective) o;
+        final RosenbrockObjective cRef = (RosenbrockObjective) o;
         return numDimensions == cRef.numDimensions;
     }
 

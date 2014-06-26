@@ -3,7 +3,7 @@ package SigmaEC.select;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.Phenotype;
+import SigmaEC.util.Parameters;
 import java.util.List;
 import java.util.Random;
 
@@ -12,37 +12,36 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TournamentSelector<T extends Individual, P extends Phenotype> extends Selector<T>
+public class TournamentSelector<T extends Individual, P> extends Selector<T>
 {
-    final private int tournamentSize;
-    final private Random random;
-    final private RandomSelector<T> contestantSelector;
-    final private ObjectiveFunction<? super P> objective;
-    final private Decoder<T, P> decoder;
+    private final static String P_TOURNAMENT_SIZE = "tournamentSize";
+    final private static String P_OBJECTIVE = "objective";
+    final private static String P_DECODER = "decoder";
+    final private static String P_RANDOM = "random";
     
-    public TournamentSelector(final ObjectiveFunction<? super P> obj, final Decoder<T, P> decoder, final Random random, final int tournamentSize) throws NullPointerException, IllegalArgumentException
-    {
-        if (obj == null)
-            throw new NullPointerException("TournamentSelector: obj is null.");
-        if (decoder == null)
-            throw new NullPointerException("TournamentSelector: decoder is null.");
-        if (random == null)
-            throw new NullPointerException("TournamentSelector: random is null.");
-        else if (tournamentSize <= 0)
-            throw new IllegalArgumentException("TournamentSelector: tournamentSize is less than 1.");
-        
-        this.objective = obj;
-        this.decoder = decoder;
-        this.tournamentSize = tournamentSize;
-        this.random = random;
-        this.contestantSelector = new RandomSelector<T>(random);
+    final private int tournamentSize;
+    final private ObjectiveFunction<P> objective;
+    final private Decoder<T, P> decoder;
+    final private Random random;
+    
+    final private RandomSelector<T> contestantSelector;
+    
+    public TournamentSelector(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        tournamentSize = parameters.getIntParameter(Parameters.push(base, P_TOURNAMENT_SIZE));
+        objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
+        random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
+        contestantSelector = new RandomSelector<T>(random);
+        assert(repOK());
     }
     
     @Override
     public T selectIndividual(final List<T> population) throws NullPointerException, IllegalArgumentException
     {
         if (population.isEmpty())
-            throw new IllegalArgumentException("TournamentSelector.selectIndividual: population is empty.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ".selectIndividual: population is empty.");
         
         final List<T> contestants = contestantSelector.selectMultipleIndividuals(population, tournamentSize);
         final TruncationSelector<T, P> finalSelector = new TruncationSelector(objective, decoder);

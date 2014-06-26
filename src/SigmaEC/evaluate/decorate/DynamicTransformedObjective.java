@@ -3,7 +3,7 @@ package SigmaEC.evaluate.decorate;
 import SigmaEC.evaluate.TransformedObjectiveGenerator;
 import SigmaEC.evaluate.TransformedObjectiveGenerator.Strategy;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import java.util.Random;
 
 /**
@@ -12,13 +12,18 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DynamicTransformedObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class DynamicTransformedObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     private final TransformedObjectiveGenerator generator;
-    private ObjectiveFunction<DoubleVectorPhenotype> currentObjective;
+    private ObjectiveFunction<DoubleVectorIndividual> currentObjective;
     
-    public DynamicTransformedObjective(final ObjectiveFunction<DoubleVectorPhenotype> objective, final Strategy.TransformationStrategy transformationStrategy, final Random random)
-    {
+    public DynamicTransformedObjective(final ObjectiveFunction<DoubleVectorIndividual> objective, final Strategy.TransformationStrategy transformationStrategy, final Random random) {
+        if (objective == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
+        if (transformationStrategy == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": transformationStrategy is null.");
+        if (random == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
         generator = new TransformedObjectiveGenerator(objective, transformationStrategy, random);
         currentObjective = objective;
         assert(repOK());
@@ -30,12 +35,12 @@ public class DynamicTransformedObjective implements ObjectiveFunction<DoubleVect
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         return currentObjective.fitness(ind);
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         currentObjective = generator.getNewInstance();
     }
 
@@ -52,7 +57,7 @@ public class DynamicTransformedObjective implements ObjectiveFunction<DoubleVect
     }
     
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof DynamicTransformedObjective))

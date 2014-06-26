@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
 
 /**
  * The so-called "sphere function," f(x) = \sum_i x_i^2.  This is actually a
@@ -10,60 +11,58 @@ import SigmaEC.represent.DoubleVectorPhenotype;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SphereObjective implements ObjectiveFunction<DoubleVectorPhenotype>
-{
+public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    
     private final int numDimensions;
     
-    public SphereObjective(int numDimensions)
-    {
+    public SphereObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
-            throw new IllegalArgumentException("SphereObjective: numDimensions is < 1.");
-        this.numDimensions = numDimensions;
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         assert(repOK());
     }
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;
-        for (double d : ind.getVector())
+        for (double d : ind.getGenomeArray())
             sum+= Math.pow(d,2);
         assert(repOK());
         return sum;
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         // Do nothing
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numDimensions > 0;
     }
 
     @Override
-    public String toString()
-    {
-        return String.format("[SphereObjective: NumDimensions=%d]", numDimensions);
+    public String toString() {
+        return String.format("[%s: NumDimensions=%d]", this.getClass().getSimpleName(), numDimensions);
     }
     
     @Override
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (!(o instanceof SphereObjective))
             return false;
         
-        SphereObjective cRef = (SphereObjective) o;
+        final SphereObjective cRef = (SphereObjective) o;
         return numDimensions == cRef.numDimensions;
     }
 

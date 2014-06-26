@@ -34,6 +34,7 @@ public class MultipleStringMeasurement extends Measurement {
     @Override
     public int getGeneration() { return generation; }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
         return run >= 0
@@ -50,5 +51,25 @@ public class MultipleStringMeasurement extends Measurement {
             sb.append(s).append("\n");
         return sb.toString();
     }
+    
+    @Override
+    public boolean equals(final Object o) {
+        if (!(o instanceof MultipleStringMeasurement))
+            return false;
+        final MultipleStringMeasurement ref = (MultipleStringMeasurement) o;
+        return run == ref.run
+                && generation == ref.generation
+                && strings.equals(ref.strings);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 17 * hash + this.run;
+        hash = 17 * hash + this.generation;
+        hash = 17 * hash + (this.strings != null ? this.strings.hashCode() : 0);
+        return hash;
+    }
+    // </editor-fold>
     
 }

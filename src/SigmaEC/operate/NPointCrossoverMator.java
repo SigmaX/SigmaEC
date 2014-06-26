@@ -2,6 +2,8 @@ package SigmaEC.operate;
 
 import SigmaEC.represent.Gene;
 import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.util.Option;
+import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -12,8 +14,12 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends Gene> implements Mator<T>
+public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Mator<T>
 {
+    final public static String P_NUM_CUT_POINTS = "numCutPoints";
+    final public static String P_ALLOW_CLONING = "allowCloning";
+    final public static String P_RANDOM = "random";
+    
     final private int numCutPoints;
     final private Random random;
     final private boolean allowCloning;
@@ -26,15 +32,21 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
 
     public int getNumCutPoints() { return numCutPoints; }
     
-    public NPointCrossoverMator(int numCutPoints, boolean allowCloning, Random random)
-    {
+    public NPointCrossoverMator(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numCutPoints = parameters.getIntParameter(Parameters.push(base, P_NUM_CUT_POINTS));
+        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
+        final Option<Boolean> allowCloningOpt = parameters.getOptionalBooleanParameter(Parameters.push(base, P_ALLOW_CLONING));
+        if (allowCloningOpt.isDefined())
+            allowCloning = allowCloningOpt.get();
+        else
+            allowCloning = true;
+        
         if (numCutPoints < 1)
-            throw new IllegalArgumentException("NPointCrossoverMator: numCutPoints is " + numCutPoints + ", but must be > 0.");
+            throw new IllegalArgumentException(String.format("%s: numCutPoints is %d, but must be > 0.", this.getClass().getSimpleName(), numCutPoints));
         if (random == null)
-            throw new IllegalArgumentException("NPointCrossoverMator: random is null.");
-        this.numCutPoints = numCutPoints;
-        this.random = random;
-        this.allowCloning = allowCloning;
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
         assert(repOK());
     }
     
@@ -106,7 +118,7 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
     }
     
     /** Compares the length of n Lists. */
-    private boolean genomesSameLength(List<List<G>> genomes)
+    private boolean genomesSameLength(final List<List<G>> genomes)
     {
         assert(genomes.size() > 0);
         final int firstLength = genomes.get(0).size();
@@ -116,7 +128,7 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
         return true;
     }
     
-    private int[] getNewCutPoints(int genomeLength)
+    private int[] getNewCutPoints(final int genomeLength)
     { //TODO make use of allowCloning
         int[] cutPoints = new int[numCutPoints + 2];
         cutPoints[0] = 0;
@@ -129,34 +141,32 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return numCutPoints > 0
                 && random != null;
     }
 
     @Override
-    public String toString()
-    {
-        return String.format("[NPointCrossoverMator: CutPoints=%d]", numCutPoints);
+    public String toString() {
+        return String.format("[%s: numCutPoints=%d, allowCloning=%s, random=%s]", this.getClass().getSimpleName(), numCutPoints, Boolean.toString(allowCloning), random.toString());
     }
     
     @Override
-    public boolean equals(Object ref)
-    {
+    public boolean equals(final Object ref) {
         if (!(ref instanceof NPointCrossoverMator))
             return false;
         NPointCrossoverMator cRef = (NPointCrossoverMator) ref;
         return numCutPoints == cRef.numCutPoints
-                && random.equals(cRef.random);
+                && random.equals(cRef.random)
+                && allowCloning == cRef.allowCloning;
     }
 
     @Override
-    public int hashCode()
-    {
-        int hash = 5;
+    public int hashCode() {
+        int hash = 7;
         hash = 97 * hash + this.numCutPoints;
         hash = 97 * hash + (this.random != null ? this.random.hashCode() : 0);
+        hash = 97 * hash + (this.allowCloning ? 1 : 0);
         return hash;
     }
     //</editor-fold>

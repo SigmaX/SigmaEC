@@ -18,8 +18,8 @@ public abstract class LinearGenomeIndividual<G extends Gene> extends Individual
      */
     public abstract LinearGenomeIndividual<G> create(List<G> genome);
     
-    /**
-     * Return a defensive copy of the genome.
-     */
+    /** Return a defensive copy of the genome. */
     public abstract List<G> getGenome();
+    
+    public abstract int size();
 }

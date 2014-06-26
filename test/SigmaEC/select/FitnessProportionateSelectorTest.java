@@ -1,12 +1,10 @@
 package SigmaEC.select;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorPhenotype;
 import SigmaEC.represent.Individual;
 import SigmaEC.test.TestDecoder;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.test.TestObjective;
-import SigmaEC.test.TestPhenotype;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +19,7 @@ import org.junit.Test;
  */
 public class FitnessProportionateSelectorTest
 {
-    private FitnessProportionateSelector<TestIndividual, TestPhenotype> SUT;
+    private FitnessProportionateSelector<TestIndividual, Double> SUT;
     private Random random;
     private List<TestIndividual> population;
     private final static int POP_SIZE = 10;
@@ -33,8 +31,8 @@ public class FitnessProportionateSelectorTest
     public void setUp()
     {
         random = new Random();
-        final ObjectiveFunction<TestPhenotype> obj = new TestObjective();
-        SUT = new FitnessProportionateSelector<TestIndividual, TestPhenotype>(obj, new TestDecoder(), random);
+        final ObjectiveFunction<Double> obj = new TestObjective();
+        SUT = new FitnessProportionateSelector<TestIndividual, Double>(obj, new TestDecoder(), random);
         population = new ArrayList(POP_SIZE) {{
             totalFitness = 0;
             for (int i = 1; i <= POP_SIZE; i++)

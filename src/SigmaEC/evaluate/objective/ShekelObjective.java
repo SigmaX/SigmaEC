@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorPhenotype;
+import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import java.util.Arrays;
@@ -12,19 +12,19 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>
+public class ShekelObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
-    IDoublePoint[] optima;
+    final IDoublePoint[] optima;
     
     /**
      * @param optima The (x,y) coordinates of the local optima.
      */
-    public ShekelObjective(IDoublePoint[] optima)
+    public ShekelObjective(final IDoublePoint[] optima)
     {
         if (optima == null)
-            throw new IllegalArgumentException("ShekelObjective: optima array is null.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": optima array is null.");
         if (Misc.containsNulls(optima))
-            throw new IllegalArgumentException("ShekelObjective: optima array is invalid (perhaps contains nulls).");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": optima array contains nulls.");
         this.optima = Arrays.copyOf(optima, optima.length); // Shallow copy okay because IDoublePoint is immutable.
         assert(repOK());
     }
@@ -33,7 +33,7 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>
     public int getNumDimensions() { return 2; }
 
     @Override
-    public double fitness(DoubleVectorPhenotype ind)
+    public double fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == 2);
         double sum = 0.002;
@@ -50,27 +50,25 @@ public class ShekelObjective implements ObjectiveFunction<DoubleVectorPhenotype>
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    final public boolean repOK()
-    {
+    final public boolean repOK() {
         return optima != null
             && !Misc.containsNulls(optima);
     }
     
     @Override
-    public String toString()
-    {
-        return String.format("[ShekelObjective: Optima=%s]", Arrays.toString(optima));
+    public String toString() {
+        return String.format("[%s: Optima=%s]", this.getClass().getSimpleName(), Arrays.toString(optima));
     }
     
     @Override
-    public boolean equals(Object o)
+    public boolean equals(final Object o)
     {
         if (o == this)
             return true;
         if (!(o instanceof ShekelObjective))
             return false;
         
-        ShekelObjective cRef = (ShekelObjective) o;
+        final ShekelObjective cRef = (ShekelObjective) o;
         return Arrays.deepEquals(optima, cRef.optima);
     }
 
