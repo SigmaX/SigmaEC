@@ -3,6 +3,7 @@ package SigmaEC.evaluate.objective;
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import java.util.Arrays;
 
 /**
@@ -12,20 +13,45 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ShekelObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
-    final IDoublePoint[] optima;
+public class ShekelObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    final private static IDoublePoint[] optima = new IDoublePoint[] {
+        new IDoublePoint(-32, -32),
+        new IDoublePoint(-32, -16),
+        new IDoublePoint(-32, -0),
+        new IDoublePoint(-32, 16),
+        new IDoublePoint(-32, 32),
+        
+        new IDoublePoint(-16, -32),
+        new IDoublePoint(-16, -16),
+        new IDoublePoint(-16, -0),
+        new IDoublePoint(-16, 16),
+        new IDoublePoint(-16, 32),
+        
+        new IDoublePoint(0, -32),
+        new IDoublePoint(0, -16),
+        new IDoublePoint(0, -0),
+        new IDoublePoint(0, 16),
+        new IDoublePoint(0, 32),
+        
+        new IDoublePoint(16, -32),
+        new IDoublePoint(16, -16),
+        new IDoublePoint(16, -0),
+        new IDoublePoint(16, 16),
+        new IDoublePoint(16, 32),
+        
+        new IDoublePoint(32, -32),
+        new IDoublePoint(32, -16),
+        new IDoublePoint(32, -0),
+        new IDoublePoint(32, 16),
+        new IDoublePoint(32, 32),
+    };
     
-    /**
-     * @param optima The (x,y) coordinates of the local optima.
-     */
-    public ShekelObjective(final IDoublePoint[] optima)
-    {
-        if (optima == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": optima array is null.");
-        if (Misc.containsNulls(optima))
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": optima array contains nulls.");
-        this.optima = Arrays.copyOf(optima, optima.length); // Shallow copy okay because IDoublePoint is immutable.
+    
+    
+    /** @param optima The (x,y) coordinates of the local optima. */
+    public ShekelObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
         assert(repOK());
     }
 
@@ -57,7 +83,7 @@ public class ShekelObjective extends ObjectiveFunction<DoubleVectorIndividual>
     
     @Override
     public String toString() {
-        return String.format("[%s: Optima=%s]", this.getClass().getSimpleName(), Arrays.toString(optima));
+        return String.format("[%s: optima=%s]", this.getClass().getSimpleName(), Arrays.toString(optima));
     }
     
     @Override

@@ -3,6 +3,7 @@ package SigmaEC.experiment;
 import SigmaEC.SRandom;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.io.FileInputStream;
 import java.util.List;
@@ -13,54 +14,68 @@ import java.util.logging.Logger;
 
 /**
  * A meta-experiment that takes a list of ObjectiveFunctions and launches a
- * sub-experiment on each objective.  The sub-experiment properties file can
- * should reference the objective function in %meta.objective, and the PRNG
- * in %meta.random
+ * sub-experiment on each objective.  The sub-experiment parameters file can
+ * reference the objective function in %meta.objective, its dimensionality in
+ * %meta.numDimensions, and the PRNG in %meta.random.  A path prefix can
+ * also be set to tell the sub-experiments where to output data to, accessible
+ * in %meta.prefix.
  * 
  * @author Eric 'Siggy' Scott
  */
 public class TestSuiteExperiment extends Experiment {
-    final private static String P_OBJECTIVES = "objectives";
-    final private static String P_PARAMETER_FILE = "parameterFile";
-    private final static String P_RANDOM = "random";
+    final public static String P_OBJECTIVES = "objectives";
+    final public static String P_NUM_RUNS_PER_OBJECTIVE = "numRunsPerObjective";
+    final public static String P_PARAMETER_FILE = "parameterFile";
+    final public static String P_RANDOM = "random";
+    final public static String P_PREFIX = "prefix";
     
-    final private static String META_BASE = "meta";
-    final private static String P_OBJECTIVE = "objective";
-    final private static String P_EXPERIMENT = "experiment";
+    final public static String META_BASE = "meta";
+    final public static String P_OBJECTIVE = "objective";
+    final public static String P_NUM_DIMENSIONS = "numDimensions";
+    final public static String P_EXPERIMENT = "experiment";
     
     final private List<ObjectiveFunction> objectives;
+    final private int numRunsPerObjective;
     final private String parameterFile;
     final private Random random;
+    final private String prefix;
 
     public TestSuiteExperiment(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        objectives = parameters.getInstancesFromParameter(Parameters.push(base, P_OBJECTIVES), ObjectiveFunction.class);
-        parameterFile = parameters.getStringParameter(Parameters.push(base, P_PARAMETER_FILE));
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
+        objectives = parameters.getInstancesFromParameter(Parameters.push(base, P_OBJECTIVES), ObjectiveFunction.class);
+        numRunsPerObjective = parameters.getIntParameter(Parameters.push(base, P_NUM_RUNS_PER_OBJECTIVE));
+        parameterFile = parameters.getStringParameter(Parameters.push(base, P_PARAMETER_FILE));
+        prefix = parameters.getStringParameter(Parameters.push(base, P_PREFIX));
         assert(repOK());
     }
     
     @Override
     public void run() {
-        for (final ObjectiveFunction obj : objectives) {
-            final Properties properties; 
-            try {
-                properties = new Properties();
-                final FileInputStream pInput = new FileInputStream(parameterFile);
-                properties.load(pInput);
+        final Properties subExperimentProperties; 
+        try {
+            subExperimentProperties = new Properties();
+            final FileInputStream pInput = new FileInputStream(parameterFile);
+            subExperimentProperties.load(pInput);
 
+        }
+        catch (final Exception e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Failed to load properties file while attempting to launch sub-experiment.");
+            return;
+        }
+            
+        for (final ObjectiveFunction obj : objectives) {
+            for (int i = 0; i < numRunsPerObjective; i++) {
+                final Parameters parameters = new Parameters.Builder(subExperimentProperties)
+                        .registerInstance(Parameters.push(META_BASE, P_RANDOM), random)
+                        .registerInstance(Parameters.push(META_BASE, P_OBJECTIVE), obj)
+                        .setParameter(Parameters.push(META_BASE, P_NUM_DIMENSIONS), String.valueOf(obj.getNumDimensions()))
+                        .setParameter(Parameters.push(META_BASE, P_PREFIX), prefix + obj.getClass().getSimpleName() + "_run" + i)
+                        .build();
+                final Experiment<Double> experiment = parameters.getInstanceFromParameter(P_EXPERIMENT, Experiment.class);
+                experiment.run();
             }
-            catch (final Exception e) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Failed to load properties file while attempting to launch sub-experiment.");
-                return;
-            }
-            final Parameters parameters = new Parameters.Builder(properties)
-                    .registerInstance(Parameters.push(META_BASE, P_OBJECTIVE), obj)
-                    .registerInstance(Parameters.push(META_BASE, P_RANDOM), random)
-                    .build();
-            final Experiment<Double> experiment = parameters.getInstanceFromParameter(P_EXPERIMENT, Experiment.class);
-            experiment.run();
         }
     }
 

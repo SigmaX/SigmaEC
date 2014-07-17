@@ -19,6 +19,7 @@ import java.util.logging.Logger;
  */
 public class WriterPopulationMetric<T extends Individual> extends PopulationMetric<T>
 {
+    final public static String P_PREFIX = "prefix";
     final public static String P_FILE = "file";
     final public static String P_METRIC = "metric";
     
@@ -28,13 +29,16 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     public WriterPopulationMetric(final Parameters parameters, final String base) throws IllegalArgumentException {
         assert(parameters != null);
         assert(base != null);
+        
         final Option<String> file = parameters.getOptionalStringParameter(Parameters.push(base, P_FILE));
         if (file.isDefined()) {
+            final Option<String> prefixOpt = parameters.getOptionalStringParameter(Parameters.push(base, P_PREFIX));
+            final String fileName = (prefixOpt.isDefined() ? prefixOpt.get() + "//" : "") + file.get();
             try {
-            writer = new FileWriter(file.get());
+                writer = new FileWriter(fileName);
             }
             catch (final IOException e) {
-                throw new IllegalArgumentException(this.getClass().getSimpleName() +": could not open file " + file.get(), e);
+                throw new IllegalArgumentException(this.getClass().getSimpleName() +": could not open file " + fileName, e);
             }
         }
         else
@@ -90,12 +94,18 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     final public boolean repOK() {
         return writer != null
                 && wrappedMetric != null
-                && wrappedMetric.repOK();
+                && wrappedMetric.repOK()
+                && P_PREFIX != null
+                && !P_PREFIX.isEmpty()
+                && P_FILE != null
+                && !P_FILE.isEmpty()
+                && P_METRIC != null
+                && !P_METRIC.isEmpty();
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: Writer=%s, WrappedMetric=%s]", this.getClass().getSimpleName(), writer, wrappedMetric);
+        return String.format("[%s: writer=%s, wrappedMetric=%s]", this.getClass().getSimpleName(), writer, wrappedMetric);
     }
     
     @Override
@@ -105,7 +115,7 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
         if (!(o instanceof WriterPopulationMetric))
             return false;
         
-        WriterPopulationMetric cRef = (WriterPopulationMetric) o;
+        final WriterPopulationMetric cRef = (WriterPopulationMetric) o;
         return writer.equals(cRef.writer)
                 && wrappedMetric.equals(cRef.wrappedMetric);
     }

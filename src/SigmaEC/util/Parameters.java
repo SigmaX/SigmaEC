@@ -42,13 +42,20 @@ public class Parameters extends ContractObject {
         
         public Builder(final Properties properties) {
             assert(properties != null);
-            this.properties = properties;
+            this.properties = (Properties) properties.clone();
         }
         
         public Builder registerInstance(final String parameter, final Object object) {
             assert(parameter != null);
             assert(object != null);
             instanceRegistry.put(parameter, object);
+            return this;
+        }
+        
+        public Builder setParameter(final String parameter, final String value) {
+            assert(parameter != null);
+            assert(value != null);
+            properties.put(parameter, value);
             return this;
         }
         
@@ -229,7 +236,7 @@ public class Parameters extends ContractObject {
         final String[] classNames = value.split(LIST_DELIMITER);
         final List<T> result =  new ArrayList<T>() {{
             for (int i = 0; i < classNames.length; i++)
-                add((T) getInstanceFromClassName(classNames[i], push(parameterName, String.valueOf(i)), expectedSuperClass));
+                add((T) getInstanceFromClassName(classNames[i].trim(), push(parameterName, String.valueOf(i)), expectedSuperClass));
         }};
         registerInstanceIfReferenced(parameterName, result);
         return result;
