@@ -1,6 +1,7 @@
 package SigmaEC.util;
 
 import SigmaEC.ContractObject;
+import SigmaEC.util.math.ExpressionParser;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class Parameters extends ContractObject {
     private final static String LIST_DELIMITER = ",";
     private final static String PROPERTY_DELIMITER = ".";
     private final static char REFERENCE_SYMBOL = '%';
+    private final static char EXPRESSION_SYMBOL = '$';
     
     private final Properties properties;
     // Used to store instances that are referenced by other parameters with the "%param" syntax.
@@ -85,8 +87,43 @@ public class Parameters extends ContractObject {
         if (isReference(targetValue))
             return dereference(targetValue);
         else
-            return targetName;
-        
+            return targetValue;
+    }
+    
+    private static boolean isExpression(final String parameterValue) {
+        assert(parameterValue != null);
+        return parameterValue.charAt(0) == EXPRESSION_SYMBOL;
+    }
+    
+    private double evalExpression(final String parameterValue) {
+        assert(parameterValue != null);
+        assert(isExpression(parameterValue));
+        final String expression = deReferenceExpression(parameterValue);
+        return ExpressionParser.eval(expression);
+    }
+    
+    /** Replace all references in an expression with their numeric values. */
+    private String deReferenceExpression(String expression) {
+        assert(expression != null);
+        assert(expression.charAt(0) == EXPRESSION_SYMBOL);
+        expression = expression.trim();
+        final StringBuilder result = new StringBuilder();
+        for (int i = 1; i < expression.length(); i++) {
+            if (expression.charAt(i) != REFERENCE_SYMBOL)
+                result.append(expression.charAt(i));
+            else {
+                int tokenEnd = expression.indexOf(' ', i);
+                if (tokenEnd == -1)
+                    tokenEnd = expression.length() - 1;
+                final String refToken = expression.substring(i, tokenEnd);
+                final String deref = dereference(refToken);
+                if (!Misc.isNumber(deref))
+                    throw new IllegalStateException(String.format("%s: Variable in expression did not dereference to a numeric value.", this.getClass().getSimpleName()));
+                result.append(deref);
+                i = tokenEnd - 1;
+            }
+        }
+        return result.toString();
     }
     
     public boolean isDefined(final String parameterName) {
@@ -100,8 +137,10 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        if (value.charAt(0) == REFERENCE_SYMBOL)
-            return getIntParameter(value.substring(1));
+        if (isReference(value))
+            return Integer.parseInt(dereference(value));
+        if (isExpression(value))
+            return (int) evalExpression(value);
         return Integer.parseInt(value);
     }
     
@@ -118,8 +157,8 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        if (value.charAt(0) == REFERENCE_SYMBOL)
-            return getBooleanParameter(value.substring(1));
+        if (isReference(value))
+            return Boolean.parseBoolean(dereference(value));
         return Boolean.parseBoolean(value);
     }
     
@@ -137,7 +176,9 @@ public class Parameters extends ContractObject {
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value))
-            return getDoubleParameter(dereference(value));
+            return Double.parseDouble(dereference(value));
+        if (isExpression(value))
+            return evalExpression(value);
         return Double.parseDouble(value);
     }
     
@@ -162,8 +203,8 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        if (value.charAt(0) == REFERENCE_SYMBOL)
-            return getStringParameter(value.substring(1));
+        if (isReference(value))
+            return dereference(value);
         return value;
     }
     
