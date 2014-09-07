@@ -188,4 +188,15 @@ public final class Misc
                 return false;
         return true;
     }
+    
+    public static boolean isNumber(final String s) {
+        assert(s != null);
+        try {
+            Double.valueOf(s);
+        }
+        catch(final NumberFormatException ee) {
+            return false;
+        }
+        return true;
+    }
 }
