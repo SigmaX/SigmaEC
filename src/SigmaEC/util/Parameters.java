@@ -47,6 +47,8 @@ public class Parameters extends ContractObject {
             this.properties = (Properties) properties.clone();
         }
         
+        /** Add a parameter-instance pair to this Parameters database's registry
+         * of objects. */
         public Builder registerInstance(final String parameter, final Object object) {
             assert(parameter != null);
             assert(object != null);
@@ -54,6 +56,7 @@ public class Parameters extends ContractObject {
             return this;
         }
         
+        /** Add a parameter-value pair to this Parameters database. */
         public Builder setParameter(final String parameter, final String value) {
             assert(parameter != null);
             assert(value != null);
