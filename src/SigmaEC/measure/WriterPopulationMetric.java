@@ -33,7 +33,7 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
         final Option<String> file = parameters.getOptionalStringParameter(Parameters.push(base, P_FILE));
         if (file.isDefined()) {
             final Option<String> prefixOpt = parameters.getOptionalStringParameter(Parameters.push(base, P_PREFIX));
-            final String fileName = (prefixOpt.isDefined() ? prefixOpt.get() + "//" : "") + file.get();
+            final String fileName = (prefixOpt.isDefined() ? prefixOpt.get() : "") + file.get();
             try {
                 writer = new FileWriter(fileName);
             }

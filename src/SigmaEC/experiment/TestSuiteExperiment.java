@@ -70,7 +70,7 @@ public class TestSuiteExperiment extends Experiment {
                         .registerInstance(Parameters.push(META_BASE, P_RANDOM), random)
                         .registerInstance(Parameters.push(META_BASE, P_OBJECTIVE), obj)
                         .setParameter(Parameters.push(META_BASE, P_NUM_DIMENSIONS), String.valueOf(obj.getNumDimensions()))
-                        .setParameter(Parameters.push(META_BASE, P_PREFIX), prefix + obj.getClass().getSimpleName() + "_run" + i)
+                        .setParameter(Parameters.push(META_BASE, P_PREFIX), prefix + obj.getClass().getSimpleName() + "_run" + i + "_")
                         .build();
                 final Experiment<Double> experiment = parameters.getInstanceFromParameter(P_EXPERIMENT, Experiment.class);
                 experiment.run();
