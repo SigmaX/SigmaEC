@@ -33,9 +33,11 @@ public class ParametersTest {
                 .setParameter("alphaRef", "%alpha")
                 .setParameter("alphaRefRef", "%alphaRef")
                 .setParameter("alphaExp", "$(7 + 1)*%alpha - 3")
+                .setParameter("alphaExpRef", "%alphaExp")
                 .setParameter("betaRef", "%beta")
                 .setParameter("betaRefRef", "%betaRef")
                 .setParameter("betaExp", "$%beta/2 - 0.08")
+                .setParameter("betaExpRef", "%betaExp")
                 .setParameter("gammaRef", "%gamma")
                 .setParameter("gammaRefRef", "%gammaRef")
                 .setParameter("epsilonRef", "%epsilon")
@@ -136,6 +138,16 @@ public class ParametersTest {
     public void testGetIntParameter4() {
         System.out.println("getIntParameter expression");
         String parameterName = "alphaExp";
+        int expResult = -43;
+        int result = sut.getIntParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test
+    public void testGetIntParameter5() {
+        System.out.println("getIntParameter reference to expression");
+        String parameterName = "alphaExpRef";
         int expResult = -43;
         int result = sut.getIntParameter(parameterName);
         assertEquals(expResult, result);
@@ -314,6 +326,16 @@ public class ParametersTest {
     /** Test of getDoubleParameter method, of class Parameters. */
     @Test
     public void testGetDoubleParameter5() {
+        System.out.println("getDoubleParameter reference to expression");
+        String parameterName = "betaExpRef";
+        double expResult = 0.28;
+        double result = sut.getDoubleParameter(parameterName);
+        assertEquals(expResult, result, 0.0000001);
+    }
+    
+    /** Test of getDoubleParameter method, of class Parameters. */
+    @Test
+    public void testGetDoubleParameter6() {
         System.out.println("getDoubleParameter");
         String parameterName = "alpha";
         double expResult = -5.0;
@@ -323,7 +345,7 @@ public class ParametersTest {
     
     /** Test of getDoubleParameter method, of class Parameters. */
     @Test
-    public void testGetDoubleParameter6() {
+    public void testGetDoubleParameter7() {
         System.out.println("getDoubleParameter reference");
         String parameterName = "alphaRef";
         double expResult = -5.0;

@@ -82,7 +82,8 @@ public class Parameters extends ContractObject {
     
     private String dereference(final String parameterValue) {
         assert(parameterValue != null);
-        assert(isReference(parameterValue));
+        if (!isReference(parameterValue))
+            return parameterValue;
         final String targetName = parameterValue.substring(1);
         if (instanceRegistry.containsKey(targetName))
             return targetName;
@@ -100,7 +101,9 @@ public class Parameters extends ContractObject {
     
     private double evalExpression(final String parameterValue) {
         assert(parameterValue != null);
-        assert(isExpression(parameterValue));
+        assert(isExpression(parameterValue) || Misc.isNumber(parameterValue));
+        if (!isExpression(parameterValue))
+            return Double.valueOf(parameterValue);
         final String expression = deReferenceExpression(parameterValue);
         return ExpressionParser.eval(expression);
     }
@@ -153,11 +156,7 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        if (isReference(value))
-            return Integer.parseInt(dereference(value));
-        if (isExpression(value))
-            return (int) evalExpression(value);
-        return Integer.parseInt(value);
+        return (int) evalExpression(dereference(value));
     }
     
     public Option<Integer> getOptionalIntParameter(final String parameterName) {
@@ -173,9 +172,7 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        if (isReference(value))
-            return Boolean.parseBoolean(dereference(value));
-        return Boolean.parseBoolean(value);
+        return Boolean.parseBoolean(dereference(value));
     }
     
     public Option<Boolean> getOptionalBooleanParameter(final String parameterName) {
@@ -191,11 +188,7 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        if (isReference(value))
-            return Double.parseDouble(dereference(value));
-        if (isExpression(value))
-            return evalExpression(value);
-        return Double.parseDouble(value);
+        return evalExpression(dereference(value));
     }
     
     public Option<Double> getOptionalDoubleParameter(final String parameterName) {
