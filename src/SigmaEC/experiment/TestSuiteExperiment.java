@@ -3,7 +3,6 @@ package SigmaEC.experiment;
 import SigmaEC.SRandom;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Misc;
-import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.io.FileInputStream;
 import java.util.List;
