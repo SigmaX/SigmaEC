@@ -13,7 +13,12 @@ import java.util.Stack;
  * @author Eric 'Siggy' Scott
  */
 public class ExpressionParser {
-    private final static char[] operatorChars = new char[] { '+', '-', '/', '*' };
+    public final static char[] operators = new char[] { '+', '-', '/', '*' };
+    
+    /** Private constructor throws an error if called. */
+    private ExpressionParser() throws AssertionError {
+        throw new AssertionError(String.format("%s: Cannot create instance of static class.", ExpressionParser.class.getSimpleName()));
+    }
     
     public static double eval(final String expression) {
         assert(expression != null);
@@ -132,7 +137,7 @@ public class ExpressionParser {
     }
     
     private static boolean isOperator(final char c) {
-        for (final char o : operatorChars)
+        for (final char o : operators)
             if (c == o)
                 return true;
         return false;

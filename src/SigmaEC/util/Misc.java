@@ -20,9 +20,8 @@ import java.util.Random;
 public final class Misc
 {
     /** Private constructor throws an error if called. */
-    private Misc() throws AssertionError
-    {
-        throw new AssertionError("Misc: Cannot create instance of static class.");
+    private Misc() throws AssertionError {
+        throw new AssertionError(String.format("%s: Cannot create instance of static class.", Misc.class.getSimpleName()));
     }
     
     /**
@@ -30,8 +29,7 @@ public final class Misc
      * This uses getClass() to compare, not instanceof, so subtypes of type will
      * cause a false result.
      */
-    public static boolean containsOnlyClass(final Collection c, final Class type)
-    {
+    public static boolean containsOnlyClass(final Collection c, final Class type) {
         assert(c != null);
         assert(type != null);
         for (Object o : c)
@@ -41,8 +39,7 @@ public final class Misc
     }
     
     /** returns true if c contains any null values. */
-    public static boolean containsNulls(final Collection c)
-    {
+    public static boolean containsNulls(final Collection c) {
         assert(c != null);
         for (Object o : c)
             if (o == null)
@@ -50,9 +47,17 @@ public final class Misc
         return false;
     }
     
+    /** Returns true if c contains any null values. */
+    public static <T> boolean containsNulls(final T[] c) {
+        assert(c != null);
+        for (int i = 0; i < c.length; i++)
+            if (c[i] == null)
+                return true;
+        return false;
+    }
+    
     /** returns true if c contains any NaN values. */
-    public static boolean containsNaNs(final double[] c)
-    {
+    public static boolean containsNaNs(final double[] c) {
         assert(c != null);
         for (int i = 0; i < c.length; i++)
             if (Double.isNaN(c[i]))
@@ -60,14 +65,14 @@ public final class Misc
         return false;
     }
     
-    /** Returns true if c contains any null values. */
-    public static <T> boolean containsNulls(final T[] c)
-    {
-        assert(c != null);
-        for (int i = 0; i < c.length; i++)
-            if (c[i] == null)
-                return true;
-        return false;
+    /** Returns false if there are non-finite values in a vector. */
+    public static boolean finiteValued(final double[] vector) {
+        for (int i = 0; i < vector.length; i++) {
+            double e = vector[i];
+            if (e == Double.NEGATIVE_INFINITY || e == Double.POSITIVE_INFINITY || Double.isNaN(e))
+                return false;
+        }
+        return true;
     }
     
     public static double[][] deepCopy2DArray(final double[][] original) {
@@ -77,21 +82,8 @@ public final class Misc
         return newArray;
     }
     
-    /** Returns false if there are non-finite values in a vector. */
-    public static boolean finiteValued(final double[] vector)
-    {
-        for (int i = 0; i < vector.length; i++)
-        {
-            double e = vector[i];
-            if (e == Double.NEGATIVE_INFINITY || e == Double.POSITIVE_INFINITY || Double.isNaN(e))
-                return false;
-        }
-        return true;
-    }
-    
     /** Check that x &lt; y for all IDoublePoints in an array. */
-    public static boolean boundsOK(final IDoublePoint[] bounds)
-    {
+    public static boolean boundsOK(final IDoublePoint[] bounds) {
         for (IDoublePoint p : bounds)
             if (p.x >= p.y)
                 return false;
@@ -150,10 +142,9 @@ public final class Misc
         return true;
     }
     
-    public static Writer openFile(String path)
+    public static Writer openFile(final String path)
     {
-        try
-        {
+        try {
             File file = new File(path);
 
             // if file doesnt exists, then create it
@@ -165,8 +156,7 @@ public final class Misc
             BufferedWriter bw = new BufferedWriter(fw);
             return bw;
         }
-        catch(IOException e)
-        {
+        catch(final IOException e) {
             e.printStackTrace();
         }
         return null;
@@ -177,6 +167,14 @@ public final class Misc
         final double[] newArray = new double[array.length + 1];
         newArray[0] = value;
         System.arraycopy(array, 0, newArray, 1, array.length);
+        return newArray;
+    }
+    
+    public static char[] prepend(final char[] pre, final char[] post) {
+        assert(post != null);
+        final char[] newArray = new char[post.length + pre.length];
+        System.arraycopy(pre, 0, newArray, 0, pre.length);
+        System.arraycopy(post, 0, newArray, pre.length, post.length);
         return newArray;
     }
     
@@ -198,5 +196,13 @@ public final class Misc
             return false;
         }
         return true;
+    }
+    
+    public static boolean in(final char[] array, final char element) {
+        assert(array != null);
+        for (int i = 0; i < array.length; i++)
+            if (array[i] == element)
+                return true;
+        return false;
     }
 }

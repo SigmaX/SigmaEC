@@ -115,18 +115,31 @@ public class Parameters extends ContractObject {
             if (expression.charAt(i) != REFERENCE_SYMBOL)
                 result.append(expression.charAt(i));
             else {
-                int tokenEnd = expression.indexOf(' ', i);
-                if (tokenEnd == -1)
-                    tokenEnd = expression.length() - 1;
+                int tokenEnd = findTokenEnd(expression, i);
                 final String refToken = expression.substring(i, tokenEnd);
                 final String deref = dereference(refToken);
                 if (!Misc.isNumber(deref))
                     throw new IllegalStateException(String.format("%s: Variable in expression did not dereference to a numeric value.", this.getClass().getSimpleName()));
-                result.append(deref);
+                final double val = Double.valueOf(deref);
+                if (val < 0)
+                    result.append("(0 - ").append(String.valueOf(Math.abs(val))).append(")"); // Hack in negative references, since our parser doesn't support negative numbers
+                else
+                    result.append(deref);
                 i = tokenEnd - 1;
             }
         }
         return result.toString();
+    }
+    
+    private static int findTokenEnd(final String expression, final int startIndex) {
+        assert(expression != null);
+        assert(expression.charAt(startIndex) == REFERENCE_SYMBOL);
+        final char[] endChars = Misc.prepend(new char[] { ' ', '(', ')' }, ExpressionParser.operators);
+                
+        for (int i = startIndex; i < expression.length(); i++)
+            if (Misc.in(endChars, expression.charAt(i)))
+                return i;
+        return expression.length();
     }
     
     public boolean isDefined(final String parameterName) {
@@ -214,7 +227,7 @@ public class Parameters extends ContractObject {
     public Option<String> getOptionalStringParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
-        return (value == null) ? Option.NONE : new Option<String>(value);
+        return (value == null) ? Option.NONE : new Option<String>(getStringParameter(parameterName));
     }
     //</editor-fold>
     
@@ -250,7 +263,10 @@ public class Parameters extends ContractObject {
         assert(expectedSuperClass != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
-            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+            if (instanceRegistry.containsKey(parameterName))
+                return (T) instanceRegistry.get(parameterName);
+            else
+                throw new IllegalStateException(String.format("%s: Parameter '%s' was not found.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value))
             return (T) instanceRegistry.get(dereference(value));
 

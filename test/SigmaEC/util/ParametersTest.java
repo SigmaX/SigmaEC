@@ -306,7 +306,7 @@ public class ParametersTest {
     public void testGetDoubleParameter4() {
         System.out.println("getDoubleParameter expression");
         String parameterName = "betaExp";
-        double expResult = 0.44;
+        double expResult = 0.28;
         double result = sut.getDoubleParameter(parameterName);
         assertEquals(expResult, result, 0.0000001);
     }
@@ -525,12 +525,7 @@ public class ParametersTest {
     @Test
     public void testGetInstancesFromParameter() {
         System.out.println("getInstancesFromParameter");
-        String parameterName = "";
-        Class expectedSuperClass = null;
-        Parameters instance = null;
-        List expResult = null;
-        List result = instance.getInstancesFromParameter(parameterName, expectedSuperClass);
-        assertEquals(expResult, result);
+        
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -540,11 +535,7 @@ public class ParametersTest {
     public void testGetOptionalInstancesFromParameter() {
         System.out.println("getOptionalInstancesFromParameter");
         String parameterName = "";
-        Class expectedSuperClass = null;
-        Parameters instance = null;
-        Option expResult = null;
-        Option result = instance.getOptionalInstancesFromParameter(parameterName, expectedSuperClass);
-        assertEquals(expResult, result);
+       
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -553,11 +544,7 @@ public class ParametersTest {
     @Test
     public void testEquals() {
         System.out.println("equals and hashcode");
-        Object o = null;
-        Parameters instance = null;
-        boolean expResult = false;
-        boolean result = instance.equals(o);
-        assertEquals(expResult, result);
+       
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
