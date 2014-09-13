@@ -87,8 +87,9 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             // Survival selection
             if (survivalSelector.isDefined())
                 population = survivalSelector.get().selectMultipleIndividuals(population, population.size());
+            
+            flushMetrics();
         }
-        flushMetrics();
         return new EvolutionResult<T>(population, bestIndividual, objective.fitness(decoder.decode(bestIndividual)));
     }
     
