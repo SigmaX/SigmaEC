@@ -46,6 +46,7 @@ public class ParametersTest {
                 .setParameter("dArrayRef", "%dArray")
                 .setParameter("test.objective1", "SigmaEC.evaluate.objective.SphereObjective")
                 .setParameter("test.objective1.numDimensions", "10")
+                .setParameter("expRef", "$%betaExp*10")
                 .registerInstance(Parameters.push("test", "objective2"), sphereObjective)
                 .build();
     }
@@ -349,6 +350,16 @@ public class ParametersTest {
         System.out.println("getDoubleParameter reference");
         String parameterName = "alphaRef";
         double expResult = -5.0;
+        double result = sut.getDoubleParameter(parameterName);
+        assertEquals(expResult, result, 0.0000001);
+    }
+    
+    /** Test of getDoubleParameter method, of class Parameters. */
+    @Test
+    public void testGetDoubleParameter8() {
+        System.out.println("getDoubleParameter expression with reference to expression");
+        String parameterName = "expRef";
+        double expResult = 2.8;
         double result = sut.getDoubleParameter(parameterName);
         assertEquals(expResult, result, 0.0000001);
     }

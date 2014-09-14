@@ -101,7 +101,8 @@ public class Parameters extends ContractObject {
     
     private double evalExpression(final String parameterValue) {
         assert(parameterValue != null);
-        assert(isExpression(parameterValue) || Misc.isNumber(parameterValue));
+        if (!(isExpression(parameterValue) || Misc.isNumber(parameterValue)))
+                throw new IllegalStateException("Parameter value " + parameterValue + " is not a number or expression.");
         if (!isExpression(parameterValue))
             return Double.valueOf(parameterValue);
         final String expression = deReferenceExpression(parameterValue);
@@ -120,14 +121,11 @@ public class Parameters extends ContractObject {
             else {
                 int tokenEnd = findTokenEnd(expression, i);
                 final String refToken = expression.substring(i, tokenEnd);
-                final String deref = dereference(refToken);
-                if (!Misc.isNumber(deref))
-                    throw new IllegalStateException(String.format("%s: Variable in expression did not dereference to a numeric value.", this.getClass().getSimpleName()));
-                final double val = Double.valueOf(deref);
+                final double val = evalExpression(dereference(refToken));
                 if (val < 0)
                     result.append("(0 - ").append(String.valueOf(Math.abs(val))).append(")"); // Hack in negative references, since our parser doesn't support negative numbers
                 else
-                    result.append(deref);
+                    result.append(val);
                 i = tokenEnd - 1;
             }
         }
