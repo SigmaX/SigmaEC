@@ -5,6 +5,7 @@ import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
+import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,6 +19,12 @@ import java.util.List;
  */
 public class LatticeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
 {
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_RIDGE_WIDTH = "ridgeWidth";
+    public final static String P_MESH_WIDTH = "meshWidth";
+    public final static String P_HIGH_FITNESS = "highFitness";
+    public final static String P_USE_GRADIENT = "useGradient";
+    
     private final int numDimensions;
     private final double ridgeWidth;
     private final double meshWidth;
@@ -45,7 +52,14 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
     }
     //</editor-fold>
     
-    public LatticeObjective(final int numDimensions, final double ridgeWidth, final double meshWidth, final double highFitness, final IDoublePoint[] bounds, final boolean useGradient)
+    public LatticeObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        
+        throw new UnsupportedOperationException("Parameter-based instantiation of " + this.getClass().getSimpleName() + " not yet supported.");
+    }
+    
+    private LatticeObjective(final int numDimensions, final double ridgeWidth, final double meshWidth, final double highFitness, final IDoublePoint[] bounds, final boolean useGradient)
     {
         if (numDimensions < 2)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 2.");

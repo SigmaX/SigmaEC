@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
 
 /**
  * Typical bounds are [-10, 10].
@@ -11,7 +12,9 @@ import SigmaEC.represent.DoubleVectorIndividual;
  */
 public class HolderTableObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     
-    public HolderTableObjective() {
+    public HolderTableObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
         assert(repOK());
     }
     

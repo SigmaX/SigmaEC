@@ -1,5 +1,7 @@
 package SigmaEC.evaluate.objective;
 
+import SigmaEC.util.Parameters;
+
 
 /**
  * A decorator that turns a maximization problem into a minimization problem and
@@ -9,12 +11,13 @@ package SigmaEC.evaluate.objective;
  */
 public class InvertedObjective<T> extends ObjectiveFunction<T>
 {
+    public final static String P_OBJECTIVE = "objective";
     final private ObjectiveFunction<? super T> objective;
     
-    public InvertedObjective(ObjectiveFunction<? super T> objective) {
+    public InvertedObjective(final Parameters parameters, final String base) {
+        objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
-        this.objective = objective;
         assert(repOK());
     }
 

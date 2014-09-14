@@ -2,6 +2,7 @@ package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import java.util.Arrays;
 
 /**
@@ -11,29 +12,27 @@ import java.util.Arrays;
  */
 public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_HEIGHT = "height";
+    public final static String P_STD = "std";
+    
     private final int numDimensions;
     private final double height;
-    private final double[] mean;
     private final double std;
     
-    public GaussianObjective(final int numDimensions, final double[] mean, final double std, final double height)
+    public GaussianObjective(final Parameters parameters, final String base)
     {
+        numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        height = parameters.getDoubleParameter(Parameters.push(base, P_HEIGHT));
+        std = parameters.getDoubleParameter(Parameters.push(base, P_STD));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         if (height <= 0.0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": height is <= 0, must be positive.");
-        if (mean.length != numDimensions)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": length of mean vector must match numDimensions.");
-        if (!Misc.finiteValued(mean))
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": mean vector contains non-fininte values, must be finite.");
         if (std <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": std is <= 0, must be positive.");
         if (Double.isInfinite(std) || Double.isNaN(std))
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": std is infinite, must be finite.");
-        this.numDimensions = numDimensions;
-        this.height = height;
-        this.mean = Arrays.copyOf(mean, mean.length);
-        this.std = std;
         assert(repOK());
     }
 
@@ -62,8 +61,6 @@ public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
     @Override
     final public boolean repOK() {
         return numDimensions > 0
-                && mean.length == numDimensions
-                && Misc.finiteValued(mean)
                 && std != Double.POSITIVE_INFINITY
                 && !Double.isNaN(std)
                 && !Double.isInfinite(std)
@@ -72,7 +69,7 @@ public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
 
     @Override
     public String toString() {
-        return String.format("[%s: NumDimensions=%d, mean=%s, std=%f, height=%f]", this.getClass().getSimpleName(), numDimensions, Arrays.toString(mean), std, height);
+        return String.format("[%s: NumDimensions=%d, std=%f, height=%f]", this.getClass().getSimpleName(), numDimensions, std, height);
     }
     
     @Override
@@ -83,7 +80,6 @@ public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
         final GaussianObjective cRef = (GaussianObjective) o;
         return numDimensions == cRef.numDimensions
                 && Misc.doubleEquals(height, cRef.height)
-                && Misc.doubleArrayEquals(mean, cRef.mean)
                 && Misc.doubleEquals(std, cRef.std);
     }
 
@@ -92,7 +88,6 @@ public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
         int hash = 3;
         hash = 59 * hash + this.numDimensions;
         hash = 59 * hash + (int) (Double.doubleToLongBits(this.height) ^ (Double.doubleToLongBits(this.height) >>> 32));
-        hash = 59 * hash + Arrays.hashCode(this.mean);
         hash = 59 * hash + (int) (Double.doubleToLongBits(this.std) ^ (Double.doubleToLongBits(this.std) >>> 32));
         return hash;
     }

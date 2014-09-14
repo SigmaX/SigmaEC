@@ -3,8 +3,10 @@ package SigmaEC.evaluate.decorate;
 import SigmaEC.evaluate.objective.ConstantObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Matrix;
 import SigmaEC.util.math.Vector;
+import java.util.Properties;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -31,7 +33,9 @@ public class AffineTransformedDoubleObjectiveTest {
     }
     
     private static ObjectiveFunction<DoubleVectorIndividual> spikeObjective(final double[] position, final double width) {
-        ObjectiveFunction<DoubleVectorIndividual> obj = new ConstantObjective<DoubleVectorIndividual>(position.length, MAX_FITNESS);
+        ObjectiveFunction<DoubleVectorIndividual> obj = new ConstantObjective<DoubleVectorIndividual>(new Parameters.Builder(new Properties())
+                .setParameter(ConstantObjective.P_NUM_DIMENSIONS, String.valueOf(position.length))
+                .setParameter(ConstantObjective.P_VALUE, String.valueOf(MAX_FITNESS)).build(), "");
         obj = new BoundedDoubleObjective(position.length, width, obj, MIN_FITNESS);
         return new TranslatedDoubleObjective(Vector.vectorNegate(position), obj);
     }

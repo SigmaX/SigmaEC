@@ -2,6 +2,7 @@ package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 
 /**
  *
@@ -9,18 +10,20 @@ import SigmaEC.util.Misc;
  * @author Jeff Bassett
  */
 public class ConstantObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
-    
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_VALUE = "fitnessValue";
+
     private final int numDimensions;
     private final double value;
     
-    public ConstantObjective(final int numDimensions, final double fitnessValue)
-    {
+    public ConstantObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
-        if (numDimensions == Double.POSITIVE_INFINITY)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is infinite, must be finite.");
-        this.numDimensions = numDimensions;
-        this.value = fitnessValue;
+        this.value = parameters.getDoubleParameter(Parameters.push(base, P_VALUE));
+        
         assert(repOK());
     }
 
@@ -45,13 +48,12 @@ public class ConstantObjective<T extends DoubleVectorIndividual> extends Objecti
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return numDimensions > 0
-                && (!Double.isInfinite(value));
+        return numDimensions > 0;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: NumDimensions=%d, Value=%f]", this.getClass().getSimpleName(), numDimensions, value);
+        return String.format("[%s: numDimensions=%d, value=%f]", this.getClass().getSimpleName(), numDimensions, value);
     }
     
     @Override
