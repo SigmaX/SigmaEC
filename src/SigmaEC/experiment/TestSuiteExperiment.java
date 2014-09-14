@@ -66,11 +66,12 @@ public class TestSuiteExperiment extends Experiment {
             
         for (final ObjectiveFunction obj : objectives) {
             for (int i = 0; i < numRunsPerObjective; i++) {
+                final String filePrefix = String.format("%s%s_%ddimensions_run%d", prefix, obj.getClass().getSimpleName(), obj.getNumDimensions(), i);
                 final Parameters parameters = new Parameters.Builder(subExperimentProperties)
                         .registerInstance(Parameters.push(META_BASE, P_RANDOM), random)
                         .registerInstance(Parameters.push(META_BASE, P_OBJECTIVE), obj)
                         .setParameter(Parameters.push(META_BASE, P_NUM_DIMENSIONS), String.valueOf(obj.getNumDimensions()))
-                        .setParameter(Parameters.push(META_BASE, P_PREFIX), prefix + obj.getClass().getSimpleName() + "_run" + i + "_")
+                        .setParameter(Parameters.push(META_BASE, P_PREFIX), filePrefix)
                         .build();
                 final Experiment<Double> experiment = parameters.getInstanceFromParameter(P_EXPERIMENT, Experiment.class);
                 experiment.run();
