@@ -64,9 +64,10 @@ public class TestSuiteExperiment extends Experiment {
             return;
         }
             
-        for (final ObjectiveFunction obj : objectives) {
+        for (int k = 0; k < objectives.size(); k++) {
+            final ObjectiveFunction obj = objectives.get(k);
             for (int i = 0; i < numRunsPerObjective; i++) {
-                final String filePrefix = String.format("%s%s_%ddimensions_run%d", prefix, obj.getClass().getSimpleName(), obj.getNumDimensions(), i);
+                final String filePrefix = String.format("%sobj%d_%s_%ddimensions_run%d", prefix, k, obj.getClass().getSimpleName(), obj.getNumDimensions(), i);
                 final Parameters parameters = new Parameters.Builder(subExperimentProperties)
                         .registerInstance(Parameters.push(META_BASE, P_RANDOM), random)
                         .registerInstance(Parameters.push(META_BASE, P_OBJECTIVE), obj)
