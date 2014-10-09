@@ -32,6 +32,8 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_DIMENSIONS), "5");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_BITS_PER_DIMENSION), "4");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_LOWEST_SIGNIFICANCE), "-3");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MIN), "0.0");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "15.0");
     }
 
     @Test
@@ -88,8 +90,25 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_DIMENSIONS), "4");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_BITS_PER_DIMENSION), "5");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_LOWEST_SIGNIFICANCE), "0");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "31");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
         final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 29.0, 18.0, 7.0, 30.0});
+        final DoubleVectorIndividual result = sut.decode(goodInd);
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of decode method, of class BitStringToDoubleVectorDecoder. */
+    @Test
+    public void testDecode3() {
+        System.out.println("decode");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_DIMENSIONS), "4");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_BITS_PER_DIMENSION), "5");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_LOWEST_SIGNIFICANCE), "0");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MIN), "-15");
+        properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "16");
+        final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 14.0, 3.0, -8.0, 15.0});
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
@@ -143,7 +162,7 @@ public class BitStringToDoubleVectorDecoderTest {
     public void testToString() {
         System.out.println("toString");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, lowestSignificance=%d]", 5, 4, -3);
+        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, lowestSignificance=%d, min=%f, max=%f]", 5, 4, -3, 0.0, 15.0);
         final String result = sut.toString();
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
