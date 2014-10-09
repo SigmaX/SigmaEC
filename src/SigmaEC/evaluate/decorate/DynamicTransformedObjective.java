@@ -1,9 +1,12 @@
 package SigmaEC.evaluate.decorate;
 
+import SigmaEC.SRandom;
+import SigmaEC.evaluate.ObjectiveGenerator;
 import SigmaEC.evaluate.TransformedObjectiveGenerator;
 import SigmaEC.evaluate.TransformedObjectiveGenerator.Strategy;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
 import java.util.Random;
 
 /**
@@ -12,20 +15,22 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DynamicTransformedObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
-    private final TransformedObjectiveGenerator generator;
+public class DynamicTransformedObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    private final static String P_OBJECTIVE = "objective";
+    private final static String P_STRATEGY = "strategy";
+    private final static String P_RANDOM = "random";
+    
+    private final ObjectiveGenerator generator;
     private ObjectiveFunction<DoubleVectorIndividual> currentObjective;
     
-    public DynamicTransformedObjective(final ObjectiveFunction<DoubleVectorIndividual> objective, final Strategy.TransformationStrategy transformationStrategy, final Random random) {
-        if (objective == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
-        if (transformationStrategy == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": transformationStrategy is null.");
-        if (random == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": random is null.");
-        generator = new TransformedObjectiveGenerator(objective, transformationStrategy, random);
-        currentObjective = objective;
+    public DynamicTransformedObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        
+        currentObjective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        final Strategy.TransformationStrategy strategy = parameters.getInstanceFromParameter(Parameters.push(base, P_STRATEGY), Strategy.TransformationStrategy.class);
+        final Random random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
+        generator = new TransformedObjectiveGenerator(currentObjective, strategy, random);
         assert(repOK());
     }
     
