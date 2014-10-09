@@ -10,14 +10,13 @@ import java.util.Arrays;
 
 /**
  * A decorator that turns a smooth landscape into a set of evenly spaces
- * peaks sich that the tops of the peaks will all "touch" the original landscape
+ * peaks such that the tops of the peaks will all "touch" the original landscape
  * that was transformed.  The distance between the peaks can vary along each
  * axis.
  * 
  * @author Jeffrey K Basssett
  */
-public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
+public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     public final static String P_OBJECTIVE = "objective";
     public final static String P_INTERVALS = "intervals";
     final private ObjectiveFunction<DoubleVectorIndividual> objective;
@@ -33,11 +32,16 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         this.intervals = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERVALS));
         this.sigma = Statistics.min(intervals) / 6;  // relative sigma = 3?
         this.k = 1/(2 * sigma * sigma);
+        
+        if (intervals.length != objective.getNumDimensions()) {
+            throw new IllegalStateException(String.format("%s: intervals vector must have same length as the dimensionality of the objective function.", this.getClass().getSimpleName()));
+        }
+        
         assert(repOK());
     }
 
     @Override
-    public double fitness(DoubleVectorIndividual ind) {
+    public double fitness(final DoubleVectorIndividual ind) {
         int n = ind.size();
         double[] center = new double[n];
         double[] relative = new double[n];
@@ -66,7 +70,7 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setGeneration(final int i) {
         objective.setGeneration(i);
     }
     
@@ -75,6 +79,7 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
     final public boolean repOK() {
         return objective != null
                 && this.intervals != null
+                && this.intervals.length == objective.getNumDimensions()
                 && !Misc.containsNaNs(this.intervals)
                 && Misc.finiteValued(this.intervals)
                 && P_OBJECTIVE != null
@@ -109,10 +114,9 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 79 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 37 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 37 * hash + Arrays.hashCode(this.intervals);
         return hash;
     }
     //</editor-fold>
-
-    
 }
