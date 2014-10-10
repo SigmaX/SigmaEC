@@ -2,6 +2,7 @@ package SigmaEC.measure;
 
 import SigmaEC.represent.BitGene;
 import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,10 +11,10 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndividual<BitGene>> extends PopulationMetric<T>
-{
-    
-    public PrintBitStringIndividualPopulationMetric() {
+public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividual<BitGene>> extends PopulationMetric<T> {
+    public BitStringIndividualPopulationMetric(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
         assert(repOK());
     }
     
@@ -54,7 +55,7 @@ public class PrintBitStringIndividualPopulationMetric<T extends LinearGenomeIndi
     
     @Override
     public boolean equals(Object o) {
-        return o instanceof PrintDoubleVectorPopulationMetric;
+        return o instanceof DoubleVectorIndividualPopulationMetric;
     }
 
     @Override

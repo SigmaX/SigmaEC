@@ -1,5 +1,7 @@
 package SigmaEC.represent;
 
+import SigmaEC.util.Parameters;
+
 /**
  * A dummy decoder for when the genotype and phenotype are identical.
  * 
@@ -7,6 +9,12 @@ package SigmaEC.represent;
  */
 public class CloneDecoder<T extends Individual> extends Decoder<T, T> {
 
+    public CloneDecoder(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        assert(repOK());
+    }
+    
     @Override
     public T decode(T individual) {
         return individual;
