@@ -12,19 +12,26 @@ import java.util.Arrays;
  * A decorator that turns a smooth landscape into a set of evenly spaces
  * peaks such that the tops of the peaks will all "touch" the original landscape
  * that was transformed.  The distance between the peaks can vary along each
- * axis.
+ * axis (cf. the 'intervals' parameter), and the depth of the valleys is
+ * controlled by the 'min' parameter.
  * 
  * @author Jeffrey K Basssett
+ * @author Eric 'Siggy' Scott
  */
 public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     public final static String P_OBJECTIVE = "objective";
     public final static String P_INTERVALS = "intervals";
-    final private ObjectiveFunction<DoubleVectorIndividual> objective;
-    private double[] intervals; // The distances between the peaks on each axis
-    private double sigma;     // The standard deviation of the peaks
-    private double k;         // A constant
+    public final static String P_MIN = "min";
+    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final double[] intervals; // The distances between the peaks on each axis
+    private final double sigma;     // The standard deviation of the peaks
+    private final double k;         // A constant
+    private final double min;       // The bottom of the valleys
     
-    public PinCushionObjective(final Parameters parameters, final String base) {
+    public PinCushionObjective(final Parameters parameters, final String base) throws IllegalStateException {
+        assert(parameters != null);
+        assert(base != null);
+        
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
@@ -32,10 +39,12 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         this.intervals = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERVALS));
         this.sigma = Statistics.min(intervals) / 6;  // relative sigma = 3?
         this.k = 1/(2 * sigma * sigma);
+        this.min = parameters.getDoubleParameter(Parameters.push(base, P_MIN));
         
-        if (intervals.length != objective.getNumDimensions()) {
+        if (intervals.length != objective.getNumDimensions())
             throw new IllegalStateException(String.format("%s: intervals vector must have same length as the dimensionality of the objective function.", this.getClass().getSimpleName()));
-        }
+        if (Double.isNaN(min))
+            throw new IllegalStateException(String.format("%s: min is NaN.", this.getClass().getSimpleName()));
         
         assert(repOK());
     }
@@ -47,20 +56,20 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         double[] relative = new double[n];
 
         // Find the closest peak, and our position relative to it
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             double gene = ind.getElement(i);
             center[i] = Math.round(gene / intervals[i]) * intervals[i];
             relative[i] = gene - center[i];
         }
 
-        // Find value at the peak
-        double value = objective.fitness(new DoubleVectorIndividual(center));
+        // Find height of the peak relative to the min
+        double value = objective.fitness(new DoubleVectorIndividual(center)) + min;
         
         // Calculate the value one axis at a time
         for (int i = 0; i < n; i++)
-            value = value * Math.exp(-relative[i] * relative[i] * this.k);
-
+            value = value * Math.exp(-this.k * relative[i] * relative[i]);
+        value -= min;
+        
         return value;
     }
     
@@ -91,12 +100,15 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
                 && this.sigma > 0.0
                 && !Double.isNaN(this.k)
                 && !Double.isInfinite(this.k)
-                && this.k > 0.0;
+                && this.k > 0.0
+                && !Double.isNaN(min)
+                && Misc.doubleEquals(sigma, Statistics.min(intervals) / 6)
+                && Misc.doubleEquals(k, 1/(2 * sigma * sigma));
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: objective=%s, intervals=%s]", this.getClass().getSimpleName(), objective.toString(), Arrays.toString(this.intervals));
+        return String.format("[%s: objective=%s, intervals=%s, min=%f]", this.getClass().getSimpleName(), objective.toString(), Arrays.toString(this.intervals), min);
     }
     
     @Override
@@ -108,14 +120,16 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         
         final PinCushionObjective cRef = (PinCushionObjective) o;
         return objective.equals(cRef.objective)
-               && Misc.doubleArrayEquals(cRef.intervals, this.intervals);
+               && Misc.doubleArrayEquals(cRef.intervals, this.intervals)
+               && Misc.doubleEquals(min, cRef.min);
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 37 * hash + (this.objective != null ? this.objective.hashCode() : 0);
-        hash = 37 * hash + Arrays.hashCode(this.intervals);
+        int hash = 7;
+        hash = 71 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 71 * hash + Arrays.hashCode(this.intervals);
+        hash = 71 * hash + (int) (Double.doubleToLongBits(this.min) ^ (Double.doubleToLongBits(this.min) >>> 32));
         return hash;
     }
     //</editor-fold>
