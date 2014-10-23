@@ -6,6 +6,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
@@ -142,8 +146,8 @@ public final class Misc
         return true;
     }
     
-    public static Writer openFile(final String path)
-    {
+    public static Writer openFile(final String path) {
+        assert(path != null);
         try {
             File file = new File(path);
 
@@ -160,6 +164,25 @@ public final class Misc
             e.printStackTrace();
         }
         return null;
+    }
+    
+    public static String inputStreamToString(final InputStream is) throws IOException {
+        assert(is != null);
+        final char[] buffer = new char[200];
+        final StringBuilder out = new StringBuilder();
+        final Reader in = new InputStreamReader(is, "UTF-8");
+        try {
+          for (;;) {
+            int rsz = in.read(buffer, 0, buffer.length);
+            if (rsz < 0)
+              break;
+            out.append(buffer, 0, rsz);
+          }
+        }
+        finally {
+          in.close();
+        }
+        return out.toString();
     }
     
     public static double[] prepend(final double value, final double[] array) {
