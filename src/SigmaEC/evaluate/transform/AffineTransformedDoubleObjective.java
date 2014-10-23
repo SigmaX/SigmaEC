@@ -1,4 +1,4 @@
-package SigmaEC.evaluate.decorate;
+package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorIndividual;

@@ -1,4 +1,4 @@
-package SigmaEC.evaluate.decorate;
+package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorIndividual;
@@ -9,9 +9,8 @@ import java.util.List;
  * A decorator that sums two or more objective functions.
  * 
  * @author Eric 'Siggy' Scott
- * @author Jeff Bassett
  */
-public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
+public class AdditiveObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
 {
     private final List<ObjectiveFunction<T>> objectives;
     private final int numDimensions;
@@ -21,7 +20,7 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
         return numDimensions;
     }
     
-    public MaxObjective(final List<ObjectiveFunction<T>> objectives, final int numDimensions) throws IllegalArgumentException {
+    public AdditiveObjective(final List<ObjectiveFunction<T>> objectives, final int numDimensions) throws IllegalArgumentException {
         if (numDimensions <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
         if (objectives == null)
@@ -31,22 +30,24 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
         if (!Misc.allElementsHaveDimension(objectives, numDimensions))
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions does not match the dimensionality of all objectives.");
         
+        
         this.objectives = objectives;
         this.numDimensions = numDimensions;
         assert(repOK());
     }
     
     @Override
-    public double fitness(final T ind) {
-        double max = Double.NEGATIVE_INFINITY;
+    public double fitness(final T ind)
+    {
+        double sum = 0;
         for (ObjectiveFunction<? super T> obj : objectives)
-            max = Math.max(max, obj.fitness(ind));
+            sum += obj.fitness(ind);
         assert(repOK());
-        return max;
+        return sum;
     }
 
     @Override
-    public void setGeneration(final int i) {
+    public void setGeneration(int i) {
         for (final ObjectiveFunction o : objectives)
             o.setGeneration(i);
     }
@@ -55,24 +56,25 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
     @Override
     final public boolean repOK() {
         return objectives != null
-                && numDimensions > 0
                 && !Misc.containsNulls(objectives)
                 && Misc.allElementsHaveDimension(objectives, numDimensions);
     }
     
     @Override
-    public String toString() {
-        return String.format("[%s: numDimensions=%d, objectives=%s]", this.getClass().getSimpleName(), numDimensions, objectives);
+    public String toString()
+    {
+        return String.format("[AdditiveObjective: Objectives=%s]", objectives);
     }
     
     @Override
-    public boolean equals(final Object o) {
+    public boolean equals(Object o)
+    {
         if (o == this)
             return true;
-        if (!(o instanceof MaxObjective))
+        if (!(o instanceof AdditiveObjective))
             return false;
         
-        final MaxObjective cRef = (MaxObjective) o;
+        final AdditiveObjective cRef = (AdditiveObjective) o;
         return numDimensions == cRef.numDimensions
                 && objectives.size() == cRef.objectives.size()
                 && objectives.equals(cRef.objectives);
@@ -81,8 +83,7 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 67 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
-        hash = 67 * hash + this.numDimensions;
+        hash = 47 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
         return hash;
     }
     //</editor-fold>
