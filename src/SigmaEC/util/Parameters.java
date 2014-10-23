@@ -88,6 +88,8 @@ public class Parameters extends ContractObject {
         if (instanceRegistry.containsKey(targetName))
             return targetName;
         final String targetValue = properties.getProperty(targetName);
+        if (targetValue == null)
+            throw new IllegalStateException(String.format("%s: referenced parameter %s not found.", this.getClass().getSimpleName(), targetName));
         if (isReference(targetValue))
             return dereference(targetValue);
         else
