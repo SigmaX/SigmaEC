@@ -3,6 +3,7 @@ package SigmaEC.evaluate.transform;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import java.util.List;
 
 /**
@@ -11,28 +12,27 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
-{
+public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+    private final static String P_OBJECTIVES = "objectives";
     private final List<ObjectiveFunction<T>> objectives;
-    private final int numDimensions;
 
     @Override
     public int getNumDimensions() {
-        return numDimensions;
+        return objectives.get(0).getNumDimensions();
     }
     
-    public MaxObjective(final List<ObjectiveFunction<T>> objectives, final int numDimensions) throws IllegalArgumentException {
-        if (numDimensions <= 0)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
+    public MaxObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.objectives = parameters.getInstancesFromParameter(Parameters.push(base, P_OBJECTIVES), ObjectiveFunction.class);
         if (objectives == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null.");
+        if (objectives.isEmpty())
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is empty.");
         if (Misc.containsNulls(objectives))
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives contains null value.");
-        if (!Misc.allElementsHaveDimension(objectives, numDimensions))
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions does not match the dimensionality of all objectives.");
-        
-        this.objectives = objectives;
-        this.numDimensions = numDimensions;
+        if (!Misc.allElementsHaveDimension(objectives, objectives.get(0).getNumDimensions()))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives have different number of dimensions.");
         assert(repOK());
     }
     
@@ -55,14 +55,14 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
     @Override
     final public boolean repOK() {
         return objectives != null
-                && numDimensions > 0
+                && !objectives.isEmpty()
                 && !Misc.containsNulls(objectives)
-                && Misc.allElementsHaveDimension(objectives, numDimensions);
+                && Misc.allElementsHaveDimension(objectives, objectives.get(0).getNumDimensions());
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: numDimensions=%d, objectives=%s]", this.getClass().getSimpleName(), numDimensions, objectives);
+        return String.format("[%s: numDimensions=%d, objectives=%s]", this.getClass().getSimpleName(), getNumDimensions(), objectives);
     }
     
     @Override
@@ -73,8 +73,7 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
             return false;
         
         final MaxObjective cRef = (MaxObjective) o;
-        return numDimensions == cRef.numDimensions
-                && objectives.size() == cRef.objectives.size()
+        return objectives.size() == cRef.objectives.size()
                 && objectives.equals(cRef.objectives);
     }
 
@@ -82,7 +81,6 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
     public int hashCode() {
         int hash = 7;
         hash = 67 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
-        hash = 67 * hash + this.numDimensions;
         return hash;
     }
     //</editor-fold>

@@ -117,7 +117,8 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
             subObjectives.add(horizontalLine);
         }
         
-        return new MaxObjective<T>(subObjectives, numDimensions);
+        throw new UnsupportedOperationException();
+        //return new MaxObjective<T>(subObjectives, numDimensions);
     }
     
     @Override
