@@ -41,7 +41,7 @@ public class SimpleExperiment<T extends Individual> extends Experiment<Double> {
     
     @Override
     public void run() {
-        final List<T> initialPopulation = initializer.generateInitialPopulation();
+        final List<T> initialPopulation = initializer.generatePopulation();
         
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, String.format("Beginning evolutionary run with the following configuration: %s.", circleOfLife.toString()));
         for (int i = 0; i < numRuns; i++) {

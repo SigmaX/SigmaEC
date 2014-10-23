@@ -13,25 +13,19 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TruncationSelector<T extends Individual, P> extends Selector<T>
-{
+public class TruncationSelector<T extends Individual, P> extends Selector<T> {
     private final ObjectiveFunction<P> objective;
     private final Decoder<T, P> decoder;
-
-    public ObjectiveFunction<P> getObjective()
-    {
-        return objective;
-    }
+    private final Comparator<Double> fitnessComparator;
     
-    public TruncationSelector(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder)
-    {
-        super();
-        if (objective == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
-        if (decoder == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": decoder is null.");
+    public TruncationSelector(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder, final Comparator<Double> fitnessComparator) {
+        assert(objective != null);
+        assert(decoder != null);
+        assert(fitnessComparator != null);
         this.objective = objective;
         this.decoder = decoder;
+        this.fitnessComparator = fitnessComparator;
+        assert(repOK());
     }
     
     /**
@@ -40,18 +34,15 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T>
      *  with the highest fitness value is chosen.
      */
     @Override
-    public T selectIndividual(final List<T> population) throws NullPointerException
-    {
+    public T selectIndividual(final List<T> population) throws NullPointerException {
         if (population.isEmpty())
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": population is empty.");
         
-        double bestFitness = Double.NEGATIVE_INFINITY;
+        double bestFitness = Double.NaN;
         T best = null;
-        for (T ind : population)
-        {
+        for (final T ind : population) {
             double fitness = objective.fitness(decoder.decode(ind));
-            if (fitness >= bestFitness)
-            {
+            if (fitnessComparator.compare(fitness, bestFitness) > 0) {
                 bestFitness = fitness;
                 best = ind;
             }
@@ -65,8 +56,7 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T>
      * [count] individuals.
      */
     @Override
-    public List<T> selectMultipleIndividuals(final List<T> population, final int numToSelect) throws IllegalArgumentException, NullPointerException
-    {
+    public List<T> selectMultipleIndividuals(final List<T> population, final int numToSelect) throws IllegalArgumentException, NullPointerException {
         if (numToSelect < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numToSelect is zero.");
         else if (population.isEmpty())
@@ -82,16 +72,27 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T>
         return topIndividuals;
     }
     
+    private class FitnessComparator implements Comparator<T> {
+        @Override
+        public int compare(final T ind1, final T ind2) {
+            final double x = objective.fitness(decoder.decode(ind1));
+            final double y = objective.fitness(decoder.decode(ind2));
+            return fitnessComparator.compare(x, y);
+        }
+        
+    }
+    
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
         return objective != null
-                && decoder != null;
+                && decoder != null
+                && fitnessComparator != null;
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: objective=%s, decoder=%s]", this.getClass().getSimpleName(), objective.toString(), decoder.toString());
+        return String.format("[%s: objective=%s, decoder=%s, fitnessComparator=%s]", this.getClass().getSimpleName(), objective, decoder, fitnessComparator);
     }
     
     @Override
@@ -100,32 +101,17 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T>
             return false;
         final TruncationSelector ref = (TruncationSelector)o;
         return objective.equals(ref.objective)
-                && decoder.equals(ref.decoder);
+                && decoder.equals(ref.decoder)
+                && fitnessComparator.equals(ref.fitnessComparator);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + (this.objective != null ? this.objective.hashCode() : 0);
-        hash = 97 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        hash = 67 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 67 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        hash = 67 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
         return hash;
     }
     // </editor-fold>
-    
-    private class FitnessComparator implements Comparator<T>
-    {
-        @Override
-        public int compare(T ind1, T ind2)
-        {
-            final double x = objective.fitness(decoder.decode(ind1));
-            final double y = objective.fitness(decoder.decode(ind2));
-            
-            if (x > y)
-                return 1;
-            if (x < y)
-                return -1;
-            return 0;
-        }
-        
-    }
 }

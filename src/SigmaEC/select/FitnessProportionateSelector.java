@@ -10,6 +10,8 @@ import java.util.Random;
 /**
  * Fitness proportionate selection via the "dartboard" method.
  * 
+ * XXX WARNING: This is currently hard-coded for fitness maximization.
+ * 
  * @author Eric 'Siggy' Scott
  */
 public class FitnessProportionateSelector<T extends Individual, P> extends Selector<T>
@@ -23,14 +25,14 @@ public class FitnessProportionateSelector<T extends Individual, P> extends Selec
     /** Set up a selector that will perform fitness-proportionate selection on
      * the entire population.
      */
-    public FitnessProportionateSelector(ObjectiveFunction<P> objective, Decoder<T, P> decoder, Random random) throws NullPointerException
+    public FitnessProportionateSelector(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder, final Random random) throws NullPointerException
     {
         if (objective == null)
-            throw new NullPointerException("FitnessProportionalSelector: obj is null.");
+            throw new NullPointerException(this.getClass().getSimpleName() + ": obj is null.");
         if (decoder == null)
-            throw new NullPointerException("FitnessProportionalSelector: decoder is null.");
+            throw new NullPointerException(this.getClass().getSimpleName() + ": decoder is null.");
         if (random == null)
-            throw new NullPointerException("FitnessProportionalSelector: random is null.");
+            throw new NullPointerException(this.getClass().getSimpleName() + ": random is null.");
         this.objective = objective;
         this.decoder = decoder;
         this.random = random;
@@ -41,21 +43,21 @@ public class FitnessProportionateSelector<T extends Individual, P> extends Selec
     /** Set up a selector that will perform fitness-proportionate selection on a
      * random subset of the population.
      */
-    public FitnessProportionateSelector(ObjectiveFunction<P> objective, Decoder<T, P> decoder, Random random, int poolSize) throws NullPointerException, IllegalArgumentException
+    public FitnessProportionateSelector(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder, final Random random, final int poolSize) throws NullPointerException, IllegalArgumentException
     {
         this(objective, decoder, random);
         if (poolSize <= 0)
-            throw new IllegalArgumentException("FitnessProportionalSelector: poolSize is less than 1.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": poolSize is less than 1.");
         this.numContestants = poolSize;
         this.contestantSelector = new RandomSelector<T>(random);
         assert(repOK());
     }
     
     @Override
-    public T selectIndividual(List<T> population) throws NullPointerException, IllegalArgumentException
+    public T selectIndividual(final List<T> population) throws NullPointerException, IllegalArgumentException
     {
         if (population.isEmpty())
-            throw new IllegalArgumentException("FitnessProportionalSelector.selectIndividual: population is empy.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ".selectIndividual: population is empy.");
         List<T> contestants = new ArrayList(numContestants);
         if (numContestants == 0)
             return chooseFromContestants(population);
@@ -66,7 +68,7 @@ public class FitnessProportionateSelector<T extends Individual, P> extends Selec
         return chooseFromContestants(contestants);
     }
     
-    private T chooseFromContestants(List<T> contestants)
+    private T chooseFromContestants(final List<T> contestants)
     {
         // TODO The cumulative distribution only needs calculated once for each unique population.
         double totalFitness = 0.0;

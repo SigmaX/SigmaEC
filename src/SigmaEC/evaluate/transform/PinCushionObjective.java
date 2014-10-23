@@ -5,6 +5,7 @@ import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import java.util.Arrays;
 
 
@@ -39,7 +40,11 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         this.intervals = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERVALS));
         this.sigma = Statistics.min(intervals) / 6;  // relative sigma = 3?
         this.k = 1/(2 * sigma * sigma);
-        this.min = parameters.getDoubleParameter(Parameters.push(base, P_MIN));
+        final Option<Double> minOpt = parameters.getOptionalDoubleParameter(Parameters.push(base, P_MIN));
+        if (minOpt.isDefined())
+            this.min = minOpt.get();
+        else
+            this.min = 0.0;
         
         if (intervals.length != objective.getNumDimensions())
             throw new IllegalStateException(String.format("%s: intervals vector must have same length as the dimensionality of the objective function.", this.getClass().getSimpleName()));

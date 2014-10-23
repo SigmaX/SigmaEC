@@ -9,6 +9,7 @@ import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -25,6 +26,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final public static String P_GENERATORS = "generators";
     final public static String P_DECODER = "decoder";
     final public static String P_OBJECTIVE = "objective";
+    final public static String P_COMPARATOR = "fitnessComparator";
     final public static String P_PARENT_SELECTOR = "parentSelector";
     final public static String P_SURVIVAL_SELECTOR = "survivalSelector";
     final public static String P_PRE_METRICS = "preMetrics";
@@ -33,6 +35,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         
     final private int numGenerations;
     final private List<Generator<T>> generators;
+    final private Comparator<Double> fitnessComparator;
     final private Option<Selector<T>> parentSelector;
     final private Option<Selector<T>> survivalSelector;
     final private Option<List<PopulationMetric<T>>> preOperatorMetrics;
@@ -41,23 +44,23 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final private ObjectiveFunction<P> objective;
     final private Random random;
     
-    public SimpleCircleOfLife(final Parameters parameters, final String base)
-    {
+    public SimpleCircleOfLife(final Parameters parameters, final String base) {
         this.numGenerations = parameters.getIntParameter(Parameters.push(base, P_NUM_GENERATIONS));
         this.generators = parameters.getInstancesFromParameter(Parameters.push(base, P_GENERATORS), Generator.class);
         this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
         this.parentSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
         this.survivalSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
         this.preOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_PRE_METRICS), PopulationMetric.class);
         this.postOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_POST_METRICS), PopulationMetric.class);
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
+        
         assert(repOK());
     }
     
     @Override
-    public EvolutionResult<T> evolve(final int run, List<T> population)
-    {
+    public EvolutionResult<T> evolve(final int run, List<T> population) {
         T bestIndividual = null;
         for (int i = 0; i < numGenerations; i++)
         {
@@ -77,12 +80,12 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             for (Generator<T> gen : generators)
                 population = gen.produceGeneration(population);
             
+            bestIndividual = getBestIndividual(bestIndividual, population);
+            
             // Take measurements after operators
             if (postOperatorMetrics.isDefined())
                 for (PopulationMetric<T> metric : postOperatorMetrics.get())
                     metric.measurePopulation(run, i, population);
-            
-            bestIndividual = getBestIndividual(bestIndividual, population);
             
             // Survival selection
             if (survivalSelector.isDefined())
@@ -94,8 +97,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     }
     
     /** Flush I/O buffers. */
-    private void flushMetrics()
-    {
+    private void flushMetrics() {
         if (preOperatorMetrics.isDefined())
             for (PopulationMetric<T> metric : preOperatorMetrics.get())
                 metric.flush();
@@ -106,10 +108,10 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     
     private T getBestIndividual(T bestIndividual, final List<T> population) {
         assert(population != null);
-        double bestFitness = (bestIndividual == null) ? Double.NEGATIVE_INFINITY : objective.fitness(decoder.decode(bestIndividual));
+        double bestFitness = (bestIndividual == null) ? objective.fitness(decoder.decode(population.get(0))) : objective.fitness(decoder.decode(bestIndividual));
         for (final T ind : population) {
             final double fitness = objective.fitness(decoder.decode(ind));
-            if (fitness > bestFitness) { // XXX Hardcoding maximization
+            if (fitnessComparator.compare(fitness, bestFitness) > 0) {
                 bestIndividual = ind;
                 bestFitness = fitness;
             }

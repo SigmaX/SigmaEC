@@ -8,16 +8,13 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class IterativeSelector<T extends Individual> extends Selector<T>
-{
+public class IterativeSelector<T extends Individual> extends Selector<T> {
     private int i = 0;
     
-    public IterativeSelector()
-    {
-    }
+    public IterativeSelector() {}
     
     @Override
-    public T selectIndividual(List<T> population) {
+    public T selectIndividual(final List<T> population) {
         return population.get(i++%population.size());
     }
 
@@ -28,20 +25,16 @@ public class IterativeSelector<T extends Individual> extends Selector<T>
     }
     
     @Override
-    public String toString()
-    {
-        return "[IterativeSelector]";
+    public String toString() {
+        return String.format("[%s]", this.getClass().getSimpleName());
     }
     
     @Override 
-    public boolean equals(Object o)
-    {
+    public boolean equals(final Object o) {
         if (!(o instanceof IterativeSelector))
             return false;
         return i == ((IterativeSelector)o).i;
     }
-    
-    // </editor-fold>
 
     @Override
     public int hashCode() {
@@ -50,4 +43,5 @@ public class IterativeSelector<T extends Individual> extends Selector<T>
         return hash;
     }
     
+    // </editor-fold>
 }

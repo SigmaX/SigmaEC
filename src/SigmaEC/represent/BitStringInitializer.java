@@ -35,7 +35,7 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
     }
     
     @Override
-    public List<BitStringIndividual> generateInitialPopulation() {
+    public List<BitStringIndividual> generatePopulation() {
         
         return new ArrayList<BitStringIndividual>(populationSize) {{
             for (int i = 0; i < populationSize; i++)

@@ -6,6 +6,7 @@ import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -14,27 +15,28 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T>
-{
+public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T> {
     final private static String P_OBJECTIVE = "objective";
     final private static String P_DECODER = "decoder";
+    final private static String P_COMPARATOR = "fitnessComparator";
     
     final private ObjectiveFunction<P> objective;
     final private Decoder<T, P> decoder;
-    private double bestSoFar = Double.NEGATIVE_INFINITY;
+    final private Comparator<Double> fitnessComparator;
+    private double bestSoFar = Double.NaN;
     
     public FitnessStatisticsPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
+        this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
         assert(repOK());
     }
     
     /** Prints a row of the form "run, generation, mean, std, max, min, bsf". */
     @Override
-    public FitnessStatisticsMeasurement measurePopulation(int run, int generation, List<T> population)
-    {
+    public FitnessStatisticsMeasurement measurePopulation(int run, int generation, List<T> population) {
         final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
             fitnesses[i] = objective.fitness(decoder.decode(population.get(i)));
@@ -42,8 +44,11 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         final double std = Statistics.std(fitnesses, mean);
         final double max = Statistics.max(fitnesses);
         final double min = Statistics.min(fitnesses);
-        if (max > bestSoFar)
+        
+        if (fitnessComparator.compare(max, bestSoFar) > 0)
             bestSoFar = max;
+        if (fitnessComparator.compare(min, bestSoFar) > 0)
+            bestSoFar = min;
         return new FitnessStatisticsMeasurement(run, generation, new double[] { mean, std, max, min, bestSoFar });
     }
 

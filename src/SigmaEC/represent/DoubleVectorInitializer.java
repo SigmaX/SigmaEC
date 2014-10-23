@@ -55,7 +55,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     
 
     @Override
-    public List<DoubleVectorIndividual> generateInitialPopulation() {
+    public List<DoubleVectorIndividual> generatePopulation() {
         return new ArrayList<DoubleVectorIndividual>(populationSize) {{
             for (int i = 0; i < populationSize; i++)
                 add(new DoubleVectorIndividual(random, numDimensions, minValues, maxValues));

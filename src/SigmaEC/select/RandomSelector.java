@@ -13,22 +13,21 @@ public class RandomSelector<T extends Individual> extends Selector<T>
 {
     Random random;
     
-    public RandomSelector(Random random) throws NullPointerException
-    {
+    public RandomSelector(final Random random) throws NullPointerException {
         if (random == null)
-            throw new NullPointerException("RandomSelector: random is null.");
+            throw new NullPointerException(this.getClass().getSimpleName() + ": random is null.");
         this.random = random;
     }
     
     @Override
-    public T selectIndividual(List<T> population) throws IllegalArgumentException, NullPointerException
-    {
+    public T selectIndividual(final List<T> population) throws IllegalArgumentException, NullPointerException {
         if (population.isEmpty())
-            throw new IllegalArgumentException("RandomSelector.selectIndividual(): population is empty.");
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ".selectIndividual(): population is empty.");
         else
             return population.get(random.nextInt(population.size()));
     }
     
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public boolean equals(final Object o) {
         if (!(o instanceof RandomSelector))
@@ -44,14 +43,13 @@ public class RandomSelector<T extends Individual> extends Selector<T>
     }
     
     @Override
-    public boolean repOK()
-    {
+    public boolean repOK() {
         return (random != null);
     }
     
     @Override
-    public String toString()
-    {
-        return "[RandomSelector: Random=" + random.toString() + "]";
+    public String toString() {
+        return String.format("[%s: random=%s]", this.getClass().getSimpleName(), random);
     }
+    // </editor-fold>
 }
