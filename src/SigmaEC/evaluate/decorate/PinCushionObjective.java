@@ -63,12 +63,12 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         }
 
         // Find height of the peak relative to the min
-        double value = objective.fitness(new DoubleVectorIndividual(center)) + min;
+        double value = objective.fitness(new DoubleVectorIndividual(center)) - min;
         
         // Calculate the value one axis at a time
         for (int i = 0; i < n; i++)
             value = value * Math.exp(-this.k * relative[i] * relative[i]);
-        value -= min;
+        value += min;
         
         return value;
     }
