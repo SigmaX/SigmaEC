@@ -24,6 +24,13 @@ public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         assert(repOK());
     }
+    
+    public SphereObjective(final int numDimensions) {
+        if (numDimensions <= 0)
+            throw new IllegalArgumentException(String.format("%s: numDimensions is negative, must be positive", this.getClass().getSimpleName()));
+        this.numDimensions = numDimensions;
+        assert(repOK());
+    }
 
     @Override
     public int getNumDimensions() {

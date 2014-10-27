@@ -18,10 +18,17 @@ public class InvertedObjective<T> extends ObjectiveFunction<T>
     public InvertedObjective(final Parameters parameters, final String base) {
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         if (objective == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
+            throw new IllegalArgumentException(String.format("%s: objective is null.", this.getClass().getSimpleName()));
         assert(repOK());
     }
 
+    public InvertedObjective(final ObjectiveFunction<T> objective) {
+        if (objective == null)
+            throw new IllegalArgumentException(String.format("%s: objective is null.", this.getClass().getSimpleName()));
+        this.objective = objective;
+        assert(repOK());
+    }
+    
     @Override
     public double fitness(T ind) {
         return -objective.fitness(ind);

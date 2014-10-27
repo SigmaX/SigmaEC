@@ -36,6 +36,19 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
         assert(repOK());
     }
     
+    public MaxObjective(final List<ObjectiveFunction<T>> objectives) {
+        if (objectives == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null.");
+        if (objectives.isEmpty())
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is empty.");
+        if (Misc.containsNulls(objectives))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives contains null value.");
+        if (!Misc.allElementsHaveDimension(objectives, objectives.get(0).getNumDimensions()))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives have different number of dimensions.");
+        this.objectives = objectives;
+        assert(repOK());
+    }
+    
     @Override
     public double fitness(final T ind) {
         double max = Double.NEGATIVE_INFINITY;

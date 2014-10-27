@@ -38,7 +38,7 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
 
         this.intervals = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERVALS));
-        this.sigma = Statistics.min(intervals) / 6;  // relative sigma = 3?
+        this.sigma = Statistics.min(intervals) / 6;
         this.k = 1/(2 * sigma * sigma);
         final Option<Double> minOpt = parameters.getOptionalDoubleParameter(Parameters.push(base, P_MIN));
         if (minOpt.isDefined())
@@ -50,6 +50,27 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
             throw new IllegalStateException(String.format("%s: intervals vector must have same length as the dimensionality of the objective function.", this.getClass().getSimpleName()));
         if (Double.isNaN(min))
             throw new IllegalStateException(String.format("%s: min is NaN.", this.getClass().getSimpleName()));
+        
+        assert(repOK());
+    }
+    
+    public PinCushionObjective(final double[] intervals, final double min, final ObjectiveFunction<DoubleVectorIndividual> objective) {
+        if (intervals == null)
+            throw new NullPointerException(String.format("%s: intervals array cannot be null.", this.getClass().getSimpleName()));
+        if (Misc.containsNaNs(intervals) || !Misc.allFinite(intervals))
+            throw new IllegalArgumentException(String.format("%s: intervals array contains a NaN or infinite value.  All elements must be finite.", this.getClass().getSimpleName()));
+        if (objective == null)
+            throw new NullPointerException(String.format("%s: objectve cannot be null.", this.getClass().getSimpleName()));
+        if (intervals.length != objective.getNumDimensions())
+            throw new IllegalArgumentException(String.format("%s: intervals vector must have same length as the dimensionality of the objective function.", this.getClass().getSimpleName()));
+        if (Double.isNaN(min))
+            throw new IllegalArgumentException(String.format("%s: min is NaN.", this.getClass().getSimpleName()));
+        
+        this.objective = objective;
+        this.intervals = intervals;
+        this.min = min;
+        this.sigma = Statistics.min(intervals)/6;
+        this.k = 1/(2*sigma*sigma);
         
         assert(repOK());
     }

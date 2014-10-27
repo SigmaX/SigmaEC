@@ -26,6 +26,16 @@ public class ConstantObjective<T extends DoubleVectorIndividual> extends Objecti
         
         assert(repOK());
     }
+    
+    public ConstantObjective(final int numDimensions, final double fitnessValue) {
+        if (numDimensions <= 0)
+            throw new IllegalArgumentException(String.format("%s: numDimensions is negative, must be positive", this.getClass().getSimpleName()));
+        if (Double.isNaN(fitnessValue))
+            throw new IllegalArgumentException(String.format("%s: fitnessValue is NaN, must be a number.", this.getClass().getSimpleName()));
+        this.numDimensions = numDimensions;
+        this.value = fitnessValue;
+        assert(repOK());
+    }
 
     @Override
     public int getNumDimensions() {
