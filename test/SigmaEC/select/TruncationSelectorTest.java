@@ -32,7 +32,7 @@ public class TruncationSelectorTest
     @Before
     public void setUp()
     {
-        SUT = new TruncationSelector(new TestObjective(), new TestDecoder());
+        SUT = new TruncationSelector(new TestObjective(), new TestDecoder(), new FitnessComparator(false));
         population.clear();
         population.add(new TestIndividual(0.5));
         population.add(new TestIndividual(0.4));

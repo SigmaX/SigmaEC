@@ -29,6 +29,11 @@ public class FitnessComparator extends ContractObject implements Comparator<Doub
         assert(repOK());
     }
     
+    public FitnessComparator(final boolean minimize) {
+        this.minimize = minimize;
+        assert(repOK());
+    }
+    
     @Override
     public int compare(final Double t, final Double t1) {
         if (Double.isNaN(t1))
