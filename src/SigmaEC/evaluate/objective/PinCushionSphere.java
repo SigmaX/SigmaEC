@@ -19,6 +19,7 @@ import java.util.Arrays;
 public class PinCushionSphere extends ObjectiveFunction<DoubleVectorIndividual> {
     public final static String P_INTERVALS = "intervals";
     public final static String P_WIDTH = "width";
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final ObjectiveFunction<DoubleVectorIndividual> objective;
     private final double[] intervals;
@@ -28,8 +29,11 @@ public class PinCushionSphere extends ObjectiveFunction<DoubleVectorIndividual> 
         assert(parameters != null);
         assert(base != null);
         
+        final int numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         intervals = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERVALS));
-        final int numDimensions = intervals.length;
+        
+        if (numDimensions != intervals.length)
+            throw new IllegalStateException(String.format("%s: numDimensions is %d, but the %d intervals are specified.  They must be equal.", this.getClass().getSimpleName(), numDimensions, intervals.length));
         width = parameters.getDoubleParameter(Parameters.push(base, P_WIDTH));
         /* Setting min to -(w/2)^2 ensures that the peaks of all the optima are
          * contained inside the hypercube of width w. */
@@ -97,7 +101,7 @@ public class PinCushionSphere extends ObjectiveFunction<DoubleVectorIndividual> 
 
     @Override
     public String toString() {
-        return String.format("[%s: numDimensions=%d, width=%f, intervals=%s]", getNumDimensions(), width, Arrays.toString(intervals));
+        return String.format("[%s: numDimensions=%d, width=%f, intervals=%s]", this.getClass().getSimpleName(), getNumDimensions(), width, Arrays.toString(intervals));
     }
     // </editor-fold>
 }
