@@ -22,7 +22,7 @@ public final class Statistics
         return sum/values.length;
     }
 
-    /** Population standard deviation. */
+    /** Sample standard deviation (without Bessel's correction). */
     public static double std(double[] values, double mean)
     {
         assert(values != null);
