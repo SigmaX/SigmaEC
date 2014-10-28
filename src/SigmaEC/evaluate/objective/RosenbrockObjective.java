@@ -10,9 +10,8 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
-    private final static String P_NUM_DIMENSIONS = "numDimensions";
+public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;
     

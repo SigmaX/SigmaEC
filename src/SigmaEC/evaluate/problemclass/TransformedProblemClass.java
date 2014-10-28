@@ -1,36 +1,50 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.problemclass;
 
-import SigmaEC.evaluate.decorate.TranslatedDoubleObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.evaluate.transform.TranslatedDoubleObjective;
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
-import SigmaEC.util.math.Vector;
-import java.util.Arrays;
+import SigmaEC.util.Parameters;
 import java.util.Random;
 
 /**
- * An objective generator that produces new problem instances by applying a
+ * An problem class that produces new problem instances by applying a
  * random transformation to a prototype function.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TransformedObjectiveGenerator extends ObjectiveGenerator<TranslatedDoubleObjective, DoubleVectorIndividual> {
+public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObjective, DoubleVectorIndividual> {
+    public final static String P_TYPE = "transformationType";
+    public final static String V_RANDOM = "randomOffset";
+    public final static String P_PROTOTYPE = "prototype";
+    
     private final ObjectiveFunction<DoubleVectorIndividual> prototype;
     private final Strategy.TransformationStrategy strategy;
-    private final Random random;
     
-    public TransformedObjectiveGenerator(final ObjectiveFunction<DoubleVectorIndividual> objective, final Strategy.TransformationStrategy strategy, final Random random) {
-        if (objective == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
-        this.prototype = objective;
+    public TransformedProblemClass(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        prototype = parameters.getInstanceFromParameter(Parameters.push(base, P_PROTOTYPE), ObjectiveFunction.class);
+        final String tValue = parameters.getStringParameter(Parameters.push(base, P_TYPE));
+        if (tValue.equals(V_RANDOM)) {
+            strategy = new Strategy.RandomOffset(parameters, Parameters.push(base, P_TYPE));
+        }
+        else
+            throw new IllegalStateException(String.format("%s: unrecognized %s, '%s'.", this.getClass().getSimpleName(), P_TYPE, tValue));
+        assert(repOK());
+    }
+    
+    public TransformedProblemClass(final ObjectiveFunction<DoubleVectorIndividual> prototype, final Strategy.TransformationStrategy strategy) {
+        if (prototype == null)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": prototype was null.");
+        this.prototype = prototype;
         this.strategy = strategy;
-        this.random = random;
         assert(repOK());
     }
     
     @Override
     public TranslatedDoubleObjective getNewInstance() {
-        return strategy.getNewInstance(prototype, random);
+        return strategy.getNewInstance(prototype);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -38,19 +52,17 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
     final public boolean repOK()
     {
         return prototype != null
-                && strategy != null
-                && random != null;
+                && strategy != null;
     }
 
     @Override
     public boolean equals(final Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof TransformedObjectiveGenerator))
+        if (!(o instanceof TransformedProblemClass))
             return false;
-        final TransformedObjectiveGenerator ref = (TransformedObjectiveGenerator) o;
+        final TransformedProblemClass ref = (TransformedProblemClass) o;
         return strategy.equals(ref.strategy)
-                && random.equals(ref.random)
                 && prototype.equals(ref.prototype);
     }
 
@@ -59,36 +71,46 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
         int hash = 5;
         hash = 67 * hash + (this.prototype != null ? this.prototype.hashCode() : 0);
         hash = 67 * hash + (this.strategy != null ? this.strategy.hashCode() : 0);
-        hash = 67 * hash + (this.random != null ? this.random.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: prototype=%s, strategy=%s,  random=%s]", this.getClass().getSimpleName(), prototype.toString(), strategy.toString(), random.toString());
+        return String.format("[%s: prototype=%s, strategy=%s]", this.getClass().getSimpleName(), prototype.toString(), strategy.toString());
     }
     // </editor-fold>
     
     public static class Strategy {
         public static abstract class TransformationStrategy {
-            public abstract TranslatedDoubleObjective getNewInstance(ObjectiveFunction<DoubleVectorIndividual> objective, Random random);
+            public abstract TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual> objective);
             public abstract boolean repOK();
-            @Override public abstract boolean equals(Object o);
+            @Override public abstract boolean equals(final Object o);
             @Override public abstract int hashCode();
             @Override public abstract String toString();
         }
         
         public static class RandomOffset extends TransformationStrategy {
-            private final double bounds;
+            public final static String P_BOUNDS_WIDTH = "boundsWidth";
+            public final static String P_RANDOM = "random";
+            private final double boundsWidth;
+            private final Random random;
             
-            public RandomOffset(final double bounds) { this.bounds = bounds; assert(repOK()); }
+            public RandomOffset(final Parameters parameters, final String base) {
+                assert(parameters != null);
+                assert(base != null);
+                boundsWidth = parameters.getDoubleParameter(Parameters.push(base, P_BOUNDS_WIDTH));
+                if (Double.isNaN(boundsWidth) || Double.isInfinite(boundsWidth))
+                    throw new IllegalStateException(String.format("%s: boundsWidth is %f, must be finite.", this.getClass().getSimpleName(), boundsWidth));
+                random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
+                assert(repOK());
+            }
             
-            @Override public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual> objective, final Random random) {
+            @Override public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual> objective) {
                 assert(objective != null);
                 assert(random != null);
                 final double[] offset = new double[objective.getNumDimensions()];
                 for (int j = 0; j < offset.length; j++)
-                    offset[j] = (2*random.nextDouble() -1)*bounds;
+                    offset[j] = (2*random.nextDouble() -1)*boundsWidth;
                 return new TranslatedDoubleObjective(offset, objective);
             }
             
@@ -100,26 +122,32 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
                 if (!(o instanceof RandomOffset))
                     return false;
                 final RandomOffset ref = (RandomOffset) o;
-                return Misc.doubleEquals(bounds, ref.bounds);
+                return random.equals(ref.random)
+                        && Misc.doubleEquals(boundsWidth, ref.boundsWidth);
             }
 
             @Override
             public int hashCode() {
-                int hash = 5;
-                hash = 43 * hash + (int) (Double.doubleToLongBits(this.bounds) ^ (Double.doubleToLongBits(this.bounds) >>> 32));
+                int hash = 3;
+                hash = 47 * hash + (int) (Double.doubleToLongBits(this.boundsWidth) ^ (Double.doubleToLongBits(this.boundsWidth) >>> 32));
+                hash = 47 * hash + (this.random != null ? this.random.hashCode() : 0);
                 return hash;
             }
 
             @Override
-            public String toString() { return String.format("[%s]", this.getClass().getSimpleName());  }
+            public String toString() { return String.format("[%s: boundsWidth=%f, random=%s]", this.getClass().getSimpleName(), boundsWidth, random);  }
 
             @Override
             public final boolean repOK() {
-                return !Double.isNaN(bounds) && !Double.isInfinite(bounds);
+                return !Double.isNaN(boundsWidth)
+                        && !Double.isInfinite(boundsWidth)
+                        && boundsWidth > 0
+                        && random != null;
             }
             //</editor-fold>
         }
         
+        /*
         public static class RandomLinearOffset extends TransformationStrategy {
             private final double[] offsetVector;
             private final double bounds;
@@ -182,6 +210,7 @@ public class TransformedObjectiveGenerator extends ObjectiveGenerator<Translated
             }
             //</editor-fold>
         }
+        */
     }
     
 }

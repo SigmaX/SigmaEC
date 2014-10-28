@@ -1,5 +1,6 @@
 package SigmaEC.represent;
 
+import SigmaEC.util.Misc;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -39,14 +40,20 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     }
     
     public DoubleVectorIndividual(final List<DoubleGene> genome) {
-        assert(genome != null);
+        if (genome == null)
+            throw new NullPointerException(String.format("%s: genome is null.", this.getClass().getSimpleName()));
+        if (Misc.containsNulls(genome))
+            throw new IllegalArgumentException(String.format("%s: genome contains null values.", this.getClass().getSimpleName()));
         this.genome = new ArrayList<DoubleGene>(genome);
         this.id = nextId++;
         assert(repOK());
     }
     
     public DoubleVectorIndividual(final double[] genome) {
-        assert(genome != null);
+        if (genome == null)
+            throw new NullPointerException(String.format("%s: genome is null.", this.getClass().getSimpleName()));
+        if (!Misc.allFinite(genome))
+            throw new IllegalArgumentException(String.format("%s: genome contains non-finite values.", this.getClass().getSimpleName()));
         this.genome = new ArrayList<DoubleGene>(genome.length);
         for (int i = 0; i < genome.length; i++)
             this.genome.add(new DoubleGene(genome[i]));
@@ -87,7 +94,8 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return genome != null;
+        return genome != null
+                && !Misc.containsNulls(genome);
     }
     
     @Override

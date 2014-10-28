@@ -32,6 +32,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final public static String P_PRE_METRICS = "preMetrics";
     final public static String P_POST_METRICS = "postMetrics";
     final public static String P_RANDOM = "random";
+    final public static String P_IS_DYNAMIC = "isDynamic";
         
     final private int numGenerations;
     final private List<Generator<T>> generators;
@@ -42,7 +43,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
     final private Decoder<T, P> decoder;
     final private ObjectiveFunction<P> objective;
-    final private Random random;
+    final private boolean isDynamic;
     
     public SimpleCircleOfLife(final Parameters parameters, final String base) {
         this.numGenerations = parameters.getIntParameter(Parameters.push(base, P_NUM_GENERATIONS));
@@ -54,8 +55,10 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         this.survivalSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
         this.preOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_PRE_METRICS), PopulationMetric.class);
         this.postOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_POST_METRICS), PopulationMetric.class);
-        this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
-        
+        if (parameters.isDefined(Parameters.push(base, P_IS_DYNAMIC)))
+            this.isDynamic = parameters.getBooleanParameter(Parameters.push(base, P_IS_DYNAMIC));
+        else
+            isDynamic = false;
         assert(repOK());
     }
     
@@ -64,8 +67,9 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         T bestIndividual = null;
         for (int i = 0; i < numGenerations; i++)
         {
-            // Tell the problem what generation we're on (in case it's a dynamic landscape)
-            objective.setGeneration(i);
+            // Tell the problem what generation we're on (if it's a dynamic landscape)
+            if (isDynamic)
+                objective.setGeneration(i);
             
             // Parent selection
             if (parentSelector.isDefined())

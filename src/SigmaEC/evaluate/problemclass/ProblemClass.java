@@ -1,12 +1,14 @@
-package SigmaEC.evaluate;
+package SigmaEC.evaluate.problemclass;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 
 /**
- *
+ * Generates arbitrary instances of ObjectiveFunctions that belong to a class of
+ * problems.
+ * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class ObjectiveGenerator<T extends ObjectiveFunction<P>, P> {
+public abstract class ProblemClass<T extends ObjectiveFunction<P>, P> {
     public abstract T getNewInstance();
     
     // Force implementation of standard methods

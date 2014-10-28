@@ -7,15 +7,14 @@ import SigmaEC.util.Misc;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleGene implements Gene
-{
+public class DoubleGene implements Gene {
     final public double value;
     public DoubleGene(double value) { this.value = value; assert(repOK()); }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     
     public final boolean repOK() {
-        return true;
+        return !Double.isNaN(value) && !Double.isInfinite(value);
     }
     
     @Override

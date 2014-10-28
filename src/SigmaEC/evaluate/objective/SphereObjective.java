@@ -12,7 +12,7 @@ import SigmaEC.util.Parameters;
  * @author Eric 'Siggy' Scott
  */
 public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
-    private final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;
     

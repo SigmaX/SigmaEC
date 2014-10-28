@@ -3,24 +3,42 @@ package SigmaEC.evaluate.transform;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import java.util.Arrays;
 
 /**
  *
  * @author Eric 'Siggy' Scott
  */
-public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual>
-{
+public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+    public final static String P_OFFSET = "offset";
+    public final static String P_OBJECTIVE = "objective";
+    
     private final double[] offset;
     private final ObjectiveFunction<DoubleVectorIndividual> objective;
     
+    public TranslatedDoubleObjective(final Parameters parameters, final String base) throws IllegalStateException {
+        assert(parameters != null);
+        assert(base != null);
+        
+        this.offset = parameters.getDoubleArrayParameter(Parameters.push(base, P_OFFSET));
+        this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        
+        if (offset.length != objective.getNumDimensions())
+            throw new IllegalStateException(String.format("%s: offset vector has %d elements, but objective has %d dimensions.", this.getClass().getSimpleName(), offset.length, objective.getNumDimensions()));
+        
+        assert(repOK());
+    }
+    
     public TranslatedDoubleObjective(final double[] offset, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException {
         if (objective == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
+            throw new NullPointerException(this.getClass().getSimpleName() + ": objective is null.");
         if (offset == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": offset is null.");
+            throw new NullPointerException(this.getClass().getSimpleName() + ": offset is null.");
         if (Misc.containsNaNs(offset))
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": offset array contains one or more NaN values.");
+        if (!Misc.allFinite(offset))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": offset array contains one or more infinite values.");
         if (offset.length != objective.getNumDimensions())
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": offset and objective have different number of dimensions.");
         this.offset = Arrays.copyOf(offset, offset.length);
@@ -33,8 +51,7 @@ public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorInd
         return offset.length;
     }
     
-    public DoubleVectorIndividual translate(final DoubleVectorIndividual ind)
-    {
+    private DoubleVectorIndividual translate(final DoubleVectorIndividual ind) {
         final double[] newPoint = ind.getGenomeArray();
         assert(newPoint.length == offset.length);
         for (int i = 0; i < offset.length; i++)
