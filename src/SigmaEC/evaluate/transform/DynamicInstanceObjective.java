@@ -12,7 +12,7 @@ import SigmaEC.util.Parameters;
  * @author Eric 'Siggy' Scott
  */
 public class DynamicInstanceObjective extends ObjectiveFunction<DoubleVectorIndividual> {
-    private final static String P_CLASS = "problemClass";
+    private final static String P_CLASS = "problemclass";
     
     private final ProblemClass problemClass;
     private ObjectiveFunction<DoubleVectorIndividual> currentObjective;

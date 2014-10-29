@@ -90,7 +90,7 @@ public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObject
         }
         
         public static class RandomOffset extends TransformationStrategy {
-            public final static String P_BOUNDS_WIDTH = "boundsWidth";
+            public final static String P_MAX_OFFSET = "maxOffset";
             public final static String P_RANDOM = "random";
             private final double boundsWidth;
             private final Random random;
@@ -98,7 +98,7 @@ public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObject
             public RandomOffset(final Parameters parameters, final String base) {
                 assert(parameters != null);
                 assert(base != null);
-                boundsWidth = parameters.getDoubleParameter(Parameters.push(base, P_BOUNDS_WIDTH));
+                boundsWidth = parameters.getDoubleParameter(Parameters.push(base, P_MAX_OFFSET));
                 if (Double.isNaN(boundsWidth) || Double.isInfinite(boundsWidth))
                     throw new IllegalStateException(String.format("%s: boundsWidth is %f, must be finite.", this.getClass().getSimpleName(), boundsWidth));
                 random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
