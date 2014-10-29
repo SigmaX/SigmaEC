@@ -80,7 +80,7 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
                 // I haven't been able to even compile it yet, but I thought
                 // I'd check it in case you want to try and do something with
                 // it.
-                int g = genome.get(dimension*numBitsPerDimension + place).value;
+                int g = (genome.get(dimension*numBitsPerDimension + place).value ? 1 : 0);
                 int b = g ^ lastb;   // XOR
                 i = (i << 1) + b;
                 lastb = b;
