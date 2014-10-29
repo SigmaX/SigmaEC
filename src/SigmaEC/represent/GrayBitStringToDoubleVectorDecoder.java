@@ -1,0 +1,153 @@
+package SigmaEC.represent;
+
+import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
+import java.util.List;
+
+/**
+ * Interpret a string of Gray coded bits as a vector of doubles via big-endian encoding.
+ * There are many different kinds of Gray codes, but in this case we use a
+ * fairly standard reflective Gray code.
+ * @author Jeff Bassett
+ */
+public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual, DoubleVectorIndividual> {
+    public final static String P_NUM_BITS_PER_DIMENSION = "numBitsPerDimension";
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_LOWEST_SIGNIFICANCE = "lowestSignificance";
+    public final static String P_MIN = "min";
+    public final static String P_MAX = "max";
+        
+    final private int numBitsPerDimension;
+    final private int numDimensions;
+    final private int lowestSignificance;
+    final private double min;
+    final private double max;
+
+    // <editor-fold defaultstate="collapsed" desc="Accessors">
+    public int getNumBitsPerDimension() {
+        return numBitsPerDimension;
+    }
+
+    public int getNumDimensions() {
+        return numDimensions;
+    }
+
+    public int getLowestSignificance() {
+        return lowestSignificance;
+    }
+    // </editor-fold>
+    
+    public GrayBitStringToDoubleVectorDecoder(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        this.numBitsPerDimension = parameters.getIntParameter(Parameters.push(base, P_NUM_BITS_PER_DIMENSION));
+        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        this.lowestSignificance = parameters.getIntParameter(Parameters.push(base, P_LOWEST_SIGNIFICANCE));
+        this.min = parameters.getDoubleParameter(Parameters.push(base, P_MIN));
+        this.max = parameters.getDoubleParameter(Parameters.push(base, P_MAX));
+        
+        if (numBitsPerDimension <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numBitsPerDimension is <= 0, must be positive.");
+        if (numDimensions <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
+        if (min >= max)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": max is <= min.");
+        assert(repOK());
+    }
+
+    @Override
+    public DoubleVectorIndividual decode(final BitStringIndividual individual)
+    {
+        assert(individual.size() == numBitsPerDimension*numDimensions);
+        final List<BitGene> genome = individual.getGenome();
+        final double[] phenotype = new double[numDimensions];
+        final double maxPhenotypeValue = Math.pow(2, numBitsPerDimension) - 1.0;
+        for (int dimension = 0; dimension < numDimensions; dimension++)
+        {
+            int i = 0;
+            int lastb = 0;
+            for (int place = 0; place < numBitsPerDimension; place++)
+            {
+                //final int power = lowestSignificance + place;
+                //if (genome.get(dimension*numBitsPerDimension + place).value)
+                //    phenotype[dimension] += Math.pow(2, power);
+
+                // I borrowed this code from my Python EA library called LEAP.
+                // Before that, I probably found it on the internet.
+
+                // Siggy,
+                // I'm not sure how to handle the lowestSignificance yet.
+                // I haven't been able to even compile it yet, but I thought
+                // I'd check it in case you want to try and do something with
+                // it.
+                int g = genome.get(dimension*numBitsPerDimension + place).value;
+                int b = g ^ lastb;   // XOR
+                i = (i << 1) + b;
+                lastb = b;
+            }
+            phenotype[dimension] = rescale(i, 0, maxPhenotypeValue, min, max);
+        }
+        return new DoubleVectorIndividual(phenotype);
+    }
+    
+    private static double rescale(final double val, final double oldMin, final double oldMax, final double newMin, final double newMax) {
+        assert(!Double.isNaN(val));
+        assert(!Double.isInfinite(val));
+        assert(!Double.isNaN(oldMin));
+        assert(!Double.isInfinite(oldMin));
+        assert(!Double.isNaN(oldMax));
+        assert(!Double.isInfinite(oldMax));
+        assert(!Double.isNaN(newMin));
+        assert(!Double.isInfinite(newMin));
+        assert(!Double.isNaN(newMax));
+        assert(!Double.isInfinite(newMax));
+        assert(oldMax > oldMin);
+        assert(val <= oldMax);
+        assert(val >= oldMin);
+        assert(newMax > newMin);
+        
+        return newMin + ((val - oldMin)/(oldMax - oldMin))*(newMax - newMin);
+    }
+    
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
+    @Override
+    public final boolean repOK() {
+        return numBitsPerDimension > 0
+                && numDimensions > 0
+                && !Double.isNaN(min)
+                && !Double.isInfinite(min)
+                && !Double.isNaN(max)
+                && !Double.isInfinite(max)
+                && min <= max;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (!(o instanceof GrayBitStringToDoubleVectorDecoder))
+            return false;
+        final GrayBitStringToDoubleVectorDecoder ref = (GrayBitStringToDoubleVectorDecoder) o;
+        return numBitsPerDimension == ref.numBitsPerDimension
+                && numDimensions == ref.numDimensions
+                && lowestSignificance == ref.lowestSignificance
+                && Misc.doubleEquals(min, ref.min)
+                && Misc.doubleEquals(max, ref.max);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + this.numBitsPerDimension;
+        hash = 53 * hash + this.numDimensions;
+        hash = 53 * hash + this.lowestSignificance;
+        hash = 53 * hash + (int) (Double.doubleToLongBits(this.min) ^ (Double.doubleToLongBits(this.min) >>> 32));
+        hash = 53 * hash + (int) (Double.doubleToLongBits(this.max) ^ (Double.doubleToLongBits(this.max) >>> 32));
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%s: numDimensions=%d, numBitsPerDimension=%d, lowestSignificance=%d, min=%f, max=%f]", this.getClass().getSimpleName(), numDimensions, numBitsPerDimension, lowestSignificance, min, max);
+    }
+    // </editor-fold>
+    
+}
