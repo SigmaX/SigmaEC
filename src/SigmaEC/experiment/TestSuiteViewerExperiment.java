@@ -5,6 +5,7 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +32,7 @@ public class TestSuiteViewerExperiment extends Experiment {
     final public static String P_GRANULARITY = "granularity";
     final public static String P_RANDOM = "random";
     final public static String P_FILE = "file";
+    final public static String P_GENERATIONS = "generations";
     
     final private List<ObjectiveFunction> objectives;
     final private String prefix;
@@ -38,6 +40,7 @@ public class TestSuiteViewerExperiment extends Experiment {
     final private double granularity;
     final private Random random;
     final private String file;
+    final private Option<Integer> generations;
 
     public TestSuiteViewerExperiment(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -54,6 +57,7 @@ public class TestSuiteViewerExperiment extends Experiment {
         bounds[1] = new IDoublePoint(yMin, yMax);
         granularity = parameters.getDoubleParameter(Parameters.push(base, P_GRANULARITY));
         file = parameters.getStringParameter(Parameters.push(base, P_FILE));
+        generations = parameters.getOptionalIntParameter(Parameters.push(base, P_GENERATIONS));
         
         if (!allObjectivesTwoDimensions(objectives))
             throw new IllegalArgumentException(String.format("%s: all objectives must have at least 2 dimensions", this.getClass().getSimpleName()));
@@ -77,16 +81,22 @@ public class TestSuiteViewerExperiment extends Experiment {
         final Rengine re = new Rengine(new String[] {"--no-save"}, false, callbacks);
         final InputStream rScriptStream = this.getClass().getResourceAsStream("TestSuiteViewerExperiment.r");
         try {
+            final int numPlots = generations.isDefined() ? generations.get() : 1;
             final String rScript = Misc.inputStreamToString(rScriptStream);
             re.eval(rScript);
             re.eval(String.format("pdf(\"%s\")", file));
             for (final ObjectiveFunction obj : objectives) {
-                final StringWriter gridDataWriter = new StringWriter();
-                viewObjective(obj, gridDataWriter);
-                final String gridData = gridDataWriter.toString();
-                re.eval(String.format("x <- \"%s\"", gridData));
-                re.eval("d <- read.csv(text=x)");
-                re.eval(String.format("plot_objective(x, \"%s\")", obj.getClass().getSimpleName()));
+                if (numPlots > 1)
+                    re.eval(String.format("par(mfrow=c(%d,%d))", 3,2)); 
+                for (int i = 0; i < numPlots; i++) {
+                    obj.setGeneration(i);
+                    final StringWriter gridDataWriter = new StringWriter();
+                    viewObjective(obj, gridDataWriter);
+                    final String gridData = gridDataWriter.toString();
+                    re.eval(String.format("x <- \"%s\"", gridData));
+                    re.eval("d <- read.csv(text=x)");
+                    re.eval(String.format("plot_objective(x, \"%s\")", obj.getClass().getSimpleName()));
+                }
             }
             re.eval("dev.off()");
             re.eval("quit(save=\"no\")");
