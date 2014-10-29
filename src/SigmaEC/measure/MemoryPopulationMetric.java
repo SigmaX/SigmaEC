@@ -1,7 +1,6 @@
 package SigmaEC.measure;
 
 import SigmaEC.represent.Individual;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -38,6 +37,7 @@ public class MemoryPopulationMetric<T extends Individual> extends PopulationMetr
 
     @Override
     public void reset() {
+        wrappedMetric.reset();
         mostRecentMeasurement = null;
     }
 

@@ -66,7 +66,9 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     }
 
     @Override
-    public void reset() { }
+    public void reset() {
+        wrappedMetric.reset();
+    }
 
     @Override
     public void flush() {

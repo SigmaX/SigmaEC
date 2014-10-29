@@ -102,6 +102,14 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         }
         return bestIndividual;               
     }
+    
+    @Override
+    public void reset() {
+        for (final PopulationMetric<T> metric : preOperatorMetrics.get())
+                metric.reset();
+        for (final PopulationMetric<T> metric : postOperatorMetrics.get())
+                metric.reset();
+    }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override

@@ -31,6 +31,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
+        reset();
         assert(repOK());
     }
     
@@ -53,7 +54,9 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     }
 
     @Override
-    public void reset() { }
+    public void reset() {
+        bestSoFar = Double.NaN;
+    }
 
     @Override
     public void flush() { }

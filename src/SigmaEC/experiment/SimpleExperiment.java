@@ -46,6 +46,7 @@ public class SimpleExperiment<T extends Individual> extends Experiment<Double> {
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, String.format("Beginning evolutionary run with the following configuration: %s.", circleOfLife.toString()));
         for (int i = 0; i < numRuns; i++) {
             Logger.getLogger(SimpleExperiment.class.getName()).log(Level.INFO, String.format("Run %d", i));
+            circleOfLife.reset();
             results.add(circleOfLife.evolve(i, initialPopulation));
         }
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finished");

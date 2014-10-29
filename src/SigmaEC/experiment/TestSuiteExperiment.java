@@ -23,7 +23,7 @@ import java.util.logging.Logger;
  */
 public class TestSuiteExperiment extends Experiment {
     final public static String P_OBJECTIVES = "objectives";
-    final public static String P_NUM_RUNS_PER_OBJECTIVE = "numRunsPerObjective";
+    final public static String P_NUM_RUNS_PER_OBJECTIVE = "numRunsPerObjective"; // XXX The sub-experiment will have its own numRuns parameter; don't need this here.
     final public static String P_PARAMETER_FILE = "parameterFile";
     final public static String P_RANDOM = "random";
     final public static String P_PREFIX = "prefix";

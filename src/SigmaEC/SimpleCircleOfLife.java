@@ -11,7 +11,6 @@ import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 
 /**
  * A basic evolutionary loop that mates parents, mutates offspring, and applies
@@ -103,10 +102,10 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     /** Flush I/O buffers. */
     private void flushMetrics() {
         if (preOperatorMetrics.isDefined())
-            for (PopulationMetric<T> metric : preOperatorMetrics.get())
+            for (final PopulationMetric<T> metric : preOperatorMetrics.get())
                 metric.flush();
         if (postOperatorMetrics.isDefined())
-            for (PopulationMetric<T> metric: postOperatorMetrics.get())
+            for (final PopulationMetric<T> metric: postOperatorMetrics.get())
                 metric.flush();
     }
     
@@ -121,6 +120,16 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             }
         }
         return bestIndividual;               
+    }
+    
+    @Override
+    public void reset() {
+        if (preOperatorMetrics.isDefined())
+            for (final PopulationMetric<T> metric : preOperatorMetrics.get())
+                    metric.reset();
+        if (postOperatorMetrics.isDefined())
+            for (final PopulationMetric<T> metric : postOperatorMetrics.get())
+                    metric.reset();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
