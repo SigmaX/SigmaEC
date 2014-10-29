@@ -58,7 +58,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         if (parameters.isDefined(Parameters.push(base, P_IS_DYNAMIC)))
             this.isDynamic = parameters.getBooleanParameter(Parameters.push(base, P_IS_DYNAMIC));
         else
-            isDynamic = false;
+            isDynamic = true;
         assert(repOK());
     }
     
