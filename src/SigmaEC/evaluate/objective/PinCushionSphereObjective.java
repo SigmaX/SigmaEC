@@ -16,7 +16,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PinCushionSphere extends ObjectiveFunction<DoubleVectorIndividual> {
+public class PinCushionSphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     public final static String P_INTERVALS = "intervals";
     public final static String P_WIDTH = "width";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
@@ -25,7 +25,7 @@ public class PinCushionSphere extends ObjectiveFunction<DoubleVectorIndividual> 
     private final double[] intervals;
     private final double width;
     
-    public PinCushionSphere(final Parameters parameters, final String base) {
+    public PinCushionSphereObjective(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         
@@ -82,9 +82,9 @@ public class PinCushionSphere extends ObjectiveFunction<DoubleVectorIndividual> 
     public boolean equals(final Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof PinCushionSphere))
+        if (!(o instanceof PinCushionSphereObjective))
             return false;
-        final PinCushionSphere ref = (PinCushionSphere)o;
+        final PinCushionSphereObjective ref = (PinCushionSphereObjective)o;
         return width == ref.width
                 && Misc.doubleArrayEquals(intervals, ref.intervals)
                 && objective.equals(ref.objective);
