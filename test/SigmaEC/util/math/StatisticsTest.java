@@ -9,8 +9,7 @@ import static org.junit.Assert.*;
  */
 public class StatisticsTest {
     
-    public StatisticsTest() {
-    }
+    public StatisticsTest() { }
     
     @Test(expected = AssertionError.class)
     public void testNoInstantiation() throws Exception {
@@ -42,21 +41,23 @@ public class StatisticsTest {
     /** Test of max method, of class Misc. */
     @Test
     public void testMax() {
-        System.out.println("max (even index)");
+        System.out.println("max (odd index)");
         double[] values = new double[] { 5, 1, 9, 16, -3, 8, -15, 22, 7.5, 5, 0.1 };
         double expResult = 22;
         double result = Statistics.max(values);
         assertEquals(expResult, result, 0.0);
+        assertEquals(7, Statistics.maxIndex(values));
     }
 
     /** Test of max method, of class Misc. */
     @Test
-    public void testMaxOddIndex() {
-        System.out.println("max (odd index)");
+    public void testMaxEvenIndex() {
+        System.out.println("max (even index)");
         double[] values = new double[] { 5, 1, 9, 16, -3, 8, 22, -15, 7.5, 5, 0.1 };
         double expResult = 22;
         double result = Statistics.max(values);
         assertEquals(expResult, result, 0.0);
+        assertEquals(6, Statistics.maxIndex(values));
     }
 
     /** Test of max method, of class Misc. */
@@ -67,6 +68,7 @@ public class StatisticsTest {
         double expResult = 22;
         double result = Statistics.max(values);
         assertEquals(expResult, result, 0.0);
+        assertEquals(0, Statistics.maxIndex(values));
     }
 
     /** Test of max method, of class Misc. */
@@ -77,6 +79,7 @@ public class StatisticsTest {
         double expResult = 22;
         double result = Statistics.max(values);
         assertEquals(expResult, result, 0.0);
+        assertEquals(10, Statistics.maxIndex(values));
     }
 
     /** Test of min method, of class Misc. */
@@ -87,6 +90,7 @@ public class StatisticsTest {
         double expResult = -15;
         double result = Statistics.min(values);
         assertEquals(expResult, result, 0.0);
+        assertEquals(6, Statistics.minIndex(values));
     }
 
     /** Test of min method, of class Misc. */
@@ -97,6 +101,7 @@ public class StatisticsTest {
         double expResult = -15;
         double result = Statistics.min(values);
         assertEquals(expResult, result, 0.0);
+        assertEquals(0, Statistics.minIndex(values));
     }
 
     /** Test of min method, of class Misc. */
@@ -107,5 +112,6 @@ public class StatisticsTest {
         double expResult = -15;
         double result = Statistics.min(values);
         assertEquals(expResult, result, 0.0);
+        assertEquals(10, Statistics.minIndex(values));
     }
 }

@@ -7,14 +7,12 @@ package SigmaEC.util.math;
  */
 public final class Statistics
 {
-    public Statistics() throws AssertionError
-    {
-        throw new AssertionError("Statistics: Attempted to instantiate static utility class.");
+    public Statistics() throws AssertionError {
+        throw new AssertionError(Statistics.class.getSimpleName() + ": Attempted to instantiate static utility class.");
     }
     
     /** Mean. */
-    public static double mean(double[] values)
-    {
+    public static double mean(double[] values) {
         assert(values != null);
         double sum = 0;
         for(int i = 0; i < values.length; i++)
@@ -23,8 +21,7 @@ public final class Statistics
     }
 
     /** Sample standard deviation (without Bessel's correction). */
-    public static double std(double[] values, double mean)
-    {
+    public static double std(double[] values, double mean) {
         assert(values != null);
         double sum = 0;
         for (int i = 0; i < values.length; i++)
@@ -32,26 +29,44 @@ public final class Statistics
         return Math.sqrt(sum/(values.length));
     }
 
-    /** Maximum value in an array. */
-    public static double max(double[] values)
-    {
+    /** Index of maximum value in an array. */
+    public static int maxIndex(final double[] values) {
         assert(values != null);
         double max = Double.NEGATIVE_INFINITY;
-        for (int i = 0; i < values.length; i++)
-            if (values[i] > max)
+        int maxIndex = -1;
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] > max) {
                 max = values[i];
-        return max;
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
     }
 
-    /** Minimum value in an array. */
-    public static double min(double[] values)
-    {
+    /** Maximum value in an array. */
+    public static double max(final double[] values) {
+        assert(values != null);
+        return values[maxIndex(values)];
+    }
+    
+    /** Index of minimum value in an array. */
+    public static int minIndex(double[] values) {
         assert(values != null);
         double min = Double.POSITIVE_INFINITY;
-        for (int i = 0; i < values.length; i++)
-            if (values[i] < min)
+        int minIndex = -1;
+        for (int i = 0; i < values.length; i++) {
+            if (values[i] < min) {
                 min = values[i];
-        return min;
+                minIndex = i;
+            }
+        }
+        return minIndex;
+    }
+    
+    /** Minimum value in an array. */
+    public static double min(double[] values) {
+        assert(values != null);
+        return values[minIndex(values)];
     }
     
 }
