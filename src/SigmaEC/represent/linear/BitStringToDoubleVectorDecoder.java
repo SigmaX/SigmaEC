@@ -1,16 +1,15 @@
-package SigmaEC.represent;
+package SigmaEC.represent.linear;
 
+import SigmaEC.represent.Decoder;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.List;
 
 /**
- * Interpret a string of Gray coded bits as a vector of doubles via big-endian encoding.
- * There are many different kinds of Gray codes, but in this case we use a
- * fairly standard reflective Gray code.
- * @author Jeff Bassett
+ * Interpret a string of bits as a vector of doubles via big-endian encoding.
+ * @author Eric 'Siggy' Scott
  */
-public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual, DoubleVectorIndividual> {
+public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual, DoubleVectorIndividual> {
     public final static String P_NUM_BITS_PER_DIMENSION = "numBitsPerDimension";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_LOWEST_SIGNIFICANCE = "lowestSignificance";
@@ -37,7 +36,7 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
     }
     // </editor-fold>
     
-    public GrayBitStringToDoubleVectorDecoder(final Parameters parameters, final String base) {
+    public BitStringToDoubleVectorDecoder(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         this.numBitsPerDimension = parameters.getIntParameter(Parameters.push(base, P_NUM_BITS_PER_DIMENSION));
@@ -56,36 +55,18 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
     }
 
     @Override
-    public DoubleVectorIndividual decode(final BitStringIndividual individual)
-    {
+    public DoubleVectorIndividual decode(final BitStringIndividual individual) {
         assert(individual.size() == numBitsPerDimension*numDimensions);
         final List<BitGene> genome = individual.getGenome();
         final double[] phenotype = new double[numDimensions];
         final double maxPhenotypeValue = Math.pow(2, numBitsPerDimension) - 1.0;
-        for (int dimension = 0; dimension < numDimensions; dimension++)
-        {
-            int i = 0;
-            int lastb = 0;
-            for (int place = 0; place < numBitsPerDimension; place++)
-            {
-                //final int power = lowestSignificance + place;
-                //if (genome.get(dimension*numBitsPerDimension + place).value)
-                //    phenotype[dimension] += Math.pow(2, power);
-
-                // I borrowed this code from my Python EA library called LEAP.
-                // Before that, I probably found it on the internet.
-
-                // Siggy,
-                // I'm not sure how to handle the lowestSignificance yet.
-                // I haven't been able to even compile it yet, but I thought
-                // I'd check it in case you want to try and do something with
-                // it.
-                int g = (genome.get(dimension*numBitsPerDimension + place).value ? 1 : 0);
-                int b = g ^ lastb;   // XOR
-                i = (i << 1) + b;
-                lastb = b;
+        for (int dimension = 0; dimension < numDimensions; dimension++) {
+            for (int place = 0; place < numBitsPerDimension; place++) {
+                final int power = lowestSignificance + place;
+                if (genome.get(dimension*numBitsPerDimension + place).value)
+                    phenotype[dimension] += Math.pow(2, power);
             }
-            phenotype[dimension] = rescale(i, 0, maxPhenotypeValue, min, max);
+            phenotype[dimension] = rescale(phenotype[dimension], 0, maxPhenotypeValue, min, max);
         }
         return new DoubleVectorIndividual(phenotype);
     }
@@ -123,9 +104,9 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
 
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof GrayBitStringToDoubleVectorDecoder))
+        if (!(o instanceof BitStringToDoubleVectorDecoder))
             return false;
-        final GrayBitStringToDoubleVectorDecoder ref = (GrayBitStringToDoubleVectorDecoder) o;
+        final BitStringToDoubleVectorDecoder ref = (BitStringToDoubleVectorDecoder) o;
         return numBitsPerDimension == ref.numBitsPerDimension
                 && numDimensions == ref.numDimensions
                 && lowestSignificance == ref.lowestSignificance

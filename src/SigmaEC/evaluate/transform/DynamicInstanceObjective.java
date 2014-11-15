@@ -2,7 +2,7 @@ package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.problemclass.ProblemClass;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
 
 /**

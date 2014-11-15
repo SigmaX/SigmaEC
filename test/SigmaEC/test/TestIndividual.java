@@ -1,6 +1,6 @@
 package SigmaEC.test;
 
-import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
 import java.util.ArrayList;
 import java.util.List;

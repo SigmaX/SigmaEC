@@ -1,4 +1,4 @@
-package SigmaEC.represent;
+package SigmaEC.represent.linear;
 
 import SigmaEC.util.Misc;
 import java.util.ArrayList;

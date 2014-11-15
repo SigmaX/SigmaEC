@@ -2,7 +2,7 @@ package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.test.TestVectorDecoder;
 import SigmaEC.test.TestVectorIndividual;
 import SigmaEC.test.TestVectorObjective;

@@ -1,5 +1,6 @@
-package SigmaEC.represent;
+package SigmaEC.represent.linear;
 
+import SigmaEC.represent.Initializer;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;

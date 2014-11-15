@@ -1,7 +1,7 @@
 package SigmaEC.operate;
 
 import SigmaEC.ContractObject;
-import SigmaEC.represent.Gene;
+import SigmaEC.represent.linear.Gene;
 
 /**
  *

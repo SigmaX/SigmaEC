@@ -2,7 +2,7 @@ package SigmaEC.measure;
 
 import SigmaEC.represent.CloneDecoder;
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;

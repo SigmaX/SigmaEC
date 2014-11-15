@@ -1,6 +1,6 @@
 package SigmaEC.operate;
 
-import SigmaEC.represent.BitGene;
+import SigmaEC.represent.linear.BitGene;
 import SigmaEC.util.Parameters;
 
 /**

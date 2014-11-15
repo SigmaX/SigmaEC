@@ -1,7 +1,7 @@
 package SigmaEC.operate;
 
-import SigmaEC.represent.Gene;
-import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.represent.linear.Gene;
+import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;

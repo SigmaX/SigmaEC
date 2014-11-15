@@ -43,7 +43,6 @@ public class DoubleArrayMeasurement extends Measurement {
         sb.append(run).append(", ").append(generation).append(", ").append(array[0]);
         for (int i = 1; i < array.length; i++)
             sb.append(", ").append(array[i]);
-        sb.append("\n");
         assert(repOK());
         return sb.toString();
     }

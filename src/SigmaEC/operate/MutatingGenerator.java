@@ -1,8 +1,8 @@
 package SigmaEC.operate;
 
 import SigmaEC.SRandom;
-import SigmaEC.represent.Gene;
-import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.represent.linear.Gene;
+import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;

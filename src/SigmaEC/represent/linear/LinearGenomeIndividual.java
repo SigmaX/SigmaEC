@@ -1,5 +1,6 @@
-package SigmaEC.represent;
+package SigmaEC.represent.linear;
 
+import SigmaEC.represent.Individual;
 import java.util.List;
 
 /**

@@ -24,6 +24,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     final private Decoder<T, P> decoder;
     final private Comparator<Double> fitnessComparator;
     private double bestSoFar = Double.NaN;
+    private long bestSoFarID = -1;
     
     public FitnessStatisticsPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -31,7 +32,6 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
-        reset();
         assert(repOK());
     }
     
@@ -41,16 +41,22 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
             fitnesses[i] = objective.fitness(decoder.decode(population.get(i)));
+        final int maxIndex = Statistics.maxIndex(fitnesses);
+        final int minIndex = Statistics.minIndex(fitnesses);
         final double mean = Statistics.mean(fitnesses);
         final double std = Statistics.std(fitnesses, mean);
-        final double max = Statistics.max(fitnesses);
-        final double min = Statistics.min(fitnesses);
+        final double max = fitnesses[maxIndex];
+        final double min = fitnesses[minIndex];
         
-        if (fitnessComparator.compare(max, bestSoFar) > 0)
+        if (fitnessComparator.compare(max, bestSoFar) > 0) {
             bestSoFar = max;
-        if (fitnessComparator.compare(min, bestSoFar) > 0)
+            bestSoFarID = population.get(maxIndex).getID();
+        }
+        else if (fitnessComparator.compare(min, bestSoFar) > 0) {
             bestSoFar = min;
-        return new FitnessStatisticsMeasurement(run, generation, new double[] { mean, std, max, min, bestSoFar });
+            bestSoFarID = population.get(minIndex).getID();
+        }
+        return new FitnessStatisticsMeasurement(run, generation, mean, std, max, min, bestSoFar, bestSoFarID);
     }
 
     @Override

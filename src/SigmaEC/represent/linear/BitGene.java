@@ -1,4 +1,4 @@
-package SigmaEC.represent;
+package SigmaEC.represent.linear;
 
 /**
  *

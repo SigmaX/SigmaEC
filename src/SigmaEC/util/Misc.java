@@ -1,7 +1,7 @@
 package SigmaEC.util;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

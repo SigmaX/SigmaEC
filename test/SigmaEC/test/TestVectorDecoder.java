@@ -1,7 +1,7 @@
 package SigmaEC.test;
 
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 
 /**
  * Decoder for use with TestVectorIndividual -- the phenotype vector is

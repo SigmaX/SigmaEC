@@ -1,7 +1,7 @@
 package SigmaEC.operate;
 
 import SigmaEC.SRandom;
-import SigmaEC.represent.DoubleGene;
+import SigmaEC.represent.linear.DoubleGene;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.Random;

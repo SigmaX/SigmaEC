@@ -1,7 +1,7 @@
 package SigmaEC.measure;
 
-import SigmaEC.represent.BitGene;
-import SigmaEC.represent.LinearGenomeIndividual;
+import SigmaEC.represent.linear.BitGene;
+import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;

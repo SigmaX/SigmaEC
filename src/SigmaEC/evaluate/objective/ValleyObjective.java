@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.objective;
 
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.math.Vector;
 import java.util.Arrays;

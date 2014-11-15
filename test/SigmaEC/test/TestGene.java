@@ -1,6 +1,6 @@
 package SigmaEC.test;
 
-import SigmaEC.represent.Gene;
+import SigmaEC.represent.linear.Gene;
 
 /**
  *

@@ -1,7 +1,7 @@
 package SigmaEC.test;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 
 /**
  * Simple fitness function for R^n, the sum of all the elements.

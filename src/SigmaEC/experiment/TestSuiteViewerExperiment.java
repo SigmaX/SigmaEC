@@ -2,7 +2,7 @@ package SigmaEC.experiment;
 
 import SigmaEC.SRandom;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;

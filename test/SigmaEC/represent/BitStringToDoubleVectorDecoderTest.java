@@ -1,5 +1,9 @@
 package SigmaEC.represent;
 
+import SigmaEC.represent.linear.DoubleVectorIndividual;
+import SigmaEC.represent.linear.BitGene;
+import SigmaEC.represent.linear.BitStringToDoubleVectorDecoder;
+import SigmaEC.represent.linear.BitStringIndividual;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Properties;

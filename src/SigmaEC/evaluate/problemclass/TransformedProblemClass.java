@@ -2,7 +2,7 @@ package SigmaEC.evaluate.problemclass;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.evaluate.transform.TranslatedDoubleObjective;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.Random;

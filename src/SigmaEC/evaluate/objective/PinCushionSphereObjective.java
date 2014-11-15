@@ -3,7 +3,7 @@ package SigmaEC.evaluate.objective;
 import SigmaEC.evaluate.transform.InvertedObjective;
 import SigmaEC.evaluate.transform.MaxObjective;
 import SigmaEC.evaluate.transform.PinCushionObjective;
-import SigmaEC.represent.DoubleVectorIndividual;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
