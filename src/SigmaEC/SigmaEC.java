@@ -18,7 +18,7 @@ public class SigmaEC {
     
     /** Private constructor throws an error if called. */
     private SigmaEC() throws AssertionError {
-        throw new AssertionError("Misc: Cannot create instance of static class.");
+        throw new AssertionError(SigmaEC.class.getSimpleName() + ": Cannot create instance of static class.");
     }
     
     public static void main(final String[] args) {
@@ -69,6 +69,18 @@ public class SigmaEC {
                 return new Option<String>(args[i+1]);
         }
         return Option.NONE;
+    }
+    
+    private static String getRequiredOption(final String optionName, final String[] args) {
+        assert(optionName != null);
+        assert(args != null);
+        
+        final Option<String> opt = getOption(optionName, args);
+        if (!opt.isDefined() || !checkOptions(args)) {
+            System.err.println(usage());
+            System.exit(0);
+        }
+        return opt.get();
     }
     
     private static List<String> getOptions(final String[] args) {
