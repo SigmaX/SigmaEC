@@ -222,6 +222,18 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         return (value == null) ? Option.NONE : new Option<String>(getStringParameter(parameterName));
     }
+    
+    public String[] getStringArrayParameter(final String parameterName) {
+        return getStringParameter(parameterName).split(LIST_DELIMITER);
+    }
+    
+    
+    public Option<String[]> getOptionalStringArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        final String value = properties.getProperty(parameterName);
+        return (value == null) ? Option.NONE : new Option<String[]>(getStringArrayParameter(parameterName));
+    }
+    
     //</editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Instances">
