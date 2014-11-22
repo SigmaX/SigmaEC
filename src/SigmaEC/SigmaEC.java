@@ -1,6 +1,7 @@
 package SigmaEC;
 
 import SigmaEC.experiment.Experiment;
+import SigmaEC.util.Args;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.io.FileInputStream;
@@ -21,14 +22,18 @@ public class SigmaEC {
         throw new AssertionError(SigmaEC.class.getSimpleName() + ": Cannot create instance of static class.");
     }
     
+    private final static List<String> allowedOptions = new ArrayList<String>() {{ add("p");  }};
+    
+    public static String usage = "Bad CLI arguments.";
+    
     public static void main(final String[] args) {
         assert(args != null);
-        if (!checkOptions(args) || !getOption(A_PARAMETER_FILE, args).isDefined()) {
-            System.err.println(usage());
+        if (!Args.checkOptions(args, allowedOptions) || !Args.getOption(A_PARAMETER_FILE, args).isDefined()) {
+            System.err.println(usage);
             System.exit(0);
         }
         
-        final String parameterFileName = getOption(A_PARAMETER_FILE, args).get();
+        final String parameterFileName = Args.getOption(A_PARAMETER_FILE, args).get();
         assert(parameterFileName != null);
         
         try {
@@ -45,55 +50,4 @@ public class SigmaEC {
             System.exit(1);
         }
     }
-    
-    //<editor-fold defaultstate="collapsed" desc="CLI Argument Parsing">
-    public static String usage() {
-        return String.format("Bad CLI arguments.");
-    }
-    
-    private final static List<String> allowedOptions = new ArrayList<String>() {{ add("p");  }};
-    
-    private static boolean checkOptions(final String[] args) {
-        assert(args != null);
-        for (final String option : getOptions(args))
-            if (!allowedOptions.contains(option))
-                return false;
-        return true;
-    }
-    
-    private static Option<String> getOption(final String optionName, final String[] args) {
-        assert(optionName != null);
-        assert(args != null);
-        for (int i = 0; i < args.length - 1; i++) {
-            if (!args[i].isEmpty() && args[i].charAt(0) == '-' && args[i].equals(String.format("-%s", optionName)))
-                return new Option<String>(args[i+1]);
-        }
-        return Option.NONE;
-    }
-    
-    private static String getRequiredOption(final String optionName, final String[] args) {
-        assert(optionName != null);
-        assert(args != null);
-        
-        final Option<String> opt = getOption(optionName, args);
-        if (!opt.isDefined() || !checkOptions(args)) {
-            System.err.println(usage());
-            System.exit(0);
-        }
-        return opt.get();
-    }
-    
-    private static List<String> getOptions(final String[] args) {
-        assert(args != null);
-        final List<String> options = new ArrayList<String>() {{
-            for (int i = 0; i < args.length; i++) {
-                if (!args[i].isEmpty() && args[i].charAt(0) == '-') {
-                    add(args[i].substring(1, args[i].length()));
-                    i++; // skip the value even if it begins with '-'
-                }
-            }
-        }};
-        return options;
-    }
-    // </editor-fold>
 }
