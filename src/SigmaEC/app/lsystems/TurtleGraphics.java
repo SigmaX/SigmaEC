@@ -4,6 +4,8 @@ import SigmaEC.ContractObject;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.awt.geom.Path2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -46,6 +48,7 @@ public class TurtleGraphics extends ContractObject {
         double x = 150, y = 150, theta = 0;
         final Path2D path = new Path2D.Double();
         path.moveTo(x, y);
+        boolean unknownSymbolFound = false;
         for (final char c : inputString.toCharArray()) {
             if (c == V_FORWARD_DRAW.charAt(0)) {
                 x += stepSize * Math.cos(theta);
@@ -62,8 +65,10 @@ public class TurtleGraphics extends ContractObject {
             else if (c == V_RIGHT.charAt(0))
                 theta -= deltaAngle;
             else
-                throw new IllegalArgumentException(String.format("%s: Unrecognized character, '%c'.", this.getClass().getSimpleName(), c));
+                unknownSymbolFound = true;
         }
+        if (unknownSymbolFound)
+            Logger.getLogger(this.getClass().getSimpleName()).log(Level.INFO, "Turtle graphics encountered unrecognized symbols.  They are being ignored.");
         return path;
     }
 
