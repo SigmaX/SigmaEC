@@ -80,7 +80,7 @@ public class RandomSelectorTest
     public void testToString()
     {
         System.out.println("toString");
-        assertEquals("[RandomSelector: Random=" + random.toString() + "]", SUT.toString());
+        assertEquals("[RandomSelector: random=" + random.toString() + "]", SUT.toString());
         assertTrue(SUT.repOK());
     }
     

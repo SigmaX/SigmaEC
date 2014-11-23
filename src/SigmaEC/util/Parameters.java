@@ -80,7 +80,7 @@ public class Parameters extends ContractObject {
         return parameterValue.charAt(0) == REFERENCE_SYMBOL;
     }
     
-    private String dereference(final String parameterValue) {
+    private String dereferenceToValue(final String parameterValue) {
         assert(parameterValue != null);
         if (!isReference(parameterValue))
             return parameterValue;
@@ -91,9 +91,22 @@ public class Parameters extends ContractObject {
         if (targetValue == null)
             throw new IllegalStateException(String.format("%s: referenced parameter %s not found.", this.getClass().getSimpleName(), targetName));
         if (isReference(targetValue))
-            return dereference(targetValue);
+            return dereferenceToValue(targetValue);
         else
             return targetValue;
+    }
+    
+    private String dereferenceToParameter(final String parameterValue) {
+        assert(parameterValue != null);
+        assert(isReference(parameterValue));
+        final String targetName = parameterValue.substring(1);
+        final String targetValue = properties.getProperty(targetName);
+        if (targetValue == null)
+            throw new IllegalStateException(String.format("%s: referenced parameter %s not found.", this.getClass().getSimpleName(), targetName));
+        else if (!isReference(targetValue))
+            return targetName;
+        else
+            return dereferenceToParameter(targetValue);
     }
     
     private static boolean isExpression(final String parameterValue) {
@@ -123,7 +136,7 @@ public class Parameters extends ContractObject {
             else {
                 int tokenEnd = findTokenEnd(expression, i);
                 final String refToken = expression.substring(i, tokenEnd);
-                final double val = evalExpression(dereference(refToken));
+                final double val = evalExpression(dereferenceToValue(refToken));
                 if (val < 0)
                     result.append("(0 - ").append(String.valueOf(Math.abs(val))).append(")"); // Hack in negative references, since our parser doesn't support negative numbers
                 else
@@ -156,7 +169,7 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        return (int) evalExpression(dereference(value));
+        return (int) evalExpression(dereferenceToValue(value));
     }
     
     public Option<Integer> getOptionalIntParameter(final String parameterName) {
@@ -172,7 +185,7 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        return Boolean.parseBoolean(dereference(value));
+        return Boolean.parseBoolean(dereferenceToValue(value));
     }
     
     public Option<Boolean> getOptionalBooleanParameter(final String parameterName) {
@@ -188,7 +201,7 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        return evalExpression(dereference(value));
+        return evalExpression(dereferenceToValue(value));
     }
     
     public Option<Double> getOptionalDoubleParameter(final String parameterName) {
@@ -213,7 +226,7 @@ public class Parameters extends ContractObject {
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value))
-            return dereference(value);
+            return dereferenceToValue(value);
         return value;
     }
     
@@ -272,8 +285,17 @@ public class Parameters extends ContractObject {
                 return (T) instanceRegistry.get(parameterName);
             else
                 throw new IllegalStateException(String.format("%s: Parameter '%s' was not found.", Parameters.class.getSimpleName(), parameterName));
-        if (isReference(value))
-            return (T) instanceRegistry.get(dereference(value));
+        if (isReference(value)) {
+            final String drefVal = dereferenceToValue(value);
+            if (instanceRegistry.containsKey(drefVal))
+                return (T) instanceRegistry.get(drefVal);
+            else {
+                final String drefParam = dereferenceToParameter(value);
+                final T result = getInstanceFromClassName(drefVal, drefParam, expectedSuperClass);
+                registerInstanceIfReferenced(drefParam, result);
+                return result;
+            }
+        }
 
         final T result = getInstanceFromClassName(value, parameterName, expectedSuperClass);
         registerInstanceIfReferenced(parameterName, result);
@@ -296,7 +318,7 @@ public class Parameters extends ContractObject {
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value))
-            return (List<T>) instanceRegistry.get(dereference(value));
+            return (List<T>) instanceRegistry.get(dereferenceToValue(value));
         
         final String[] classNames = value.split(LIST_DELIMITER);
         final List<T> result =  new ArrayList<T>() {{

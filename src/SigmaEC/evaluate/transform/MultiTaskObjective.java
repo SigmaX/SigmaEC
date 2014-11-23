@@ -21,7 +21,7 @@ public class MultiTaskObjective<P> extends ObjectiveFunction<P> {
         assert(base != null);
         this.objectives = parameters.getInstancesFromParameter(Parameters.push(base, P_OBJECTIVES), ObjectiveFunction.class);
         if (!allSameDimensions(objectives))
-            throw new IllegalStateException(String.format("%s: all objectivs must have the same dimentionality.", this.getClass().getSimpleName()));
+            throw new IllegalStateException(String.format("%s: all objectives must have the same dimentionality.", this.getClass().getSimpleName()));
         assert(repOK());
     }
     
@@ -89,7 +89,7 @@ public class MultiTaskObjective<P> extends ObjectiveFunction<P> {
 
     @Override
     public String toString() {
-        return String.format("[%s: objectives=%d]", this.getClass().getSimpleName(), objectives.toString());
+        return String.format("[%s: objectives=%s]", this.getClass().getSimpleName(), objectives.toString());
     }
     // </editor-fold>
 }

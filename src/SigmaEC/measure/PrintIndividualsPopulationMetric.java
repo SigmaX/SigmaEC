@@ -1,7 +1,6 @@
 package SigmaEC.measure;
 
 import SigmaEC.represent.Individual;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
