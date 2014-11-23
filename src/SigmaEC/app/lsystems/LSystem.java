@@ -4,20 +4,17 @@ import SigmaEC.ContractObject;
 import SigmaEC.util.Args;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.geom.Path2D;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 /**
  *
@@ -63,7 +60,7 @@ public class LSystem extends ContractObject {
     private final static String A_SHOW_TURTLE = "t";
     
     private final static List<String> allowedOptions = new ArrayList<String>() {{ add("p"); add("n"); add("i"); add("t"); }};
-    private final static String usage = "-p parameterFile -n numSteps -i inputString";
+    private final static String usage = "-p parameterFile -n numSteps -i inputString -t showTurtle?";
     
     public static void main(final String[] args) {
         assert(args != null);

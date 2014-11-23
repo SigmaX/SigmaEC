@@ -1,6 +1,7 @@
 package SigmaEC.app.lsystems;
 
 import SigmaEC.ContractObject;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.awt.geom.Path2D;
 
@@ -49,20 +50,24 @@ public class TurtleGraphics extends ContractObject {
             if (c == V_FORWARD_DRAW.charAt(0)) {
                 x += stepSize * Math.cos(theta);
                 y += stepSize * Math.sin(theta);
+                path.lineTo(x, y);
             }
-            else if (c == V_FORWARD_NODRAW.charAt(0))
-                throw new UnsupportedOperationException();
+            else if (c == V_FORWARD_NODRAW.charAt(0)) {
+                x += stepSize * Math.cos(theta);
+                y += stepSize * Math.sin(theta);
+                path.moveTo(x, y);
+            }
             else if (c == V_LEFT.charAt(0))
                 theta += deltaAngle;
             else if (c == V_RIGHT.charAt(0))
                 theta -= deltaAngle;
             else
                 throw new IllegalArgumentException(String.format("%s: Unrecognized character, '%c'.", this.getClass().getSimpleName(), c));
-            path.lineTo(x, y);
         }
         return path;
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
         return !Double.isInfinite(deltaAngle)
@@ -86,16 +91,26 @@ public class TurtleGraphics extends ContractObject {
 
     @Override
     public boolean equals(final Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (!(o instanceof TurtleGraphics))
+            return false;
+        final TurtleGraphics ref = (TurtleGraphics)o;
+        return Misc.doubleEquals(stepSize, ref.stepSize)
+                && Misc.doubleEquals(deltaAngle, ref.deltaAngle)
+                && path.equals(ref.path);
     }
 
     @Override
     public int hashCode() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int hash = 7;
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.deltaAngle) ^ (Double.doubleToLongBits(this.deltaAngle) >>> 32));
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.stepSize) ^ (Double.doubleToLongBits(this.stepSize) >>> 32));
+        hash = 79 * hash + (this.path != null ? this.path.hashCode() : 0);
+        return hash;
     }
 
     @Override
     public String toString() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return String.format("[%s: stepSize=%f, deltaAngle=%f, path=%s]", this.getClass().getSimpleName(), stepSize, deltaAngle, path);
     }
+    // </editor-fold>
 }
