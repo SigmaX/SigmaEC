@@ -2,11 +2,22 @@ package SigmaEC.app.lsystems;
 
 import SigmaEC.ContractObject;
 import SigmaEC.util.Args;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Shape;
+import java.awt.geom.Path2D;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 /**
  *
@@ -45,11 +56,13 @@ public class LSystem extends ContractObject {
     }
     
     // <editor-fold defaultstate="collapsed" desc="Main">
-    
+    private final static String BASE = "lsystem";
     private final static String A_PARAMETER_FILE = "p";
     private final static String A_NUM_STEPS = "n";
     private final static String A_INPUT_STRING = "i";
-    private final static List<String> allowedOptions = new ArrayList<String>() {{ add("p"); add("n"); add("i"); }};
+    private final static String A_SHOW_TURTLE = "t";
+    
+    private final static List<String> allowedOptions = new ArrayList<String>() {{ add("p"); add("n"); add("i"); add("t"); }};
     private final static String usage = "-p parameterFile -n numSteps -i inputString";
     
     public static void main(final String[] args) {
@@ -62,7 +75,8 @@ public class LSystem extends ContractObject {
         final String parameterFileName = Args.getOption(A_PARAMETER_FILE, args).get();
         final int numSteps = Integer.valueOf(Args.getRequiredOption(A_NUM_STEPS, args, allowedOptions, usage));
         final String inputString = Args.getRequiredOption(A_INPUT_STRING, args, allowedOptions, usage);
-        
+        final Option<String> showTurtleOpt = Args.getOption(A_SHOW_TURTLE, args);
+        final boolean showTurtle = showTurtleOpt.isDefined() ? showTurtleOpt.get().equals("true") : false;
         assert(parameterFileName != null);
         assert(numSteps >= 0);
         assert(inputString != null);
@@ -72,8 +86,28 @@ public class LSystem extends ContractObject {
             final FileInputStream pInput = new FileInputStream(parameterFileName);
             properties.load(pInput);
             final Parameters parameters = new Parameters(properties);
-            final LSystem lSystem = new LSystem(parameters, "lsystem");
-            System.out.println(lSystem.apply(inputString, numSteps));
+            final LSystem lSystem = new LSystem(parameters, BASE);
+            final String result = lSystem.apply(inputString, numSteps);
+            System.out.println(result);
+            if (showTurtle) {
+                System.out.println("Showing turtle...");
+                final TurtleGraphics tg = new TurtleGraphics(parameters, Parameters.push(BASE, "turtle"), result);
+                final Shape path = tg.getPath();
+                final JFrame frame = new JFrame();
+                frame.setPreferredSize(new Dimension(1024, 768));
+                frame.setContentPane(new Container() {
+                    @Override
+                    public void paint(final Graphics g) {
+                        super.paint(g);
+                        final Graphics2D g2 = (Graphics2D) g;
+                        g2.setColor(Color.BLUE);
+                        g2.draw(path);
+                    }
+                });
+
+                frame.pack();
+                frame.setVisible(true);
+            }
         }
         catch (final Exception e) {
             System.err.println(e);

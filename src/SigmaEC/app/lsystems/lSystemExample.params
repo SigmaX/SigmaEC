@@ -1,1 +1,3 @@
-lsystem.rules = P>T + T,T>(P) - (P),S>:D,D>{
+lsystem.rules = F>F+F--F+F
+lsystem.turtle.stepSize = 10
+lsystem.turtle.deltaAngle = $(3.14159/3)
