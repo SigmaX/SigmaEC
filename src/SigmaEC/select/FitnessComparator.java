@@ -2,6 +2,7 @@ package SigmaEC.select;
 
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.Comparator;
@@ -15,8 +16,10 @@ import java.util.Comparator;
  */
 public class FitnessComparator extends ContractObject implements Comparator<Double> {
     final public static String P_MINIMIZE = "minimize";
+    final public static String P_DOUBLE_EQUALITY_DELTA = "doubleEqualityDelta";
     
     final private boolean minimize;
+    final private double doubleEqualityDelta;
     
     public FitnessComparator(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -26,11 +29,17 @@ public class FitnessComparator extends ContractObject implements Comparator<Doub
             this.minimize = minimizeOpt.get();
         else
             this.minimize = false;
+        final Option<Double> deltaOpt = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DOUBLE_EQUALITY_DELTA));
+        if (deltaOpt.isDefined())
+            this.doubleEqualityDelta = deltaOpt.get();
+        else
+            this.doubleEqualityDelta = 0.000001;
         assert(repOK());
     }
     
     public FitnessComparator(final boolean minimize) {
         this.minimize = minimize;
+        this.doubleEqualityDelta = 0.000001;
         assert(repOK());
     }
     
@@ -40,7 +49,7 @@ public class FitnessComparator extends ContractObject implements Comparator<Doub
             return 1; // Always better than NaN.
         if (t < t1)
             return (minimize ? 1 : -1);
-        if (t == t1)
+        if (Misc.doubleEquals(t, t1, doubleEqualityDelta))
             return 0;
         else
             return (minimize ? -1 : 1);
