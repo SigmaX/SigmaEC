@@ -85,7 +85,7 @@ public class PinCushionSphereObjective extends ObjectiveFunction<DoubleVectorInd
         if (!(o instanceof PinCushionSphereObjective))
             return false;
         final PinCushionSphereObjective ref = (PinCushionSphereObjective)o;
-        return width == ref.width
+        return Misc.doubleEquals(width, ref.width)
                 && Misc.doubleArrayEquals(intervals, ref.intervals)
                 && objective.equals(ref.objective);
     }

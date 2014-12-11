@@ -20,11 +20,27 @@ public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
     private final double height;
     private final double std;
     
-    public GaussianObjective(final Parameters parameters, final String base)
-    {
+    public GaussianObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
         numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         height = parameters.getDoubleParameter(Parameters.push(base, P_HEIGHT));
         std = parameters.getDoubleParameter(Parameters.push(base, P_STD));
+        if (numDimensions < 1)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
+        if (height <= 0.0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": height is <= 0, must be positive.");
+        if (std <= 0)
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": std is <= 0, must be positive.");
+        if (Double.isInfinite(std) || Double.isNaN(std))
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": std is infinite, must be finite.");
+        assert(repOK());
+    }
+    
+    public GaussianObjective(final int numDimensions, final double height, final double std) {
+        this.numDimensions = numDimensions;
+        this.height = height;
+        this.std = std;
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         if (height <= 0.0)
