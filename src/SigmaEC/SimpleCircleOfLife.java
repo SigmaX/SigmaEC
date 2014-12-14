@@ -157,6 +157,9 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     
     @Override
     public void reset() {
+        previousBestSoFar = Double.NaN;
+        gensPassedWithNoImprovement = 0;
+    
         if (preOperatorMetrics.isDefined())
             for (final PopulationMetric<T> metric : preOperatorMetrics.get())
                     metric.reset();
