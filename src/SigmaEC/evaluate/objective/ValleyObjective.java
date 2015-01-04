@@ -2,6 +2,7 @@ package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Vector;
 import java.util.Arrays;
 
@@ -14,35 +15,35 @@ import java.util.Arrays;
  */
 public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_INTERCEPT_VECTOR = "interceptVector";
+    public final static String P_SLOPE_VECTOR = "slopeVector";
+
     private final int numDimensions;
-    private final double[] slopeVector;
     private final double[] interceptVector;
+    private final double[] slopeVector;
     /**
      * @param slopeVector The direction along which the valley lies.
      * @param interceptVector The location of the global optima.
      */
-    public ValleyObjective(final int numDimensions, final double[] interceptVector, final double[] slopeVector)
+    public ValleyObjective(final Parameters parameters, final String base)
     {
+        assert(parameters != null);
+        assert(base != null);
+        numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
-        if (interceptVector == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": interceptVector is null.");
+
+        interceptVector = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERCEPT_VECTOR));
         if (interceptVector.length != numDimensions)
-            throw new IllegalArgumentException(String.format("%s: interceptVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
-        if (!(Misc.finiteValued(interceptVector)))
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": interceptVector contains non-finite values.");
-        if (slopeVector == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector is null.");
+            throw new IllegalStateException(String.format("%s: interceptVector has %d elements, must have %d.", this.getClass().getSimpleName(), interceptVector.length, numDimensions));
+
+        slopeVector = parameters.getDoubleArrayParameter(Parameters.push(base, P_SLOPE_VECTOR));
         if (slopeVector.length != numDimensions)
-            throw new IllegalArgumentException(String.format("%s: slopeVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
-        if (!(Misc.finiteValued(slopeVector)))
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector contains non-finite values.");
+            throw new IllegalStateException(String.format("%s: slopeVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
         if (!Misc.doubleEquals(Vector.euclideanNorm(slopeVector), 1.0))
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector is not a unit vector.");
         
-        this.numDimensions = numDimensions;
-        this.slopeVector = Arrays.copyOf(slopeVector, slopeVector.length);
-        this.interceptVector = Arrays.copyOf(interceptVector, interceptVector.length);
         assert(repOK());
     }
 
