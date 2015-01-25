@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.util.Parameters;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,15 +13,19 @@ import java.util.Map;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class CachedObjective<P> extends ObjectiveFunction<P>
-{
+public class CachedObjective<P> extends ObjectiveFunction<P> {
+    final public static String P_FLUSH = "flush";
+    final public static String P_OBJECTIVE = "objective";
+    
+    final private boolean flush;
     final private ObjectiveFunction<P> objective;
     final private Map<P, Double> memory = new HashMap<P, Double>();
     
-    public CachedObjective(final ObjectiveFunction<P> objective) {
-        if (objective == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective was null.");
-        this.objective = objective;
+    public CachedObjective(final Parameters params, final String base) {
+        assert(params != null);
+        assert(base != null);
+        flush = params.getBooleanParameter(Parameters.push(base, P_FLUSH));
+        objective = params.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         assert(repOK());
     }
     
@@ -43,6 +48,8 @@ public class CachedObjective<P> extends ObjectiveFunction<P>
 
     @Override
     public void setGeneration(final int i) {
+        if (flush)
+            memory.clear();
         objective.setGeneration(i);
     }
 
@@ -55,7 +62,7 @@ public class CachedObjective<P> extends ObjectiveFunction<P>
     
     @Override
     public String toString() {
-        return String.format("[%s: objective=%s]", this.getClass().getSimpleName(), objective.toString());
+        return String.format("[%s: flush=%s, objective=%s]", this.getClass().getSimpleName(), flush, objective.toString());
     }
     
     @Override
@@ -66,15 +73,16 @@ public class CachedObjective<P> extends ObjectiveFunction<P>
             return false;
         
         final CachedObjective cRef = (CachedObjective) o;
-        return objective.equals(cRef.objective);
+        return flush == cRef.flush
+                && objective.equals(cRef.objective);
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 23 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        int hash = 5;
+        hash = 97 * hash + (this.flush ? 1 : 0);
+        hash = 97 * hash + (this.objective != null ? this.objective.hashCode() : 0);
         return hash;
     }
     //</editor-fold>
-
 }

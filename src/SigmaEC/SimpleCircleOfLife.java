@@ -25,7 +25,6 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final public static String P_OBJECTIVE = "objective";
     final public static String P_COMPARATOR = "fitnessComparator";
     final public static String P_PARENT_SELECTOR = "parentSelector";
-    final public static String P_SURVIVAL_SELECTOR = "survivalSelector";
     final public static String P_PRE_METRICS = "preMetrics";
     final public static String P_POST_METRICS = "postMetrics";
     final public static String P_RANDOM = "random";
@@ -39,7 +38,6 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final private List<Generator<T>> generators;
     final private Comparator<Double> fitnessComparator;
     final private Option<Selector<T>> parentSelector;
-    final private Option<Selector<T>> survivalSelector;
     final private Option<List<PopulationMetric<T>>> preOperatorMetrics;
     final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
     final private Decoder<T, P> decoder;
@@ -58,7 +56,6 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
         this.parentSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
-        this.survivalSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_SURVIVAL_SELECTOR), Selector.class);
         this.preOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_PRE_METRICS), PopulationMetric.class);
         this.postOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_POST_METRICS), PopulationMetric.class);
         if (parameters.isDefined(Parameters.push(base, P_IS_DYNAMIC)))
@@ -74,9 +71,6 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         double bestSoFar = Double.NaN;
         int i = 0;
         while (!stop(i, bestSoFar)) {
-            // Tell the problem what generation we're on (if it's a dynamic landscape)
-            if (isDynamic)
-                objective.setGeneration(i);
             
             // Parent selection
             if (parentSelector.isDefined())
@@ -91,6 +85,10 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             for (Generator<T> gen : generators)
                 population = gen.produceGeneration(population);
             
+            // Tell the problem what generation we're on (if it's a dynamic landscape)
+            if (isDynamic)
+                objective.setGeneration(i);
+            
             bestIndividual = getBestIndividual(bestIndividual, population);
             final double bestFitness = objective.fitness(decoder.decode(bestIndividual));
             if (1 == fitnessComparator.compare(bestFitness, bestSoFar)) 
@@ -100,10 +98,6 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             if (postOperatorMetrics.isDefined())
                 for (PopulationMetric<T> metric : postOperatorMetrics.get())
                     metric.measurePopulation(run, i, population);
-            
-            // Survival selection
-            if (survivalSelector.isDefined())
-                population = survivalSelector.get().selectMultipleIndividuals(population, population.size());
             
             flushMetrics();
             i++;
@@ -184,7 +178,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     
     @Override
     public String toString() {
-        return String.format("[%s: isDynamic=%s, numGenerations=%s, numGensWithoutImprovement=%s, decoder=%s, objective=%s, parentSelector = %s, fitnessComparator=%s, preMetrics=%s, generators=%s, postMetrics=%s, survivalSelector=%s]", this.getClass().getSimpleName(), isDynamic, numGenerations, numGensWithoutImprovement, decoder, objective, parentSelector, fitnessComparator, preOperatorMetrics, generators, postOperatorMetrics, survivalSelector);
+        return String.format("[%s: isDynamic=%s, numGenerations=%s, numGensWithoutImprovement=%s, decoder=%s, objective=%s, parentSelector = %s, fitnessComparator=%s, preMetrics=%s, generators=%s, postMetrics=%s]", this.getClass().getSimpleName(), isDynamic, numGenerations, numGensWithoutImprovement, decoder, objective, parentSelector, fitnessComparator, preOperatorMetrics, generators, postOperatorMetrics);
     }
     
     @Override
@@ -203,7 +197,6 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 && objective.equals(cRef.objective)
                 && fitnessComparator.equals(cRef.fitnessComparator)
                 && ((parentSelector == null) ? cRef.parentSelector == null : parentSelector.equals(cRef.parentSelector))
-                && ((survivalSelector == null) ? cRef.survivalSelector == null : survivalSelector.equals(cRef.survivalSelector))
                 && ((preOperatorMetrics == null) ? cRef.preOperatorMetrics == null : preOperatorMetrics.equals(cRef.preOperatorMetrics))
                 && ((postOperatorMetrics == null) ? cRef.postOperatorMetrics == null : postOperatorMetrics.equals(cRef.postOperatorMetrics));
     }
@@ -216,7 +209,6 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         hash = 89 * hash + (this.generators != null ? this.generators.hashCode() : 0);
         hash = 89 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
         hash = 89 * hash + (this.parentSelector != null ? this.parentSelector.hashCode() : 0);
-        hash = 89 * hash + (this.survivalSelector != null ? this.survivalSelector.hashCode() : 0);
         hash = 89 * hash + (this.preOperatorMetrics != null ? this.preOperatorMetrics.hashCode() : 0);
         hash = 89 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
         hash = 89 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
