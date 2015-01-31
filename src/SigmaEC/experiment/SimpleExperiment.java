@@ -44,12 +44,14 @@ public class SimpleExperiment<T extends Individual> extends Experiment<Double> {
         final List<T> initialPopulation = initializer.generatePopulation();
         
         Logger.getLogger(this.getClass().getName()).log(Level.INFO, String.format("Beginning evolutionary run with the following configuration: %s.", circleOfLife.toString()));
+        final long startTime = System.currentTimeMillis();
         for (int i = 0; i < numRuns; i++) {
             Logger.getLogger(SimpleExperiment.class.getName()).log(Level.INFO, String.format("Run %d", i));
             circleOfLife.reset();
             results.add(circleOfLife.evolve(i, initialPopulation));
         }
-        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finished");
+        final double time = (System.currentTimeMillis() - startTime)/1000.0;
+        Logger.getLogger(this.getClass().getName()).log(Level.INFO, "Finished (" + time + "s)");
     }
 
     @Override
