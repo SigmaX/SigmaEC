@@ -22,6 +22,24 @@ public class Args {
         return true;
     }
     
+    public static List<Pair<String>> getAllEqualsOption(final String optionName, final String[] args) {
+        assert(optionName != null);
+        assert(args != null);
+        final List<Pair<String>> result = new ArrayList<Pair<String>>();
+        for (int i = 0; i < args.length - 1; i++) {
+            if (!args[i].isEmpty() && args[i].charAt(0) == '-' && args[i].equals(String.format("-%s", optionName))) {
+                final String combinedArg = args[i+1];
+                if (!combinedArg.contains("="))
+                    throw new IllegalArgumentException(String.format("%s: Argument to option '-%s' must be of the form 'A=B'.", Args.class.getSimpleName(), optionName));
+                final String[] parts = combinedArg.split("=");
+                if (parts.length != 2)
+                    throw new IllegalArgumentException(String.format("%s: Argument to option '-%s' must be of the form 'A=B'.", Args.class.getSimpleName(), optionName));
+                result.add(new Pair<String>(parts[0], parts[1]));
+            }
+        }
+        return result;
+    }
+    
     public static Option<String> getOption(final String optionName, final String[] args) {
         assert(optionName != null);
         assert(args != null);

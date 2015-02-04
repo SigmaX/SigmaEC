@@ -2,7 +2,7 @@ package SigmaEC;
 
 import SigmaEC.experiment.Experiment;
 import SigmaEC.util.Args;
-import SigmaEC.util.Option;
+import SigmaEC.util.Pair;
 import SigmaEC.util.Parameters;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -15,6 +15,7 @@ import java.util.Properties;
  */
 public class SigmaEC {
     private final static String A_PARAMETER_FILE = "p";
+    private final static String A_PROPERTY = "a";
     private final static String P_EXPERIMENT = "experiment";
     
     /** Private constructor throws an error if called. */
@@ -22,7 +23,7 @@ public class SigmaEC {
         throw new AssertionError(SigmaEC.class.getSimpleName() + ": Cannot create instance of static class.");
     }
     
-    private final static List<String> allowedOptions = new ArrayList<String>() {{ add("p");  }};
+    private final static List<String> allowedOptions = new ArrayList<String>() {{ add(A_PARAMETER_FILE); add(A_PROPERTY);}};
     
     public static String usage = "Bad CLI arguments.";
     
@@ -40,8 +41,11 @@ public class SigmaEC {
             final Properties properties = new Properties();
             final FileInputStream pInput = new FileInputStream(parameterFileName);
             properties.load(pInput);
-            final Parameters parameters = new Parameters(properties);
+            final List<Pair<String>> cliProperties = Args.getAllEqualsOption(A_PROPERTY, args);
+            for (final Pair<String> p : cliProperties)
+                properties.setProperty(p.getX(), p.getY());
             
+            final Parameters parameters = new Parameters(properties);
             final Experiment experiment = parameters.getInstanceFromParameter(P_EXPERIMENT, Experiment.class);
             experiment.run();
         }
