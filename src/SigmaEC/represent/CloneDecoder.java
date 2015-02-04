@@ -20,6 +20,9 @@ public class CloneDecoder<T extends Individual> extends Decoder<T, T> {
         return individual;
     }
 
+    @Override
+    public void reset() { }
+    
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {

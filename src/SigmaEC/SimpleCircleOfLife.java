@@ -89,6 +89,9 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             if (isDynamic)
                 objective.setGeneration(i);
             
+            // Clear any cache in the genotype-phenotype mapping, so we'll re-compute clones (in case the G-P map is stochastic).
+            decoder.reset();
+            
             bestIndividual = getBestIndividual(bestIndividual, population);
             final double bestFitness = objective.fitness(decoder.decode(bestIndividual));
             if (1 == fitnessComparator.compare(bestFitness, bestSoFar)) 

@@ -1,8 +1,6 @@
 package SigmaEC.represent.linear;
 
 import SigmaEC.represent.Decoder;
-import SigmaEC.represent.linear.BitStringIndividual;
-import SigmaEC.represent.linear.BitGene;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.List;
@@ -111,6 +109,9 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
         
         return newMin + ((val - oldMin)/(oldMax - oldMin))*(newMax - newMin);
     }
+
+    @Override
+    public void reset() { assert(repOK()); }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override

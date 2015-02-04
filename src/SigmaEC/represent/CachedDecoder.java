@@ -32,6 +32,13 @@ public class CachedDecoder<T extends Individual, P> extends Decoder<T, P> {
         cache.put(individual, phenotype);
         return phenotype;
     }
+
+    @Override
+    public void reset() {
+        cache.clear();
+        decoder.reset();
+        assert(repOK());
+    }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
