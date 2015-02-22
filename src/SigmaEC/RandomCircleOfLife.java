@@ -53,8 +53,10 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     }
     
     @Override
-    public EvolutionResult<T> evolve(int run, List<T> population) {
-        
+    public EvolutionResult<T> evolve(int run) {
+        assert(run >= 0);
+        reset();
+        List<T> population = initializer.generatePopulation();
         T bestIndividual = null;
         for (int i = 0; i < numGenerations; i++)
         {
@@ -103,8 +105,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         return bestIndividual;               
     }
     
-    @Override
-    public void reset() {
+    private void reset() {
         for (final PopulationMetric<T> metric : preOperatorMetrics.get())
                 metric.reset();
         for (final PopulationMetric<T> metric : postOperatorMetrics.get())

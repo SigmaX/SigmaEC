@@ -9,13 +9,8 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class CircleOfLife<T extends Individual> extends ContractObject
-{
-    /** Takes a population of individuals and evolves them */
-    public abstract EvolutionResult<T> evolve(int run, List<T> population);
-    
-    /** Reset any mutable state to prepare for a fresh run. */
-    public abstract void reset();
+public abstract class CircleOfLife<T extends Individual> extends ContractObject {
+    public abstract EvolutionResult<T> evolve(int run);
     
     public static class EvolutionResult<T extends Individual> extends ContractObject {
         final private List<T> finalPopulation;

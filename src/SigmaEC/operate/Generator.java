@@ -9,7 +9,6 @@ import java.util.List;
  *
  * @author Eric 'Siggy' Scott
  */
-public abstract class Generator<T extends Individual> extends ContractObject
-{   
-    public abstract List<T> produceGeneration(List<T> parentPopulation);
+public abstract class Generator<T extends Individual> extends ContractObject {  
+    public abstract List<T> produceGeneration(final List<T> parentPopulation);
 }

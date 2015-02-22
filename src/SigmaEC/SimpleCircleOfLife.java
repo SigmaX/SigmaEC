@@ -5,6 +5,7 @@ import SigmaEC.measure.PopulationMetric;
 import SigmaEC.operate.Generator;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
+import SigmaEC.represent.Initializer;
 import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -20,6 +21,7 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
+    private final static String P_INITIALIZER = "initializer";
     final public static String P_GENERATORS = "generators";
     final public static String P_DECODER = "decoder";
     final public static String P_OBJECTIVE = "objective";
@@ -35,6 +37,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final private Option<Integer> numGenerations;
     final private Option<Integer> numGensWithoutImprovement;
     
+    private final Initializer<T> initializer;
     final private List<Generator<T>> generators;
     final private Comparator<Double> fitnessComparator;
     final private Option<Selector<T>> parentSelector;
@@ -51,6 +54,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             throw new IllegalStateException(String.format("%s: both of the parameters '%s' and '%s' are defined.  Must choose one or the other.", this.getClass().getSimpleName(), Parameters.push(base, P_NUM_GENERATIONS), Parameters.push(base, P_NUM_GENS_WITHOUT_IMPROVEMENT)));
         if (!numGenerations.isDefined() && !numGensWithoutImprovement.isDefined())
             throw new IllegalStateException(String.format("%s: neither of the parameters '%s' and '%s' are defined.  Need one.", this.getClass().getSimpleName(), Parameters.push(base, P_NUM_GENERATIONS), Parameters.push(base, P_NUM_GENS_WITHOUT_IMPROVEMENT)));
+        this.initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
         this.generators = parameters.getInstancesFromParameter(Parameters.push(base, P_GENERATORS), Generator.class);
         this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
@@ -66,7 +70,10 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     }
     
     @Override
-    public EvolutionResult<T> evolve(final int run, List<T> population) {
+    public EvolutionResult<T> evolve(final int run) {
+        assert(run >= 0);
+        reset();
+        List<T> population = initializer.generatePopulation();
         T bestIndividual = null;
         double bestSoFar = Double.NaN;
         int i = 0;
@@ -152,8 +159,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         return bestIndividual;               
     }
     
-    @Override
-    public void reset() {
+    private void reset() {
         previousBestSoFar = Double.NaN;
         gensPassedWithNoImprovement = 0;
     
