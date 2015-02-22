@@ -1,6 +1,7 @@
 package SigmaEC.test;
 
 import SigmaEC.represent.Decoder;
+import SigmaEC.util.Parameters;
 
 /**
  * Decoder for TestIndividual -- the phenotype is the value of the trait
@@ -9,6 +10,9 @@ import SigmaEC.represent.Decoder;
  * @author Eric 'Siggy' Scott
  */
 public class TestDecoder extends Decoder<TestIndividual, Double> {
+    
+    public TestDecoder(final Parameters parameters, final String base) { }
+    
     @Override
     public Double decode(final TestIndividual individual) {
         return individual.getTrait();

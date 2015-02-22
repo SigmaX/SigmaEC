@@ -1,6 +1,7 @@
 package SigmaEC.test;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.util.Parameters;
 
 /**
  * A simple objective for use with TestIndividual -- fitness is equal to the
@@ -8,8 +9,10 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
  * 
  * @author Eric 'Siggy' Scott
  */ 
-public class TestObjective extends ObjectiveFunction<Double>
-{
+public class TestObjective extends ObjectiveFunction<Double> {
+    
+    public TestObjective(final Parameters parameters, final String base) { }
+    
     @Override
     public double fitness(final Double ind) { return ind; }
 
