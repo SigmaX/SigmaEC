@@ -111,12 +111,36 @@ public class VectorTest {
     
     /** Test of pointToLineEuclideanDistance method, of class Misc. */
     @Test
-    public void testPointToLineEuclideanDistance() {
+    public void testPointToLineEuclideanDistance1() {
         System.out.println("pointToLineEuclideanDistance");
         double[] point = new double[] { 0, 2 };
         double[] slopeVector = new double[] {Math.sqrt(0.5), Math.sqrt(0.5)};
         double[] interceptVector = new double[] { 0, 0 };
         double expResult = Math.sqrt(2);
+        double result = Vector.pointToLineEuclideanDistance(point, slopeVector, interceptVector);
+        assertEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of pointToLineEuclideanDistance method, of class Misc. */
+    @Test
+    public void testPointToLineEuclideanDistance2() {
+        System.out.println("pointToLineEuclideanDistance");
+        double[] point = new double[] { 0, 2 };
+        double[] slopeVector = new double[] {1.0, 0};
+        double[] interceptVector = new double[] { 0, 0 };
+        double expResult = 2;
+        double result = Vector.pointToLineEuclideanDistance(point, slopeVector, interceptVector);
+        assertEquals(expResult, result, 0.0);
+    }
+    
+    /** Test of pointToLineEuclideanDistance method, of class Misc. */
+    @Test
+    public void testPointToLineEuclideanDistance3() {
+        System.out.println("pointToLineEuclideanDistance");
+        double[] point = new double[] { 1, 2 };
+        double[] slopeVector = new double[] {0, 1};
+        double[] interceptVector = new double[] { 0, 0 };
+        double expResult = 1;
         double result = Vector.pointToLineEuclideanDistance(point, slopeVector, interceptVector);
         assertEquals(expResult, result, 0.0);
     }
