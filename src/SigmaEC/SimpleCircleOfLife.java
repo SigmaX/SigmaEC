@@ -39,7 +39,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     
     private final Initializer<T> initializer;
     final private List<Generator<T>> generators;
-    final private Comparator<Double> fitnessComparator;
+    final private Comparator<T> fitnessComparator;
     final private Option<Selector<T>> parentSelector;
     final private Option<List<PopulationMetric<T>>> preOperatorMetrics;
     final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
@@ -74,10 +74,9 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         assert(run >= 0);
         reset();
         List<T> population = initializer.generatePopulation();
-        T bestIndividual = null;
-        double bestSoFar = Double.NaN;
+        T bestSoFarInd = null;
         int i = 0;
-        while (!stop(i, bestSoFar)) {
+        while (!stop(i, bestSoFarInd)) {
             
             // Parent selection
             if (parentSelector.isDefined())
@@ -99,10 +98,9 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             // Clear any cache in the genotype-phenotype mapping, so we'll re-compute clones (in case the G-P map is stochastic).
             decoder.reset();
             
-            bestIndividual = getBestIndividual(bestIndividual, population);
-            final double bestFitness = objective.fitness(decoder.decode(bestIndividual));
-            if (1 == fitnessComparator.compare(bestFitness, bestSoFar)) 
-                bestSoFar = bestFitness;
+            final T bestOfGen = getBestIndividual(population);
+            if (fitnessComparator.compare(bestOfGen, bestSoFarInd) > 0) 
+                bestSoFarInd = bestOfGen;
             
             // Take measurements after operators
             if (postOperatorMetrics.isDefined())
@@ -112,19 +110,17 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             flushMetrics();
             i++;
         }
-        return new EvolutionResult<T>(population, bestIndividual, objective.fitness(decoder.decode(bestIndividual)));
+        return new EvolutionResult<T>(population, bestSoFarInd, objective.fitness(decoder.decode(bestSoFarInd)));
     }
     
-    private double previousBestSoFar = Double.NaN;
+    private T previousBestSoFar = null;
     private int gensPassedWithNoImprovement = 0;
-    private boolean stop(final int generation, final double bestSoFar) {
+    private boolean stop(final int generation, final T bestSoFar) {
         if (numGenerations.isDefined())
             return generation >= numGenerations.get();
         else if (numGensWithoutImprovement.isDefined()) {
-            if (Double.isNaN(previousBestSoFar))
-                previousBestSoFar = bestSoFar;
             assert(-1 != fitnessComparator.compare(bestSoFar, previousBestSoFar));
-            if (1 == fitnessComparator.compare(bestSoFar, previousBestSoFar)) {
+            if (fitnessComparator.compare(bestSoFar, previousBestSoFar) > 0) {
                 previousBestSoFar = bestSoFar;
                 gensPassedWithNoImprovement = 0;
             }
@@ -146,21 +142,17 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 metric.flush();
     }
     
-    private T getBestIndividual(T bestIndividual, final List<T> population) {
+    private T getBestIndividual(final List<T> population) {
         assert(population != null);
-        double bestFitness = (bestIndividual == null) ? Double.NaN : objective.fitness(decoder.decode(bestIndividual));
-        for (final T ind : population) {
-            final double fitness = objective.fitness(decoder.decode(ind));
-            if (fitnessComparator.compare(fitness, bestFitness) > 0) {
-                bestIndividual = ind;
-                bestFitness = fitness;
-            }
-        }
-        return bestIndividual;               
+        T best = null;
+        for (final T ind : population)
+            if (fitnessComparator.compare(ind, best) > 0)
+                best = ind;
+        return best;               
     }
     
     private void reset() {
-        previousBestSoFar = Double.NaN;
+        previousBestSoFar = null;
         gensPassedWithNoImprovement = 0;
     
         if (preOperatorMetrics.isDefined())
