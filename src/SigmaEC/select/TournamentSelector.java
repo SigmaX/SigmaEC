@@ -1,9 +1,8 @@
 package SigmaEC.select;
 
-import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -13,47 +12,82 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TournamentSelector<T extends Individual, P> extends Selector<T>
-{
-    private final static String P_TOURNAMENT_SIZE = "tournamentSize";
-    final private static String P_OBJECTIVE = "objective";
-    final private static String P_COMPARATOR = "fitnessComparator";
-    final private static String P_DECODER = "decoder";
-    final private static String P_RANDOM = "random";
+public class TournamentSelector<T extends Individual, P> extends Selector<T> {
+    public final static String P_TOURNAMENT_SIZE = "tournamentSize";
+    public final static String P_COMPARATOR = "fitnessComparator";
+    public final static String P_RANDOM = "random";
     
-    final private int tournamentSize;
-    final private ObjectiveFunction<P> objective;
-    private final Comparator<Double> fitnessComparator;
-    final private Decoder<T, P> decoder;
-    final private Random random;
-    
-    final private RandomSelector<T> contestantSelector;
+    private final int tournamentSize;
+    private final Comparator<T> fitnessComparator;
+    private final Random random;
+    private final RandomSelector<T> contestantSelector;
     
     public TournamentSelector(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         tournamentSize = parameters.getIntParameter(Parameters.push(base, P_TOURNAMENT_SIZE));
-        objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
-        decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         contestantSelector = new RandomSelector<T>(random);
         assert(repOK());
     }
     
     @Override
-    public T selectIndividual(final List<T> population) throws NullPointerException, IllegalArgumentException
-    {
-        if (population.isEmpty())
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ".selectIndividual: population is empty.");
+    public T selectIndividual(final List<T> population) {
+        assert(population != null);
+        assert(!population.isEmpty());
         
         final List<T> contestants = contestantSelector.selectMultipleIndividuals(population, tournamentSize);
-        final TruncationSelector<T, P> finalSelector = new TruncationSelector(objective, decoder, fitnessComparator);
+        final TruncationSelector<T, P> finalSelector = new TruncationSelector(fitnessComparator);
         final T selectedIndividual = finalSelector.selectIndividual(contestants);
         
         assert(selectedIndividual != null);
         assert(repOK());
         return selectedIndividual;
+    }
+
+    @Override
+    public List<T> selectMultipleIndividuals(final List<T> population, final int count) {
+        assert(population != null);
+        assert(!population.isEmpty());
+        assert(count >= 0);
+        return new ArrayList() {{
+            for (int i = 0; i < count; i++)
+                add(selectIndividual(population));
+        }};
+    }
+
+    @Override
+    public int selectIndividualIndex(final List<T> population) {
+        assert(population != null);
+        assert(!population.isEmpty());
+        
+        final int[] contestants = contestantSelector.selectMultipleIndividualIndices(population, tournamentSize);
+        assert(contestants.length == tournamentSize);
+        int bestIndex = -1;
+        T best = null;
+        for (int i = 0; i < contestants.length; i++) {
+            final T contestant = population.get(contestants[i]);
+            if (fitnessComparator.compare(contestant, best) > 0) {
+                best = contestant;
+                bestIndex = contestants[i];
+            }
+        }
+        assert(best != null);
+        assert(bestIndex >= 0);
+        assert(repOK());
+        return bestIndex;
+    }
+
+    @Override
+    public int[] selectMultipleIndividualIndices(final List<T> population, final int count) {
+        assert(population != null);
+        assert(!population.isEmpty());
+        assert(count >= 0);
+        final int[] result = new int[count];
+        for (int i = 0; i < count; i++)
+            result[i] = selectIndividualIndex(population);
+        return result;
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -61,14 +95,9 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T>
     final public boolean repOK() {
         return tournamentSize > 0
                 && contestantSelector != null
-                && objective != null
                 && fitnessComparator != null
                 && P_COMPARATOR != null
                 && !P_COMPARATOR.isEmpty()
-                && P_DECODER != null
-                && !P_DECODER.isEmpty()
-                && P_OBJECTIVE != null
-                && !P_OBJECTIVE.isEmpty()
                 && P_RANDOM != null
                 && !P_RANDOM.isEmpty()
                 && P_TOURNAMENT_SIZE != null
@@ -76,7 +105,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T>
     }
     @Override
     public String toString() {
-        return String.format("[%s: tournamentSize=%d, random=%s, objective=%s, fitnessComparator=%s]", this.getClass().getSimpleName(), tournamentSize, random, objective, fitnessComparator);
+        return String.format("[%s: tournamentSize=%d, random=%s, fitnessComparator=%s]", this.getClass().getSimpleName(), tournamentSize, random, fitnessComparator);
     }
     
     @Override
@@ -89,9 +118,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T>
         TournamentSelector cRef = (TournamentSelector) o;
         return tournamentSize == cRef.tournamentSize
                 && random.equals(cRef.random)
-                && objective.equals(cRef.objective)
                 && fitnessComparator.equals(cRef.fitnessComparator)
-                && decoder.equals(cRef.decoder)
                 && contestantSelector.equals(cRef.contestantSelector);
     }
 
@@ -99,9 +126,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T>
     public int hashCode() {
         int hash = 5;
         hash = 61 * hash + this.tournamentSize;
-        hash = 61 * hash + (this.objective != null ? this.objective.hashCode() : 0);
         hash = 61 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
-        hash = 61 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
         hash = 61 * hash + (this.random != null ? this.random.hashCode() : 0);
         hash = 61 * hash + (this.contestantSelector != null ? this.contestantSelector.hashCode() : 0);
         return hash;

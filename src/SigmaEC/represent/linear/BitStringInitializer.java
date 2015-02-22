@@ -44,6 +44,11 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
         }};
     }
 
+    @Override
+    public BitStringIndividual generationIndividual() {
+        return new BitStringIndividual(random, numBits);
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {

@@ -1,9 +1,9 @@
 package SigmaEC.select;
 
-import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Parameters;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -14,16 +14,18 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public class TruncationSelector<T extends Individual, P> extends Selector<T> {
-    private final ObjectiveFunction<P> objective;
-    private final Decoder<T, P> decoder;
-    private final Comparator<Double> fitnessComparator;
+    public final static String P_COMPARATOR = "fitnessComparator";
+    private final Comparator<T> fitnessComparator;
     
-    public TruncationSelector(final ObjectiveFunction<P> objective, final Decoder<T, P> decoder, final Comparator<Double> fitnessComparator) {
-        assert(objective != null);
-        assert(decoder != null);
+    public TruncationSelector(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
+        assert(repOK());
+    }
+    
+    public TruncationSelector(final Comparator<T> fitnessComparator) {
         assert(fitnessComparator != null);
-        this.objective = objective;
-        this.decoder = decoder;
         this.fitnessComparator = fitnessComparator;
         assert(repOK());
     }
@@ -35,19 +37,13 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T> {
      */
     @Override
     public T selectIndividual(final List<T> population) throws NullPointerException {
-        if (population.isEmpty())
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": population is empty.");
-        
-        double bestFitness = Double.NaN;
+        assert(!population.isEmpty());
         T best = null;
-        for (final T ind : population) {
-            double fitness = objective.fitness(decoder.decode(ind));
-            if (fitnessComparator.compare(fitness, bestFitness) > 0) {
-                bestFitness = fitness;
+        for (final T ind : population)
+            if (fitnessComparator.compare(ind, best) > 0)
                 best = ind;
-            }
-        }
         assert(best != null);
+        assert(repOK());
         return best;
     }
     
@@ -57,42 +53,72 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T> {
      */
     @Override
     public List<T> selectMultipleIndividuals(final List<T> population, final int numToSelect) throws IllegalArgumentException, NullPointerException {
-        if (numToSelect < 1)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numToSelect is zero.");
-        else if (population.isEmpty())
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": population is empty.");
-        else if (numToSelect > population.size())
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numToSelect is greater than population size.");
+        assert(population != null);
+        assert(!population.isEmpty());
+        assert(numToSelect >= 1);
         
         final List<T> sortedPop = new ArrayList(population);
-        Collections.sort(sortedPop, new FitnessComparator());
+        Collections.sort(sortedPop, fitnessComparator);
         final List<T> topIndividuals = new ArrayList(numToSelect);
         for (int i = 0; i < numToSelect; i++)
-            topIndividuals.add(sortedPop.get(sortedPop.size() - 1 - i));
+            topIndividuals.add(sortedPop.get(sortedPop.size() - 1 - i)); // Best individuals are at the end ofthe array
+        assert(repOK());
         return topIndividuals;
     }
-    
-    private class FitnessComparator implements Comparator<T> {
-        @Override
-        public int compare(final T ind1, final T ind2) {
-            final double x = objective.fitness(decoder.decode(ind1));
-            final double y = objective.fitness(decoder.decode(ind2));
-            return fitnessComparator.compare(x, y);
-        }
+
+    @Override
+    public int selectIndividualIndex(final List<T> population) {
+        assert(population != null);
+        assert(!population.isEmpty());
+        assert(!population.isEmpty());
+        int bestIndex = -1;
+        T best = null;
+        for (int i = 0; i < population.size(); i++)
+            if (fitnessComparator.compare(population.get(i), best) > 0) {
+                best = population.get(i);
+                bestIndex = i;
+            }
+        assert(best != null);
+        assert(bestIndex >= 0);
+        assert(repOK());
+        return bestIndex;
+    }
+
+    @Override
+    public int[] selectMultipleIndividualIndices(final List<T> population, final int count) {
+        assert(population != null);
+        assert(!population.isEmpty());
+        assert(count >= 1);
         
+        // XXX This approach to getting sorted indices induces much auto-boxing slowness!
+        // See here for tips on writing a faster version: http://stackoverflow.com/questions/951848/java-array-sort-quick-way-to-get-a-sorted-list-of-indices-of-an-array
+        final Integer[] sortedIndices = new Integer[population.size()];
+        for (int i = 0; i < sortedIndices.length; i++)
+            sortedIndices[i] = i;
+        // Sort from worst to best fitness
+        Arrays.sort(sortedIndices, new Comparator<Integer>() { 
+            @Override public int compare(final Integer o1, final Integer o2) {
+                return fitnessComparator.compare(population.get(o1), population.get(o2));
+            }
+        });
+        final int[] result = new int[count];
+        for (int i = 0; i < count; i++)
+            result[i] = sortedIndices[sortedIndices.length - i - 1];
+        assert(repOK());
+        return result;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return objective != null
-                && decoder != null
-                && fitnessComparator != null;
+        return fitnessComparator != null
+                && P_COMPARATOR != null
+                && !P_COMPARATOR.isEmpty();
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: objective=%s, decoder=%s, fitnessComparator=%s]", this.getClass().getSimpleName(), objective, decoder, fitnessComparator);
+        return String.format("[%s: fitnessComparator=%s]", this.getClass().getSimpleName(), fitnessComparator);
     }
     
     @Override
@@ -100,16 +126,12 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T> {
         if (!(o instanceof TruncationSelector))
             return false;
         final TruncationSelector ref = (TruncationSelector)o;
-        return objective.equals(ref.objective)
-                && decoder.equals(ref.decoder)
-                && fitnessComparator.equals(ref.fitnessComparator);
+        return fitnessComparator.equals(ref.fitnessComparator);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 67 * hash + (this.objective != null ? this.objective.hashCode() : 0);
-        hash = 67 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
         hash = 67 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
         return hash;
     }

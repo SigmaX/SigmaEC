@@ -63,6 +63,11 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         }};
     }
 
+    @Override
+    public DoubleVectorIndividual generationIndividual() {
+        return new DoubleVectorIndividual(random, numDimensions, minValues, maxValues);
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {

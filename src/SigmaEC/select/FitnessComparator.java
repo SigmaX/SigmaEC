@@ -1,6 +1,8 @@
 package SigmaEC.select;
 
 import SigmaEC.ContractObject;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -14,12 +16,16 @@ import java.util.Comparator;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class FitnessComparator extends ContractObject implements Comparator<Double> {
+public class FitnessComparator<T extends Individual, P> extends ContractObject implements Comparator<T> {
     final public static String P_MINIMIZE = "minimize";
     final public static String P_DOUBLE_EQUALITY_DELTA = "doubleEqualityDelta";
+    final public static String P_OBJECTIVE = "objective";
+    final public static String P_DECODER = "decoder";
     
     final private boolean minimize;
     final private double doubleEqualityDelta;
+    final private ObjectiveFunction<P> objective;
+    final private Decoder<T, P> decoder;
     
     public FitnessComparator(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -33,18 +39,19 @@ public class FitnessComparator extends ContractObject implements Comparator<Doub
         if (deltaOpt.isDefined())
             this.doubleEqualityDelta = deltaOpt.get();
         else
-            this.doubleEqualityDelta = 0.000001;
-        assert(repOK());
-    }
-    
-    public FitnessComparator(final boolean minimize) {
-        this.minimize = minimize;
-        this.doubleEqualityDelta = 0.000001;
+            this.doubleEqualityDelta = 0.00000001;
+        objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         assert(repOK());
     }
     
     @Override
-    public int compare(final Double t, final Double t1) {
+    public int compare(final T ind, final T ind1) {
+        assert(ind != null);
+        if (ind1 == null)
+            return 1; // Always better than null
+        final double t = objective.fitness(decoder.decode(ind));
+        final double t1 = objective.fitness(decoder.decode(ind1));
         if (Double.isNaN(t1))
             return 1; // Always better than NaN.
         if (t < t1)
@@ -58,7 +65,17 @@ public class FitnessComparator extends ContractObject implements Comparator<Doub
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     public final boolean repOK() {
         return P_MINIMIZE != null
-                && !P_MINIMIZE.isEmpty();
+                && !P_MINIMIZE.isEmpty()
+                && P_DECODER != null
+                && !P_DECODER.isEmpty()
+                && P_DOUBLE_EQUALITY_DELTA != null
+                && !P_DOUBLE_EQUALITY_DELTA.isEmpty()
+                && P_OBJECTIVE != null
+                && !P_OBJECTIVE.isEmpty()
+                && objective != null
+                && decoder != null
+                && Double.isFinite(doubleEqualityDelta)
+                && doubleEqualityDelta >= 0.0;
     }
     
     @Override
@@ -66,19 +83,25 @@ public class FitnessComparator extends ContractObject implements Comparator<Doub
         if (!(o instanceof FitnessComparator))
             return false;
         final FitnessComparator ref = (FitnessComparator)o;
-        return minimize == ref.minimize;
+        return minimize == ref.minimize
+                && Misc.doubleEquals(doubleEqualityDelta, ref.doubleEqualityDelta, 0.0000000000001)
+                && objective.equals(ref.objective)
+                && decoder.equals(ref.decoder);
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 59 * hash + (this.minimize ? 1 : 0);
+        hash = 13 * hash + (this.minimize ? 1 : 0);
+        hash = 13 * hash + (int) (Double.doubleToLongBits(this.doubleEqualityDelta) ^ (Double.doubleToLongBits(this.doubleEqualityDelta) >>> 32));
+        hash = 13 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 13 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: minimize=%s]", this.getClass().getSimpleName(), minimize);
+        return String.format("[%s: minimize=%s, doubleEqualityDelta=%f, objective=%s, decoder=%s]", this.getClass().getSimpleName(), minimize, doubleEqualityDelta, objective, decoder);
     }
     // </editor-fold>
 }

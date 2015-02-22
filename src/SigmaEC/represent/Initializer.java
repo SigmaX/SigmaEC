@@ -10,4 +10,7 @@ import java.util.List;
 public abstract class Initializer<T extends Individual> extends ContractObject {
     /** Generate a whole population of random individuals. */
     public abstract List<T> generatePopulation();
+    
+    /** Generate a single individual. */
+    public abstract T generationIndividual();
 }

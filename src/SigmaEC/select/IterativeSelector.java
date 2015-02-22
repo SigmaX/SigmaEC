@@ -1,6 +1,8 @@
 package SigmaEC.select;
 
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Parameters;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,11 +13,40 @@ import java.util.List;
 public class IterativeSelector<T extends Individual> extends Selector<T> {
     private int i = 0;
     
+    public IterativeSelector(final Parameters parameters, final String base) { assert(repOK()); }
+    
     public IterativeSelector() {}
     
     @Override
     public T selectIndividual(final List<T> population) {
         return population.get(i++%population.size());
+    }
+
+    @Override
+    public int selectIndividualIndex(final List<T> population) {
+        return i++%population.size();
+    }
+
+    @Override
+    public List<T> selectMultipleIndividuals(final List<T> population, final int count) {
+        assert(population != null);
+        assert(!population.isEmpty());
+        assert(count >= 0);
+        return new ArrayList() {{
+            for (int i = 0; i < count; i++)
+                add(selectIndividual(population));
+        }};
+    }
+
+    @Override
+    public int[] selectMultipleIndividualIndices(List<T> population, int count) {
+        assert(population != null);
+        assert(!population.isEmpty());
+        assert(count >= 0);
+        final int[] result = new int[count];
+        for (int i = 0; i < count; i++)
+            result[i] = selectIndividualIndex(population);
+        return result;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

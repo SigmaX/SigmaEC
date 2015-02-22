@@ -2,7 +2,6 @@ package SigmaEC.select;
 
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,17 +10,12 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class Selector<T extends Individual> extends ContractObject
-{     
-    protected Selector() { }
+public abstract class Selector<T extends Individual> extends ContractObject {     
+    public abstract T selectIndividual(final List<T> population);
     
-    public abstract T selectIndividual(List<T> population);
+    public abstract int selectIndividualIndex(final List<T> population);
     
-    public List<T> selectMultipleIndividuals(List<T> population, int count)
-    {
-        List<T> output = new ArrayList();
-        for (int i = 0; i < count; i++)
-            output.add(selectIndividual(population));
-        return output;
-    }
+    public abstract List<T> selectMultipleIndividuals(final List<T> population, final int count);
+    
+    public abstract int[] selectMultipleIndividualIndices(final List<T> population, final int count);
 }
