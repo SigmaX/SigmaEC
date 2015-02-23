@@ -56,6 +56,7 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
         final List<BitGene> genome = individual.getGenome();
         final double[] phenotype = new double[numDimensions];
         final double maxPhenotypeValue = Math.pow(2, numBitsPerDimension) - 1.0;
+            // FIXME This treats a signed int as an unsigned int, causing errors.
         for (int dimension = 0; dimension < numDimensions; dimension++) {
             int i = 0;
             int lastb = 0;
@@ -86,7 +87,9 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
         assert(val >= oldMin);
         assert(newMax > newMin);
         
-        return newMin + ((val - oldMin)/(oldMax - oldMin))*(newMax - newMin);
+        throw new UnsupportedOperationException(String.format("%s: Gray code is currently broken.  Use a different decoder.", GrayBitStringToDoubleVectorDecoder.class.getSimpleName()));
+        
+        //return newMin + ((val - oldMin)/(oldMax - oldMin))*(newMax - newMin);
     }
 
     @Override
