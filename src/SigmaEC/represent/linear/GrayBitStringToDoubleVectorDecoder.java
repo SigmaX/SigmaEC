@@ -20,7 +20,6 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
         
     final private int numBitsPerDimension;
     final private int numDimensions;
-    final private int lowestSignificance;
     final private double min;
     final private double max;
 
@@ -32,10 +31,6 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
     public int getNumDimensions() {
         return numDimensions;
     }
-
-    public int getLowestSignificance() {
-        return lowestSignificance;
-    }
     // </editor-fold>
     
     public GrayBitStringToDoubleVectorDecoder(final Parameters parameters, final String base) {
@@ -43,7 +38,6 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
         assert(base != null);
         this.numBitsPerDimension = parameters.getIntParameter(Parameters.push(base, P_NUM_BITS_PER_DIMENSION));
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
-        this.lowestSignificance = parameters.getIntParameter(Parameters.push(base, P_LOWEST_SIGNIFICANCE));
         this.min = parameters.getDoubleParameter(Parameters.push(base, P_MIN));
         this.max = parameters.getDoubleParameter(Parameters.push(base, P_MAX));
         
@@ -57,30 +51,15 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
     }
 
     @Override
-    public DoubleVectorIndividual decode(final BitStringIndividual individual)
-    {
+    public DoubleVectorIndividual decode(final BitStringIndividual individual) {
         assert(individual.size() == numBitsPerDimension*numDimensions);
         final List<BitGene> genome = individual.getGenome();
         final double[] phenotype = new double[numDimensions];
         final double maxPhenotypeValue = Math.pow(2, numBitsPerDimension) - 1.0;
-        for (int dimension = 0; dimension < numDimensions; dimension++)
-        {
+        for (int dimension = 0; dimension < numDimensions; dimension++) {
             int i = 0;
             int lastb = 0;
-            for (int place = 0; place < numBitsPerDimension; place++)
-            {
-                //final int power = lowestSignificance + place;
-                //if (genome.get(dimension*numBitsPerDimension + place).value)
-                //    phenotype[dimension] += Math.pow(2, power);
-
-                // I borrowed this code from my Python EA library called LEAP.
-                // Before that, I probably found it on the internet.
-
-                // Siggy,
-                // I'm not sure how to handle the lowestSignificance yet.
-                // I haven't been able to even compile it yet, but I thought
-                // I'd check it in case you want to try and do something with
-                // it.
+            for (int place = 0; place < numBitsPerDimension; place++) {
                 int g = (genome.get(dimension*numBitsPerDimension + place).value ? 1 : 0);
                 int b = g ^ lastb;   // XOR
                 i = (i << 1) + b;
@@ -132,7 +111,6 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
         final GrayBitStringToDoubleVectorDecoder ref = (GrayBitStringToDoubleVectorDecoder) o;
         return numBitsPerDimension == ref.numBitsPerDimension
                 && numDimensions == ref.numDimensions
-                && lowestSignificance == ref.lowestSignificance
                 && Misc.doubleEquals(min, ref.min)
                 && Misc.doubleEquals(max, ref.max);
     }
@@ -142,7 +120,6 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
         int hash = 5;
         hash = 53 * hash + this.numBitsPerDimension;
         hash = 53 * hash + this.numDimensions;
-        hash = 53 * hash + this.lowestSignificance;
         hash = 53 * hash + (int) (Double.doubleToLongBits(this.min) ^ (Double.doubleToLongBits(this.min) >>> 32));
         hash = 53 * hash + (int) (Double.doubleToLongBits(this.max) ^ (Double.doubleToLongBits(this.max) >>> 32));
         return hash;
@@ -150,7 +127,7 @@ public class GrayBitStringToDoubleVectorDecoder extends Decoder<BitStringIndivid
 
     @Override
     public String toString() {
-        return String.format("[%s: numDimensions=%d, numBitsPerDimension=%d, lowestSignificance=%d, min=%f, max=%f]", this.getClass().getSimpleName(), numDimensions, numBitsPerDimension, lowestSignificance, min, max);
+        return String.format("[%s: numDimensions=%d, numBitsPerDimension=%d, min=%f, max=%f]", this.getClass().getSimpleName(), numDimensions, numBitsPerDimension, min, max);
     }
     // </editor-fold>
     
