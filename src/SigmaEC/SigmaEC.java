@@ -8,6 +8,8 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -50,7 +52,7 @@ public class SigmaEC {
             experiment.run();
         }
         catch (final Exception e) {
-            System.err.println(e);
+            Logger.getLogger(SigmaEC.class.toString()).log(Level.SEVERE, "", e);
             System.exit(1);
         }
     }
