@@ -9,10 +9,11 @@ import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
- * Takes a population of LinearGenomeIndividuals and mutates them according to
- * some per-gene mutation rate.
+ * Takes a population of LinearGenomeIndividuals and mutates individual genes
+ * according to some per-gene mutation rate.
  * 
  * @author Eric 'Siggy' Scott
  */
@@ -23,7 +24,7 @@ public class MutatingGenerator<T extends LinearGenomeIndividual<G>, G extends Ge
     
     private final double mutationRate;
     private final Mutator<G> mutator;
-    private final SRandom random;
+    private final Random random;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
     
     public MutatingGenerator(final Parameters parameters, final String base) {
