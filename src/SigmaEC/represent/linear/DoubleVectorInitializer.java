@@ -13,21 +13,21 @@ import java.util.Random;
  * @author Eric 'Siggy' Scott
  */
 public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual> {
-    private final static String P_POPULATION_SIZE = "populationSize";
-    private final static String P_NUM_DIMENSIONS = "numDimensions";
-    private final static String P_DEFAULT_MAX_VALUE = "defaultMaxValue";
-    private final static String P_DEFAULT_MIN_VALUE = "defaultMinValue";
-    private final static String P_MAX_VALUES = "maxValues";
-    private final static String P_MIN_VALUES = "minValues";
-    private final static String P_RANDOM = "random";
+    public final static String P_POPULATION_SIZE = "populationSize";
+    public final static String P_NUM_DIMENSIONS = "numDimensions";
+    public final static String P_DEFAULT_MAX_VALUE = "defaultMaxValue";
+    public final static String P_DEFAULT_MIN_VALUE = "defaultMinValue";
+    public final static String P_MAX_VALUES = "maxValues";
+    public final static String P_MIN_VALUES = "minValues";
+    public final static String P_RANDOM = "random";
     
-    final int populationSize;
-    final int numDimensions;
-    final double[] maxValues;
-    final double[] minValues;
-    final Random random;
+    private final int populationSize;
+    private final int numDimensions;
+    private final double[] maxValues;
+    private final double[] minValues;
+    private final Random random;
     
-    private DoubleVectorInitializer(final Parameters parameters, final String base) {
+    public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
