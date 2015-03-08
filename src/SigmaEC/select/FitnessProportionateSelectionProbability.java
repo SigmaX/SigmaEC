@@ -3,7 +3,10 @@ package SigmaEC.select;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import SigmaEC.util.math.Statistics;
 import java.util.List;
 
 /**
@@ -13,15 +16,25 @@ import java.util.List;
 public class FitnessProportionateSelectionProbability<T extends Individual, P> extends SelectionProbability<T> {
     final public static String P_DECODER = "decoder";
     final public static String P_OBJECTIVE = "objective";
+    final public static String P_MINIMIZE = "minimize";
+    final public static String P_OFFSET = "offset";
     
+    final private boolean minimize;
     final private Decoder<T, P> decoder;
     final private ObjectiveFunction<P> objective;
+    final private double offset;
 
     public FitnessProportionateSelectionProbability(final Parameters params, final String base) {
         assert(params != null);
         assert(base != null);
+        final Option<Boolean> minimizeOpt = params.getOptionalBooleanParameter(Parameters.push(base, P_MINIMIZE));
+        minimize = minimizeOpt.isDefined() ? minimizeOpt.get() : false;
         decoder = params.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         objective = params.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        final Option<Double> fitnessBoundOpt = params.getOptionalDoubleParameter(Parameters.push(base, P_OFFSET));
+        offset = fitnessBoundOpt.isDefined() ? fitnessBoundOpt.get() : 0.0;
+        if (!Double.isFinite(offset))
+            throw new IllegalStateException(String.format("%s: %s is %f, must be finite.", this.getClass().getSimpleName(), P_OFFSET, offset));
         assert(repOK());
     }
     
@@ -29,14 +42,29 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
     public double[] probability(final List<T> population) {
         assert(population != null);
         assert(population.size() > 0);
+        // Get fitnesses
         final double[] fitnesses = new double[population.size()];
+        for (int i = 0; i < population.size(); i++)
+            fitnesses[i] = objective.fitness(decoder.decode(population.get(i)));
+        
+        // Transform fitnesses into probability densities
+        final double[] p = new double[population.size()];
         double sum = 0;
-        for (final double d : fitnesses)
-            sum += d;
-        for (int i = 0; i < fitnesses.length; i++)
-            fitnesses[i] /= sum;
+        for (int i = 0; i < population.size(); i++) {
+            assert(Double.isFinite(fitnesses[i]));
+            p[i] = Math.abs(offset - fitnesses[i]);
+            sum += p[i];
+        }
+        // Normalize, and invert the densities if smaller densities are better
+        for (int i = 0; i < p.length; i++) {
+            p[i] /= sum;
+            // If smaller values are better, flip the distribution
+            if (minimize)
+                p[i] = (1.0 - p[i])/(p.length - 1); // Convert p[x] to (1-p[x])/Z, where Z = n-1 is a new normalizing constant
+        }
+        assert(Statistics.sumsToOne(p));
         assert(repOK());
-        return fitnesses;
+        return p;
     }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -46,8 +74,13 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
                 && !P_DECODER.isEmpty()
                 && P_OBJECTIVE != null
                 && !P_OBJECTIVE.isEmpty()
+                && P_MINIMIZE != null
+                && !P_MINIMIZE.isEmpty()
+                && P_OFFSET != null
+                && !P_OFFSET.isEmpty()
                 && decoder != null
-                && objective != null;
+                && objective != null
+                && Double.isFinite(offset);
     }
 
     @Override
@@ -57,21 +90,25 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
         if (!(o instanceof FitnessProportionateSelectionProbability))
             return false;
         final FitnessProportionateSelectionProbability ref = (FitnessProportionateSelectionProbability) o;
-        return decoder.equals(ref.decoder)
+        return minimize == ref.minimize
+                && Misc.doubleEquals(offset, ref.offset)
+                && decoder.equals(ref.decoder)
                 && objective.equals(ref.objective);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 17 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
-        hash = 17 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 37 * hash + (this.minimize ? 1 : 0);
+        hash = 37 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        hash = 37 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 37 * hash + (int) (Double.doubleToLongBits(this.offset) ^ (Double.doubleToLongBits(this.offset) >>> 32));
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: decoder=%s, objective=%d]", this.getClass().getSimpleName(), decoder, objective);
+        return String.format("[%s: minimize=%s, offset=%f, decoder=%s, objective=%s]", this.getClass().getSimpleName(), minimize, offset, decoder, objective);
     }
     // </editor-fold>
 }

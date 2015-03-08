@@ -1,10 +1,13 @@
 package SigmaEC.select;
 
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -13,7 +16,9 @@ import java.util.List;
 public class RankingSelectionProbability<T extends Individual, P> extends SelectionProbability<T> {
     public final static String P_POWER = "power";
     public final static String P_COMPARATOR = "comparator";
+    final public static String P_MINIMIZE = "minimize";
     
+    final private boolean minimize;
     private final int power;
     private final Comparator<T> fitnessComparator;
     
@@ -23,6 +28,8 @@ public class RankingSelectionProbability<T extends Individual, P> extends Select
         power = parameters.getIntParameter(Parameters.push(base, P_POWER));
         if (power < 0)
             throw new IllegalStateException(String.format("%s: power is %d, must be >= 0.", this.getClass().getSimpleName(), power));
+        final Option<Boolean> minimizeOpt = parameters.getOptionalBooleanParameter(Parameters.push(base, P_MINIMIZE));
+        minimize = minimizeOpt.isDefined() ? minimizeOpt.get() : false;
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
         assert(repOK());
     }
@@ -41,9 +48,10 @@ public class RankingSelectionProbability<T extends Individual, P> extends Select
             p[i] = (double) (power + 1)/Math.pow(n, power + 1) * Math.pow(rank[i] + 1, power);
             sum += p[i];
         }
-        // Normalize p to account for errors in the approximation
         for (int i = 0; i < p.length; i++) {
             p[i] /= sum;
+            if (minimize)
+                p[i] = 1.0 - p[i];
         }
         assert(repOK());
         return p;

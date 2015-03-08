@@ -1,5 +1,6 @@
 package SigmaEC.util.math;
 
+import SigmaEC.util.Misc;
 import java.util.Comparator;
 import java.util.List;
 
@@ -94,4 +95,12 @@ public final class Statistics
         return values[minIndex(values)];
     }
     
+    public static boolean sumsToOne(final double[] array) {
+        if (array == null || Misc.containsNaNs(array))
+            return false;
+        double sum = 0.0;
+        for (final double d : array)
+            sum += d;
+        return Misc.doubleEquals(sum, 1.0);
+    }
 }
