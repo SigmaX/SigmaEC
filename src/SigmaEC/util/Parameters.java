@@ -269,11 +269,11 @@ public class Parameters extends ContractObject {
         }
     }
    
-    private void registerInstanceIfReferenced(final String parameterName, final Object instance) {
+    private void registerInstance(final String parameterName, final Object instance) {
         assert(parameterName != null);
         assert(instance != null);
-        if (properties.containsValue(REFERENCE_SYMBOL + parameterName))
-            instanceRegistry.put(parameterName, instance);
+        //if (properties.containsValue(REFERENCE_SYMBOL + parameterName))
+        instanceRegistry.put(parameterName, instance);
     }
     
     public <T> T getInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
@@ -292,13 +292,16 @@ public class Parameters extends ContractObject {
             else {
                 final String drefParam = dereferenceToParameter(value);
                 final T result = getInstanceFromClassName(drefVal, drefParam, expectedSuperClass);
-                registerInstanceIfReferenced(drefParam, result);
+                registerInstance(drefParam, result);
                 return result;
             }
         }
-
-        final T result = getInstanceFromClassName(value, parameterName, expectedSuperClass);
-        registerInstanceIfReferenced(parameterName, result);
+        final T result;
+        if (instanceRegistry.containsKey(parameterName))
+            result = (T) instanceRegistry.get(parameterName);
+        else
+            result = getInstanceFromClassName(value, parameterName, expectedSuperClass);
+        registerInstance(parameterName, result);
         return result;
     }
     
@@ -325,7 +328,7 @@ public class Parameters extends ContractObject {
             for (int i = 0; i < classNames.length; i++)
                 add((T) getInstanceFromClassName(classNames[i].trim(), push(parameterName, String.valueOf(i)), expectedSuperClass));
         }};
-        registerInstanceIfReferenced(parameterName, result);
+        registerInstance(parameterName, result);
         return result;
     }
     

@@ -2,13 +2,16 @@ package SigmaEC.operate;
 
 import SigmaEC.ContractObject;
 import SigmaEC.represent.linear.Gene;
+import SigmaEC.represent.linear.LinearGenomeIndividual;
 
 /**
  *
  * @author Eric 'Siggy' Scott
  */
-public abstract class Mutator<G extends Gene> extends ContractObject
+public abstract class Mutator<T extends LinearGenomeIndividual<G>, G extends Gene> extends ContractObject
 {
     /** Non-destructively produce a mutated copy of a Gene. */
-    public abstract G mutate(G gene);
+    public abstract G mutate(final G gene);
+    
+    public abstract T mutate(final T ind);
 }

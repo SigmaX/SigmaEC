@@ -160,7 +160,7 @@ public class BitStringToDoubleVectorDecoderTest {
     public void testToString() {
         System.out.println("toString");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, lowestSignificance=%d, min=%f, max=%f]", 5, 4, -3, 0.0, 15.0);
+        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, min=%f, max=%f]", 5, 4, -3, 0.0, 15.0);
         final String result = sut.toString();
         assertEquals(expResult, result);
         assertTrue(sut.repOK());

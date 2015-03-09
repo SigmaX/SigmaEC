@@ -1,5 +1,6 @@
 package SigmaEC.operate;
 
+import SigmaEC.SRandom;
 import SigmaEC.test.TestGene;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.util.Parameters;
@@ -18,7 +19,6 @@ import org.junit.Test;
  */
 public class NPointCrossoverMatorTest
 {
-    private Random random;
     private TestIndividual parent1, parent2;
     private final static int GENOME_LENGTH = 10;
     private final static String BASE = "mator";
@@ -30,7 +30,6 @@ public class NPointCrossoverMatorTest
     @Before
     public void setUp()
     {
-        random = new Random();
         parent1 = makeUniformParent(0, GENOME_LENGTH);
         parent2 = makeUniformParent(1, GENOME_LENGTH);
         assert(parent1.getGenome().size() == parent2.getGenome().size());
@@ -199,37 +198,15 @@ public class NPointCrossoverMatorTest
             return n*factorial(n-1);
     }
 
-    /** Test of mate method, of class NPointCrossoverMator. */
-    //@Test
-    public void testMate3()
-    {
-        System.out.println("mate (3 cut points)");
-        
-        // TODO
-    }
-
-    /** Test of toString method, of class NPointCrossoverMator. */
-    @Test
-    public void testToString()
-    {
-        System.out.println("toString");
-        final int NUM_CUT_POINTS = 2;
-        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(new Parameters(getProperties(NUM_CUT_POINTS, false, true)), BASE);
-        String expResult = String.format("[NPointCrossoverMator: numCutPoints=%d, allowCloning=false, random=%s]", NUM_CUT_POINTS, random.toString());
-        String result = SUT.toString();
-        assertEquals(expResult, result);
-        assertTrue(SUT.repOK());
-    }
-
     /** Test of equals method, of class NPointCrossoverMator. */
     @Test
     public void testEquals()
     {
         System.out.println("equals & hashcode");
         final int NUM_CUT_POINTS = 2;
-        final int NUM_PARENTS = 2;
-        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(new Parameters(getProperties(NUM_CUT_POINTS, false, true)), BASE);
-        NPointCrossoverMator gRef = new NPointCrossoverMator<TestIndividual, TestGene>(new Parameters(getProperties(NUM_CUT_POINTS, false, true)), BASE);
+        final Parameters p = new Parameters(getProperties(NUM_CUT_POINTS, false, true));
+        NPointCrossoverMator SUT = new NPointCrossoverMator<TestIndividual, TestGene>(p, BASE);
+        NPointCrossoverMator gRef = new NPointCrossoverMator<TestIndividual, TestGene>(p, BASE);
         NPointCrossoverMator bRef = new NPointCrossoverMator<TestIndividual, TestGene>(new Parameters(getProperties(NUM_CUT_POINTS + 1, false, true)), BASE);
         assertTrue(SUT.equals(gRef));
         assertEquals(SUT.hashCode(), gRef.hashCode());
