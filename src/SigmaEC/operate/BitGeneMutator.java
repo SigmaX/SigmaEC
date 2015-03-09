@@ -33,8 +33,7 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>, Bit
         assert(repOK());
     }
     
-    @Override
-    public BitGene mutate(final BitGene gene) {
+    private BitGene mutate(final BitGene gene) {
         return new BitGene(!gene.value);
     }
 

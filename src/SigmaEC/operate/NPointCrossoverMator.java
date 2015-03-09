@@ -40,7 +40,7 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         final Option<Boolean> allowCloningOpt = parameters.getOptionalBooleanParameter(Parameters.push(base, P_ALLOW_CLONING));
         allowCloning = allowCloningOpt.isDefined() ? allowCloningOpt.get() : true;
-        if (allowCloning)
+        if (allowCloningOpt.isDefined())
             Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING, String.format("Parameter %s is ignored -- its' just a hook for an incomplete feature.", P_ALLOW_CLONING));
         
         if (numCutPoints < 1)

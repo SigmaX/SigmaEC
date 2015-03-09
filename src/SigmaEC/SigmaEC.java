@@ -52,6 +52,7 @@ public class SigmaEC {
             experiment.run();
         }
         catch (final Exception e) {
+            e.printStackTrace(System.err);
             Logger.getLogger(SigmaEC.class.toString()).log(Level.SEVERE, "", e);
             System.exit(1);
         }

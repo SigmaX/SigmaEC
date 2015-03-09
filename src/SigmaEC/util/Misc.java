@@ -227,4 +227,12 @@ public final class Misc
                 return true;
         return false;
     }
+        
+    public static double[] repeatValue(final double val, final int times) {
+        assert(times >= 0);
+        final double[] array = new double[times];
+        for (int i = 0; i < array.length; i++)
+            array[i] = val;
+        return array;
+    }
 }

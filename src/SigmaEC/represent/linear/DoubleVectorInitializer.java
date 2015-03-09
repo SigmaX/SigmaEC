@@ -34,26 +34,17 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         
         if (parameters.isDefined(Parameters.push(base, P_DEFAULT_MAX_VALUE)))
-            this.maxValues = repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE)), numDimensions);
+            this.maxValues = Misc.repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE)), numDimensions);
         else
             this.maxValues = parameters.getDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
             
         if (parameters.isDefined(Parameters.push(base, P_DEFAULT_MIN_VALUE)))
-            this.minValues = repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MIN_VALUE)), numDimensions);
+            this.minValues = Misc.repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MIN_VALUE)), numDimensions);
         else
             this.minValues = parameters.getDoubleArrayParameter(Parameters.push(base, P_MIN_VALUES));
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         assert(repOK());
     }
-        
-    private double[] repeatValue(final double val, final int times) {
-        assert(times >= 0);
-        final double[] array = new double[times];
-        for (int i = 0; i < array.length; i++)
-            array[i] = val;
-        return array;
-    }
-    
 
     @Override
     public List<DoubleVectorIndividual> generatePopulation() {

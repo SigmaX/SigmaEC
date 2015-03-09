@@ -4,10 +4,13 @@ import SigmaEC.SRandom;
 import SigmaEC.represent.linear.DoubleGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * A mutator that adds Gaussian noise to a double.
@@ -15,13 +18,21 @@ import java.util.Random;
  * @author Eric 'Siggy' Scott
  */
 public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene>, DoubleGene> {
-    private final static String P_GAUSSIAN_STD = "gaussianStd";
-    private final static String P_RANDOM = "random";
+    public final static String P_GAUSSIAN_STD = "gaussianStd";
+    public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
+    public final static String P_DEFAULT_MAX_VALUE = "defaultMaxValue";
+    public final static String P_DEFAULT_MIN_VALUE = "defaultMinValue";
+    public final static String P_MAX_VALUES = "maxValues";
+    public final static String P_MIN_VALUES = "minValues";
+    public final static String P_NUM_DIMENSIONS = "dimensions";
+    public final static int HARDBOUND_ATTEMPTS = 10000;
     
     private final double mutationRate;
-    final private Random random;
-    final private double gaussianStd;
+    private final Random random;
+    private final double gaussianStd;
+    private final Option<double[]> maxValues;
+    private final Option<double[]> minValues;
     
     public DoubleGeneMutator(final Parameters parameters, final String base) {
         this.gaussianStd = parameters.getDoubleParameter(Parameters.push(base, P_GAUSSIAN_STD));
@@ -37,12 +48,49 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
             throw new IllegalStateException(String.format("%s: %s is <= 0, must be positive.", this.getClass().getSimpleName(), P_GAUSSIAN_STD));
         if (random == null)
             throw new IllegalStateException(String.format("%s: %s is null.", this.getClass().getSimpleName(), P_RANDOM));
+        
+        final Option<Integer> numDimensions = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        final boolean hardBounds = parameters.isDefined(Parameters.push(base, P_DEFAULT_MAX_VALUE))
+                || parameters.isDefined(Parameters.push(base, P_DEFAULT_MIN_VALUE))
+                || parameters.isDefined(Parameters.push(base, P_MIN_VALUES))
+                || parameters.isDefined(Parameters.push(base, P_MAX_VALUES));
+        if (hardBounds) {
+            if (!numDimensions.isDefined())
+                throw new IllegalStateException(String.format("%s: Using hard bounds (%s, %s, %s and/or %s), but %s is not defined.", this.getClass().getSimpleName(), P_MAX_VALUES, P_MIN_VALUES, P_DEFAULT_MAX_VALUE, P_DEFAULT_MIN_VALUE, P_NUM_DIMENSIONS));
+
+            if (parameters.isDefined(Parameters.push(base, P_DEFAULT_MAX_VALUE)))
+                maxValues = new Option<double[]>(Misc.repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE)), numDimensions.get()));
+            else
+                maxValues = new Option<double[]>(parameters.getDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES)));
+
+            if (parameters.isDefined(Parameters.push(base, P_DEFAULT_MIN_VALUE)))
+                minValues = new Option<double[]>(Misc.repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MIN_VALUE)), numDimensions.get()));
+            else
+                minValues = new Option<double[]>(parameters.getDoubleArrayParameter(Parameters.push(base, P_MIN_VALUES)));
+        }
+        else {
+            maxValues = Option.NONE;
+            minValues = Option.NONE;
+        }
         assert(repOK());
     }
     
-    @Override
-    public DoubleGene mutate(final DoubleGene gene) {
-        return new DoubleGene(gene.value + Misc.gaussianSample(random)*gaussianStd);
+    private boolean usingHardBounds() {
+        return maxValues.isDefined();
+    }
+    
+    private DoubleGene mutate(final DoubleGene gene, final int i) {
+        if (usingHardBounds())
+            return new DoubleGene(gene.value + Misc.gaussianSample(random)*gaussianStd);
+        for (int attempt = 0; attempt < HARDBOUND_ATTEMPTS; attempt++) {
+            final double newValue = gene.value + Misc.gaussianSample(random)*gaussianStd;
+            if (newValue <= maxValues.get()[i] && newValue >= minValues.get()[i])
+                return new DoubleGene(newValue);
+        }
+        Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING,
+                String.format("Failed to find a valid gene value (i.e. on the range [%f, %f]) after attempting %d Gaussian mutations on a single gene.",
+                minValues.get()[i], maxValues.get()[i], HARDBOUND_ATTEMPTS));
+        return gene; // Give up
     }
 
     @Override
@@ -50,9 +98,9 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
         assert(ind != null);
         final List<DoubleGene> genome = ind.getGenome();
         final List<DoubleGene> newGenome = new ArrayList<DoubleGene>();
-        for (final DoubleGene g : genome) {
+        for (int i = 0; i < genome.size(); i++) {
             double roll = random.nextDouble();
-            newGenome.add((roll < mutationRate) ? mutate(g) : g);
+            newGenome.add((roll < mutationRate) ? mutate(genome.get(i), i) : genome.get(i));
         }
         assert(repOK());
         return ind.create(newGenome);

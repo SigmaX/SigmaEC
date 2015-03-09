@@ -2,6 +2,7 @@ package SigmaEC.evaluate.objective;
 
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 
 /**
@@ -22,8 +23,8 @@ public class ConstantObjective<T extends DoubleVectorIndividual> extends Objecti
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
-        this.value = parameters.getDoubleParameter(Parameters.push(base, P_VALUE));
-        
+        final Option<Double> valueOpt = parameters.getOptionalDoubleParameter(Parameters.push(base, P_VALUE));
+        value = valueOpt.isDefined() ? valueOpt.get() : 1.0;
         assert(repOK());
     }
     
