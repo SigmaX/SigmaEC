@@ -21,11 +21,13 @@ public class FitnessComparator<T extends Individual, P> extends ContractObject i
     final public static String P_DOUBLE_EQUALITY_DELTA = "doubleEqualityDelta";
     final public static String P_OBJECTIVE = "objective";
     final public static String P_DECODER = "decoder";
+    final public static String P_EQUAL_IS_BETTER = "equalIsBetter";
     
     final private boolean minimize;
     final private double doubleEqualityDelta;
     final private ObjectiveFunction<P> objective;
     final private Decoder<T, P> decoder;
+    final private boolean equalIsBetter;
     
     public FitnessComparator(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -42,6 +44,7 @@ public class FitnessComparator<T extends Individual, P> extends ContractObject i
             this.doubleEqualityDelta = 0.00000001;
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
+        equalIsBetter = parameters.getBooleanParameter(Parameters.push(base, P_EQUAL_IS_BETTER));
         assert(repOK());
     }
     
@@ -60,6 +63,16 @@ public class FitnessComparator<T extends Individual, P> extends ContractObject i
             return 0;
         else
             return (minimize ? -1 : 1);
+    }
+    
+    public boolean betterThan(final T ind, final T ind1) {
+        assert(ind != null);
+        if (ind1 == null)
+            return true; // Always better than null
+        if (equalIsBetter)
+            return compare(ind, ind1) >= 0;
+        else
+            return compare(ind, ind1) > 0;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -84,6 +97,7 @@ public class FitnessComparator<T extends Individual, P> extends ContractObject i
             return false;
         final FitnessComparator ref = (FitnessComparator)o;
         return minimize == ref.minimize
+                && equalIsBetter == ref.equalIsBetter
                 && Misc.doubleEquals(doubleEqualityDelta, ref.doubleEqualityDelta, 0.0000000000001)
                 && objective.equals(ref.objective)
                 && decoder.equals(ref.decoder);
@@ -92,16 +106,22 @@ public class FitnessComparator<T extends Individual, P> extends ContractObject i
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 13 * hash + (this.minimize ? 1 : 0);
-        hash = 13 * hash + (int) (Double.doubleToLongBits(this.doubleEqualityDelta) ^ (Double.doubleToLongBits(this.doubleEqualityDelta) >>> 32));
-        hash = 13 * hash + (this.objective != null ? this.objective.hashCode() : 0);
-        hash = 13 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        hash = 79 * hash + (this.minimize ? 1 : 0);
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.doubleEqualityDelta) ^ (Double.doubleToLongBits(this.doubleEqualityDelta) >>> 32));
+        hash = 79 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 79 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
+        hash = 79 * hash + (this.equalIsBetter ? 1 : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: minimize=%s, doubleEqualityDelta=%f, objective=%s, decoder=%s]", this.getClass().getSimpleName(), minimize, doubleEqualityDelta, objective, decoder);
+        return String.format("[%s: %s=%s, %s=%s, %s=%f, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+                P_MINIMIZE, minimize,
+                P_EQUAL_IS_BETTER, equalIsBetter,
+                P_DOUBLE_EQUALITY_DELTA, doubleEqualityDelta,
+                P_OBJECTIVE, objective,
+                P_DECODER, decoder);
     }
     // </editor-fold>
 }

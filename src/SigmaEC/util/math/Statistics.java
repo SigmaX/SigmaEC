@@ -1,5 +1,7 @@
 package SigmaEC.util.math;
 
+import SigmaEC.represent.Individual;
+import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import java.util.Comparator;
 import java.util.List;
@@ -47,23 +49,23 @@ public final class Statistics
         return maxIndex;
     }
     
-    public static <T> T max(final List<T> values, final Comparator<T> comparator) {
+    public static <T extends Individual> T max(final List<T> values, final FitnessComparator<T, ?> comparator) {
         assert(values != null);
         assert(comparator != null);
         T best = values.get(0);
         for (final T val : values) {
-            if (comparator.compare(val, best) > 0)
+            if (comparator.betterThan(val, best))
                 best = val;
         }
         return best;
     }
     
-    public static <T> T min(final List<T> values, final Comparator<T> comparator) {
+    public static <T extends Individual> T min(final List<T> values, final FitnessComparator<T, ?> comparator) {
         assert(values != null);
         assert(comparator != null);
         T best = values.get(0);
         for (final T val : values) {
-            if (comparator.compare(val, best) < 0)
+            if (comparator.betterThan(val, best))
                 best = val;
         }
         return best;

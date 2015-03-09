@@ -15,16 +15,16 @@ import java.util.List;
  */
 public class TruncationSelector<T extends Individual, P> extends Selector<T> {
     public final static String P_COMPARATOR = "fitnessComparator";
-    private final Comparator<T> fitnessComparator;
+    private final FitnessComparator<T, P> fitnessComparator;
     
     public TruncationSelector(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         assert(repOK());
     }
     
-    public TruncationSelector(final Comparator<T> fitnessComparator) {
+    public TruncationSelector(final FitnessComparator<T, P> fitnessComparator) {
         assert(fitnessComparator != null);
         this.fitnessComparator = fitnessComparator;
         assert(repOK());
@@ -40,7 +40,7 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T> {
         assert(!population.isEmpty());
         T best = null;
         for (final T ind : population)
-            if (fitnessComparator.compare(ind, best) > 0)
+            if (fitnessComparator.betterThan(ind, best))
                 best = ind;
         assert(best != null);
         assert(repOK());
@@ -74,7 +74,7 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T> {
         int bestIndex = -1;
         T best = null;
         for (int i = 0; i < population.size(); i++)
-            if (fitnessComparator.compare(population.get(i), best) > 0) {
+            if (fitnessComparator.betterThan(population.get(i), best)) {
                 best = population.get(i);
                 bestIndex = i;
             }

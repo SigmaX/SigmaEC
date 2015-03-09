@@ -3,6 +3,7 @@ package SigmaEC.measure;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
+import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
 import java.util.Comparator;
@@ -21,7 +22,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     
     final private ObjectiveFunction<P> objective;
     final private Decoder<T, P> decoder;
-    final private Comparator<T> fitnessComparator;
+    final private FitnessComparator<T, P> fitnessComparator;
     private T bestSoFar = null;
     private long bestSoFarID = -1;
     
@@ -30,7 +31,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         assert(base != null);
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
-        this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
+        this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         assert(repOK());
     }
     
@@ -48,7 +49,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         final T min = Statistics.min(population, fitnessComparator);
         final double minFitness = objective.fitness(decoder.decode(min));
         
-        if (fitnessComparator.compare(max, bestSoFar) > 0) {
+        if (fitnessComparator.betterThan(max, bestSoFar)) {
             bestSoFar = max;
             bestSoFarID = max.getID();
         }

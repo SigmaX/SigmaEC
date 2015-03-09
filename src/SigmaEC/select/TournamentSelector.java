@@ -18,7 +18,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T> {
     public final static String P_RANDOM = "random";
     
     private final int tournamentSize;
-    private final Comparator<T> fitnessComparator;
+    private final FitnessComparator<T, P> fitnessComparator;
     private final Random random;
     private final RandomSelector<T> contestantSelector;
     
@@ -26,7 +26,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T> {
         assert(parameters != null);
         assert(base != null);
         tournamentSize = parameters.getIntParameter(Parameters.push(base, P_TOURNAMENT_SIZE));
-        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), Comparator.class);
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         contestantSelector = new RandomSelector<T>(random);
         assert(repOK());
@@ -68,7 +68,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T> {
         T best = null;
         for (int i = 0; i < contestants.length; i++) {
             final T contestant = population.get(contestants[i]);
-            if (fitnessComparator.compare(contestant, best) > 0) {
+            if (fitnessComparator.betterThan(contestant, best)) {
                 best = contestant;
                 bestIndex = contestants[i];
             }
