@@ -3,7 +3,6 @@ package SigmaEC.util.math;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
-import java.util.Comparator;
 import java.util.List;
 
 /**
