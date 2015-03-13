@@ -53,9 +53,7 @@ public class SUSSelectorTest {
                 .setParameter(Parameters.push(BASE, SUSSelector.P_RANDOM), "SigmaEC.SRandom")
                 .setParameter(Parameters.push(BASE, SUSSelector.P_PROBABILITY), "SigmaEC.select.RankingSelectionProbability")
                 .setParameter(Parameters.push(Parameters.push(BASE, SUSSelector.P_PROBABILITY), RankingSelectionProbability.P_POWER), "1")
-                .setParameter(Parameters.push(Parameters.push(BASE, SUSSelector.P_PROBABILITY), RankingSelectionProbability.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
-                .setParameter(Parameters.push(Parameters.push(Parameters.push(BASE, SUSSelector.P_PROBABILITY), RankingSelectionProbability.P_COMPARATOR), FitnessComparator.P_DECODER), "SigmaEC.test.TestDecoder")
-                .setParameter(Parameters.push(Parameters.push(Parameters.push(BASE, SUSSelector.P_PROBABILITY), RankingSelectionProbability.P_COMPARATOR), FitnessComparator.P_OBJECTIVE), "SigmaEC.test.TestObjective");
+                .setParameter(Parameters.push(Parameters.push(BASE, SUSSelector.P_PROBABILITY), RankingSelectionProbability.P_COMPARATOR), "SigmaEC.select.FitnessComparator");
     }
 
     /**

@@ -3,7 +3,6 @@ package SigmaEC.select;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
@@ -18,7 +17,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T> {
     public final static String P_RANDOM = "random";
     
     private final int tournamentSize;
-    private final FitnessComparator<T, P> fitnessComparator;
+    private final FitnessComparator<T> fitnessComparator;
     private final Random random;
     private final RandomSelector<T> contestantSelector;
     

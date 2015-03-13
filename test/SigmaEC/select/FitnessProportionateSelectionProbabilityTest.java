@@ -28,9 +28,7 @@ public class FitnessProportionateSelectionProbabilityTest {
     
     @Before
     public void setUp() {
-        paramBuilder = new Parameters.Builder(new Properties())
-                .setParameter(Parameters.push(BASE, FitnessProportionateSelectionProbability.P_DECODER), "SigmaEC.test.TestDecoder")
-                .setParameter(Parameters.push(BASE, FitnessProportionateSelectionProbability.P_OBJECTIVE), "SigmaEC.test.TestObjective");
+        paramBuilder = new Parameters.Builder(new Properties());
         population = new ArrayList<TestIndividual>() {{
                 add(new TestIndividual(3.0));
                 add(new TestIndividual(1.0));

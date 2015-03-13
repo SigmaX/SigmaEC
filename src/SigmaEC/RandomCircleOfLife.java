@@ -23,7 +23,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final public static String P_EVALS_PER_GEN = "evalsPerGeneration";
     final public static String P_INITIALIZER = "initializer";
     final public static String P_COMPARATOR = "fitnessComparator";
-    final public static String P_DECODER = "decoder";
     final public static String P_OBJECTIVE = "objective";
     final public static String P_PRE_METRICS = "preMetrics";
     final public static String P_POST_METRICS = "postMetrics";
@@ -32,8 +31,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final private int numGenerations;
     final private int evalsPerGeneration;
     final private Initializer<T> initializer;
-    final private FitnessComparator<T, P> fitnessComparator;
-    final private Decoder<T, P> decoder;
+    final private FitnessComparator<T> fitnessComparator;
     final private ObjectiveFunction<P> objective;
     final private Option<List<PopulationMetric<T>>> preOperatorMetrics;
     final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
@@ -45,7 +43,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         this.evalsPerGeneration = parameters.getIntParameter(Parameters.push(base, P_EVALS_PER_GEN));
         this.initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
         this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
-        this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         this.preOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_PRE_METRICS), PopulationMetric.class);
         this.postOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_POST_METRICS), PopulationMetric.class);
@@ -82,7 +79,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             
             flushMetrics();
         }
-        return new EvolutionResult<T>(population, bestIndividual, objective.fitness(decoder.decode(bestIndividual)));
+        return new EvolutionResult<T>(population, bestIndividual, bestIndividual.getFitness());
     }
     
     /** Flush I/O buffers. */
@@ -110,7 +107,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 && preOperatorMetrics != null
                 && initializer != null
                 && fitnessComparator != null
-                && decoder != null
                 && objective != null
                 && random != null
                 && !(preOperatorMetrics.isDefined() && Misc.containsNulls(preOperatorMetrics.get()))
@@ -128,7 +124,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 && evalsPerGeneration == ref.evalsPerGeneration
                 && initializer.equals(ref.initializer)
                 && fitnessComparator.equals(ref.fitnessComparator)
-                && decoder.equals(ref.decoder)
                 && objective.equals(ref.objective)
                 && random.equals(ref.random)
                 && preOperatorMetrics.equals(ref.preOperatorMetrics)
@@ -142,7 +137,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         hash = 47 * hash + this.evalsPerGeneration;
         hash = 47 * hash + (this.initializer != null ? this.initializer.hashCode() : 0);
         hash = 47 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
-        hash = 47 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
         hash = 47 * hash + (this.objective != null ? this.objective.hashCode() : 0);
         hash = 47 * hash + (this.preOperatorMetrics != null ? this.preOperatorMetrics.hashCode() : 0);
         hash = 47 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
@@ -152,7 +146,15 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     
     @Override
     public String toString() {
-        return String.format("[%s: numGenerations=%d, evalsPerGeneration=%d, initializer=%s, fitnessComparator=%s, preOperatorMetrics=%s, postOperatorMetrics=%s, decoder=%s, objective=%s, random=%s]", this.getClass().getSimpleName(), numGenerations, evalsPerGeneration, initializer, fitnessComparator, preOperatorMetrics, postOperatorMetrics, decoder, objective, random);
+        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+                P_NUM_GENERATIONS, numGenerations,
+                P_EVALS_PER_GEN, evalsPerGeneration,
+                P_INITIALIZER, initializer,
+                P_COMPARATOR, fitnessComparator,
+                P_PRE_METRICS, preOperatorMetrics,
+                P_POST_METRICS, postOperatorMetrics,
+                P_OBJECTIVE, objective,
+                P_RANDOM, random);
     }
     // </editor-fold>
     

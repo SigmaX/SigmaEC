@@ -53,8 +53,6 @@ public class TournamentSelectorTest {
                 .setParameter(Parameters.push(BASE, TournamentSelector.P_RANDOM), "SigmaEC.SRandom")
                 .setParameter(Parameters.push(BASE, TournamentSelector.P_TOURNAMENT_SIZE), String.valueOf(tournamentSize))
                 .setParameter(Parameters.push(BASE, TournamentSelector.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
-                .setParameter(Parameters.push(Parameters.push(BASE, TournamentSelector.P_COMPARATOR), FitnessComparator.P_DECODER), "SigmaEC.test.TestDecoder")
-                .setParameter(Parameters.push(Parameters.push(BASE, TournamentSelector.P_COMPARATOR), FitnessComparator.P_OBJECTIVE), "SigmaEC.test.TestObjective")
                 .build();
         return new TournamentSelector<TestIndividual, Double>(params, BASE);
     }
@@ -64,8 +62,6 @@ public class TournamentSelectorTest {
         final Parameters params = new Parameters.Builder(new Properties())
                 .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_POWER), String.valueOf(power))
                 .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
-                .setParameter(Parameters.push(Parameters.push(BASE, RankingSelectionProbability.P_COMPARATOR), FitnessComparator.P_DECODER), "SigmaEC.test.TestDecoder")
-                .setParameter(Parameters.push(Parameters.push(BASE, RankingSelectionProbability.P_COMPARATOR), FitnessComparator.P_OBJECTIVE), "SigmaEC.test.TestObjective")
                 .build();
         return new RankingSelectionProbability<TestIndividual, Double>(params, BASE);
     }

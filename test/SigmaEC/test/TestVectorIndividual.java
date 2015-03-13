@@ -1,6 +1,7 @@
 package SigmaEC.test;
 
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Option;
 import java.util.Arrays;
 
 /**
@@ -13,10 +14,20 @@ public class TestVectorIndividual extends Individual
     private final long id;
     private static long nextId = 0;
     private final double[] vector;
+    private final Option<Double> fitness;
+    
     public TestVectorIndividual(final double[] vector)
     {
         this.vector = vector;
         this.id = nextId++;
+        fitness = Option.NONE;
+    }
+    
+    private TestVectorIndividual(final TestVectorIndividual ref, final double fitness) {
+        assert(ref != null);
+        vector = Arrays.copyOf(ref.vector, ref.vector.length);
+        id = ref.id;
+        this.fitness = new Option<Double>(fitness);
     }
 
     public double[] getVector() {
@@ -43,4 +54,17 @@ public class TestVectorIndividual extends Individual
 
     @Override
     public long getID() { return id; }
+
+    @Override
+    public double getFitness() {
+        if (fitness.isDefined())
+            return fitness.get();
+        else
+            throw new IllegalStateException(String.format("%s: attempted to read the fitness of an individual whose fitness has not been evaluated.", this.getClass().getSimpleName()));
+    }
+
+    @Override
+    public TestVectorIndividual setFitness(double fitness) {
+        return new TestVectorIndividual(this, fitness);
+    }
 }

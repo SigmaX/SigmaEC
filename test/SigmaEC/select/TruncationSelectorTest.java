@@ -55,8 +55,6 @@ public class TruncationSelectorTest {
     private static Parameters.Builder getParams() {
         return new Parameters.Builder(new Properties())
                 .setParameter(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
-                .setParameter(Parameters.push(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), FitnessComparator.P_DECODER), "SigmaEC.test.TestDecoder")
-                .setParameter(Parameters.push(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), FitnessComparator.P_OBJECTIVE), "SigmaEC.test.TestObjective")
                 .setParameter(Parameters.push(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), FitnessComparator.P_MINIMIZE), "false");
     }
 

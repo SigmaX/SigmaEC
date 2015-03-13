@@ -18,4 +18,9 @@ public abstract class Individual extends ContractObject
      */
     public abstract long getID();
     
+    public abstract double getFitness();
+    
+    /** Produces a copy of this individual with the fitness set or altered. */
+    public abstract Individual setFitness(final double fitness);
+    
 }

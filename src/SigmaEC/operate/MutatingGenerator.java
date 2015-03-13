@@ -1,5 +1,6 @@
 package SigmaEC.operate;
 
+import SigmaEC.Generator;
 import SigmaEC.SRandom;
 import SigmaEC.represent.linear.Gene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;

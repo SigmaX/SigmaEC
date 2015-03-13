@@ -325,8 +325,12 @@ public class Parameters extends ContractObject {
         
         final String[] classNames = value.split(LIST_DELIMITER);
         final List<T> result =  new ArrayList<T>() {{
-            for (int i = 0; i < classNames.length; i++)
-                add((T) getInstanceFromClassName(classNames[i].trim(), push(parameterName, String.valueOf(i)), expectedSuperClass));
+            for (int i = 0; i < classNames.length; i++) {
+                if (isReference(classNames[i].trim()))
+                    add((T) getInstanceFromParameter(dereferenceToValue(classNames[i].trim()), expectedSuperClass));
+                else
+                    add((T) getInstanceFromClassName(classNames[i].trim(), push(parameterName, String.valueOf(i)), expectedSuperClass));
+            }
         }};
         registerInstance(parameterName, result);
         return result;

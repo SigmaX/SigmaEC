@@ -6,8 +6,6 @@ import SigmaEC.util.Parameters;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -119,7 +117,9 @@ public class RankingSelectionProbability<T extends Individual, P> extends Select
 
     @Override
     public String toString() {
-        return String.format("[%s: power=%d, fitnessComparator=%s]", this.getClass().getSimpleName(), power, fitnessComparator);
+        return String.format("[%s: %s=%d, %s=%s]", this.getClass().getSimpleName(),
+                P_POWER, power,
+                P_COMPARATOR, fitnessComparator);
     }
     // </editor-fold>
 }

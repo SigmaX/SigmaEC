@@ -48,7 +48,8 @@ public final class Statistics
         return maxIndex;
     }
     
-    public static <T extends Individual> T max(final List<T> values, final FitnessComparator<T, ?> comparator) {
+    /** Return the best individual according to some FitnessComparator. */
+    public static <T extends Individual> T max(final List<T> values, final FitnessComparator<T> comparator) {
         assert(values != null);
         assert(comparator != null);
         T best = values.get(0);
@@ -59,7 +60,8 @@ public final class Statistics
         return best;
     }
     
-    public static <T extends Individual> T min(final List<T> values, final FitnessComparator<T, ?> comparator) {
+    /** Return the worst individual according to some FitnessComparator. */
+    public static <T extends Individual> T min(final List<T> values, final FitnessComparator<T> comparator) {
         assert(values != null);
         assert(comparator != null);
         T best = values.get(0);

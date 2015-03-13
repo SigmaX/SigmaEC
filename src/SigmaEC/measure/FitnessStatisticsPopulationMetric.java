@@ -1,12 +1,9 @@
 package SigmaEC.measure;
 
-import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -16,21 +13,15 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T> {
-    final private static String P_OBJECTIVE = "objective";
-    final private static String P_DECODER = "decoder";
     final private static String P_COMPARATOR = "fitnessComparator";
     
-    final private ObjectiveFunction<P> objective;
-    final private Decoder<T, P> decoder;
-    final private FitnessComparator<T, P> fitnessComparator;
+    final private FitnessComparator<T> fitnessComparator;
     private T bestSoFar = null;
     private long bestSoFarID = -1;
     
     public FitnessStatisticsPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
-        this.decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         assert(repOK());
     }
@@ -40,21 +31,18 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     public FitnessStatisticsMeasurement measurePopulation(final int run, final int generation, final List<T> population) {
         final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
-            fitnesses[i] = objective.fitness(decoder.decode(population.get(i)));
+            fitnesses[i] = population.get(i).getFitness();
         final double mean = Statistics.mean(fitnesses);
         final double std = Statistics.std(fitnesses, mean);
         
         final T max = Statistics.max(population, fitnessComparator);
-        final double maxFitness = objective.fitness(decoder.decode(max));
         final T min = Statistics.min(population, fitnessComparator);
-        final double minFitness = objective.fitness(decoder.decode(min));
         
         if (fitnessComparator.betterThan(max, bestSoFar)) {
             bestSoFar = max;
             bestSoFarID = max.getID();
         }
-        final double bestSoFarFitness = objective.fitness(decoder.decode(bestSoFar));
-        return new FitnessStatisticsMeasurement(run, generation, mean, std, maxFitness, minFitness, bestSoFarFitness, bestSoFarID);
+        return new FitnessStatisticsMeasurement(run, generation, mean, std, max.getFitness(), min.getFitness(), bestSoFar.getFitness(), bestSoFarID);
     }
 
     @Override
@@ -72,14 +60,13 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return objective != null
-                && decoder != null
-                && fitnessComparator != null;
+        return fitnessComparator != null;
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: objective=%s, decoder=%s, fitnessComparator=%s, bestSoFar=%s]", this.getClass().getSimpleName(), objective, decoder, fitnessComparator, bestSoFar);
+        return String.format("[%s: %s=%s, bestSoFar=%s]", this.getClass().getSimpleName(),
+                P_COMPARATOR, fitnessComparator, bestSoFar);
     }
     
     @Override
@@ -89,21 +76,17 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         if (!(o instanceof FitnessStatisticsPopulationMetric))
             return false;
         final FitnessStatisticsPopulationMetric cRef = (FitnessStatisticsPopulationMetric) o;
-        return objective.equals(cRef.objective)
-                && decoder.equals(cRef.decoder)
-                && fitnessComparator.equals(cRef.fitnessComparator)
+        return fitnessComparator.equals(cRef.fitnessComparator)
                 && bestSoFar.equals(bestSoFar);
     }
-    //</editor-fold>
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + (this.objective != null ? this.objective.hashCode() : 0);
-        hash = 71 * hash + (this.decoder != null ? this.decoder.hashCode() : 0);
         hash = 71 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
         hash = 71 * hash + (this.bestSoFar != null ? this.bestSoFar.hashCode() : 0);
         hash = 71 * hash + (int) (this.bestSoFarID ^ (this.bestSoFarID >>> 32));
         return hash;
     }
+    //</editor-fold>
 }

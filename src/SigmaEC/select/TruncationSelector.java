@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class TruncationSelector<T extends Individual, P> extends Selector<T> {
     public final static String P_COMPARATOR = "fitnessComparator";
-    private final FitnessComparator<T, P> fitnessComparator;
+    private final FitnessComparator<T> fitnessComparator;
     
     public TruncationSelector(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -24,7 +24,7 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T> {
         assert(repOK());
     }
     
-    public TruncationSelector(final FitnessComparator<T, P> fitnessComparator) {
+    public TruncationSelector(final FitnessComparator<T> fitnessComparator) {
         assert(fitnessComparator != null);
         this.fitnessComparator = fitnessComparator;
         assert(repOK());

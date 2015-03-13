@@ -1,5 +1,6 @@
 package SigmaEC.operate;
 
+import SigmaEC.Generator;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;

@@ -1,6 +1,8 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,6 +15,7 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     private final List<DoubleGene> genome;
     private final long id;
     private static long nextId;
+    private final Option<Double> fitness;
     
     /** Construct a random double vector.
      * 
@@ -36,6 +39,7 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
            } 
         }};
         this.id = nextId++;
+        fitness = Option.NONE;
         assert(repOK());
     }
     
@@ -46,6 +50,7 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
             throw new IllegalArgumentException(String.format("%s: genome contains null values.", this.getClass().getSimpleName()));
         this.genome = new ArrayList<DoubleGene>(genome);
         this.id = nextId++;
+        fitness = Option.NONE;
         assert(repOK());
     }
     
@@ -58,6 +63,15 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         for (int i = 0; i < genome.length; i++)
             this.genome.add(new DoubleGene(genome[i]));
         this.id = nextId++;
+        fitness = Option.NONE;
+        assert(repOK());
+    }
+    
+    private DoubleVectorIndividual(final DoubleVectorIndividual ref, final double fitness) {
+        assert(ref != null);
+        genome = new ArrayList<DoubleGene>(ref.genome);
+        id = ref.id;
+        this.fitness = new Option<Double>(fitness);
         assert(repOK());
     }
 
@@ -91,10 +105,26 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         return genome.get(i).value;
     }
 
+    @Override
+    public double getFitness() {
+        if (fitness.isDefined())
+            return fitness.get();
+        else
+            throw new IllegalStateException(String.format("%s: attempted to read the fitness of an individual whose fitness has not been evaluated.", this.getClass().getSimpleName()));
+    }
+
+    @Override
+    public DoubleVectorIndividual setFitness(double fitness) {
+        return new DoubleVectorIndividual(this, fitness);
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return genome != null
+        return id >= 0
+                && genome != null
+                && fitness != null
+                && !(fitness.isDefined() && Double.isNaN(fitness.get()))
                 && !Misc.containsNulls(genome);
     }
     
@@ -103,21 +133,24 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         if (!(o instanceof DoubleVectorIndividual))
             return false;
         final DoubleVectorIndividual ref = (DoubleVectorIndividual) o;
-        return this.genome.equals(ref.genome);
+        return id == ref.id
+                && genome.equals(ref.genome)
+                && fitness.equals(ref.fitness);
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 59 * hash + (this.genome != null ? this.genome.hashCode() : 0);
+        hash = 97 * hash + (this.genome != null ? this.genome.hashCode() : 0);
+        hash = 97 * hash + (int) (this.id ^ (this.id >>> 32));
+        hash = 97 * hash + (this.fitness != null ? this.fitness.hashCode() : 0);
         return hash;
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: id=%s, genome=%s]", this.getID(), this.getClass().getSimpleName(), genome.toString());
+        return String.format("[%s: id=%s, fitness=%s, genome=%s]", this.getID(), this.getClass().getSimpleName(), fitness, genome.toString());
     }
     
     // </editor-fold>
-    
 }

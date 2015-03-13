@@ -1,5 +1,6 @@
 package SigmaEC.test;
 
+import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
 import java.util.ArrayList;
@@ -64,5 +65,15 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
     @Override
     public int size() {
         return genome.size();
+    }
+
+    @Override
+    public double getFitness() {
+        return trait;
+    }
+
+    @Override
+    public Individual setFitness(double fitness) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
