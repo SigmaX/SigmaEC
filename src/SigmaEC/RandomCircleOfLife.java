@@ -2,7 +2,6 @@ package SigmaEC;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
-import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
 import SigmaEC.select.FitnessComparator;
@@ -93,10 +92,12 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     }
     
     private void reset() {
-        for (final PopulationMetric<T> metric : preOperatorMetrics.get())
-                metric.reset();
-        for (final PopulationMetric<T> metric : postOperatorMetrics.get())
-                metric.reset();
+        if (preOperatorMetrics.isDefined())
+            for (final PopulationMetric<T> metric : preOperatorMetrics.get())
+                    metric.reset();
+        if (postOperatorMetrics.isDefined())
+            for (final PopulationMetric<T> metric : postOperatorMetrics.get())
+                    metric.reset();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

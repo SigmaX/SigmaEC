@@ -1,12 +1,10 @@
 package SigmaEC.operate;
 
 import SigmaEC.Generator;
-import SigmaEC.SRandom;
 import SigmaEC.represent.linear.Gene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;
-import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;

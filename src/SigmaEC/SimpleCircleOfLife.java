@@ -108,17 +108,17 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     
     private T previousBestSoFar = null;
     private int gensPassedWithNoImprovement = 0;
-    private boolean stop(final int generation, final T bestSoFar) {
+    private boolean stop(final int generation, final T newBestSoFar) {
         assert(generation >= 0);
         if (generation == 0)
             return false;
-        assert(bestSoFar != null);
+        assert(newBestSoFar != null);
         if (numGenerations.isDefined())
             return generation >= numGenerations.get();
         else if (numGensWithoutImprovement.isDefined()) {
-            assert(-1 != fitnessComparator.compare(bestSoFar, previousBestSoFar));
-            if (fitnessComparator.betterThan(bestSoFar, previousBestSoFar) ) {
-                previousBestSoFar = bestSoFar;
+            assert(-1 != fitnessComparator.compare(newBestSoFar, previousBestSoFar));
+            if (fitnessComparator.compare(newBestSoFar, previousBestSoFar) > 0) { // Strictly better than
+                previousBestSoFar = newBestSoFar;
                 gensPassedWithNoImprovement = 0;
             }
             else
