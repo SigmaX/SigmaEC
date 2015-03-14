@@ -16,33 +16,36 @@ import java.util.Arrays;
 public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
 {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
-    public final static String P_INTERCEPT_VECTOR = "interceptVector";
+    public final static String P_OPTIMUM = "optimum";
     public final static String P_SLOPE_VECTOR = "slopeVector";
 
     private final int numDimensions;
-    private final double[] interceptVector;
+    private final double[] optimum;
     private final double[] slopeVector;
-    /**
-     * @param slopeVector The direction along which the valley lies.
-     * @param interceptVector The location of the global optima.
-     */
+    
     public ValleyObjective(final Parameters parameters, final String base)
     {
         assert(parameters != null);
         assert(base != null);
         numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
+            throw new IllegalArgumentException(String.format("%s: %s is < 1.", this.getClass().getSimpleName(), P_NUM_DIMENSIONS));
 
-        interceptVector = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERCEPT_VECTOR));
-        if (interceptVector.length != numDimensions)
-            throw new IllegalStateException(String.format("%s: interceptVector has %d elements, must have %d.", this.getClass().getSimpleName(), interceptVector.length, numDimensions));
+        optimum = parameters.getDoubleArrayParameter(Parameters.push(base, P_OPTIMUM));
+        if (optimum.length != numDimensions)
+            throw new IllegalStateException(String.format("%s: %s has %d elements, must have %d.", this.getClass().getSimpleName(), P_OPTIMUM, optimum.length, numDimensions));
+        if (!Misc.allFinite(optimum))
+            throw new IllegalStateException(String.format("%s: %s contains a NaN or infinite element, must be finite.", this.getClass().getSimpleName(), P_OPTIMUM));
 
         slopeVector = parameters.getDoubleArrayParameter(Parameters.push(base, P_SLOPE_VECTOR));
         if (slopeVector.length != numDimensions)
-            throw new IllegalStateException(String.format("%s: slopeVector has %d elements, must have %d.", this.getClass().getSimpleName(), slopeVector.length, numDimensions));
-        if (!Misc.doubleEquals(Vector.euclideanNorm(slopeVector), 1.0))
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": slopeVector is not a unit vector.");
+            throw new IllegalStateException(String.format("%s: %s has %d elements, must have %d.", this.getClass().getSimpleName(), P_SLOPE_VECTOR, slopeVector.length, numDimensions));
+        final double norm = Vector.euclideanNorm(slopeVector);
+        if (Misc.doubleEquals(norm, 0.0))
+            throw new IllegalStateException(String.format("%s: %s is the zero vector -- must be non-zero.", this.getClass().getSimpleName(), P_SLOPE_VECTOR));
+        if (!Misc.doubleEquals(norm, 1.0))
+            for (int i = 0; i < slopeVector.length; i++)
+                slopeVector[i] = slopeVector[i]/norm;
         
         assert(repOK());
     }
@@ -61,7 +64,7 @@ public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
     public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         final double[] genome = ind.getGenomeArray();
-        double result = Vector.euclideanDistance(genome, interceptVector) + 10*Vector.pointToLineEuclideanDistance(genome, slopeVector, interceptVector);
+        double result = Vector.euclideanDistance(genome, optimum) + 10*Vector.pointToLineEuclideanDistance(genome, slopeVector, optimum);
         assert(repOK());
         return result;
     }
@@ -69,19 +72,28 @@ public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return numDimensions > 0
-                && interceptVector != null
-                && interceptVector.length == numDimensions
+        return P_NUM_DIMENSIONS != null
+                && !P_NUM_DIMENSIONS.isEmpty()
+                && P_OPTIMUM != null
+                && !P_OPTIMUM.isEmpty()
+                && P_SLOPE_VECTOR != null
+                && !P_SLOPE_VECTOR.isEmpty()
+                && numDimensions > 0
+                && optimum != null
+                && optimum.length == numDimensions
                 && slopeVector != null
                 && slopeVector.length == numDimensions
                 && Misc.finiteValued(slopeVector)
-                && Misc.finiteValued(interceptVector)
+                && Misc.finiteValued(optimum)
                 && Misc.doubleEquals(Vector.euclideanNorm(slopeVector), 1.0);
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: numDimensions=%d, slopeVector=%s, interceptVector=%s]", this.getClass().getSimpleName(), numDimensions, Arrays.toString(slopeVector), Arrays.toString(interceptVector));
+        return String.format("[%s: %s=%d, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+                P_NUM_DIMENSIONS, numDimensions,
+                P_SLOPE_VECTOR, Arrays.toString(slopeVector),
+                P_OPTIMUM, Arrays.toString(optimum));
     }
     
     @Override
@@ -92,7 +104,7 @@ public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
         final ValleyObjective cRef = (ValleyObjective) o;
         return numDimensions == cRef.numDimensions
                 && Misc.doubleArrayEquals(slopeVector, cRef.slopeVector)
-                && Misc.doubleArrayEquals(interceptVector, cRef.interceptVector);
+                && Misc.doubleArrayEquals(optimum, cRef.optimum);
     }
 
     @Override
@@ -100,7 +112,7 @@ public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
         int hash = 7;
         hash = 97 * hash + this.numDimensions;
         hash = 97 * hash + Arrays.hashCode(this.slopeVector);
-        hash = 97 * hash + Arrays.hashCode(this.interceptVector);
+        hash = 97 * hash + Arrays.hashCode(this.optimum);
         return hash;
     }
     //</editor-fold>
