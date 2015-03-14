@@ -12,5 +12,5 @@ public abstract class Initializer<T extends Individual> extends ContractObject {
     public abstract List<T> generatePopulation();
     
     /** Generate a single individual. */
-    public abstract T generationIndividual();
+    public abstract T generateIndividual();
 }

@@ -46,7 +46,7 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
     }
 
     @Override
-    public BitStringIndividual generationIndividual() {
+    public BitStringIndividual generateIndividual() {
         return new BitStringIndividual(random, numBits);
     }
 

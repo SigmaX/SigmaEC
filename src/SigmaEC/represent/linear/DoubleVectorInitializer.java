@@ -59,7 +59,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     }
 
     @Override
-    public DoubleVectorIndividual generationIndividual() {
+    public DoubleVectorIndividual generateIndividual() {
         return new DoubleVectorIndividual(random, numDimensions, minValues, maxValues);
     }
 

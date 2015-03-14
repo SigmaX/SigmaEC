@@ -21,13 +21,13 @@ public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
         assert(base != null);
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         if (numDimensions < 1)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
+            throw new IllegalArgumentException(String.format("%s: %s is < 1.", this.getClass().getSimpleName(), P_NUM_DIMENSIONS));
         assert(repOK());
     }
     
     public SphereObjective(final int numDimensions) {
         if (numDimensions <= 0)
-            throw new IllegalArgumentException(String.format("%s: numDimensions is negative, must be positive", this.getClass().getSimpleName()));
+            throw new IllegalArgumentException(String.format("%s: %s is negative, must be positive", this.getClass().getSimpleName(), P_NUM_DIMENSIONS));
         this.numDimensions = numDimensions;
         assert(repOK());
     }
@@ -38,8 +38,7 @@ public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind)
-    {
+    public double fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         double sum = 0;
         for (double d : ind.getGenomeArray())
@@ -56,12 +55,14 @@ public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return numDimensions > 0;
+        return P_NUM_DIMENSIONS != null
+                && !P_NUM_DIMENSIONS.isEmpty()
+                && numDimensions > 0;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: NumDimensions=%d]", this.getClass().getSimpleName(), numDimensions);
+        return String.format("[%s: %s=%d]", this.getClass().getSimpleName(), P_NUM_DIMENSIONS, numDimensions);
     }
     
     @Override
@@ -69,8 +70,8 @@ public class SphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
         if (!(o instanceof SphereObjective))
             return false;
         
-        final SphereObjective cRef = (SphereObjective) o;
-        return numDimensions == cRef.numDimensions;
+        final SphereObjective ref = (SphereObjective) o;
+        return numDimensions == ref.numDimensions;
     }
 
     @Override

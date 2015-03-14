@@ -326,6 +326,8 @@ public class Parameters extends ContractObject {
         final String[] classNames = value.split(LIST_DELIMITER);
         final List<T> result =  new ArrayList<T>() {{
             for (int i = 0; i < classNames.length; i++) {
+                if (classNames[i].trim().isEmpty())
+                    throw new IllegalStateException(String.format("%s: encountered an empty element in the list defined by '%s'.", Parameters.class.getSimpleName(), parameterName));
                 if (isReference(classNames[i].trim()))
                     add((T) getInstanceFromParameter(dereferenceToValue(classNames[i].trim()), expectedSuperClass));
                 else
