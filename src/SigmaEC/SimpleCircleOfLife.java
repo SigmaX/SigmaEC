@@ -5,7 +5,6 @@ import SigmaEC.measure.PopulationMetric;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
 import SigmaEC.select.FitnessComparator;
-import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -20,46 +19,34 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
-    private final static String P_INITIALIZER = "initializer";
-    final public static String P_GENERATORS = "generators";
-    final public static String P_OBJECTIVE = "objective";
-    final public static String P_COMPARATOR = "fitnessComparator";
-    final public static String P_PARENT_SELECTOR = "parentSelector";
-    final public static String P_PRE_METRICS = "preMetrics";
-    final public static String P_POST_METRICS = "postMetrics";
-    final public static String P_RANDOM = "random";
-    final public static String P_IS_DYNAMIC = "isDynamic";
-    final public static String P_NUM_GENERATIONS = "numGenerations";
-    final public static String P_NUM_GENS_WITHOUT_IMPROVEMENT = "numGensWithoutImprovement";
-        
-    final private Option<Integer> numGenerations;
-    final private Option<Integer> numGensWithoutImprovement;
+    public final static String P_INITIALIZER = "initializer";
+    public final static String P_GENERATORS = "generators";
+    public final static String P_OBJECTIVE = "objective";
+    public final static String P_COMPARATOR = "fitnessComparator";
+    public final static String P_METRICS = "metrics";
+    public final static String P_RANDOM = "random";
+    public final static String P_IS_DYNAMIC = "isDynamic";
+    public final static String P_STOPPING_CONDITION = "stoppingCondition";
     
     private final Initializer<T> initializer;
-    final private List<Generator<T>> generators;
-    final private FitnessComparator<T> fitnessComparator;
-    final private Option<Selector<T>> parentSelector;
-    final private Option<List<PopulationMetric<T>>> preOperatorMetrics;
-    final private Option<List<PopulationMetric<T>>> postOperatorMetrics;
-    final private ObjectiveFunction<P> objective;
-    final private boolean isDynamic;
+    private final List<Generator<T>> generators;
+    private final FitnessComparator<T> fitnessComparator;
+    private final Option<List<PopulationMetric<T>>> metrics;
+    private final ObjectiveFunction<P> objective;
+    private final StoppingCondition<T> stoppingCondition;
+    private final boolean isDynamic;
     
     public SimpleCircleOfLife(final Parameters parameters, final String base) {
-        this.numGenerations = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_GENERATIONS));
-        this.numGensWithoutImprovement = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_GENS_WITHOUT_IMPROVEMENT));
-        if (numGenerations.isDefined() && numGensWithoutImprovement.isDefined())
-            throw new IllegalStateException(String.format("%s: both of the parameters '%s' and '%s' are defined.  Must choose one or the other.", this.getClass().getSimpleName(), Parameters.push(base, P_NUM_GENERATIONS), Parameters.push(base, P_NUM_GENS_WITHOUT_IMPROVEMENT)));
-        if (!numGenerations.isDefined() && !numGensWithoutImprovement.isDefined())
-            throw new IllegalStateException(String.format("%s: neither of the parameters '%s' and '%s' are defined.  Need one.", this.getClass().getSimpleName(), Parameters.push(base, P_NUM_GENERATIONS), Parameters.push(base, P_NUM_GENS_WITHOUT_IMPROVEMENT)));
-        this.initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
-        this.generators = parameters.getInstancesFromParameter(Parameters.push(base, P_GENERATORS), Generator.class);
-        this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
-        this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
-        this.parentSelector = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_PARENT_SELECTOR), Selector.class);
-        this.preOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_PRE_METRICS), PopulationMetric.class);
-        this.postOperatorMetrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_POST_METRICS), PopulationMetric.class);
+        assert(parameters != null);
+        assert(base != null);
+        initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
+        generators = parameters.getInstancesFromParameter(Parameters.push(base, P_GENERATORS), Generator.class);
+        objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
+        metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
+        stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
         if (parameters.isDefined(Parameters.push(base, P_IS_DYNAMIC)))
-            this.isDynamic = parameters.getBooleanParameter(Parameters.push(base, P_IS_DYNAMIC));
+            isDynamic = parameters.getBooleanParameter(Parameters.push(base, P_IS_DYNAMIC));
         else
             isDynamic = true;
         assert(repOK());
@@ -72,18 +59,13 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         List<T> population = initializer.generatePopulation();
         T bestSoFarInd = null;
         int i = 0;
-        while (!stop(i, bestSoFarInd)) {
-            
-            // Parent selection
-            if (parentSelector.isDefined())
-                population = parentSelector.get().selectMultipleIndividuals(population, population.size());
-            
-            // Take measurements before operators
-            if (preOperatorMetrics.isDefined())
-                for (PopulationMetric<T> metric : preOperatorMetrics.get())
+        while (!stoppingCondition.stop(population, i)) {
+            // Take measurements
+            if (metrics.isDefined())
+                for (PopulationMetric<T> metric : metrics.get())
                     metric.measurePopulation(run, i, population);
             
-            // Apply reproductive operators
+            // Apply operators
             for (Generator<T> gen : generators)
                 population = gen.produceGeneration(population);
             
@@ -91,90 +73,76 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             if (isDynamic)
                 objective.setGeneration(i);
             
+            // Update our local best-so-far variable
             final T bestOfGen = Statistics.max(population, fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             
-            // Take measurements after operators
-            if (postOperatorMetrics.isDefined())
-                for (PopulationMetric<T> metric : postOperatorMetrics.get())
-                    metric.measurePopulation(run, i, population);
-            
             flushMetrics();
             i++;
         }
+        
+        // Measure final population
+        if (metrics.isDefined())
+            for (PopulationMetric<T> metric : metrics.get())
+                metric.measurePopulation(run, i, population);
+        
         return new EvolutionResult<T>(population, bestSoFarInd, bestSoFarInd.getFitness());
-    }
-    
-    private T previousBestSoFar = null;
-    private int gensPassedWithNoImprovement = 0;
-    private boolean stop(final int generation, final T newBestSoFar) {
-        assert(generation >= 0);
-        if (generation == 0)
-            return false;
-        assert(newBestSoFar != null);
-        if (numGenerations.isDefined())
-            return generation >= numGenerations.get();
-        else if (numGensWithoutImprovement.isDefined()) {
-            assert(-1 != fitnessComparator.compare(newBestSoFar, previousBestSoFar));
-            if (fitnessComparator.compare(newBestSoFar, previousBestSoFar) > 0) { // Strictly better than
-                previousBestSoFar = newBestSoFar;
-                gensPassedWithNoImprovement = 0;
-            }
-            else
-                gensPassedWithNoImprovement++;
-            return (gensPassedWithNoImprovement >= numGensWithoutImprovement.get());
-        }
-        else
-            throw new IllegalStateException();
     }
     
     /** Flush I/O buffers. */
     private void flushMetrics() {
-        if (preOperatorMetrics.isDefined())
-            for (final PopulationMetric<T> metric : preOperatorMetrics.get())
-                metric.flush();
-        if (postOperatorMetrics.isDefined())
-            for (final PopulationMetric<T> metric: postOperatorMetrics.get())
+        if (metrics.isDefined())
+            for (final PopulationMetric<T> metric: metrics.get())
                 metric.flush();
     }
     
     private void reset() {
-        previousBestSoFar = null;
-        gensPassedWithNoImprovement = 0;
-    
-        if (preOperatorMetrics.isDefined())
-            for (final PopulationMetric<T> metric : preOperatorMetrics.get())
-                    metric.reset();
-        if (postOperatorMetrics.isDefined())
-            for (final PopulationMetric<T> metric : postOperatorMetrics.get())
+        stoppingCondition.reset();
+        if (metrics.isDefined())
+            for (final PopulationMetric<T> metric : metrics.get())
                     metric.reset();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return generators != null
+        return P_COMPARATOR != null
+                && !P_COMPARATOR.isEmpty()
+                && P_GENERATORS != null
+                && !P_GENERATORS.isEmpty()
+                && P_INITIALIZER != null
+                && !P_INITIALIZER.isEmpty()
+                && P_IS_DYNAMIC != null
+                && !P_IS_DYNAMIC.isEmpty()
+                && P_OBJECTIVE != null
+                && !P_OBJECTIVE.isEmpty()
+                && P_METRICS != null
+                && !P_METRICS.isEmpty()
+                && P_RANDOM != null
+                && !P_RANDOM.isEmpty()
+                && P_STOPPING_CONDITION != null
+                && !P_STOPPING_CONDITION.isEmpty()
+                && generators != null
+                && initializer != null
+                && fitnessComparator != null
+                && stoppingCondition != null
                 && objective != null
-                && preOperatorMetrics != null
-                && postOperatorMetrics != null
+                && metrics != null
                 && !generators.isEmpty()
                 && !Misc.containsNulls(generators)
-                && !(preOperatorMetrics.isDefined() && Misc.containsNulls(preOperatorMetrics.get()))
-                && !(postOperatorMetrics.isDefined() && Misc.containsNulls(postOperatorMetrics.get()));
+                && !(metrics.isDefined() && Misc.containsNulls(metrics.get()));
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_IS_DYNAMIC, isDynamic,
-                P_NUM_GENERATIONS, numGenerations,
-                P_NUM_GENS_WITHOUT_IMPROVEMENT, numGensWithoutImprovement,
+                P_INITIALIZER, initializer,
+                P_STOPPING_CONDITION, stoppingCondition,
                 P_OBJECTIVE, objective,
-                P_PARENT_SELECTOR, parentSelector,
                 P_COMPARATOR, fitnessComparator,
-                P_PRE_METRICS, preOperatorMetrics,
-                P_POST_METRICS, postOperatorMetrics,
+                P_METRICS, metrics,
                 P_GENERATORS, generators);
     }
     
@@ -185,30 +153,26 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         if (!(o instanceof SimpleCircleOfLife))
             return false;
         
-        final SimpleCircleOfLife cRef = (SimpleCircleOfLife) o;
-        return isDynamic == cRef.isDynamic
-                && numGenerations.equals(cRef.numGenerations)
-                && numGensWithoutImprovement.equals(cRef.numGensWithoutImprovement)
-                && generators.equals(cRef.generators)
-                && objective.equals(cRef.objective)
-                && fitnessComparator.equals(cRef.fitnessComparator)
-                && ((parentSelector == null) ? cRef.parentSelector == null : parentSelector.equals(cRef.parentSelector))
-                && ((preOperatorMetrics == null) ? cRef.preOperatorMetrics == null : preOperatorMetrics.equals(cRef.preOperatorMetrics))
-                && ((postOperatorMetrics == null) ? cRef.postOperatorMetrics == null : postOperatorMetrics.equals(cRef.postOperatorMetrics));
+        final SimpleCircleOfLife ref = (SimpleCircleOfLife) o;
+        return isDynamic == ref.isDynamic
+                && initializer.equals(ref.initializer)
+                && stoppingCondition.equals(ref.stoppingCondition)
+                && generators.equals(ref.generators)
+                && objective.equals(ref.objective)
+                && fitnessComparator.equals(ref.fitnessComparator)
+                && metrics.equals(ref.metrics);
     }
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 89 * hash + (this.numGenerations != null ? this.numGenerations.hashCode() : 0);
-        hash = 89 * hash + (this.numGensWithoutImprovement != null ? this.numGensWithoutImprovement.hashCode() : 0);
-        hash = 89 * hash + (this.generators != null ? this.generators.hashCode() : 0);
-        hash = 89 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
-        hash = 89 * hash + (this.parentSelector != null ? this.parentSelector.hashCode() : 0);
-        hash = 89 * hash + (this.preOperatorMetrics != null ? this.preOperatorMetrics.hashCode() : 0);
-        hash = 89 * hash + (this.postOperatorMetrics != null ? this.postOperatorMetrics.hashCode() : 0);
-        hash = 89 * hash + (this.objective != null ? this.objective.hashCode() : 0);
-        hash = 89 * hash + (this.isDynamic ? 1 : 0);
+        int hash = 7;
+        hash = 31 * hash + (this.initializer != null ? this.initializer.hashCode() : 0);
+        hash = 31 * hash + (this.generators != null ? this.generators.hashCode() : 0);
+        hash = 31 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
+        hash = 31 * hash + (this.metrics != null ? this.metrics.hashCode() : 0);
+        hash = 31 * hash + (this.objective != null ? this.objective.hashCode() : 0);
+        hash = 31 * hash + (this.stoppingCondition != null ? this.stoppingCondition.hashCode() : 0);
+        hash = 31 * hash + (this.isDynamic ? 1 : 0);
         return hash;
     }
     //</editor-fold>
