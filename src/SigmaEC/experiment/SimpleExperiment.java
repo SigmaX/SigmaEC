@@ -3,11 +3,9 @@ package SigmaEC.experiment;
 import SigmaEC.CircleOfLife;
 import SigmaEC.CircleOfLife.EvolutionResult;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.Initializer;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

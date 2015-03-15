@@ -47,7 +47,9 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
 
     @Override
     public BitStringIndividual generateIndividual() {
-        return new BitStringIndividual(random, numBits);
+        return evaluator.produceGeneration(new ArrayList<BitStringIndividual>() {{
+            add(new BitStringIndividual(random, numBits)); }})
+                .get(0);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

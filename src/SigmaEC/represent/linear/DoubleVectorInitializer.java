@@ -60,7 +60,9 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
 
     @Override
     public DoubleVectorIndividual generateIndividual() {
-        return new DoubleVectorIndividual(random, numDimensions, minValues, maxValues);
+        return evaluator.produceGeneration(new ArrayList<DoubleVectorIndividual>() {{
+            add(new DoubleVectorIndividual(random, numDimensions, minValues, maxValues)); }})
+                .get(0);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
