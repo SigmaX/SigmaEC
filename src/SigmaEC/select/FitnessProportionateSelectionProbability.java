@@ -7,6 +7,7 @@ import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
+import SigmaEC.util.math.Vector;
 import java.util.List;
 
 /**
@@ -41,13 +42,19 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
         for (int i = 0; i < population.size(); i++)
             fitnesses[i] = population.get(i).getFitness();
         
-        // Transform fitnesses into probability densities
         final double[] p = new double[population.size()];
         double sum = 0;
+        // Transform fitnesses into probability densities
         for (int i = 0; i < population.size(); i++) {
             assert(Double.isFinite(fitnesses[i]));
             p[i] = Math.abs(offset - fitnesses[i]);
             sum += p[i];
+        }
+        // Handle the case that all probabilities are 0
+        if (Misc.doubleEquals(0.0, Vector.euclideanNorm(p))) {
+            for (int i = 0; i < population.size(); i++)
+                p[i] = 1.0;
+            sum = population.size();
         }
         // Normalize, and invert the densities if smaller densities are better
         for (int i = 0; i < p.length; i++) {
