@@ -56,10 +56,12 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     public Measurement measurePopulation(final int run, final int generation, final List<T> population) {
         assert(population != null);
         final Measurement measurement = wrappedMetric.measurePopulation(run, generation, population);
-        try {
-            writer.write(String.format("%s\n", measurement.toString()));
-        } catch (IOException ex) {
-            Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+        if (measurement != null) {
+            try {
+                writer.write(String.format("%s\n", measurement.toString()));
+            } catch (IOException ex) {
+                Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         assert(repOK());
         return measurement;

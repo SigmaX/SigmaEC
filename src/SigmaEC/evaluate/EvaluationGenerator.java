@@ -30,9 +30,6 @@ public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
     
     @Override
     public List<T> produceGeneration(final List<T> parentPopulation) {
-        // Clear any cache in the genotype-phenotype mapping, so we'll re-compute clones (in case either the G-P map is stochastic).
-        if (decoder.isDefined())
-            decoder.get().reset();
         return new ArrayList<T>(parentPopulation.size()) {{
                 for (final T ind : parentPopulation) {
                     final P phenotype = decoder.isDefined() ? decoder.get().decode(ind) : (P) ind;
@@ -44,7 +41,7 @@ public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    public boolean repOK() {
+    public final boolean repOK() {
         return P_DECODER != null
                 && !P_DECODER.isEmpty()
                 && P_OBJECTIVE != null

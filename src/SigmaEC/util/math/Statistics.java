@@ -66,7 +66,7 @@ public final class Statistics
         assert(comparator != null);
         T best = values.get(0);
         for (final T val : values) {
-            if (comparator.betterThan(val, best))
+            if (!comparator.betterThan(val, best))
                 best = val;
         }
         return best;

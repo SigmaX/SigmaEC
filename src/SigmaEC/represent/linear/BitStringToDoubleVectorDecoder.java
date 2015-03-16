@@ -82,9 +82,6 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
         
         return newMin + ((val - oldMin)/(oldMax - oldMin))*(newMax - newMin);
     }
-
-    @Override
-    public void reset() { assert(repOK()); }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
