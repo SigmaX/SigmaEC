@@ -26,7 +26,7 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>, Bit
         assert(base != null);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         mutationRate = parameters.getDoubleParameter(Parameters.push(base, P_MUTATION_RATE));
-        if (!Double.isFinite(mutationRate))
+        if (Double.isInfinite(mutationRate) || Double.isNaN(mutationRate))
             throw new IllegalStateException(String.format("%s: %s is %f, must be finite.", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
         if (mutationRate < 0 || mutationRate > 1.0)
             throw new IllegalStateException(String.format("%s: %s is %f, must be in the range [0, 1.0].", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
@@ -54,14 +54,17 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>, Bit
     @Override
     final public boolean repOK() {
         return random != null
-                && Double.isFinite(mutationRate)
+                && !Double.isInfinite(mutationRate)
+                && !Double.isNaN(mutationRate)
                 && mutationRate >= 0
                 && mutationRate <= 1.0;
     }
     
     @Override
     final public String toString() {
-        return String.format("[%s: mutationRate=%f, random=%s]", this.getClass().getSimpleName(), mutationRate, random);
+        return String.format("[%s: %s=%f, %s=%s]", this.getClass().getSimpleName(),
+                P_MUTATION_RATE, mutationRate,
+                P_RANDOM, random);
     }
     
     @Override

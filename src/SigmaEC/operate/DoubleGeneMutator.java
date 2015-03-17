@@ -38,7 +38,7 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
         this.gaussianStd = parameters.getDoubleParameter(Parameters.push(base, P_GAUSSIAN_STD));
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         mutationRate = parameters.getDoubleParameter(Parameters.push(base, P_MUTATION_RATE));
-        if (!Double.isFinite(mutationRate))
+        if (Double.isInfinite(mutationRate) || Double.isNaN(mutationRate))
             throw new IllegalStateException(String.format("%s: %s is %f, must be finite.", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
         if (mutationRate < 0 || mutationRate > 1.0)
             throw new IllegalStateException(String.format("%s: %s is %f, must be in the range [0, 1.0].", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
@@ -116,7 +116,8 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
                 && P_RANDOM != null
                 && !P_RANDOM.isEmpty()
                 && random != null
-                && Double.isFinite(mutationRate)
+                && !Double.isInfinite(mutationRate)
+                && !Double.isNaN(mutationRate)
                 && mutationRate >= 0.0
                 && mutationRate <= 1.0
                 && !Double.isNaN(gaussianStd)

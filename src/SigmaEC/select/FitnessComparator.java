@@ -32,8 +32,11 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         else
             this.minimize = false;
         final Option<Double> deltaOpt = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DOUBLE_EQUALITY_DELTA));
-        if (deltaOpt.isDefined())
+        if (deltaOpt.isDefined()) {
             this.doubleEqualityDelta = deltaOpt.get();
+            if (Double.isInfinite(doubleEqualityDelta) || Double.isNaN(doubleEqualityDelta) || doubleEqualityDelta <= 0)
+                throw new IllegalStateException(String.format("%s: %s is %f, must be positive finite.", this.getClass().getSimpleName(), P_DOUBLE_EQUALITY_DELTA, doubleEqualityDelta));
+        }
         else
             this.doubleEqualityDelta = 0.00000001;
         final Option<Boolean> equalIsBetterOpt = parameters.getOptionalBooleanParameter(Parameters.push(base, P_EQUAL_IS_BETTER));
@@ -74,7 +77,8 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
                 && !P_MINIMIZE.isEmpty()
                 && P_DOUBLE_EQUALITY_DELTA != null
                 && !P_DOUBLE_EQUALITY_DELTA.isEmpty()
-                && Double.isFinite(doubleEqualityDelta)
+                && !Double.isInfinite(doubleEqualityDelta)
+                && !Double.isNaN(doubleEqualityDelta)
                 && doubleEqualityDelta >= 0.0;
     }
     

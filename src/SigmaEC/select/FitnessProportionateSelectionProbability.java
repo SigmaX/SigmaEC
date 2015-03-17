@@ -28,7 +28,7 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
         minimize = minimizeOpt.isDefined() ? minimizeOpt.get() : false;
         final Option<Double> fitnessBoundOpt = params.getOptionalDoubleParameter(Parameters.push(base, P_OFFSET));
         offset = fitnessBoundOpt.isDefined() ? fitnessBoundOpt.get() : 0.0;
-        if (!Double.isFinite(offset))
+        if (Double.isInfinite(offset) || Double.isNaN(offset))
             throw new IllegalStateException(String.format("%s: %s is %f, must be finite.", this.getClass().getSimpleName(), P_OFFSET, offset));
         assert(repOK());
     }
@@ -46,7 +46,7 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
         double sum = 0;
         // Transform fitnesses into probability densities
         for (int i = 0; i < population.size(); i++) {
-            assert(Double.isFinite(fitnesses[i]));
+            assert(!Double.isInfinite(fitnesses[i]) && !Double.isNaN(fitnesses[i]));
             p[i] = Math.abs(offset - fitnesses[i]);
             sum += p[i];
         }
@@ -75,7 +75,8 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
                 && !P_MINIMIZE.isEmpty()
                 && P_OFFSET != null
                 && !P_OFFSET.isEmpty()
-                && Double.isFinite(offset);
+                && !Double.isInfinite(offset)
+                && !Double.isNaN(offset);
     }
 
     @Override
