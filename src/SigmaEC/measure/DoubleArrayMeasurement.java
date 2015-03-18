@@ -52,7 +52,8 @@ public class DoubleArrayMeasurement extends Measurement {
         return run >= 0
                 && generation >= 0
                 && array != null
-                && array.length > 0;
+                && array.length > 0
+                && !Misc.containsNaNs(array);
     }
     
     @Override

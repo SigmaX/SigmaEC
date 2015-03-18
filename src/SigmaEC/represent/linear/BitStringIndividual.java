@@ -121,7 +121,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     
     @Override
     public String toString() {
-        return String.format("[%s: id=%d, fitness=%s, genome=%s]", this.getID(), this.getClass().getSimpleName(), fitness, genome.toString());
+        return String.format("[%s: id=%d, fitness=%s, genome=%s]", this.getClass().getSimpleName(), this.getID(), fitness, genome.toString());
     }
     
     // </editor-fold>

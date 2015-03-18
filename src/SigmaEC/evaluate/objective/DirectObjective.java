@@ -17,6 +17,9 @@ public class DirectObjective extends ObjectiveFunction<Double> {
     
     @Override
     public double fitness(final Double ind) {
+        assert(ind != null);
+        assert(!Double.isNaN(ind));
+        assert(repOK());
         return ind;
     }
 

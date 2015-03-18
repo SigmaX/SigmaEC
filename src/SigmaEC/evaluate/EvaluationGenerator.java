@@ -34,6 +34,7 @@ public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
                 for (final T ind : parentPopulation) {
                     final P phenotype = decoder.isDefined() ? decoder.get().decode(ind) : (P) ind;
                     final double fitness = objective.fitness(phenotype);
+                    assert(!Double.isNaN(fitness)) : String.format("The following individual, decoder, and phenotype yielded a fitness value of NaN, which is not allowed.\nindiviual: %s\ndecoder: %s\nphenotype: %s", ind, decoder, phenotype);
                     add((T) ind.setFitness(fitness));
                 }
         }};

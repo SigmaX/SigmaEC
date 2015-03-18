@@ -1,8 +1,6 @@
 package SigmaEC.measure;
 
 import SigmaEC.evaluate.EvaluationGenerator;
-import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Option;

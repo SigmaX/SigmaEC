@@ -16,9 +16,9 @@ import java.util.logging.Logger;
  * @author Eric 'Siggy' Scott
  */
 public class SigmaEC {
-    private final static String A_PARAMETER_FILE = "p";
-    private final static String A_PROPERTY = "a";
-    private final static String P_EXPERIMENT = "experiment";
+    public final static String A_PARAMETER_FILE = "p";
+    public final static String A_PROPERTY = "a";
+    public final static String P_EXPERIMENT = "experiment";
     
     /** Private constructor throws an error if called. */
     private SigmaEC() throws AssertionError {
