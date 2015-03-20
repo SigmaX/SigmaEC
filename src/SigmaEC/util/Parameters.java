@@ -180,6 +180,22 @@ public class Parameters extends ContractObject {
             return Option.NONE;
     }
     
+    public long getLongParameter(final String parameterName) {
+        assert(parameterName != null);
+        final String value = properties.getProperty(parameterName);
+        if (value == null)
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        return (long) evalExpression(dereferenceToValue(value));
+    }
+    
+    public Option<Long> getOptionalLongParameter(final String parameterName) {
+        assert(parameterName != null);
+        if (properties.containsKey(parameterName))
+            return new Option<Long>(getLongParameter(parameterName));
+        else
+            return Option.NONE;
+    }
+    
     public boolean getBooleanParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);

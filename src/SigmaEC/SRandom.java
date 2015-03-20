@@ -14,7 +14,7 @@ public class SRandom extends java.util.Random {
         super();
         assert(parameters != null);
         assert(base != null);
-        final Option<Integer> seedOpt = parameters.getOptionalIntParameter(Parameters.push(base, P_SEED));
+        final Option<Long> seedOpt = parameters.getOptionalLongParameter(Parameters.push(base, P_SEED));
         if (seedOpt.isDefined())
             setSeed(seedOpt.get());
     }

@@ -1,6 +1,5 @@
 package SigmaEC.represent.linear;
 
-import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
@@ -18,10 +17,6 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     private final Option<Double> fitness;
     
     /** Construct a random double vector.
-     * 
-     * @param random PRNG
-     * @param numDimensions Length of the double vector.
-     * @param pTrue Probability that any given bit is assigned a value of T (as opposed to F).
      */
     public DoubleVectorIndividual(final Random random, final int numDimensions, final double[] minValues, final double[] maxValues) {
         assert(random != null);
@@ -149,7 +144,7 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     
     @Override
     public String toString() {
-        return String.format("[%s: id=%s, fitness=%s, genome=%s]", this.getID(), this.getClass().getSimpleName(), fitness, genome.toString());
+        return String.format("[%s: id=%s, fitness=%s, genome=%s]", this.getClass().getSimpleName(), this.getID(), fitness, genome.toString());
     }
     
     // </editor-fold>
