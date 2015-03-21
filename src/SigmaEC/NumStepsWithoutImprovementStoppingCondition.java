@@ -63,7 +63,7 @@ public class NumStepsWithoutImprovementStoppingCondition<T extends Individual> e
                 && numStepsAllowedWithoutImprovement >= 0
                 && fitnessComparator != null
                 && stepsPassedSinceLastImprovement >= 0
-                && stepsPassedSinceLastImprovement <= numStepsAllowedWithoutImprovement;
+                && stepsPassedSinceLastImprovement <= numStepsAllowedWithoutImprovement + 1;
     }
 
     @Override
