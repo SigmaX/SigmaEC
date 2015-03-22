@@ -77,7 +77,7 @@ public class Parameters extends ContractObject {
     
     private static boolean isReference(final String parameterValue) {
         assert(parameterValue != null);
-        return parameterValue.charAt(0) == REFERENCE_SYMBOL;
+        return parameterValue.charAt(0) == REFERENCE_SYMBOL && !parameterValue.contains(LIST_DELIMITER);
     }
     
     private String dereferenceToValue(final String parameterValue) {
@@ -345,7 +345,7 @@ public class Parameters extends ContractObject {
                 if (classNames[i].trim().isEmpty())
                     throw new IllegalStateException(String.format("%s: encountered an empty element in the list defined by '%s'.", Parameters.class.getSimpleName(), parameterName));
                 if (isReference(classNames[i].trim()))
-                    add((T) getInstanceFromParameter(dereferenceToValue(classNames[i].trim()), expectedSuperClass));
+                    add((T) getInstanceFromParameter(dereferenceToParameter(classNames[i].trim()), expectedSuperClass));
                 else
                     add((T) getInstanceFromClassName(classNames[i].trim(), push(parameterName, String.valueOf(i)), expectedSuperClass));
             }

@@ -7,6 +7,6 @@ plot_objective <- function(dataAsText, title_text)
   max_value <- mat[which(mat==max(mat), arr.ind=T)][1];
   min_value <- mat[which(mat==min(mat), arr.ind=T)][1];
   par(mai=c(.1,.1,.3,.1))
-  persp(x_grid_points, y_grid_points, mat, theta=55, phi=25, xlab="x1", ylab="x2", zlab="Fitness", zlim=c(min_value, 1.5*max_value), col=c("gray", "pink", "orange"))
+  persp(x_grid_points, y_grid_points, mat, theta=55, phi=25, xlab="x1", ylab="x2", zlab="Fitness", zlim=c(min_value, 1.5*max_value), col=c("gray", "pink", "orange"), ticktype="detailed")
   title(title_text)
 }
