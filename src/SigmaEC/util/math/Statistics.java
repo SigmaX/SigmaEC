@@ -52,6 +52,7 @@ public final class Statistics
     public static <T extends Individual> T max(final List<T> values, final FitnessComparator<T> comparator) {
         assert(values != null);
         assert(comparator != null);
+        if (values.isEmpty()) return null;
         T best = values.get(0);
         for (final T val : values) {
             if (comparator.betterThan(val, best))
@@ -64,6 +65,7 @@ public final class Statistics
     public static <T extends Individual> T min(final List<T> values, final FitnessComparator<T> comparator) {
         assert(values != null);
         assert(comparator != null);
+        if (values.isEmpty()) return null;
         T best = values.get(0);
         for (final T val : values) {
             if (!comparator.betterThan(val, best))

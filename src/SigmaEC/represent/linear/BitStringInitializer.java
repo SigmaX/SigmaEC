@@ -2,6 +2,7 @@ package SigmaEC.represent.linear;
 
 import SigmaEC.Generator;
 import SigmaEC.represent.Initializer;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
     private final int populationSize;
     private final int numBits;
     private final Random random;
-    private final Generator<BitStringIndividual> evaluator;
+    private final Option<Generator<BitStringIndividual>> evaluator;
     
     public BitStringInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -28,7 +29,7 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
         this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
         this.numBits = parameters.getIntParameter(Parameters.push(base, P_NUM_BITS));
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
-        this.evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Generator.class);
+        this.evaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Generator.class);
         
         if (populationSize <= 0)
             throw new IllegalStateException(String.format("%s: %s is <= 0, must be positive.", this.getClass().getSimpleName(), P_POPULATION_SIZE));
@@ -39,17 +40,17 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
     
     @Override
     public List<BitStringIndividual> generatePopulation() {
-        return evaluator.produceGeneration(new ArrayList<BitStringIndividual>(populationSize) {{
+        final List<BitStringIndividual> population = new ArrayList<BitStringIndividual>(populationSize) {{
             for (int i = 0; i < populationSize; i++)
                 add(new BitStringIndividual(random, numBits));
-        }});
+        }};
+        return evaluator.isDefined() ? evaluator.get().produceGeneration(population) : population;
     }
 
     @Override
     public BitStringIndividual generateIndividual() {
-        return evaluator.produceGeneration(new ArrayList<BitStringIndividual>() {{
-            add(new BitStringIndividual(random, numBits)); }})
-                .get(0);
+        final BitStringIndividual newInd = new BitStringIndividual(random, numBits);
+        return evaluator.isDefined() ? evaluator.get().produceGeneration(new ArrayList<BitStringIndividual>() {{ add(newInd); }}).get(0) : newInd;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

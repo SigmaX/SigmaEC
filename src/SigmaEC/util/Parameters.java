@@ -357,7 +357,6 @@ public class Parameters extends ContractObject {
     public <T> Option<List<T>> getOptionalInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(expectedSuperClass != null);
-        final String value = properties.getProperty(parameterName);
         if (properties.containsKey(parameterName))
             return new Option<List<T>>((List<T>) getInstancesFromParameter(parameterName, expectedSuperClass));
         else

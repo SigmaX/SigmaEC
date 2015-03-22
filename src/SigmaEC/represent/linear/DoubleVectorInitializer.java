@@ -3,6 +3,7 @@ package SigmaEC.represent.linear;
 import SigmaEC.Generator;
 import SigmaEC.represent.Initializer;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,14 +29,14 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     private final double[] maxValues;
     private final double[] minValues;
     private final Random random;
-    private final Generator<DoubleVectorIndividual> evaluator;
+    private final Option<Generator<DoubleVectorIndividual>> evaluator;
     
     public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
-        this.evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Generator.class);
+        this.evaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Generator.class);
         
         if (parameters.isDefined(Parameters.push(base, P_DEFAULT_MAX_VALUE)))
             this.maxValues = Misc.repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE)), numDimensions);
@@ -52,17 +53,17 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
 
     @Override
     public List<DoubleVectorIndividual> generatePopulation() {
-        return evaluator.produceGeneration(new ArrayList<DoubleVectorIndividual>(populationSize) {{
+        final List<DoubleVectorIndividual> population = new ArrayList<DoubleVectorIndividual>(populationSize) {{
             for (int i = 0; i < populationSize; i++)
                 add(new DoubleVectorIndividual(random, numDimensions, minValues, maxValues));
-        }});
+        }};
+        return evaluator.isDefined() ? evaluator.get().produceGeneration(population) : population;
     }
 
     @Override
     public DoubleVectorIndividual generateIndividual() {
-        return evaluator.produceGeneration(new ArrayList<DoubleVectorIndividual>() {{
-            add(new DoubleVectorIndividual(random, numDimensions, minValues, maxValues)); }})
-                .get(0);
+        final DoubleVectorIndividual newInd = new DoubleVectorIndividual(random, numDimensions, minValues, maxValues);
+        return evaluator.isDefined() ? evaluator.get().produceGeneration(new ArrayList<DoubleVectorIndividual>() {{ add(newInd); }}).get(0) : newInd;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
