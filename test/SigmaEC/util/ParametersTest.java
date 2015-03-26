@@ -1,6 +1,6 @@
 package SigmaEC.util;
 
-import SigmaEC.evaluate.objective.SphereObjective;
+import SigmaEC.evaluate.objective.real.SphereObjective;
 import java.util.List;
 import java.util.Properties;
 import org.junit.After;

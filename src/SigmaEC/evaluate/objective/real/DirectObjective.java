@@ -1,5 +1,6 @@
-package SigmaEC.evaluate.objective;
+package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Parameters;
 
 /**

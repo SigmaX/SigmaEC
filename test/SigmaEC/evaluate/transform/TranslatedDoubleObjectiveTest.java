@@ -1,8 +1,8 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.evaluate.objective.RosenbrockObjective;
-import SigmaEC.evaluate.objective.SphereObjective;
+import SigmaEC.evaluate.objective.real.RosenbrockObjective;
+import SigmaEC.evaluate.objective.real.SphereObjective;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
 import java.util.Properties;

@@ -1,6 +1,6 @@
 package SigmaEC.evaluate.transform;
 
-import SigmaEC.evaluate.objective.ConstantObjective;
+import SigmaEC.evaluate.objective.real.ConstantObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;

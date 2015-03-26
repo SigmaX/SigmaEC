@@ -2,9 +2,12 @@ package SigmaEC.experiment;
 
 import SigmaEC.SRandom;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.evaluate.problemclass.ProblemClass;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -23,6 +26,8 @@ import java.util.logging.Logger;
  */
 public class TestSuiteExperiment extends Experiment {
     final public static String P_OBJECTIVES = "objectives";
+    final public static String P_PROBLEMCLASS = "problemclass";
+    public final static String P_NUM_INSTANCES = "numInstances";
     final public static String P_NUM_RUNS_PER_OBJECTIVE = "numRunsPerObjective"; // XXX The sub-experiment will have its own numRuns parameter; don't need this here.
     final public static String P_PARAMETER_FILE = "parameterFile";
     final public static String P_RANDOM = "random";
@@ -34,19 +39,36 @@ public class TestSuiteExperiment extends Experiment {
     final public static String P_EXPERIMENT = "experiment";
     
     final private List<ObjectiveFunction> objectives;
+    
     final private int numRunsPerObjective;
     final private String parameterFile;
     final private Random random;
     final private String prefix;
+    final private Option<ProblemClass> problemClass;
 
     public TestSuiteExperiment(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
-        objectives = parameters.getInstancesFromParameter(Parameters.push(base, P_OBJECTIVES), ObjectiveFunction.class);
         numRunsPerObjective = parameters.getIntParameter(Parameters.push(base, P_NUM_RUNS_PER_OBJECTIVE));
         parameterFile = parameters.getStringParameter(Parameters.push(base, P_PARAMETER_FILE));
         prefix = parameters.getStringParameter(Parameters.push(base, P_PREFIX));
+        
+        problemClass = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_PROBLEMCLASS), ProblemClass.class);
+        final Option<List<ObjectiveFunction>> objectivesOpt = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_OBJECTIVES), ObjectiveFunction.class);
+        final Option<ObjectiveFunction> objectiveOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        if (!(problemClass.isDefined() ^ objectivesOpt.isDefined() ^ objectiveOpt.isDefined()))
+            throw new IllegalStateException(String.format("%s: exactly one of %s, %s %s must be defined.", this.getClass().getSimpleName(), P_PROBLEMCLASS, P_OBJECTIVE, P_OBJECTIVES));
+        if (problemClass.isDefined()) {
+            final int numInstances = parameters.getIntParameter(Parameters.push(base, P_NUM_INSTANCES));
+            objectives = new ArrayList<ObjectiveFunction>() {{
+                for (int i = 0; i < numInstances; i++)
+                    add(problemClass.get().getNewInstance());
+            }};
+        }
+        else {
+            objectives = objectivesOpt.isDefined() ? objectivesOpt.get() : new ArrayList<ObjectiveFunction>() {{ add(objectiveOpt.get()); }};
+        }
         assert(repOK());
     }
     

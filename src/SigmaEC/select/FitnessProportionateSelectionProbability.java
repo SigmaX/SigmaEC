@@ -1,7 +1,5 @@
 package SigmaEC.select;
 
-import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;

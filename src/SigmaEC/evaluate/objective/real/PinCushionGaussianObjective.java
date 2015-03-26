@@ -1,5 +1,6 @@
-package SigmaEC.evaluate.objective;
+package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.evaluate.transform.AdditiveObjective;
 import SigmaEC.evaluate.transform.PinCushionObjective;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
