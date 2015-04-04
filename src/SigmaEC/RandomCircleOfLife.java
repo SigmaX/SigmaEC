@@ -18,7 +18,6 @@ import java.util.Random;
  * @author Eric 'Siggy' Scott
  */
 public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
-    final public static String P_EVALS_PER_GEN = "evalsPerGeneration";
     final public static String P_INITIALIZER = "initializer";
     final public static String P_COMPARATOR = "fitnessComparator";
     final public static String P_OBJECTIVE = "objective";
@@ -27,7 +26,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public final static String P_IS_DYNAMIC = "isDynamic";
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
         
-    final private int evalsPerGeneration;
     final private Initializer<T> initializer;
     final private FitnessComparator<T> fitnessComparator;
     final private ObjectiveFunction<P> objective;
@@ -37,7 +35,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     private final boolean isDynamic;
     
     public RandomCircleOfLife(final Parameters parameters, final String base) {
-        this.evalsPerGeneration = parameters.getIntParameter(Parameters.push(base, P_EVALS_PER_GEN));
         this.initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
         this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
@@ -71,11 +68,12 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             population = initializer.generatePopulation();
             
             // Update our local best-so-far variable
-            final T bestOfGen = Statistics.max(population, fitnessComparator);
+            final T bestOfGen = Statistics.best(population, fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             
             flushMetrics();
+            i++;
         }
         
         // Measure final population
@@ -102,8 +100,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return evalsPerGeneration > 0
-                && metrics != null
+        return metrics != null
                 && initializer != null
                 && fitnessComparator != null
                 && objective != null
@@ -119,8 +116,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         if (!(o instanceof RandomCircleOfLife))
             return false;
         final RandomCircleOfLife ref = (RandomCircleOfLife) o;
-        return evalsPerGeneration == ref.evalsPerGeneration
-                && isDynamic == ref.isDynamic
+        return isDynamic == ref.isDynamic
                 && initializer.equals(ref.initializer)
                 && fitnessComparator.equals(ref.fitnessComparator)
                 && objective.equals(ref.objective)
@@ -132,7 +128,6 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 97 * hash + this.evalsPerGeneration;
         hash = 97 * hash + (this.initializer != null ? this.initializer.hashCode() : 0);
         hash = 97 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
         hash = 97 * hash + (this.objective != null ? this.objective.hashCode() : 0);
@@ -145,8 +140,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     
     @Override
     public String toString() {
-        return String.format("[%s: %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
-                P_EVALS_PER_GEN, evalsPerGeneration,
+        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_IS_DYNAMIC, isDynamic,
                 P_INITIALIZER, initializer,
                 P_COMPARATOR, fitnessComparator,

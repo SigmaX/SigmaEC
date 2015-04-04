@@ -38,7 +38,7 @@ public class StatisticsTest {
         assertEquals(expResult, result, 0.00001);
     }
 
-    /** Test of max method, of class Misc. */
+    /** Test of best method, of class Misc. */
     @Test
     public void testMax() {
         System.out.println("max (odd index)");
@@ -49,7 +49,7 @@ public class StatisticsTest {
         assertEquals(7, Statistics.maxIndex(values));
     }
 
-    /** Test of max method, of class Misc. */
+    /** Test of best method, of class Misc. */
     @Test
     public void testMaxEvenIndex() {
         System.out.println("max (even index)");
@@ -60,7 +60,7 @@ public class StatisticsTest {
         assertEquals(6, Statistics.maxIndex(values));
     }
 
-    /** Test of max method, of class Misc. */
+    /** Test of best method, of class Misc. */
     @Test
     public void testMaxFirst() {
         System.out.println("max (first element)");
@@ -71,7 +71,7 @@ public class StatisticsTest {
         assertEquals(0, Statistics.maxIndex(values));
     }
 
-    /** Test of max method, of class Misc. */
+    /** Test of best method, of class Misc. */
     @Test
     public void testMaxLast() {
         System.out.println("max (last element)");
@@ -82,7 +82,7 @@ public class StatisticsTest {
         assertEquals(10, Statistics.maxIndex(values));
     }
 
-    /** Test of min method, of class Misc. */
+    /** Test of worst method, of class Misc. */
     @Test
     public void testMin() {
         System.out.println("min");
@@ -93,7 +93,7 @@ public class StatisticsTest {
         assertEquals(6, Statistics.minIndex(values));
     }
 
-    /** Test of min method, of class Misc. */
+    /** Test of worst method, of class Misc. */
     @Test
     public void testMinFirst() {
         System.out.println("min (first element)");
@@ -104,7 +104,7 @@ public class StatisticsTest {
         assertEquals(0, Statistics.minIndex(values));
     }
 
-    /** Test of min method, of class Misc. */
+    /** Test of worst method, of class Misc. */
     @Test
     public void testMinLast() {
         System.out.println("min (last element)");

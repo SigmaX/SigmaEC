@@ -40,7 +40,7 @@ public class NumStepsWithoutImprovementStoppingCondition<T extends Individual> e
     @Override
     public boolean stop(List<T> population, int step) {
         assert(step >= 0);
-        final T bestOfGen = Statistics.max(population, fitnessComparator);
+        final T bestOfGen = Statistics.best(population, fitnessComparator);
         if (fitnessComparator.betterThan(bestOfGen, bestSoFar)) {
             // Only rest step count if the new BSF is *strictly* better than the old one
             if (fitnessComparator.compare(bestOfGen, bestSoFar) > 0) 

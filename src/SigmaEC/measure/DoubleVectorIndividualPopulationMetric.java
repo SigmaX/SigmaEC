@@ -49,7 +49,7 @@ public class DoubleVectorIndividualPopulationMetric<T extends Individual> extend
     public MultipleDoubleArrayMeasurement measurePopulation(int run, int generation, final List<T> population) {
         final List<double[]> arrays = new ArrayList<double[]>() {{
             if (fitnessComparator.isDefined()) {
-                final T best = Statistics.max(population, fitnessComparator.get());
+                final T best = Statistics.best(population, fitnessComparator.get());
                 add(Misc.prepend(best.getID(), decoder.decode(best).getGenomeArray()));
             }
             else

@@ -49,7 +49,7 @@ public final class Statistics
     }
     
     /** Return the best individual according to some FitnessComparator. */
-    public static <T extends Individual> T max(final List<T> values, final FitnessComparator<T> comparator) {
+    public static <T extends Individual> T best(final List<T> values, final FitnessComparator<T> comparator) {
         assert(values != null);
         assert(comparator != null);
         if (values.isEmpty()) return null;
@@ -61,8 +61,25 @@ public final class Statistics
         return best;
     }
     
+    /** Return the index of the best individual according to some FitnessComparator. */
+    public static <T extends Individual> int bestIndex(final List<T> values, final FitnessComparator<T> comparator) {
+        assert(values != null);
+        assert(comparator != null);
+        if (values.isEmpty()) return -1;
+        int bestIndex = 0;
+        T best = values.get(0);
+        for (int i = 1; i < values.size(); i++) {
+            final T val = values.get(i);
+            if (comparator.betterThan(val, best)) {
+                bestIndex = i;
+                best = val;
+            }
+        }
+        return bestIndex;
+    }
+    
     /** Return the worst individual according to some FitnessComparator. */
-    public static <T extends Individual> T min(final List<T> values, final FitnessComparator<T> comparator) {
+    public static <T extends Individual> T worst(final List<T> values, final FitnessComparator<T> comparator) {
         assert(values != null);
         assert(comparator != null);
         if (values.isEmpty()) return null;

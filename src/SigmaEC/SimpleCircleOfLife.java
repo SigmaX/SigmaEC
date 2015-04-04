@@ -74,7 +74,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 objective.setGeneration(i);
             
             // Update our local best-so-far variable
-            final T bestOfGen = Statistics.max(population, fitnessComparator);
+            final T bestOfGen = Statistics.best(population, fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             

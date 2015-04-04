@@ -98,7 +98,6 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     final public boolean repOK() {
         return writer != null
                 && wrappedMetric != null
-                && wrappedMetric.repOK()
                 && P_PREFIX != null
                 && !P_PREFIX.isEmpty()
                 && P_FILE != null

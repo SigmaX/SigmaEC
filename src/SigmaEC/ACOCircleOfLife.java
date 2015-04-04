@@ -75,7 +75,7 @@ public class ACOCircleOfLife extends CircleOfLife {
             updatePheromones(ants, pheromones);
             
             // Update our local best-so-far variable
-            final IntVectorIndividual bestOfGen = Statistics.max(ants, fitnessComparator);
+            final IntVectorIndividual bestOfGen = Statistics.best(ants, fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             
