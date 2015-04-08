@@ -17,20 +17,20 @@ import java.util.List;
  */
 public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T> {
     public final static String P_COMPARATOR = "fitnessComparator";
-    public final static String P_EVALUATOR = "auxillaryEvaluator";
+    public final static String P_EVALUATOR = "auxiliaryEvaluator";
     public final static String P_MODULO = "modulo";
     
     private final FitnessComparator<T> fitnessComparator;
-    private final Option<EvaluationGenerator<T,P>> auxillaryEvaluator;
+    private final Option<EvaluationGenerator<T,P>> auxiliaryEvaluator;
     private final int modulo;
     private T bestSoFar = null;
-    private T auxillaryBestSoFar = null;
+    private T auxiliaryBestSoFar = null;
     
     public FitnessStatisticsPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
-        auxillaryEvaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationGenerator.class);
+        auxiliaryEvaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationGenerator.class);
         final Option<Integer> moduloOpt = parameters.getOptionalIntParameter(Parameters.push(base, P_MODULO));
         modulo = moduloOpt.isDefined() ? moduloOpt.get() : 1;
         if (modulo <= 0)
@@ -51,17 +51,17 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         if (fitnessComparator.betterThan(trueBest, bestSoFar)) {
             bestSoFar = trueBest;
             // Evaluate the auxillary fitness of bestSoFar
-            if (auxillaryEvaluator.isDefined())
-                auxillaryBestSoFar = auxillaryEvaluator.get().produceGeneration(new ArrayList<T>() {{ add(bestSoFar); }}).get(0);
+            if (auxiliaryEvaluator.isDefined())
+                auxiliaryBestSoFar = auxiliaryEvaluator.get().produceGeneration(new ArrayList<T>() {{ add(bestSoFar); }}).get(0);
         }
         
         // Don't measure anything else until the sepcified interval has elapsed
         if (step % modulo != 0)
             return null;
         
-        // If we have an auxillary evaluator, use it to compute the fitness statistics
-        if (auxillaryEvaluator.isDefined())
-                population = auxillaryEvaluator.get().produceGeneration(population);
+        // If we have an auxiliary evaluator, use it to compute the fitness statistics
+        if (auxiliaryEvaluator.isDefined())
+                population = auxiliaryEvaluator.get().produceGeneration(population);
         final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < fitnesses.length; i++)
             fitnesses[i] = population.get(i).getFitness();
@@ -72,7 +72,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         final T best = Statistics.best(population, fitnessComparator);
         final T worst = Statistics.worst(population, fitnessComparator);
         
-        final double bsf = auxillaryEvaluator.isDefined() ? auxillaryBestSoFar.getFitness() : bestSoFar.getFitness();
+        final double bsf = auxiliaryEvaluator.isDefined() ? auxiliaryBestSoFar.getFitness() : bestSoFar.getFitness();
         
         assert(repOK());
         return new FitnessStatisticsMeasurement(run, step, mean, std, best.getFitness(), worst.getFitness(), bsf, bestSoFar.getID());
@@ -81,7 +81,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     @Override
     public void reset() {
         bestSoFar = null;
-        auxillaryBestSoFar = null;
+        auxiliaryBestSoFar = null;
     }
 
     @Override
@@ -100,18 +100,18 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
                 && P_MODULO != null
                 && !P_MODULO.isEmpty()
                 && fitnessComparator != null
-                && auxillaryEvaluator != null
+                && auxiliaryEvaluator != null
                 && modulo > 0
-                && !(bestSoFar != null && auxillaryEvaluator.isDefined() && auxillaryBestSoFar == null);
+                && !(bestSoFar != null && auxiliaryEvaluator.isDefined() && auxiliaryBestSoFar == null);
     }
     
     @Override
     public String toString() {
         return String.format("[%s: %s=%s, %s=%s, %s=%d, bestSoFar=%s, auxillaryBestSoFar=%s]", this.getClass().getSimpleName(),
                 P_COMPARATOR, fitnessComparator,
-                P_EVALUATOR, auxillaryEvaluator,
+                P_EVALUATOR, auxiliaryEvaluator,
                 P_MODULO, modulo,
-                bestSoFar, auxillaryBestSoFar);
+                bestSoFar, auxiliaryBestSoFar);
     }
     
     @Override
@@ -124,18 +124,18 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         return modulo == ref.modulo
                 && fitnessComparator.equals(ref.fitnessComparator)
                 && (bestSoFar == null ? ref.bestSoFar == null : bestSoFar.equals(ref.bestSoFar))
-                && (auxillaryBestSoFar == null ? ref.auxillaryBestSoFar == null : auxillaryBestSoFar.equals(ref.auxillaryBestSoFar))
-                && auxillaryEvaluator.equals(ref.auxillaryEvaluator);
+                && (auxiliaryBestSoFar == null ? ref.auxiliaryBestSoFar == null : auxiliaryBestSoFar.equals(ref.auxiliaryBestSoFar))
+                && auxiliaryEvaluator.equals(ref.auxiliaryEvaluator);
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
         hash = 67 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
-        hash = 67 * hash + (this.auxillaryEvaluator != null ? this.auxillaryEvaluator.hashCode() : 0);
+        hash = 67 * hash + (this.auxiliaryEvaluator != null ? this.auxiliaryEvaluator.hashCode() : 0);
         hash = 67 * hash + this.modulo;
         hash = 67 * hash + (this.bestSoFar != null ? this.bestSoFar.hashCode() : 0);
-        hash = 67 * hash + (this.auxillaryBestSoFar != null ? this.auxillaryBestSoFar.hashCode() : 0);
+        hash = 67 * hash + (this.auxiliaryBestSoFar != null ? this.auxiliaryBestSoFar.hashCode() : 0);
         return hash;
     }
     //</editor-fold>
