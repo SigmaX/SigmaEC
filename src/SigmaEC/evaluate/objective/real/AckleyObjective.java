@@ -33,7 +33,7 @@ public class AckleyObjective extends ObjectiveFunction<DoubleVectorIndividual> {
             sumB += Math.cos(2.0*Math.PI*x.value);
         }
         assert(repOK());
-        return -20*Math.exp(-0.2*Math.sqrt(sumA/ind.size()) - Math.exp(sumB/ind.size()) + 20 + Math.E);
+        return -20*Math.exp(-0.2*Math.sqrt(sumA/ind.size())) - Math.exp(sumB/ind.size()) + 20 + Math.E;
     }
 
     @Override

@@ -13,7 +13,7 @@ import java.util.logging.Logger;
  *
  * @author Eric 'Siggy' Scott
  */
-public class SimpleExperiment<T extends Individual> extends Experiment<Double> {
+public class SimpleExperiment<T extends Individual> extends Experiment<List<EvolutionResult>> {
     private final static String P_CIRCLE_OF_LIFE = "circleOfLife";
     private final static String P_NUM_RUNS = "numRuns";
         
@@ -44,11 +44,8 @@ public class SimpleExperiment<T extends Individual> extends Experiment<Double> {
     }
 
     @Override
-    public Double getResult() {
-        double fitnessSum = 0.0;
-        for (final EvolutionResult<T> result : results)
-            fitnessSum += result.getBestFitness();
-        return fitnessSum/results.size();
+    public List<EvolutionResult> getResult() {
+        return new ArrayList<EvolutionResult>(results);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
