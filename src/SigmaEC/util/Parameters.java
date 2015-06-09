@@ -228,6 +228,14 @@ public class Parameters extends ContractObject {
             return Option.NONE;
     }
     
+    public Option<double[]> getOptionalDoubleArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        if (properties.containsKey(parameterName))
+            return new Option<double[]>(getDoubleArrayParameter(parameterName));
+        else
+            return Option.NONE;
+    }
+    
     public double[] getDoubleArrayParameter(final String parameterName) {
         final String[] doubleStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
         final double[] array = new double[doubleStrings.length];
