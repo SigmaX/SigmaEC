@@ -1,5 +1,6 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
@@ -15,6 +16,106 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     private final long id;
     private static long nextId = 0;
     private final Option<Double> fitness;
+    private final Option<List<Individual>> parents;
+    
+    // <editor-fold defaultstate="collapsed" desc="Producers and Consumers">
+    @Override
+    public long getID() { return id; }
+    
+    @Override
+    public int size() { return genome.size(); }
+
+    @Override
+    public double getFitness() {
+        if (fitness.isDefined())
+            return fitness.get();
+        else
+            throw new IllegalStateException(String.format("%s: attempted to read the fitness of an individual whose fitness has not been evaluated.", this.getClass().getSimpleName()));
+    }
+    
+    @Override
+    public BitStringIndividual setFitness(double fitness) {
+        return new Builder(this).setFitness(fitness).build();
+    }
+    
+    @Override
+    public LinearGenomeIndividual<BitGene> create(final List<BitGene> genome, final List<? extends Individual> parents) {
+        assert(genome != null);
+        return new Builder(genome).setParents(parents).build();
+    }
+
+    @Override
+    public List<BitGene> getGenome() {
+        return new ArrayList<BitGene>(genome); // Defensive copy
+    }
+
+    @Override
+    public boolean hasParents() {
+        return parents.isDefined();
+    }
+
+    @Override
+    public Option<List<Individual>> getParents() {
+        if (!parents.isDefined())
+            return Option.NONE;
+        return new Option<>(new ArrayList<>(parents.get())); // Defensive copy
+    }
+
+    @Override
+    public Individual setParents(List<? extends Individual> parents) {
+       return new Builder(this).setParents(parents).build();
+    }
+
+    @Override
+    public Individual clearParents() {
+        return new Builder(this).clearParents().build();
+    }
+    // </editor-fold>
+    
+    public static class Builder {
+        private List<BitGene> genome;
+        private Option<Double> fitness = Option.NONE;
+        private Option<List<Individual>> parents = Option.NONE;
+        
+        public BitStringIndividual build() {
+            return new BitStringIndividual(genome, fitness, parents);
+        }
+        
+        public Builder(final List<BitGene> genome) {
+            assert(genome != null);
+            assert(!Misc.containsNulls(genome));
+            this.genome = genome;
+        }
+        
+        public Builder(final BitStringIndividual ref) {
+            assert(ref != null);
+            genome = ref.genome;
+            fitness = ref.fitness;
+            parents = ref.parents;
+        }
+        
+        public Builder setFitness(final double fitness) {
+            this.fitness = new Option<>(fitness);
+            return this;
+        }
+        
+        public Builder setParents(final List<? extends Individual> parents) {
+            assert(parents != null);
+            assert(!Misc.containsNulls(parents));
+            this.parents = new Option<>(new ArrayList<Individual>(parents));
+            return this;
+        }
+        
+        public Builder clearFitness() {
+            fitness = Option.NONE;
+            return this;
+        }
+        
+        public Builder clearParents() {
+            parents = Option.NONE;
+            return this;
+        }
+    }
     
     /** Construct a random bitstring with an equal probability that any given
      * bit is T or F.
@@ -24,14 +125,6 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
      */
     public BitStringIndividual(final Random random, final int numBits) {
         this(random, numBits, 0.5);
-    }
-    
-    private BitStringIndividual(final BitStringIndividual ref, final double fitness) {
-        assert(ref != null);
-        genome = new ArrayList<BitGene>(ref.genome);
-        id = ref.id;
-        this.fitness = new Option<Double>(fitness);
-        assert(repOK());
     }
     
     /** Construct a random bitstring.
@@ -49,45 +142,23 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
         }};
         this.id = nextId++;
         fitness = Option.NONE;
+        parents = Option.NONE;
         assert(repOK());
     }
     
-    public BitStringIndividual(final List<BitGene> genome) {
+    
+    /** Private constructor for use with the Builder pattern. Does not make defensive copies! */
+    private BitStringIndividual(final List<BitGene> genome, final Option<Double> fitness, final Option<List<Individual>> parents) {
         assert(genome != null);
-        this.genome = new ArrayList<BitGene>(genome);
+        assert(!Misc.containsNulls(genome));
+        assert(fitness != null);
+        assert(parents != null);
+        assert(!(parents.isDefined() && Misc.containsNulls(parents.get())));
+        this.genome = new ArrayList<>(genome);
         this.id = nextId++;
-        fitness = Option.NONE;
+        this.fitness = fitness;
+        this.parents = parents;
         assert(repOK());
-    }
-
-    @Override
-    public long getID() { return id; }
-    
-    @Override
-    public int size() { return genome.size(); }
-
-    @Override
-    public double getFitness() {
-        if (fitness.isDefined())
-            return fitness.get();
-        else
-            throw new IllegalStateException(String.format("%s: attempted to read the fitness of an individual whose fitness has not been evaluated.", this.getClass().getSimpleName()));
-    }
-
-    @Override
-    public BitStringIndividual setFitness(double fitness) {
-        return new BitStringIndividual(this, fitness);
-    }
-    
-    @Override
-    public LinearGenomeIndividual<BitGene> create(final List<BitGene> genome) {
-        assert(genome != null);
-        return new BitStringIndividual(genome);
-    }
-
-    @Override
-    public List<BitGene> getGenome() {
-        return new ArrayList<BitGene>(genome); // Defensive copy
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -95,6 +166,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     public final boolean repOK() {
         return id >= 0
                 && fitness != null
+                && !(parents.isDefined() && parents.get().isEmpty())
                 && !(fitness.isDefined() && Double.isNaN(fitness.get()))
                 && genome != null
                 && !Misc.containsNulls(genome);

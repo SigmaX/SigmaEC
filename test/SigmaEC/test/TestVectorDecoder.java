@@ -12,7 +12,7 @@ import SigmaEC.represent.linear.DoubleVectorIndividual;
 public class TestVectorDecoder extends Decoder<TestVectorIndividual, DoubleVectorIndividual> {
     @Override
     public DoubleVectorIndividual decode(final TestVectorIndividual individual) {
-        return new DoubleVectorIndividual(individual.getVector());
+        return new DoubleVectorIndividual.Builder(individual.getVector()).build();
     }
 
     @Override

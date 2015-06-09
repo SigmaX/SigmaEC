@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleVectorIndividualPopulationMetric<T extends Individual> extends PopulationMetric<T> {
+public class DoubleVectorIndividualPopulationMetric<T extends DoubleVectorIndividual> extends PopulationMetric<T> {
     public final static String P_DECODER = "decoder";
     public final static String P_BEST_ONLY = "bestOnly";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
@@ -36,7 +36,7 @@ public class DoubleVectorIndividualPopulationMetric<T extends Individual> extend
         else
             decoder = new CloneDecoder(parameters, base);
         final boolean bestOnly = parameters.getBooleanParameter(Parameters.push(base, P_BEST_ONLY));
-        final Option<FitnessComparator<DoubleVectorIndividual>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
+        final Option<FitnessComparator<T>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
         if (!bestOnly && fitnessComparatorOpt.isDefined())
             Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING, String.format("ignoring '%s' because '%s' is false.", P_FITNESS_COMPARATOR, P_BEST_ONLY));
         if (bestOnly && !fitnessComparatorOpt.isDefined())

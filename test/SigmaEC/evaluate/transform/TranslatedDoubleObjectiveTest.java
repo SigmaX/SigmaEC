@@ -117,7 +117,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { 0, 0 });
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 0, 0 }).build();
         double expResult = 50.0;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);
@@ -129,7 +129,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { -10, -10 });
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -10, -10 }).build();
         double expResult = 50.0;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);
@@ -141,7 +141,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { 10, -10 });
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 10, -10 }).build();
         double expResult = 250.0;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);
@@ -153,7 +153,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { -5, 0 });
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -5, 0 }).build();
         double expResult = 25.0;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);
@@ -167,7 +167,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { 0, 0, 0});
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 0, 0, 0}).build();
         double expResult = 75.0;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);
@@ -181,7 +181,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { -10, -10, 10 });
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -10, -10, 10 }).build();
         double expResult = 675;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);
@@ -195,7 +195,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { 10, -10, -5 });
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 10, -10, -5 }).build();
         double expResult = 250.0;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);
@@ -209,7 +209,7 @@ public class TranslatedDoubleObjectiveTest {
         final Parameters parameters = new Parameters(properties);
         final TranslatedDoubleObjective sut = new TranslatedDoubleObjective(parameters, BASE);
         
-        final DoubleVectorIndividual ind = new DoubleVectorIndividual(new double[] { -5, 0, 0 });
+        final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -5, 0, 0 }).build();
         double expResult = 150;
         double result = sut.fitness(ind);
         assertEquals(expResult, result, 0.0000001);

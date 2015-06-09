@@ -134,7 +134,7 @@ public class ACOCircleOfLife extends CircleOfLife {
             currentNode = next.value;
         }
         assert(path.size() == numNodes);
-        return new IntVectorIndividual(path);
+        return new IntVectorIndividual.Builder(path).build();
     }
     
     private IntGene chooseNext(final List<IntGene> unVisitedNodes, final double[][] pheromones, final int currentNode) {

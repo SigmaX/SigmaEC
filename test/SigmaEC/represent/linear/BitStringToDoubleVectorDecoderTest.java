@@ -15,14 +15,14 @@ public class BitStringToDoubleVectorDecoderTest {
     final static String BASE = "base";
     Properties properties;
     
-    final BitStringIndividual emptyInd = new BitStringIndividual(new ArrayList<BitGene>());
-    final BitStringIndividual goodInd = new BitStringIndividual(new ArrayList<BitGene>() {{
+    final BitStringIndividual emptyInd = new BitStringIndividual.Builder(new ArrayList<BitGene>()).build();
+    final BitStringIndividual goodInd = new BitStringIndividual.Builder(new ArrayList<BitGene>() {{
         add(new BitGene(true)); add(new BitGene(false)); add(new BitGene(true)); add(new BitGene(true)); // 1011, Gray: 1110
         add(new BitGene(true)); add(new BitGene(false)); add(new BitGene(true)); add(new BitGene(false)); // 1010, Gray: 1111
         add(new BitGene(false)); add(new BitGene(true)); add(new BitGene(true)); add(new BitGene(true)); // 0111, Gray: 0100
         add(new BitGene(true)); add(new BitGene(false)); add(new BitGene(false)); add(new BitGene(false)); // 1000, Gray: 1100
         add(new BitGene(true)); add(new BitGene(true)); add(new BitGene(true)); add(new BitGene(true)); // 1111, Gray: 1000
-    }});
+    }}).build();
         
     public BitStringToDoubleVectorDecoderTest() { }
     
@@ -66,7 +66,7 @@ public class BitStringToDoubleVectorDecoderTest {
         System.out.println("decode (endian)");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "1.875");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 1.375, 1.25, 0.875, 1.0, 1.875 });
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 1.375, 1.25, 0.875, 1.0, 1.875 }).build();
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
         assertTrue(sut.repOK());
@@ -78,7 +78,7 @@ public class BitStringToDoubleVectorDecoderTest {
         System.out.println("decode (endian)");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "3.75");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 2.75, 2.5, 1.75, 2.0, 3.75 });
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 2.75, 2.5, 1.75, 2.0, 3.75 }).build();
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
         assertTrue(sut.repOK());
@@ -92,7 +92,7 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_NUM_BITS_PER_DIMENSION), "5");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "31");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 23.0, 9.0, 28.0, 15.0});
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 23.0, 9.0, 28.0, 15.0}).build();
         //fail("Why does this not go to 31?");
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
@@ -108,7 +108,7 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MIN), "-15");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "16");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 8.0, -6.0, 13.0, 0.0});
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 8.0, -6.0, 13.0, 0.0}).build();
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
         assertTrue(sut.repOK());
@@ -123,7 +123,7 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "1.875");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_GRAY_CODE), "true");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 1.75, 1.875, 0.5, 1.5, 1.0 });
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 1.75, 1.875, 0.5, 1.5, 1.0 }).build();
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
         assertTrue(sut.repOK());
@@ -136,7 +136,7 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "3.75");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_GRAY_CODE), "true");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 3.5, 3.75, 1.0, 3.0, 2.0 });
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 3.5, 3.75, 1.0, 3.0, 2.0 }).build();
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
         assertTrue(sut.repOK());
@@ -151,7 +151,7 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "31");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_GRAY_CODE), "true");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 28.0, 13.0, 18.0, 8.0 });
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 28.0, 13.0, 18.0, 8.0 }).build();
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
         assertTrue(sut.repOK());
@@ -167,7 +167,7 @@ public class BitStringToDoubleVectorDecoderTest {
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_MAX), "16");
         properties.setProperty(Parameters.push(BASE, BitStringToDoubleVectorDecoder.P_GRAY_CODE), "true");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final DoubleVectorIndividual expResult = new DoubleVectorIndividual(new double[] { 13.0, -2.0, 3.0, -7.0 });
+        final DoubleVectorIndividual expResult = new DoubleVectorIndividual.Builder(new double[] { 13.0, -2.0, 3.0, -7.0 }).build();
         final DoubleVectorIndividual result = sut.decode(goodInd);
         assertEquals(expResult.getGenome(), result.getGenome());
         assertTrue(sut.repOK());
@@ -221,7 +221,7 @@ public class BitStringToDoubleVectorDecoderTest {
     public void testToString() {
         System.out.println("toString");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, min=%f, max=%f]", 5, 4, -3, 0.0, 15.0);
+        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, min=%f, max=%f]", 5, 4, 0.0, 15.0);
         final String result = sut.toString();
         assertEquals(expResult, result);
         assertTrue(sut.repOK());

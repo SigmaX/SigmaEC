@@ -8,6 +8,7 @@ import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -26,8 +27,10 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     
     private final int populationSize;
     private final int numDimensions;
-    private final double[] maxValues;
-    private final double[] minValues;
+    private final Option<Double> defaultMaxValue;
+    private final Option<Double> defaultMinValue;
+    private final Option<double[]> maxValues;
+    private final Option<double[]> minValues;
     private final Random random;
     private final Option<Generator<DoubleVectorIndividual>> evaluator;
     
@@ -38,31 +41,60 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         this.evaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Generator.class);
         
-        if (parameters.isDefined(Parameters.push(base, P_DEFAULT_MAX_VALUE)))
-            this.maxValues = Misc.repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE)), numDimensions);
-        else
-            this.maxValues = parameters.getDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
+        defaultMaxValue = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE));
+        maxValues = parameters.getOptionalDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
             
-        if (parameters.isDefined(Parameters.push(base, P_DEFAULT_MIN_VALUE)))
-            this.minValues = Misc.repeatValue(parameters.getDoubleParameter(Parameters.push(base, P_DEFAULT_MIN_VALUE)), numDimensions);
-        else
-            this.minValues = parameters.getDoubleArrayParameter(Parameters.push(base, P_MIN_VALUES));
+        defaultMinValue = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DEFAULT_MIN_VALUE));
+        minValues = parameters.getOptionalDoubleArrayParameter(Parameters.push(base, P_MIN_VALUES));
+        
+        if (!(defaultMaxValue.isDefined() ^ maxValues.isDefined()))
+            throw new IllegalStateException(String.format("%s: One of %s and %s must be defined, and not both.", this.getClass().getSimpleName(), P_DEFAULT_MAX_VALUE, P_MAX_VALUES));
+        
+        if (!(defaultMinValue.isDefined() ^ minValues.isDefined()))
+            throw new IllegalStateException(String.format("%s: One of %s and %s must be defined, and not both.", this.getClass().getSimpleName(), P_DEFAULT_MIN_VALUE, P_MIN_VALUES));
+        
+        if (!((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) || (maxValues.isDefined() && minValues.isDefined())))
+            throw new IllegalStateException(String.format("%s: Must use either default values or vectors for both max and min.", this.getClass().getSimpleName()));
+
+        
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         assert(repOK());
+    }
+    
+    private double getMaxValue(final int gene) {
+        assert(gene > 0);
+        assert(gene < numDimensions);
+        if (defaultMaxValue.isDefined())
+            return defaultMaxValue.get();
+        return maxValues.get()[gene];
+    }
+    
+    private double getMinValue(final int gene) {
+        assert(gene > 0);
+        assert(gene < numDimensions);
+        if (defaultMinValue.isDefined())
+            return defaultMinValue.get();
+        return minValues.get()[gene];
     }
 
     @Override
     public List<DoubleVectorIndividual> generatePopulation() {
         final List<DoubleVectorIndividual> population = new ArrayList<DoubleVectorIndividual>(populationSize) {{
-            for (int i = 0; i < populationSize; i++)
-                add(new DoubleVectorIndividual(random, numDimensions, minValues, maxValues));
+            for (int i = 0; i < populationSize; i++) {
+                if (defaultMaxValue.isDefined())
+                    add(new DoubleVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get()));
+                else
+                    add(new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get()));
+            }
         }};
         return evaluator.isDefined() ? evaluator.get().produceGeneration(population) : population;
     }
 
     @Override
     public DoubleVectorIndividual generateIndividual() {
-        final DoubleVectorIndividual newInd = new DoubleVectorIndividual(random, numDimensions, minValues, maxValues);
+        final DoubleVectorIndividual newInd = defaultMaxValue.isDefined() ?
+                new DoubleVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
+                : new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get());
         return evaluator.isDefined() ? evaluator.get().produceGeneration(new ArrayList<DoubleVectorIndividual>() {{ add(newInd); }}).get(0) : newInd;
     }
 
@@ -87,11 +119,12 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 && !P_RANDOM.isEmpty()
                 && populationSize > 0
                 && numDimensions > 0
-                && maxValues.length == numDimensions
-                && minValues.length == numDimensions
+                && ((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) ^ (maxValues.isDefined() && minValues.isDefined()))
+                && !(maxValues.isDefined() && maxValues.get().length != numDimensions)
+                && !(minValues.isDefined() && minValues.get().length != numDimensions)
                 && random != null
-                && !Misc.containsNaNs(maxValues)
-                && !Misc.containsNaNs(minValues)
+                && !(maxValues.isDefined() && Misc.containsNaNs(maxValues.get()))
+                && !(maxValues.isDefined() && Misc.containsNaNs(minValues.get()))
                 && evaluator != null;
     }
 
@@ -103,31 +136,37 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         return populationSize == ref.populationSize
                 && numDimensions == ref.numDimensions
                 && random.equals(ref.random)
-                && Misc.doubleArrayEquals(maxValues, ref.maxValues)
-                && Misc.doubleArrayEquals(minValues, ref.minValues)
+                && maxValues.equals(ref.maxValues)
+                && minValues.equals(ref.minValues)
+                && defaultMaxValue.equals(ref.defaultMaxValue)
+                && defaultMinValue.equals(ref.defaultMinValue)
                 && evaluator.equals(ref.evaluator);
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + this.populationSize;
-        hash = 29 * hash + this.numDimensions;
-        hash = 29 * hash + Arrays.hashCode(this.maxValues);
-        hash = 29 * hash + Arrays.hashCode(this.minValues);
-        hash = 29 * hash + (this.random != null ? this.random.hashCode() : 0);
-        hash = 29 * hash + (this.evaluator != null ? this.evaluator.hashCode() : 0);
+        int hash = 3;
+        hash = 23 * hash + this.populationSize;
+        hash = 23 * hash + this.numDimensions;
+        hash = 23 * hash + Objects.hashCode(this.defaultMaxValue);
+        hash = 23 * hash + Objects.hashCode(this.defaultMinValue);
+        hash = 23 * hash + Objects.hashCode(this.maxValues);
+        hash = 23 * hash + Objects.hashCode(this.minValues);
+        hash = 23 * hash + Objects.hashCode(this.random);
+        hash = 23 * hash + Objects.hashCode(this.evaluator);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_POPULATION_SIZE, populationSize,
                 P_NUM_DIMENSIONS, numDimensions,
                 P_RANDOM, random,
-                P_MAX_VALUES, Arrays.toString(maxValues),
-                P_MIN_VALUES, Arrays.toString(minValues),
+                P_DEFAULT_MIN_VALUE, defaultMinValue,
+                P_DEFAULT_MAX_VALUE, defaultMaxValue,
+                P_MIN_VALUES, minValues,
+                P_MAX_VALUES, maxValues,
                 P_EVALUATOR, evaluator);
     }
     // </editor-fold>

@@ -1,6 +1,7 @@
 package SigmaEC.operate;
 
 import SigmaEC.SRandom;
+import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.DoubleGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
@@ -93,6 +94,24 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
         return gene; // Give up
     }
 
+    /** Takes an individual and produces a version of that individual with zero or more mutated genes.
+     * 
+     * The new individual has  Gaussian mutation applied to each gene with
+     * probability P_MUTATION_RATE.
+     * 
+     * If the old individual has parents, then
+     * the new individual's parents are the same the original's parents---that
+     * is, ind is not considered the parent of the mutated individual.
+     * 
+     * If ind's parents attribute is empty, however, then the new individual
+     * considered ind to be its parent.
+     * 
+     * This way, an offspring individual has its parents assigned by the first
+     * reproductive operator that is applied to its parents.
+     * 
+     * @param ind The original individual.
+     * @return The newly mutated individual.
+     */
     @Override
     public LinearGenomeIndividual<DoubleGene> mutate(final LinearGenomeIndividual<DoubleGene> ind) {
         assert(ind != null);
@@ -103,7 +122,10 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
             newGenome.add((roll < mutationRate) ? mutate(genome.get(i), i) : genome.get(i));
         }
         assert(repOK());
-        return ind.create(newGenome);
+        final List<Individual> parents = ind.hasParents() ?
+                ind.getParents().get() :
+                new ArrayList<Individual>() {{ add(ind); }};
+        return ind.create(newGenome, parents);
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">

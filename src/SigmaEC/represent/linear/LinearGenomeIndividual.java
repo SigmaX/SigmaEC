@@ -17,7 +17,7 @@ public abstract class LinearGenomeIndividual<G extends Gene> extends Individual
      * 
      * @param genome The genome to use in the new individual.
      */
-    public abstract LinearGenomeIndividual<G> create(final List<G> genome);
+    public abstract LinearGenomeIndividual<G> create(final List<G> genome, final List<? extends Individual> parents);
     
     /** Return a defensive copy of the genome. */
     public abstract List<G> getGenome();

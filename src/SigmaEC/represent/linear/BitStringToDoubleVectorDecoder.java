@@ -60,7 +60,7 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
             final double unScaledValue = gray ? decodeGray(genome, dimension) : decodeEndian(genome, dimension);
             phenotype[dimension] = rescale(unScaledValue, 0, maxPhenotypeValue, min, max);
         }
-        return new DoubleVectorIndividual(phenotype);
+        return new DoubleVectorIndividual.Builder(phenotype).build();
     }
 
     private double decodeEndian(final List<BitGene> genome, int dimension) {

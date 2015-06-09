@@ -136,7 +136,7 @@ public class TestSuiteViewerExperiment extends Experiment {
                 point[0] = x;
                 point[1] = y;
                 // The remaining dimensions are left set to zero
-                final DoubleVectorIndividual ind = new DoubleVectorIndividual(point);
+                final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(point).build();
                 final double fitness = objective.fitness(ind);
                 outputDestination.write(", " + fitness);
             }

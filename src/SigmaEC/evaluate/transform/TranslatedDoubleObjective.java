@@ -56,7 +56,7 @@ public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorInd
         assert(newPoint.length == offset.length);
         for (int i = 0; i < offset.length; i++)
             newPoint[i] += offset[i];
-        return new DoubleVectorIndividual(newPoint);
+        return new DoubleVectorIndividual.Builder(newPoint).build();
     }
     
     @Override

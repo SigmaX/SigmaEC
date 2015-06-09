@@ -56,14 +56,16 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
      * sometimes result in cloning.
      * 
      * PRECONDITIONS: All the parent genomes must be of the same length.
-     * No exception is caught if this condition is not met.
+     * No exception is caught if this condition is not met!
      * 
      * @return The set of offspring, which will be the same size as the set of
-     * parents.
+     * parents.  Each offspring's 'parents' attribute will be set to reference
+     * the parents.
      */
     @Override
     public List<T> mate(final List<T> parents) {
         assert(parents.size() == 2);
+        assert(allParentsHaveOrDontHaveParents(parents));
         final List<List<G>> parentGenomes = new ArrayList<List<G>>() {{
            add(parents.get(0).getGenome());
            add(parents.get(1).getGenome());
@@ -87,11 +89,21 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
         assert(child1.size() == parentGenomes.get(0).size());
         assert(child2.size() == parentGenomes.get(0).size());
         final List<T> offspring = new ArrayList<T>() {{
-           add((T) (parents.get(0).create(child1)));
-           add((T) (parents.get(0).create(child2))); 
+           add((T) (parents.get(0).create(child1, parents)));
+           add((T) (parents.get(0).create(child2, parents))); 
         }};
         assert(repOK());
         return offspring;
+    }
+    
+    private boolean allParentsHaveOrDontHaveParents(final List<T> parents) {
+        assert(parents != null);
+        assert(parents.size() > 0);
+        final boolean hasParents = parents.get(0).hasParents();
+        for (int i = 1; i < parents.size(); i++)
+            if (!parents.get(i).hasParents())
+                return false;
+        return true;
     }
     
     /** Each genome in parents is non-destructively cropped down to the sequence

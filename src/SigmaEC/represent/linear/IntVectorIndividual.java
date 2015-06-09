@@ -1,5 +1,6 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
@@ -15,59 +16,14 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     private final long id;
     private static long nextId;
     private final Option<Double> fitness;
+    private final Option<List<Individual>> parents;
     
-    /** Construct a random double vector.
-     */
-    public IntVectorIndividual(final Random random, final int numDimensions, final int[] minValues, final int[] maxValues) {
-        assert(random != null);
-        assert(numDimensions > 0);
-        assert(minValues != null);
-        assert(maxValues != null);
-        assert(minValues.length == numDimensions);
-        assert(maxValues.length == numDimensions);
-        this.genome = new ArrayList<IntGene>(numDimensions) {{
-           for (int i = 0; i < numDimensions; i++) {
-               final int delta = maxValues[i] - minValues[i];
-               assert(delta >= 0);
-               final int roll = minValues[i] + (random.nextInt()*delta);
-               add(new IntGene(roll));
-           } 
-        }};
-        this.id = nextId++;
-        fitness = Option.NONE;
-        assert(repOK());
+     // <editor-fold defaultstate="collapsed" desc="Producers and Consumers">
+    @Override
+    public boolean hasParents() {
+        return parents.isDefined();
     }
     
-    public IntVectorIndividual(final List<IntGene> genome) {
-        if (genome == null)
-            throw new NullPointerException(String.format("%s: genome is null.", this.getClass().getSimpleName()));
-        if (Misc.containsNulls(genome))
-            throw new IllegalArgumentException(String.format("%s: genome contains null values.", this.getClass().getSimpleName()));
-        this.genome = new ArrayList<IntGene>(genome);
-        this.id = nextId++;
-        fitness = Option.NONE;
-        assert(repOK());
-    }
-    
-    public IntVectorIndividual(final int[] genome) {
-        if (genome == null)
-            throw new NullPointerException(String.format("%s: genome is null.", this.getClass().getSimpleName()));
-        this.genome = new ArrayList<IntGene>(genome.length);
-        for (int i = 0; i < genome.length; i++)
-            this.genome.add(new IntGene(genome[i]));
-        this.id = nextId++;
-        fitness = Option.NONE;
-        assert(repOK());
-    }
-    
-    private IntVectorIndividual(final IntVectorIndividual ref, final double fitness) {
-        assert(ref != null);
-        genome = new ArrayList<IntGene>(ref.genome);
-        id = ref.id;
-        this.fitness = new Option<Double>(fitness);
-        assert(repOK());
-    }
-
     @Override
     public long getID() { return id; }
     
@@ -75,14 +31,15 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     public int size() { return genome.size(); }
     
     @Override
-    public LinearGenomeIndividual<IntGene> create(final List<IntGene> genome) {
-        assert(genome != null);
-        return new IntVectorIndividual(genome);
+    public Option<List<Individual>> getParents() {
+        if (!parents.isDefined())
+            return Option.NONE;
+        return new Option<>(new ArrayList<>(parents.get())); // Defensive copy
     }
 
     @Override
     public List<IntGene> getGenome() {
-        return new ArrayList<IntGene>(genome); // Defensive copy
+        return new ArrayList<>(genome); // Defensive copy
     }
     
     public int[] getGenomeArray() {
@@ -107,8 +64,110 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     }
 
     @Override
+    public Individual setParents(List<? extends Individual> parents) {
+        return new Builder(this).setParents(parents).build();
+    }
+
+    @Override
     public IntVectorIndividual setFitness(double fitness) {
-        return new IntVectorIndividual(this, fitness);
+        return new Builder(this).setFitness(fitness).build();
+    }
+    
+    @Override
+    public IntVectorIndividual create(final List<IntGene> genome, final List<? extends Individual> parents) {
+        assert(genome != null);
+        return new Builder(genome).setParents(parents).build();
+    }
+
+    @Override
+    public Individual clearParents() {
+        return new Builder(this).clearParents().build();
+    }
+    // </editor-fold>
+    
+    public static class Builder {
+        private final List<IntGene> genome;
+        private Option<Double> fitness = Option.NONE;
+        private Option<List<Individual>> parents = Option.NONE;
+        
+        public IntVectorIndividual build() {
+            return new IntVectorIndividual(genome, fitness, parents);
+        }
+        
+        public Builder(final List<IntGene> genome) {
+            assert(genome != null);
+            this.genome = genome;
+        }
+        
+        public Builder(final int[] genome) {
+            assert(genome != null);
+            this.genome = new ArrayList<>(genome.length);
+            for (int i = 0; i < genome.length; i++)
+                this.genome.add(new IntGene(genome[i]));
+        }
+        
+        public Builder(final IntVectorIndividual ref) {
+            assert(ref != null);
+            genome = ref.genome;
+            parents = ref.parents;
+            fitness = ref.fitness;
+        }
+        
+        public Builder setFitness(final double fitness) {
+            this.fitness = new Option<>(fitness);
+            return this;
+        }
+        
+        public Builder setParents(final List<? extends Individual> parents) {
+            assert(parents != null);
+            assert(!Misc.containsNulls(parents));
+            this.parents = new Option<>(new ArrayList<Individual>(parents));
+            return this;
+        }
+        
+        public Builder clearParents() {
+            parents = Option.NONE;
+            return this;
+        }
+        
+        public Builder clearFitness() {
+            fitness = Option.NONE;
+            return this;
+        }
+    }
+    
+    
+    /** Construct a random double vector. */
+    public IntVectorIndividual(final Random random, final int numDimensions, final int[] minValues, final int[] maxValues) {
+        assert(random != null);
+        assert(numDimensions > 0);
+        assert(minValues != null);
+        assert(maxValues != null);
+        assert(minValues.length == numDimensions);
+        assert(maxValues.length == numDimensions);
+        this.genome = new ArrayList<IntGene>(numDimensions) {{
+           for (int i = 0; i < numDimensions; i++) {
+               final int delta = maxValues[i] - minValues[i];
+               assert(delta >= 0);
+               final int roll = minValues[i] + (random.nextInt()*delta);
+               add(new IntGene(roll));
+           } 
+        }};
+        this.id = nextId++;
+        fitness = Option.NONE;
+        parents = Option.NONE;
+        assert(repOK());
+    }
+    
+    /** Private constructor for use with the Builder pattern. Does not make defensive copies! */
+    private IntVectorIndividual(final List<IntGene> genome, final Option<Double> fitness, final Option<List<Individual>> parents) {
+        assert(genome != null);
+        assert(!Misc.containsNulls(genome));
+        this.genome = new ArrayList<>(genome);
+        this.id = nextId++;
+        this.fitness = fitness;
+        this.parents = parents;
+        assert(repOK());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -117,6 +176,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
         return id >= 0
                 && genome != null
                 && fitness != null
+                && !(parents.isDefined() && parents.get().isEmpty())
                 && !(fitness.isDefined() && Double.isNaN(fitness.get()))
                 && !Misc.containsNulls(genome);
     }

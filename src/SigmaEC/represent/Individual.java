@@ -1,6 +1,8 @@
 package SigmaEC.represent;
 
 import SigmaEC.ContractObject;
+import SigmaEC.util.Option;
+import java.util.List;
 
 /**
  * An evolvable individual.  An individual wraps a genome, but also may include
@@ -20,7 +22,18 @@ public abstract class Individual extends ContractObject
     
     public abstract double getFitness();
     
+    public abstract boolean hasParents();
+    
+    public abstract Option<List<Individual>> getParents();
+    
     /** Produces a copy of this individual with the fitness set or altered. */
     public abstract Individual setFitness(final double fitness);
+    
+    /** Produces a copy of this individual with the list of parents set or altered.
+     * @param parents A list of Individuals that this was produced from.  They must have the same subtype at this. */
+    public abstract Individual setParents(final List<? extends Individual> parents);
+    
+    /** Produces a copy of this individual with an empty set of parents. */
+    public abstract Individual clearParents();
     
 }

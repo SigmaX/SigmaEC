@@ -1,9 +1,11 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -15,61 +17,14 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     private final long id;
     private static long nextId;
     private final Option<Double> fitness;
+    private final Option<List<Individual>> parents;
     
-    /** Construct a random double vector.
-     */
-    public DoubleVectorIndividual(final Random random, final int numDimensions, final double[] minValues, final double[] maxValues) {
-        assert(random != null);
-        assert(numDimensions > 0);
-        assert(minValues != null);
-        assert(maxValues != null);
-        assert(minValues.length == numDimensions);
-        assert(maxValues.length == numDimensions);
-        this.genome = new ArrayList<DoubleGene>(numDimensions) {{
-           for (int i = 0; i < numDimensions; i++) {
-               final double delta = maxValues[i] - minValues[i];
-               assert(delta >= 0);
-               final double roll = minValues[i] + (random.nextDouble()*delta);
-               add(new DoubleGene(roll));
-           } 
-        }};
-        this.id = nextId++;
-        fitness = Option.NONE;
-        assert(repOK());
+    // <editor-fold defaultstate="collapsed" desc="Producers and Consumers">
+    @Override
+    public boolean hasParents() {
+        return parents.isDefined();
     }
     
-    public DoubleVectorIndividual(final List<DoubleGene> genome) {
-        if (genome == null)
-            throw new NullPointerException(String.format("%s: genome is null.", this.getClass().getSimpleName()));
-        if (Misc.containsNulls(genome))
-            throw new IllegalArgumentException(String.format("%s: genome contains null values.", this.getClass().getSimpleName()));
-        this.genome = new ArrayList<DoubleGene>(genome);
-        this.id = nextId++;
-        fitness = Option.NONE;
-        assert(repOK());
-    }
-    
-    public DoubleVectorIndividual(final double[] genome) {
-        if (genome == null)
-            throw new NullPointerException(String.format("%s: genome is null.", this.getClass().getSimpleName()));
-        if (!Misc.allFinite(genome))
-            throw new IllegalArgumentException(String.format("%s: genome contains non-finite values.", this.getClass().getSimpleName()));
-        this.genome = new ArrayList<DoubleGene>(genome.length);
-        for (int i = 0; i < genome.length; i++)
-            this.genome.add(new DoubleGene(genome[i]));
-        this.id = nextId++;
-        fitness = Option.NONE;
-        assert(repOK());
-    }
-    
-    private DoubleVectorIndividual(final DoubleVectorIndividual ref, final double fitness) {
-        assert(ref != null);
-        genome = new ArrayList<DoubleGene>(ref.genome);
-        id = ref.id;
-        this.fitness = new Option<Double>(fitness);
-        assert(repOK());
-    }
-
     @Override
     public long getID() { return id; }
     
@@ -77,14 +32,15 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     public int size() { return genome.size(); }
     
     @Override
-    public LinearGenomeIndividual<DoubleGene> create(final List<DoubleGene> genome) {
-        assert(genome != null);
-        return new DoubleVectorIndividual(genome);
+    public Option<List<Individual>> getParents() {
+        if (!parents.isDefined())
+            return Option.NONE;
+        return new Option<>(new ArrayList<>(parents.get())); // Defensive copy
     }
 
     @Override
     public List<DoubleGene> getGenome() {
-        return new ArrayList<DoubleGene>(genome); // Defensive copy
+        return new ArrayList<>(genome); // Defensive copy
     }
     
     public double[] getGenomeArray() {
@@ -109,8 +65,131 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     }
 
     @Override
+    public Individual setParents(List<? extends Individual> parents) {
+        return new Builder(this).setParents(parents).build();
+    }
+
+    @Override
     public DoubleVectorIndividual setFitness(double fitness) {
-        return new DoubleVectorIndividual(this, fitness);
+        return new Builder(this).setFitness(fitness).build();
+    }
+    
+    @Override
+    public DoubleVectorIndividual create(final List<DoubleGene> genome, final List<? extends Individual> parents) {
+        assert(genome != null);
+        return new Builder(genome).setParents(parents).build();
+    }
+
+    @Override
+    public Individual clearParents() {
+        return new Builder(this).clearParents().build();
+    }
+    // </editor-fold>
+    
+    public static class Builder {
+        private final List<DoubleGene> genome;
+        private Option<Double> fitness = Option.NONE;
+        private Option<List<Individual>> parents = Option.NONE;
+        
+        public DoubleVectorIndividual build() {
+            return new DoubleVectorIndividual(genome, fitness, parents);
+        }
+        
+        public Builder(final List<DoubleGene> genome) {
+            assert(genome != null);
+            this.genome = genome;
+        }
+        
+        public Builder(final double[] genome) {
+            assert(genome != null);
+            assert(Misc.allFinite(genome));
+            this.genome = new ArrayList<>(genome.length);
+            for (int i = 0; i < genome.length; i++)
+                this.genome.add(new DoubleGene(genome[i]));
+        }
+        
+        public Builder(final DoubleVectorIndividual ref) {
+            assert(ref != null);
+            genome = ref.genome;
+            parents = ref.parents;
+            fitness = ref.fitness;
+        }
+        
+        public Builder setFitness(final double fitness) {
+            this.fitness = new Option<>(fitness);
+            return this;
+        }
+        
+        public Builder setParents(final List<? extends Individual> parents) {
+            assert(parents != null);
+            assert(!Misc.containsNulls(parents));
+            this.parents = new Option<>(new ArrayList<Individual>(parents));
+            return this;
+        }
+        
+        public Builder clearParents() {
+            parents = Option.NONE;
+            return this;
+        }
+        
+        public Builder clearFitness() {
+            fitness = Option.NONE;
+            return this;
+        }
+    }
+    
+    /** Construct a random double vector. */
+    public DoubleVectorIndividual(final Random random, final int numDimensions, final double[] minValues, final double[] maxValues) {
+        assert(random != null);
+        assert(numDimensions > 0);
+        assert(minValues != null);
+        assert(maxValues != null);
+        assert(minValues.length == numDimensions);
+        assert(maxValues.length == numDimensions);
+        this.genome = new ArrayList<DoubleGene>(numDimensions) {{
+           for (int i = 0; i < numDimensions; i++) {
+               final double delta = maxValues[i] - minValues[i];
+               assert(delta >= 0);
+               final double roll = minValues[i] + (random.nextDouble()*delta);
+               add(new DoubleGene(roll));
+           } 
+        }};
+        this.id = nextId++;
+        fitness = Option.NONE;
+        parents = Option.NONE;
+        assert(repOK());
+    }
+    
+    /** Construct a random double vector. */
+    public DoubleVectorIndividual(final Random random, final int numDimensions, final double defaultMinValue, final double defaultMaxValue) {
+        assert(random != null);
+        assert(numDimensions > 0);
+        this.genome = new ArrayList<DoubleGene>(numDimensions) {{
+           for (int i = 0; i < numDimensions; i++) {
+               final double delta = defaultMaxValue - defaultMinValue;
+               assert(delta >= 0);
+               final double roll = defaultMinValue + (random.nextDouble()*delta);
+               add(new DoubleGene(roll));
+           } 
+        }};
+        this.id = nextId++;
+        fitness = Option.NONE;
+        parents = Option.NONE;
+        assert(repOK());
+    }
+    
+    /** Private constructor for use with the Builder pattern. Does not make defensive copies! */
+    private DoubleVectorIndividual(final List<DoubleGene> genome, final Option<Double> fitness, final Option<List<Individual>> parents) {
+        assert(genome != null);
+        assert(!Misc.containsNulls(genome));
+        assert(fitness != null);
+        assert(parents != null);
+        assert(!(parents.isDefined() && Misc.containsNulls(parents.get())));
+        this.genome = new ArrayList<>(genome);
+        this.id = nextId++;
+        this.fitness = fitness;
+        this.parents = parents;
+        assert(repOK());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -119,6 +198,7 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         return id >= 0
                 && genome != null
                 && fitness != null
+                && !(parents.isDefined() && parents.get().isEmpty())
                 && !(fitness.isDefined() && Double.isNaN(fitness.get()))
                 && !Misc.containsNulls(genome);
     }
@@ -130,21 +210,23 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         final DoubleVectorIndividual ref = (DoubleVectorIndividual) o;
         return id == ref.id
                 && genome.equals(ref.genome)
-                && fitness.equals(ref.fitness);
+                && fitness.equals(ref.fitness)
+                && parents.equals(ref.parents);
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 97 * hash + (this.genome != null ? this.genome.hashCode() : 0);
-        hash = 97 * hash + (int) (this.id ^ (this.id >>> 32));
-        hash = 97 * hash + (this.fitness != null ? this.fitness.hashCode() : 0);
+        hash = 53 * hash + Objects.hashCode(this.genome);
+        hash = 53 * hash + (int) (this.id ^ (this.id >>> 32));
+        hash = 53 * hash + Objects.hashCode(this.fitness);
+        hash = 53 * hash + Objects.hashCode(this.parents);
         return hash;
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: id=%s, fitness=%s, genome=%s]", this.getClass().getSimpleName(), this.getID(), fitness, genome.toString());
+        return String.format("[%s: id=%s, fitness=%s, parents=%s, genome=%s]", this.getClass().getSimpleName(), this.getID(), fitness, parents, genome.toString());
     }
     
     // </editor-fold>

@@ -132,7 +132,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
             for(int j = 0; j < getNumDimensions(); j++)
                 newPoint[i] += ind.getElement(j) * transformationMatrix[i][j];
         }
-        return new DoubleVectorIndividual(newPoint);
+        return new DoubleVectorIndividual.Builder(newPoint).build();
     }
     
     @Override

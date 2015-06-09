@@ -3,6 +3,7 @@ package SigmaEC.test;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Option;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * A simple individual with a real-vector genome.
@@ -66,5 +67,25 @@ public class TestVectorIndividual extends Individual
     @Override
     public TestVectorIndividual setFitness(double fitness) {
         return new TestVectorIndividual(this, fitness);
+    }
+
+    @Override
+    public boolean hasParents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Option<List<Individual>> getParents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Individual setParents(List<? extends Individual> parents) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Individual clearParents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

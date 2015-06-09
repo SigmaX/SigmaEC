@@ -1,6 +1,7 @@
 package SigmaEC.operate;
 
 import SigmaEC.SRandom;
+import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.BitGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
@@ -36,7 +37,25 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>, Bit
     private BitGene mutate(final BitGene gene) {
         return new BitGene(!gene.value);
     }
-
+ 
+    /** Takes an individual and produces a version of that individual with zero or more mutated genes.
+     * 
+     * The new individual has bit-flip mutation applied to each gene with
+     * probability P_MUTATION_RATE.
+     * 
+     * If the old individual has parents, then
+     * the new individual's parents are the same the original's parents---that
+     * is, ind is not considered the parent of the mutated individual.
+     * 
+     * If ind's parents attribute is empty, however, then the new individual
+     * considered ind to be its parent.
+     * 
+     * This way, an offspring individual has its parents assigned by the first
+     * reproductive operator that is applied to its parents.
+     * 
+     * @param ind The original individual.
+     * @return The newly mutated individual.
+     */
     @Override
     public LinearGenomeIndividual<BitGene> mutate(final LinearGenomeIndividual<BitGene> ind) {
         assert(ind != null);
@@ -46,8 +65,11 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>, Bit
             double roll = random.nextDouble();
             newGenome.add((roll < mutationRate) ? mutate(g) : g);
         }
+        final List<Individual> parents = ind.hasParents() ?
+                ind.getParents().get() :
+                new ArrayList<Individual>() {{ add(ind); }};
         assert(repOK());
-        return ind.create(newGenome);
+        return ind.create(newGenome, parents);
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">

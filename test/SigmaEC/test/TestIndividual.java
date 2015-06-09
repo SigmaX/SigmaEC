@@ -3,6 +3,7 @@ package SigmaEC.test;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
     public boolean repOK() { return true; }
 
     @Override
-    public LinearGenomeIndividual create(List<TestGene> genome) {
+    public LinearGenomeIndividual create(List<TestGene> genome, final List<? extends Individual> parents) {
         return new TestIndividual(0, genome);
     }
 
@@ -74,6 +75,26 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
 
     @Override
     public Individual setFitness(double fitness) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public boolean hasParents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Option<List<Individual>> getParents() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Individual setParents(List<? extends Individual> parents) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Individual clearParents() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

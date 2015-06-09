@@ -28,6 +28,12 @@ public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
         assert(repOK());
     }
     
+    /** Evaluate the fitness of all the individuals in a population.
+     * 
+     * @param parentPopulation The population to be evaluated.
+     * @return A population of new individuals with their fitness value (re)set
+     *   and their parents attribute cleared.
+     */
     @Override
     public List<T> produceGeneration(final List<T> parentPopulation) {
         return new ArrayList<T>(parentPopulation.size()) {{
@@ -35,7 +41,7 @@ public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
                     final P phenotype = decoder.isDefined() ? decoder.get().decode(ind) : (P) ind;
                     final double fitness = objective.fitness(phenotype);
                     assert(!Double.isNaN(fitness)) : String.format("The following individual, decoder, and phenotype yielded a fitness value of NaN, which is not allowed.\nindiviual: %s\ndecoder: %s\nphenotype: %s", ind, decoder, phenotype);
-                    add((T) ind.setFitness(fitness));
+                    add((T) ind.clearParents().setFitness(fitness));
                 }
         }};
     }
