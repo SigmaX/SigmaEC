@@ -1,5 +1,7 @@
 package SigmaEC.util;
 
+import java.util.Arrays;
+
 /**
  *
  * @author Eric 'Siggy' Scott
@@ -12,9 +14,17 @@ public class Option<T> {
     
     public Option(final T val) { assert(val != null); this.val = val; }
     
+    public Option(final Option<T> ref) { assert(ref != null); val = ref.val; }
+    
     public boolean isDefined() { return val != null; }
     
     public T get() { return val; }
+    
+    public T getWithDefault(final T def) {
+        if (val != null)
+            return val;
+        return def;
+    }
     
     @Override
     public String toString() {
@@ -26,7 +36,11 @@ public class Option<T> {
         if (!(o instanceof Option))
             return false;
         final Option ref = (Option) o;
-        return (val == null ? ref.val == null : val.equals(ref.val));
+        return (val == null ? 
+                    ref.val == null  
+                    : (val.getClass().isArray() ? 
+                        (ref.val.getClass().isArray() && Arrays.equals((Object[])val, (Object[])ref.val))
+                        : val.equals(ref.val)));
     }
 
     @Override
