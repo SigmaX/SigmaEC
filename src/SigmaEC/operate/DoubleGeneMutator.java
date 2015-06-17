@@ -81,7 +81,7 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
     }
     
     private DoubleGene mutate(final DoubleGene gene, final int i) {
-        if (usingHardBounds())
+        if (!usingHardBounds())
             return new DoubleGene(gene.value + Misc.gaussianSample(random)*gaussianStd);
         for (int attempt = 0; attempt < HARDBOUND_ATTEMPTS; attempt++) {
             final double newValue = gene.value + Misc.gaussianSample(random)*gaussianStd;
