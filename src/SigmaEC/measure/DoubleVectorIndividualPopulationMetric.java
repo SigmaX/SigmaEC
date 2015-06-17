@@ -3,7 +3,6 @@ package SigmaEC.measure;
 import SigmaEC.represent.CloneDecoder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
-import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;

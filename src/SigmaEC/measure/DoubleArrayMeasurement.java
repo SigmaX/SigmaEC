@@ -9,17 +9,20 @@ import java.util.Arrays;
  * @author Eric 'Siggy' Scott
  */
 public class DoubleArrayMeasurement extends Measurement {
+    public final static String DELIMITER = ",";
     private final int run;
     private final int generation;
+    private final int individual;
     private final double[] array;
     
-    public DoubleArrayMeasurement(final int run, final int generation, final double[] array) {
+    public DoubleArrayMeasurement(final int run, final int generation, final int individual, final double[] array) {
         assert(run >= 0);
         assert(generation >= 0);
         assert(array != null);
         assert(array.length > 0);
         this.run = run;
         this.generation = generation;
+        this.individual = individual;
         this.array = Arrays.copyOf(array, array.length);
         assert(repOK());
     }
@@ -40,9 +43,12 @@ public class DoubleArrayMeasurement extends Measurement {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(run).append(", ").append(generation).append(", ").append(array[0]);
+        sb.append(run).append(DELIMITER)
+                .append(generation).append(DELIMITER)
+                .append(individual).append(DELIMITER)
+                .append(array[0]);
         for (int i = 1; i < array.length; i++)
-            sb.append(", ").append(array[i]);
+            sb.append(DELIMITER).append(array[i]);
         assert(repOK());
         return sb.toString();
     }

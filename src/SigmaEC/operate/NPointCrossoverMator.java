@@ -101,7 +101,7 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
         assert(parents.size() > 0);
         final boolean hasParents = parents.get(0).hasParents();
         for (int i = 1; i < parents.size(); i++)
-            if (!parents.get(i).hasParents())
+            if (parents.get(i).hasParents() != hasParents)
                 return false;
         return true;
     }

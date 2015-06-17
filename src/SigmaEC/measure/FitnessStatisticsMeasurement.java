@@ -11,7 +11,7 @@ public class FitnessStatisticsMeasurement extends Measurement {
     private final long bsfIndividualID;
     public FitnessStatisticsMeasurement(final int run, final int generation, final double mean, final double std, final double max, final double min, final double bsf, final long bsfIndividualID) {
         
-        stats = new DoubleArrayMeasurement(run, generation, new double[] { mean, std, max, min, bsf });
+        stats = new DoubleArrayMeasurement(run, generation, 0, new double[] { mean, std, max, min, bsf });
         this.bsfIndividualID = bsfIndividualID;
     }
     

@@ -57,9 +57,9 @@ public class MultipleDoubleArrayMeasurement extends Measurement {
     public String toString() {
         if (vectors.isEmpty()) return "";
         final StringBuilder sb = new StringBuilder();
-        sb.append((new DoubleArrayMeasurement(run, generation, vectors.get(0))).toString());
+        sb.append((new DoubleArrayMeasurement(run, generation, 0, vectors.get(0))).toString());
         for (int i = 1; i < vectors.size(); i++)
-            sb.append("\n").append((new DoubleArrayMeasurement(run, generation, vectors.get(i))).toString());
+            sb.append("\n").append((new DoubleArrayMeasurement(run, generation, i, vectors.get(i))).toString());
         return sb.toString();
     }
     
