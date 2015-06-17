@@ -7,7 +7,7 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric 'Siggy' Scott
  */
-public class SRandom extends java.util.Random {
+public class SRandom extends MersenneTwister {
     private final static String P_SEED = "seed";
     
     public SRandom(final Parameters parameters, final String base) {
