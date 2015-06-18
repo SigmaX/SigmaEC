@@ -12,6 +12,7 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividual<BitGene>> extends PopulationMetric<T> {
+    
     public BitStringIndividualPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);

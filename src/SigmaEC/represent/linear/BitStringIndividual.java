@@ -48,6 +48,12 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     public List<BitGene> getGenome() {
         return new ArrayList<BitGene>(genome); // Defensive copy
     }
+    
+    public boolean getElement(final int i) {
+        assert(i >= 0);
+        assert(i < genome.size());
+        return genome.get(i).value;
+    }
 
     @Override
     public boolean hasParents() {
@@ -85,6 +91,13 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
             assert(genome != null);
             assert(!Misc.containsNulls(genome));
             this.genome = genome;
+        }
+        
+        public Builder(final boolean[] genome) {
+            assert(genome != null);
+            this.genome = new ArrayList<>(genome.length);
+            for (int i = 0; i < genome.length; i++)
+                this.genome.add(new BitGene(genome[i]));
         }
         
         public Builder(final BitStringIndividual ref) {
