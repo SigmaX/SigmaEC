@@ -6,9 +6,9 @@ Java.
 Its distinguishing feature is that it uses a simple experiment definition
 language based on Java property files to perform complete [dependency injection][2].
 
-The user uses configuration files to wire together components into potentially
-complex algorithms and experiments.  The configuration language defines not only
-the free parameters, but also the high-level structure of the entire algorithm.
+The user writes declarative configuration files to wire together components into
+potentially complex algorithms and experiments.  The configuration language
+defines not only the free parameters, but also the high-level structure of the entire algorithm.
 
 ## Inversion of Control
 
@@ -30,6 +30,11 @@ state in SigmaEC algorithms; therefore components cannot create unexpected side
 effects in other parts of the program.  This makes unit testing easier and
 reduces the potential for confusion on the part of the user.
 
+SigmaEC's notion of wiring together general components to create applications
+will be familiar to users of dependency injection frameworks such as [Spring][4].
+We use Java property files rather than XML, however, because they are
+easier to read and extend with special features like arithmetic operators, etc.
+
 ## Features
 
   - Bitstring and real-valued genetic algorithms.
@@ -44,3 +49,4 @@ reduces the potential for confusion on the part of the user.
 [1]: http://en.wikipedia.org/wiki/Inversion_of_control
 [2]: http://en.wikipedia.org/wiki/Dependency_injection
 [3]: http://cs.gmu.edu/~eclab/projects/ecj
+[4]: htpp://projects.spring.io/spring-framework
