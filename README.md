@@ -1,28 +1,46 @@
 # SigmaEC
 
-A flexible evolutionary computation framework by Eric 'Siggy' Scott.
+SigmaEC is a flexible evolutionary computation experiment framework written in
+Java.
 
-## Overview
+Its distinguishing feature is that it uses a simple experiment definition
+language based on Java property files to perform complete [dependency injection][2].
 
-  - Java properties files are used to specify all the operators used in
-experiments and their parameters, including sophisticated set-ups like
-meta-evolution.
+The user uses configuration files to wire together components into potentially
+complex algorithms and experiments.  The configuration language defines not only
+the free parameters, but also the high-level structure of the entire algorithm.
 
-  - A CircleOfLife defines the outer evolutionary loop.
+## Inversion of Control
 
-  - Mators and Mutators operate on (pairs of) parents.
+The idea is to provide complete [control inversion][1], keeping implementation
+details separate from the high-level design of the algorithm and experimental
+apparatus.  If you don't need to change low-level functionality, you don't
+need to write any Java.
 
-  - Generators transform entire populations according to operators (i.e.
-creating a new generation).
+Low-level components can easily be added to provide custom functions such as
+stopping conditions, mutation operators, and high-level evolutionary controllers,
+or even entirely different kinds of algorithms such as data mining techniques
+or simulations.
 
-  - Selectors apply selection according to an ObjectiveFunction.
+Other evolutionary computation frameworks such as Sean Luke's [ECJ][3] achieve
+a great deal of extensibility and inversion of control, but SigmaEC takes it
+to an extreme.  Components have access only to the dependencies they are 'wired
+to' in the configuration files.  There is no concept of globally accessible
+state in SigmaEC algorithms; therefore components cannot create unexpected side
+effects in other parts of the program.  This makes unit testing easier and
+reduces the potential for confusion on the part of the user.
 
-  - Metrics measure characteristics of a population.
+## Features
 
-  - Some commonly used ObjectiveFunctions are implemented, including the
-[De Jong test suite][1].  Some wrapper classes are also provided which
-[decorate][2] objectives with bounds (BoundedObjectiveFunction) or rotate/scale
-them according to an linear transformation (AffineTranslatedDoubleObjective).
+  - Bitstring and real-valued genetic algorithms.
+  - Ant Colony Optimization
+  - Classic selection mechanisms.
+  - A large variety of classic test objectives.
+  - Decorators for altering and combining real-valued objective functions with offsets, boundaries, etc.
+  - A system for sampling objective functions from an objective function generator, such as TSP.
+  - A high-level mechanism for evaluating an EA's performance on a suite of functions.
+  - Functionality for printing visualizations of real-valued objective functions to a PDF for verification.
 
-[1]: http://www2.denizyuret.com/pub/aitr1569/node19.html
-[2]: http://en.wikipedia.org/wiki/Decorator_pattern
+[1]: http://en.wikipedia.org/wiki/Inversion_of_control
+[2]: http://en.wikipedia.org/wiki/Dependency_injection
+[3]: http://cs.gmu.edu/~eclab/projects/ecj
