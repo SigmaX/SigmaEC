@@ -260,6 +260,12 @@ public class Parameters extends ContractObject {
         return (value == null) ? Option.NONE : new Option<String>(getStringParameter(parameterName));
     }
     
+    public String getOptionalStringParameter(final String parameterName, final String def) {
+        assert(def != null);
+        final Option<String> opt = getOptionalStringParameter(parameterName);
+        return opt.isDefined() ? opt.get() : def;
+    }
+    
     public String[] getStringArrayParameter(final String parameterName) {
         return getStringParameter(parameterName).split(LIST_DELIMITER);
     }
