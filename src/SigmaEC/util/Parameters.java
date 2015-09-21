@@ -180,6 +180,11 @@ public class Parameters extends ContractObject {
             return Option.NONE;
     }
     
+    public int getOptionalIntParameter(final String parameterName, final int deflt) {
+        final Option<Integer> opt = getOptionalIntParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
     public long getLongParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
@@ -194,6 +199,11 @@ public class Parameters extends ContractObject {
             return new Option<Long>(getLongParameter(parameterName));
         else
             return Option.NONE;
+    }
+    
+    public long getOptionalLongParameter(final String parameterName, final long deflt) {
+        final Option<Long> opt = getOptionalLongParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
     }
     
     public boolean getBooleanParameter(final String parameterName) {
@@ -212,6 +222,11 @@ public class Parameters extends ContractObject {
             return Option.NONE;
     }
     
+    public boolean getOptionalBooleanParameter(final String parameterName, final boolean deflt) {
+        final Option<Boolean> opt = getOptionalBooleanParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
     public double getDoubleParameter(final String parameterName) {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
@@ -228,12 +243,23 @@ public class Parameters extends ContractObject {
             return Option.NONE;
     }
     
+    public double getOptionalDoubleParameter(final String parameterName, final double deflt) {
+        final Option<Double> opt = getOptionalDoubleParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
     public Option<double[]> getOptionalDoubleArrayParameter(final String parameterName) {
         assert(parameterName != null);
         if (properties.containsKey(parameterName))
             return new Option<double[]>(getDoubleArrayParameter(parameterName));
         else
             return Option.NONE;
+    }
+    
+    public double[] getOptionalDoubleArrayParameter(final String parameterName, final double[] deflt) {
+        assert(deflt != null);
+        final Option<double[]> opt = getOptionalDoubleArrayParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
     }
     
     public double[] getDoubleArrayParameter(final String parameterName) {
@@ -260,10 +286,10 @@ public class Parameters extends ContractObject {
         return (value == null) ? Option.NONE : new Option<String>(getStringParameter(parameterName));
     }
     
-    public String getOptionalStringParameter(final String parameterName, final String def) {
-        assert(def != null);
+    public String getOptionalStringParameter(final String parameterName, final String deflt) {
+        assert(deflt != null);
         final Option<String> opt = getOptionalStringParameter(parameterName);
-        return opt.isDefined() ? opt.get() : def;
+        return opt.isDefined() ? opt.get() : deflt;
     }
     
     public String[] getStringArrayParameter(final String parameterName) {
@@ -275,6 +301,12 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         final String value = properties.getProperty(parameterName);
         return (value == null) ? Option.NONE : new Option<String[]>(getStringArrayParameter(parameterName));
+    }
+    
+    public String[] getOptionalStringArrayParameter(final String parameterName, final String[] deflt) {
+        assert(deflt != null);
+        final Option<String[]> opt = getOptionalStringArrayParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
     }
     
     //</editor-fold>
@@ -344,6 +376,12 @@ public class Parameters extends ContractObject {
             return Option.NONE;
     }
     
+    public <T> T getOptionalInstanceFromParameter(final String parameterName, final T deflt) {
+        assert(deflt != null);
+        final Option<T> opt = getOptionalInstanceFromParameter(parameterName, deflt.getClass());
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
     public <T> List<T> getInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(expectedSuperClass != null);
@@ -372,9 +410,15 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(expectedSuperClass != null);
         if (properties.containsKey(parameterName))
-            return new Option<List<T>>((List<T>) getInstancesFromParameter(parameterName, expectedSuperClass));
+            return new Option<>((List<T>) getInstancesFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;
+    }
+    
+    public <T> List<T> getOptionalInstancesFromParameter(final String parameterName, final List<T> deflt, final Class expectedSuperClass) {
+        assert(deflt != null);
+        final Option<List<T>> opt = getOptionalInstancesFromParameter(parameterName, expectedSuperClass);
+        return opt.isDefined() ? opt.get() : deflt;
     }
     // </editor-fold>
 

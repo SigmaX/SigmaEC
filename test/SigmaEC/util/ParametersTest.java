@@ -44,7 +44,7 @@ public class ParametersTest {
                 .setParameter("epsilonRefRef", "%epsilonRef")
                 .setParameter("dArray", "0.1, 0.2,0.3, 0.4, 0.5")
                 .setParameter("dArrayRef", "%dArray")
-                .setParameter("test.objective1", "SigmaEC.evaluate.objective.SphereObjective")
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
                 .setParameter("test.objective1.numDimensions", "10")
                 .setParameter("expRef", "$%betaExp*10")
                 .registerInstance(Parameters.push("test", "objective2"), sphereObjective)
