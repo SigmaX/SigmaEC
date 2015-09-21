@@ -16,6 +16,7 @@ public abstract class LinearGenomeIndividual<G extends Gene> extends Individual
      * the subtype.
      * 
      * @param genome The genome to use in the new individual.
+     * @param parents The parent(s) of the individual.
      */
     public abstract LinearGenomeIndividual<G> create(final List<G> genome, final List<? extends Individual> parents);
     

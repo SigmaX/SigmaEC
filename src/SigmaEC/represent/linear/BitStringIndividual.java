@@ -90,7 +90,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
         public Builder(final List<BitGene> genome) {
             assert(genome != null);
             assert(!Misc.containsNulls(genome));
-            this.genome = genome;
+            this.genome = new ArrayList<>(genome); /// Shallow copy okay because genes are immutable
         }
         
         public Builder(final boolean[] genome) {
