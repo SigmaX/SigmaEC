@@ -4,6 +4,7 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
+import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Vector;
 import java.util.Arrays;
 
@@ -12,8 +13,13 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
-{
+public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+    public final static String P_WIDTH = "width";
+    public final static String P_HIGH_FITNESS = "highFitness";
+    public final static String P_INTERCEPT_VECTOR = "interceptVector";
+    public final static String P_SLOPE_VECTOR = "slopeVector";
+    public final static String P_GRADIENT_X_INTERCEPT = "gradientXIntercept";
+    
     private final double width;
     private final double highFitness;
     private final double[] interceptVector;
@@ -47,6 +53,17 @@ public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends Obje
     }
     //</editor-fold>
     
+    public LinearRidgeObjective(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        width = parameters.getDoubleParameter(Parameters.push(base, P_WIDTH));
+        highFitness = parameters.getDoubleParameter(Parameters.push(base, P_HIGH_FITNESS));
+        interceptVector = parameters.getDoubleArrayParameter(Parameters.push(base, P_INTERCEPT_VECTOR));
+        slopeVector = parameters.getDoubleArrayParameter(Parameters.push(base, P_SLOPE_VECTOR));
+        gradientXIntercept = parameters.getOptionalDoubleParameter(Parameters.push(base, P_GRADIENT_X_INTERCEPT));
+        numDimensions = slopeVector.length;
+        assert(repOK());
+    }
     
     /**
      * A LinearRidgeObjective built from a parametric representation of a line.
@@ -58,7 +75,7 @@ public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends Obje
      * @param slopeVector Slope vector of the line.
      * @throws IllegalArgumentException 
      */
-    public LinearRidgeObjective(final int numDimensions, final double width, final double highFitness, final double[] interceptVector, final double[] slopeVector, final Option<Double> gradientXIntercept) throws IllegalArgumentException
+    LinearRidgeObjective(final int numDimensions, final double width, final double highFitness, final double[] interceptVector, final double[] slopeVector, final Option<Double> gradientXIntercept) throws IllegalArgumentException
     {
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");

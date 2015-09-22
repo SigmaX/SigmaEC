@@ -1,7 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.evaluate.transform.MaxObjective;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;

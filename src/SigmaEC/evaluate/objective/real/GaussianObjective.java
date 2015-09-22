@@ -4,7 +4,6 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
-import java.util.Arrays;
 
 /**
  *
