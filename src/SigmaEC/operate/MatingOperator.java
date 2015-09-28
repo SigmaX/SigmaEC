@@ -1,6 +1,6 @@
 package SigmaEC.operate;
 
-import SigmaEC.Generator;
+import SigmaEC.meta.Operator;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.IterativeSelector;
 import SigmaEC.select.Selector;
@@ -16,13 +16,13 @@ import java.util.List;
  * @see LinearGenomeMator
  * @author Eric 'Siggy' Scott
  */
-public class MatingGenerator<T extends Individual> extends Generator<T> {
+public class MatingOperator<T extends Individual> extends Operator<T> {
     private final static String P_MATOR = "mator";
         
     private final Mator<T> mator;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
     
-    public MatingGenerator(final Parameters parameters, final String base) throws IllegalArgumentException {        
+    public MatingOperator(final Parameters parameters, final String base) throws IllegalArgumentException {        
         assert(parameters != null);
         assert(base != null);
         this.mator = parameters.getInstanceFromParameter(Parameters.push(base, P_MATOR), Mator.class);
@@ -41,7 +41,7 @@ public class MatingGenerator<T extends Individual> extends Generator<T> {
      * @see #produceOffspring(java.util.List, SigmaEC.function.ObjectiveFunction) 
      */
     @Override
-    public List<T> produceGeneration(final List<T> population)
+    public List<T> operate(final int run, final int generation, final List<T> population)
     {
         assert(population.size() >= mator.getNumParents());
         assert(population.size()%mator.getNumChildren() == 0);
@@ -73,9 +73,9 @@ public class MatingGenerator<T extends Individual> extends Generator<T> {
     
     @Override
     public boolean equals(final Object ref) {
-        if (!(ref instanceof MatingGenerator))
+        if (!(ref instanceof MatingOperator))
             return false;
-        final MatingGenerator cRef = (MatingGenerator) ref;
+        final MatingOperator cRef = (MatingOperator) ref;
         return parentSelector.equals(cRef.parentSelector)
                 && mator.equals(cRef.mator)
                 && mator.getNumChildren() == mator.getNumParents();

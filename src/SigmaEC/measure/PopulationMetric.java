@@ -1,8 +1,8 @@
 package SigmaEC.measure;
 
 import SigmaEC.ContractObject;
+import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
-import java.util.List;
 
 /**
  * A PopulationMetric measures some property of a population of individuals,
@@ -19,7 +19,7 @@ public abstract class PopulationMetric<T extends Individual> extends ContractObj
      * @param run The run the sample is coming from
      * @param generation The generation the sample is coming from
      */
-    public abstract Measurement measurePopulation(int run, int generation, List<T> population);
+    public abstract Measurement measurePopulation(int run, int generation, Population<T> population);
     
     /** Reset any mutable state to prepare for a fresh run. */
     public abstract void reset();

@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,11 +15,12 @@ public class PrintIndividualsPopulationMetric<T extends Individual> extends Popu
     public PrintIndividualsPopulationMetric() {}
     
     @Override
-    public MultipleStringMeasurement measurePopulation(int run, int generation, final List<T> population) {
-        final List<String> individualStrings = new ArrayList<String>(population.size()) {{
-           for (final Individual ind : population)
-               add(ind.toString());
-        }};
+    public MultipleStringMeasurement measurePopulation(final int run, final int generation, final Population<T> population) {
+        final List<String> individualStrings = new ArrayList<>();
+        for (int i = 0; i < population.numSuppopulations(); i++) {
+            for (final T ind : population.getSubpopulation(i))
+                individualStrings.add(i + ", " + ind.toString());
+        }
         return new MultipleStringMeasurement(run, generation, individualStrings);
     }
 

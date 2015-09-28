@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Population;
 import SigmaEC.represent.linear.BitGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Parameters;
@@ -20,14 +21,19 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
     }
     
     @Override
-    public MultipleStringMeasurement measurePopulation(final int run, final int generation, final List<T> population)
+    public MultipleStringMeasurement measurePopulation(final int run, final int generation, final Population<T> population)
     {
         final List<String> arrays = new ArrayList<String>() {{
-            for(T ind : population) {
-                final StringBuilder sb = new StringBuilder().append(run).append(",").append(generation).append(",").append(Long.toString(ind.getID()));
-                for(final BitGene g : ind.getGenome())
-                    sb.append(",").append(g.value);
-                add(sb.toString());
+            for (int i = 0; i < population.numSuppopulations(); i++) {
+                for(T ind : population.getSubpopulation(i)) {
+                    final StringBuilder sb = new StringBuilder().append(run).append(",")
+                            .append(generation).append(",")
+                            .append(i).append(",")
+                            .append(Long.toString(ind.getID()));
+                    for(final BitGene g : ind.getGenome())
+                        sb.append(",").append(g.value);
+                    add(sb.toString());
+                }
             }
         }};
         assert(repOK());

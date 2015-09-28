@@ -1,21 +1,21 @@
 package SigmaEC.select;
 
-import SigmaEC.Generator;
+import SigmaEC.meta.Operator;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
 import java.util.List;
 
 /**
- * An Generator that uses a selection operator to create a new population.
+ * An Operator that uses a selection operator to create a new population.
  * 
  * @author Eric O. Scott
  */
-public class SelectionGenerator<T extends Individual> extends Generator<T> {
+public class SelectionOperator<T extends Individual> extends Operator<T> {
     public final static String P_SELECTOR = "selector";
     
     private final Selector<T> selector;
     
-    public SelectionGenerator(final Parameters parameters, final String base) {
+    public SelectionOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         selector = parameters.getInstanceFromParameter(Parameters.push(base, P_SELECTOR), Selector.class);
@@ -23,7 +23,7 @@ public class SelectionGenerator<T extends Individual> extends Generator<T> {
     }
     
     @Override
-    public List<T> produceGeneration(final List<T> population) {
+    public List<T> operate(final int run, final int generation, final List<T> population) {
         assert(population != null);
         assert(repOK());
         return selector.selectMultipleIndividuals(population, population.size());
@@ -41,9 +41,9 @@ public class SelectionGenerator<T extends Individual> extends Generator<T> {
     public boolean equals(final Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof SelectionGenerator))
+        if (!(o instanceof SelectionOperator))
             return false;
-        final SelectionGenerator ref = (SelectionGenerator)o;
+        final SelectionOperator ref = (SelectionOperator)o;
         return selector.equals(ref.selector);
     }
 

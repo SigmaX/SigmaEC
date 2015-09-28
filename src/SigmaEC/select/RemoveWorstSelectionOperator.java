@@ -1,6 +1,6 @@
 package SigmaEC.select;
 
-import SigmaEC.Generator;
+import SigmaEC.meta.Operator;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
@@ -15,12 +15,12 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class RemoveWorstSelectionGenerator<T extends Individual> extends Generator<T> {
+public class RemoveWorstSelectionOperator<T extends Individual> extends Operator<T> {
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     
     private final FitnessComparator<T> fitnessComparator;
     
-    public RemoveWorstSelectionGenerator(final Parameters parameters, final String base) {
+    public RemoveWorstSelectionOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
@@ -28,7 +28,7 @@ public class RemoveWorstSelectionGenerator<T extends Individual> extends Generat
     }
 
     @Override
-    public List<T> produceGeneration(final List<T> parentPopulation) {
+    public List<T> operate(final int run, final int generation, final List<T> parentPopulation) {
         assert(parentPopulation != null);
         assert(!parentPopulation.isEmpty());
         final double worst = Statistics.worst(parentPopulation, fitnessComparator).getFitness();
@@ -55,9 +55,9 @@ public class RemoveWorstSelectionGenerator<T extends Individual> extends Generat
 
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof RemoveWorstSelectionGenerator))
+        if (!(o instanceof RemoveWorstSelectionOperator))
             return false;
-        final RemoveWorstSelectionGenerator ref = (RemoveWorstSelectionGenerator)o;
+        final RemoveWorstSelectionOperator ref = (RemoveWorstSelectionOperator)o;
         return fitnessComparator.equals(ref.fitnessComparator);
     }
 

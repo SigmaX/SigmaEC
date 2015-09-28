@@ -1,4 +1,4 @@
-package SigmaEC;
+package SigmaEC.meta;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
@@ -52,7 +52,9 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public EvolutionResult<T> evolve(int run) {
         assert(run >= 0);
         reset();
-        List<T> population = initializer.generatePopulation();
+        final Population<T> population = new Population<>(1);
+        population.setSubpopulation(0, initializer.generatePopulation());
+        
         T bestSoFarInd = null;
         int i = 0;
         while (!stoppingCondition.stop(population, i)) {
@@ -65,10 +67,10 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 for (PopulationMetric<T> metric : metrics.get())
                     metric.measurePopulation(run, i, population);
             
-            population = initializer.generatePopulation();
+            population.setSubpopulation(0, initializer.generatePopulation());
             
             // Update our local best-so-far variable
-            final T bestOfGen = Statistics.best(population, fitnessComparator);
+            final T bestOfGen = population.getBest(fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             

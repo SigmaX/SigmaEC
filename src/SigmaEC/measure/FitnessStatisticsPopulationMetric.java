@@ -1,6 +1,7 @@
 package SigmaEC.measure;
 
-import SigmaEC.evaluate.EvaluationGenerator;
+import SigmaEC.evaluate.EvaluationOperator;
+import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Option;
@@ -21,7 +22,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     public final static String P_MODULO = "modulo";
     
     private final FitnessComparator<T> fitnessComparator;
-    private final Option<EvaluationGenerator<T,P>> auxiliaryEvaluator;
+    private final Option<EvaluationOperator<T,P>> auxiliaryEvaluator;
     private final int modulo;
     private T bestSoFar = null;
     private T auxiliaryBestSoFar = null;
@@ -30,7 +31,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         assert(parameters != null);
         assert(base != null);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
-        auxiliaryEvaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationGenerator.class);
+        auxiliaryEvaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationOperator.class);
         final Option<Integer> moduloOpt = parameters.getOptionalIntParameter(Parameters.push(base, P_MODULO));
         modulo = moduloOpt.isDefined() ? moduloOpt.get() : 1;
         if (modulo <= 0)
@@ -38,43 +39,53 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         assert(repOK());
     }
     
-    /** Prints a row of the form "run, generation, mean, std, best, worst, bsf". */
+    /** Prints a row of the form "run, generation, mean, std, best, worst, bsf" for each subpopulation. */
     @Override
-    public FitnessStatisticsMeasurement measurePopulation(final int run, final int step, List<T> population) {
+    public MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
         
+        final List<FitnessStatisticsMeasurement> measurements = new ArrayList<FitnessStatisticsMeasurement>() {{
+            for (int pop = 0; pop < population.numSuppopulations(); pop++) {
+                add(measureSubpopulation(run, step, pop, population));
+            }  
+        }};
+        
+        assert(repOK());
+        return new MultipleMeasurement(measurements);
+    }
+    
+    private FitnessStatisticsMeasurement measureSubpopulation(final int run, final int step, final int subpop, final Population<T> population) {
         // Choose the best-so-far individual *without* consulting the auxillary evaluator
-        final int bestIndex = Statistics.bestIndex(population, fitnessComparator);
-        final T trueBest = population.get(bestIndex);
+        
+        final T trueBest = population.getBest(subpop, fitnessComparator);
         if (fitnessComparator.betterThan(trueBest, bestSoFar)) {
             bestSoFar = trueBest;
             // Evaluate the auxillary fitness of bestSoFar
             if (auxiliaryEvaluator.isDefined())
-                auxiliaryBestSoFar = auxiliaryEvaluator.get().produceGeneration(new ArrayList<T>() {{ add(bestSoFar); }}).get(0);
+                auxiliaryBestSoFar = auxiliaryEvaluator.get().operate(0, 0, new ArrayList<T>() {{ add(bestSoFar); }}).get(0);
         }
-        
+
         // Don't measure anything else until the sepcified interval has elapsed
         if (step % modulo != 0)
             return null;
-        
+
         // If we have an auxiliary evaluator, use it to compute the fitness statistics
-        if (auxiliaryEvaluator.isDefined())
-                population = auxiliaryEvaluator.get().produceGeneration(population);
-        final double[] fitnesses = new double[population.size()];
+        final List<T> evaluatedSubpop = auxiliaryEvaluator.isDefined() ?
+                auxiliaryEvaluator.get().operate(0, 0, population.getSubpopulation(subpop)) :
+                population.getSubpopulation(subpop);
+        final double[] fitnesses = new double[evaluatedSubpop.size()];
         for (int i = 0; i < fitnesses.length; i++)
-            fitnesses[i] = population.get(i).getFitness();
-        
+            fitnesses[i] = evaluatedSubpop.get(i).getFitness();
+
         final double mean = Statistics.mean(fitnesses);
         final double std = Statistics.std(fitnesses, mean);
-        
-        final T best = Statistics.best(population, fitnessComparator);
-        final T worst = Statistics.worst(population, fitnessComparator);
-        
+
+        final T best = Statistics.best(evaluatedSubpop, fitnessComparator);
+        final T worst = Statistics.worst(evaluatedSubpop, fitnessComparator);
+
         final double bsf = auxiliaryEvaluator.isDefined() ? auxiliaryBestSoFar.getFitness() : bestSoFar.getFitness();
-        
-        assert(repOK());
         return new FitnessStatisticsMeasurement(run, step, mean, std, best.getFitness(), worst.getFitness(), bsf, bestSoFar.getID());
     }
 

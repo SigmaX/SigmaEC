@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -53,7 +54,7 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     }
     
     @Override
-    public Measurement measurePopulation(final int run, final int generation, final List<T> population) {
+    public Measurement measurePopulation(final int run, final int generation, final Population<T> population) {
         assert(population != null);
         final Measurement measurement = wrappedMetric.measurePopulation(run, generation, population);
         if (measurement != null) {

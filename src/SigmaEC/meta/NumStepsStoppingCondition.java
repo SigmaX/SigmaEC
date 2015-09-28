@@ -1,8 +1,7 @@
-package SigmaEC;
+package SigmaEC.meta;
 
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
-import java.util.List;
 
 /**
  *
@@ -22,7 +21,7 @@ public class NumStepsStoppingCondition<T extends Individual> extends StoppingCon
         assert(repOK());
     }
     @Override
-    public boolean stop(List<T> population, int step) {
+    public boolean stop(final Population<T> population, int step) {
         assert(step >= 0);
         assert(repOK());
         return step >= numSteps;

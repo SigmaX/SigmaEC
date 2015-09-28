@@ -1,7 +1,7 @@
 package SigmaEC.experiment;
 
-import SigmaEC.CircleOfLife;
-import SigmaEC.CircleOfLife.EvolutionResult;
+import SigmaEC.meta.CircleOfLife;
+import SigmaEC.meta.CircleOfLife.EvolutionResult;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;

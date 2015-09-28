@@ -1,7 +1,7 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
-import java.util.List;
 
 /**
  * Decorates a PopulationMetric with the ability to remember the most recent
@@ -26,7 +26,7 @@ public class MemoryPopulationMetric<T extends Individual> extends PopulationMetr
     public Measurement getMostRecentMeasurement() { return mostRecentMeasurement; }
     
     @Override
-    public Measurement measurePopulation(final int run, final int generation, final List<T> population)
+    public Measurement measurePopulation(final int run, final int generation, final Population<T> population)
     {
         assert(population != null);
         final Measurement measurement = wrappedMetric.measurePopulation(run, generation, population);

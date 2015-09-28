@@ -1,6 +1,7 @@
-package SigmaEC;
+package SigmaEC.meta;
 
-import SigmaEC.evaluate.EvaluationGenerator;
+import SigmaEC.SRandom;
+import SigmaEC.evaluate.EvaluationOperator;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.represent.linear.IntGene;
 import SigmaEC.represent.linear.IntVectorIndividual;
@@ -29,7 +30,7 @@ public class ACOCircleOfLife extends CircleOfLife {
     private final int numNodes;
     private final int numAnts;
     private final StoppingCondition<IntVectorIndividual> stoppingCondition;
-    private final Generator<IntVectorIndividual> evaluator;
+    private final Operator<IntVectorIndividual> evaluator;
     private final Option<List<PopulationMetric<IntVectorIndividual>>> metrics;
     private final FitnessComparator<IntVectorIndividual> fitnessComparator;
     private final SRandom random;
@@ -45,7 +46,7 @@ public class ACOCircleOfLife extends CircleOfLife {
             throw new IllegalStateException(String.format("%s: '%s' is %d, but must be > 1.", this.getClass().getSimpleName(), P_NUM_ANTS, numNodes));
         stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
-        evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationGenerator.class);
+        evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationOperator.class);
         metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         assert(repOK());
@@ -62,7 +63,8 @@ public class ACOCircleOfLife extends CircleOfLife {
                 pheromones[i][j] = 0;
         
         // Run initial generation of ants
-        List<IntVectorIndividual> ants = executeAnts(pheromones);
+        final Population<IntVectorIndividual> ants = new Population<>(1);
+        ants.setSubpopulation(0, executeAnts(pheromones));
         
         IntVectorIndividual bestSoFarInd = null;
         int i = 0;
@@ -72,14 +74,14 @@ public class ACOCircleOfLife extends CircleOfLife {
                 for (PopulationMetric<IntVectorIndividual> metric : metrics.get())
                     metric.measurePopulation(run, i, ants);
             
-            updatePheromones(ants, pheromones);
+            updatePheromones(ants.getSubpopulation(0), pheromones);
             
             // Update our local best-so-far variable
-            final IntVectorIndividual bestOfGen = Statistics.best(ants, fitnessComparator);
+            final IntVectorIndividual bestOfGen = Statistics.best(ants.getSubpopulation(0), fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             
-            ants = executeAnts(pheromones);
+            ants.setSubpopulation(0, executeAnts(pheromones));
             
             flushMetrics();
             i++;
@@ -98,7 +100,7 @@ public class ACOCircleOfLife extends CircleOfLife {
            for (int i = 0; i < numAnts; i++)
                add(forage(pheromones));
         }};
-        return evaluator.produceGeneration(ants); // Evaluate fitness
+        return evaluator.operate(0, 0, ants); // Evaluate fitness
     }
     
     private void updatePheromones(final List<IntVectorIndividual> ants, final double[][] pheromones) {

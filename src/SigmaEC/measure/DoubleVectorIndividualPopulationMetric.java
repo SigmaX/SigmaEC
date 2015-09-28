@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Population;
 import SigmaEC.represent.CloneDecoder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
@@ -7,7 +8,6 @@ import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
-import SigmaEC.util.math.Statistics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -45,15 +45,17 @@ public class DoubleVectorIndividualPopulationMetric<T extends DoubleVectorIndivi
     }
     
     @Override
-    public MultipleDoubleArrayMeasurement measurePopulation(int run, int generation, final List<T> population) {
+    public MultipleDoubleArrayMeasurement measurePopulation(int run, int generation, final Population<T> population) {
         final List<double[]> arrays = new ArrayList<double[]>() {{
-            if (fitnessComparator.isDefined()) {
-                final T best = Statistics.best(population, fitnessComparator.get());
-                add(Misc.prepend(best.getID(), decoder.decode(best).getGenomeArray()));
+            for (int i = 0; i < population.numSuppopulations(); i++) {
+                if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.
+                    final T best = population.getBest(i, fitnessComparator.get());
+                    add(Misc.prepend(i, Misc.prepend(best.getID(), decoder.decode(best).getGenomeArray())));
+                }
+                else // Record all individuals.
+                    for(final T ind : population.getSubpopulation(i))
+                        add(Misc.prepend(i, Misc.prepend(ind.getID(), decoder.decode(ind).getGenomeArray())));
             }
-            else
-                for(T ind : population)
-                    add(Misc.prepend(ind.getID(), decoder.decode(ind).getGenomeArray()));
         }};
         assert(repOK());
         return new MultipleDoubleArrayMeasurement(run, generation, arrays);

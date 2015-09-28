@@ -1,4 +1,4 @@
-package SigmaEC;
+package SigmaEC.meta;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
     public final static String P_INITIALIZER = "initializer";
-    public final static String P_GENERATORS = "generators";
+    public final static String P_OPERATORS = "operators";
     public final static String P_OBJECTIVE = "objective";
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_METRICS = "metrics";
@@ -29,7 +29,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
     
     private final Initializer<T> initializer;
-    private final List<Generator<T>> generators;
+    private final List<Operator<T>> operators;
     private final FitnessComparator<T> fitnessComparator;
     private final Option<List<PopulationMetric<T>>> metrics;
     private final ObjectiveFunction<P> objective;
@@ -40,15 +40,12 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         assert(parameters != null);
         assert(base != null);
         initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
-        generators = parameters.getInstancesFromParameter(Parameters.push(base, P_GENERATORS), Generator.class);
+        operators = parameters.getInstancesFromParameter(Parameters.push(base, P_OPERATORS), Operator.class);
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
         stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
-        if (parameters.isDefined(Parameters.push(base, P_IS_DYNAMIC)))
-            isDynamic = parameters.getBooleanParameter(Parameters.push(base, P_IS_DYNAMIC));
-        else
-            isDynamic = true;
+        isDynamic = parameters.getOptionalBooleanParameter(Parameters.push(base, P_IS_DYNAMIC), true);
         assert(repOK());
     }
     
@@ -56,7 +53,8 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public EvolutionResult<T> evolve(final int run) {
         assert(run >= 0);
         reset();
-        List<T> population = initializer.generatePopulation();
+        final Population<T> population = new Population<>(1);
+        population.setSubpopulation(0, initializer.generatePopulation());
         T bestSoFarInd = null;
         int i = 0;
         while (!stoppingCondition.stop(population, i)) {
@@ -66,15 +64,17 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                     metric.measurePopulation(run, i, population);
             
             // Apply operators
-            for (Generator<T> gen : generators)
-                population = gen.produceGeneration(population);
+            for (Operator<T> gen : operators) {
+                final List<T> newSubpop = gen.operate(run, i, population.getSubpopulation(0));
+                population.setSubpopulation(0, newSubpop);
+            }
             
             // Tell the problem what generation we're on (if it's a dynamic landscape)
             if (isDynamic)
                 objective.setGeneration(i);
             
             // Update our local best-so-far variable
-            final T bestOfGen = Statistics.best(population, fitnessComparator);
+            final T bestOfGen = Statistics.best(population.getSubpopulation(0), fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             
@@ -109,8 +109,8 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     final public boolean repOK() {
         return P_COMPARATOR != null
                 && !P_COMPARATOR.isEmpty()
-                && P_GENERATORS != null
-                && !P_GENERATORS.isEmpty()
+                && P_OPERATORS != null
+                && !P_OPERATORS.isEmpty()
                 && P_INITIALIZER != null
                 && !P_INITIALIZER.isEmpty()
                 && P_IS_DYNAMIC != null
@@ -123,14 +123,14 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 && !P_RANDOM.isEmpty()
                 && P_STOPPING_CONDITION != null
                 && !P_STOPPING_CONDITION.isEmpty()
-                && generators != null
+                && operators != null
                 && initializer != null
                 && fitnessComparator != null
                 && stoppingCondition != null
                 && objective != null
                 && metrics != null
-                && !generators.isEmpty()
-                && !Misc.containsNulls(generators)
+                && !operators.isEmpty()
+                && !Misc.containsNulls(operators)
                 && !(metrics.isDefined() && Misc.containsNulls(metrics.get()));
     }
     
@@ -143,7 +143,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
                 P_OBJECTIVE, objective,
                 P_COMPARATOR, fitnessComparator,
                 P_METRICS, metrics,
-                P_GENERATORS, generators);
+                P_OPERATORS, operators);
     }
     
     @Override
@@ -157,7 +157,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         return isDynamic == ref.isDynamic
                 && initializer.equals(ref.initializer)
                 && stoppingCondition.equals(ref.stoppingCondition)
-                && generators.equals(ref.generators)
+                && operators.equals(ref.operators)
                 && objective.equals(ref.objective)
                 && fitnessComparator.equals(ref.fitnessComparator)
                 && metrics.equals(ref.metrics);
@@ -167,7 +167,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public int hashCode() {
         int hash = 7;
         hash = 31 * hash + (this.initializer != null ? this.initializer.hashCode() : 0);
-        hash = 31 * hash + (this.generators != null ? this.generators.hashCode() : 0);
+        hash = 31 * hash + (this.operators != null ? this.operators.hashCode() : 0);
         hash = 31 * hash + (this.fitnessComparator != null ? this.fitnessComparator.hashCode() : 0);
         hash = 31 * hash + (this.metrics != null ? this.metrics.hashCode() : 0);
         hash = 31 * hash + (this.objective != null ? this.objective.hashCode() : 0);

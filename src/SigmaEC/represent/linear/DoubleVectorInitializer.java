@@ -1,6 +1,6 @@
 package SigmaEC.represent.linear;
 
-import SigmaEC.Generator;
+import SigmaEC.meta.Operator;
 import SigmaEC.represent.Initializer;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -32,14 +32,14 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     private final Option<double[]> maxValues;
     private final Option<double[]> minValues;
     private final Random random;
-    private final Option<Generator<DoubleVectorIndividual>> evaluator;
+    private final Option<Operator<DoubleVectorIndividual>> evaluator;
     
     public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
-        this.evaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Generator.class);
+        this.evaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Operator.class);
         
         defaultMaxValue = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE));
         maxValues = parameters.getOptionalDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
@@ -87,7 +87,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                     add(new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get()));
             }
         }};
-        return evaluator.isDefined() ? evaluator.get().produceGeneration(population) : population;
+        return evaluator.isDefined() ? evaluator.get().operate(0, 0, population) : population;
     }
 
     @Override
@@ -95,7 +95,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         final DoubleVectorIndividual newInd = defaultMaxValue.isDefined() ?
                 new DoubleVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
                 : new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get());
-        return evaluator.isDefined() ? evaluator.get().produceGeneration(new ArrayList<DoubleVectorIndividual>() {{ add(newInd); }}).get(0) : newInd;
+        return evaluator.isDefined() ? evaluator.get().operate(0, 0, new ArrayList<DoubleVectorIndividual>() {{ add(newInd); }}).get(0) : newInd;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

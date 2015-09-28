@@ -44,6 +44,18 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         assert(repOK());
     }
     
+    public FitnessComparator(final FitnessComparator ref, final boolean minimize) {
+        assert(ref != null);
+        this.minimize = minimize;
+        doubleEqualityDelta = ref.doubleEqualityDelta;
+        equalIsBetter = ref.equalIsBetter;
+        assert(repOK());
+    }
+    
+    public FitnessComparator<T> invert() {
+        return new FitnessComparator<>(this, !minimize);
+    }
+    
     @Override
     public int compare(final T ind, final T ind1) {
         assert(ind != null);

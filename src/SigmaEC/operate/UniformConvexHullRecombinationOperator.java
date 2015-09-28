@@ -1,6 +1,6 @@
 package SigmaEC.operate;
 
-import SigmaEC.Generator;
+import SigmaEC.meta.Operator;
 import SigmaEC.SRandom;
 import SigmaEC.represent.linear.BitStringIndividual;
 import SigmaEC.util.Parameters;
@@ -16,7 +16,7 @@ import java.util.Random;
  * 
  * @author Eric O. Scott
  */
-public class UniformConvexHullRecombinationGenerator extends Generator<BitStringIndividual> {
+public class UniformConvexHullRecombinationOperator extends Operator<BitStringIndividual> {
     public final static String P_RANDOM = "random";
     public final static String P_NUM_CHILDREN = "numChildren";
     
@@ -25,7 +25,7 @@ public class UniformConvexHullRecombinationGenerator extends Generator<BitString
     private final Random random;
     private final int numChildren;
     
-    public UniformConvexHullRecombinationGenerator(final Parameters parameters, final String base) {
+    public UniformConvexHullRecombinationOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
@@ -34,7 +34,7 @@ public class UniformConvexHullRecombinationGenerator extends Generator<BitString
     }
     
     @Override
-    public List<BitStringIndividual> produceGeneration(final List<BitStringIndividual> parents) {
+    public List<BitStringIndividual> operate(final int run, final int generation, final List<BitStringIndividual> parents) {
         assert(parents != null);
         assert(!parents.isEmpty());
         
@@ -105,9 +105,9 @@ public class UniformConvexHullRecombinationGenerator extends Generator<BitString
 
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof UniformConvexHullRecombinationGenerator))
+        if (!(o instanceof UniformConvexHullRecombinationOperator))
             return false;
-        final UniformConvexHullRecombinationGenerator ref = (UniformConvexHullRecombinationGenerator)o;
+        final UniformConvexHullRecombinationOperator ref = (UniformConvexHullRecombinationOperator)o;
         return numChildren == ref.numChildren
                 && random.equals(ref.random);
     }

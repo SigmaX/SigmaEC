@@ -1,4 +1,4 @@
-package SigmaEC;
+package SigmaEC.meta;
 
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author Eric O. Scott
  */
-public class NumStepsWithoutImprovementStoppingCondition<T extends Individual> extends StoppingCondition<T> {
+public class NumStepsWithoutGlobalImprovementStoppingCondition<T extends Individual> extends StoppingCondition<T> {
     public final static String P_NUM_STEPS_WITHOUT_IMPROVEMENT = "numStepsWithoutImprovement";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     
@@ -20,7 +20,7 @@ public class NumStepsWithoutImprovementStoppingCondition<T extends Individual> e
     private T bestSoFar;
     private int stepsPassedSinceLastImprovement;
     
-    public NumStepsWithoutImprovementStoppingCondition(final Parameters parameters, final String base) {
+    public NumStepsWithoutGlobalImprovementStoppingCondition(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         numStepsAllowedWithoutImprovement = parameters.getIntParameter(Parameters.push(base, P_NUM_STEPS_WITHOUT_IMPROVEMENT));
@@ -38,11 +38,11 @@ public class NumStepsWithoutImprovementStoppingCondition<T extends Individual> e
     }
     
     @Override
-    public boolean stop(List<T> population, int step) {
+    public boolean stop(final Population<T> population, int step) {
         assert(step >= 0);
-        final T bestOfGen = Statistics.best(population, fitnessComparator);
+        final T bestOfGen = population.getBest(fitnessComparator);
         if (fitnessComparator.betterThan(bestOfGen, bestSoFar)) {
-            // Only rest step count if the new BSF is *strictly* better than the old one
+            // Only reset step count if the new BSF is *strictly* better than the old one
             if (fitnessComparator.compare(bestOfGen, bestSoFar) > 0) 
                 stepsPassedSinceLastImprovement = 0;
             bestSoFar = bestOfGen;
@@ -70,9 +70,9 @@ public class NumStepsWithoutImprovementStoppingCondition<T extends Individual> e
     public boolean equals(final Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof NumStepsWithoutImprovementStoppingCondition))
+        if (!(o instanceof NumStepsWithoutGlobalImprovementStoppingCondition))
             return false;
-        final NumStepsWithoutImprovementStoppingCondition ref = (NumStepsWithoutImprovementStoppingCondition)o;
+        final NumStepsWithoutGlobalImprovementStoppingCondition ref = (NumStepsWithoutGlobalImprovementStoppingCondition)o;
         return numStepsAllowedWithoutImprovement == ref.numStepsAllowedWithoutImprovement
                 && fitnessComparator.equals(ref.fitnessComparator)
                 && bestSoFar.equals(ref.bestSoFar)

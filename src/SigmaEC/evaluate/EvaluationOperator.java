@@ -1,6 +1,6 @@
 package SigmaEC.evaluate;
 
-import SigmaEC.Generator;
+import SigmaEC.meta.Operator;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
@@ -13,14 +13,14 @@ import java.util.List;
  *
  * @author Eric O. Scott
  */
-public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
+public class EvaluationOperator<T extends Individual, P> extends Operator<T> {
     public final static String P_DECODER = "decoder";
     public final static String P_OBJECTIVE = "objective";
     
     private final Option<Decoder<T, P>> decoder;
     private final ObjectiveFunction<P> objective;
     
-    public EvaluationGenerator(final Parameters parameters, final String base) {
+    public EvaluationOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         decoder = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
@@ -30,12 +30,14 @@ public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
     
     /** Evaluate the fitness of all the individuals in a population.
      * 
+     * @param run Ignored.
+     * @param generation Ignored.
      * @param parentPopulation The population to be evaluated.
      * @return A population of new individuals with their fitness value (re)set
      *   and their parents attribute cleared.
      */
     @Override
-    public List<T> produceGeneration(final List<T> parentPopulation) {
+    public List<T> operate(final int run, final int generation, final List<T> parentPopulation) {
         return new ArrayList<T>(parentPopulation.size()) {{
                 for (final T ind : parentPopulation) {
                     final P phenotype = decoder.isDefined() ? decoder.get().decode(ind) : (P) ind;
@@ -61,9 +63,9 @@ public class EvaluationGenerator<T extends Individual, P> extends Generator<T> {
     public boolean equals(final Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof EvaluationGenerator))
+        if (!(o instanceof EvaluationOperator))
             return false;
-        final EvaluationGenerator ref = (EvaluationGenerator) o;
+        final EvaluationOperator ref = (EvaluationOperator) o;
         return decoder.equals(ref.decoder)
                 && objective.equals(ref.objective);
     }

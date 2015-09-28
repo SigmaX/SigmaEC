@@ -1,6 +1,6 @@
 package SigmaEC.operate;
 
-import SigmaEC.Generator;
+import SigmaEC.meta.Operator;
 import SigmaEC.represent.linear.Gene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.select.IterativeSelector;
@@ -15,13 +15,13 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class MutatingGenerator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Generator<T> {
+public class MutatingOperator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Operator<T> {
     private final static String P_MUTATOR = "mutator";
     
     private final Mutator<T, G> mutator;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
     
-    public MutatingGenerator(final Parameters parameters, final String base) {
+    public MutatingOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         this.mutator = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATOR), Mutator.class);
@@ -29,7 +29,7 @@ public class MutatingGenerator<T extends LinearGenomeIndividual<G>, G extends Ge
     }
 
     @Override
-    public List<T> produceGeneration(final List<T> parentPopulation) {
+    public List<T> operate(final int run, final int generation, final List<T> parentPopulation) {
         final List<T> newPopulation = new ArrayList<T>(parentPopulation.size());
         for(int i = 0; i < parentPopulation.size(); i++) {
             final T individual = parentSelector.selectIndividual(parentPopulation);
@@ -54,10 +54,10 @@ public class MutatingGenerator<T extends LinearGenomeIndividual<G>, G extends Ge
     public boolean equals(final Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof MutatingGenerator))
+        if (!(o instanceof MutatingOperator))
             return false;
         
-        final MutatingGenerator cRef = (MutatingGenerator) o;
+        final MutatingOperator cRef = (MutatingOperator) o;
         return mutator.equals(cRef.mutator)
                 && parentSelector.equals(cRef.parentSelector);
     }

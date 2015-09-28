@@ -1,8 +1,8 @@
-package SigmaEC;
+package SigmaEC.meta;
 
+import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
-import java.util.List;
 
 /**
  * A main evolution loop
@@ -13,15 +13,15 @@ public abstract class CircleOfLife<T extends Individual> extends ContractObject 
     public abstract EvolutionResult<T> evolve(int run);
     
     public static class EvolutionResult<T extends Individual> extends ContractObject {
-        final private List<T> finalPopulation;
+        final private Population<T> finalPopulation;
         final private T bestIndividual;
         final private double bestFitness;
         
-        public List<T> getFinalPopulation() { return finalPopulation; }
+        public Population<T> getFinalPopulation() { return finalPopulation; }
         public T getBestIndividual() { return bestIndividual; }
         public double getBestFitness() { return bestFitness; }
         
-        public EvolutionResult(final List<T> finalPopulation, final T bestIndividual, final double bestFitness) {
+        public EvolutionResult(final Population<T> finalPopulation, final T bestIndividual, final double bestFitness) {
             assert(finalPopulation != null);
             assert(bestIndividual != null);
             assert(!Double.isNaN(bestFitness));
