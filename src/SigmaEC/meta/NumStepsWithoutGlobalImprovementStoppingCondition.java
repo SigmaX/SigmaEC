@@ -3,8 +3,6 @@ package SigmaEC.meta;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Parameters;
-import SigmaEC.util.math.Statistics;
-import java.util.List;
 
 /**
  *
@@ -43,8 +41,11 @@ public class NumStepsWithoutGlobalImprovementStoppingCondition<T extends Individ
         final T bestOfGen = population.getBest(fitnessComparator);
         if (fitnessComparator.betterThan(bestOfGen, bestSoFar)) {
             // Only reset step count if the new BSF is *strictly* better than the old one
-            if (fitnessComparator.compare(bestOfGen, bestSoFar) > 0) 
+            if (fitnessComparator.compare(bestOfGen, bestSoFar) > 0) {
                 stepsPassedSinceLastImprovement = 0;
+            }
+            else
+                stepsPassedSinceLastImprovement++;
             bestSoFar = bestOfGen;
         }
         else
