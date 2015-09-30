@@ -28,7 +28,8 @@ public class MeasurementOperator<T extends Individual> extends Operator<T> {
     
     @Override
     public List<T> operate(final int run, final int generation, final List<T> subpopulation) {
-        metric.measurePopulation(run, generation, new Population<T>(1) {{ setSubpopulation(0, subpopulation); }} );
+        final Population<T> pop = new Population<T>(new List[] { subpopulation });
+        metric.measurePopulation(run, generation, pop);
         assert(repOK());
         return subpopulation;
     }

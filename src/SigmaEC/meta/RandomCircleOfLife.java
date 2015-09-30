@@ -8,7 +8,6 @@ import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
-import SigmaEC.util.math.Statistics;
 import java.util.List;
 import java.util.Random;
 
@@ -52,8 +51,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public EvolutionResult<T> evolve(int run) {
         assert(run >= 0);
         reset();
-        final Population<T> population = new Population<>(1);
-        population.setSubpopulation(0, initializer.generatePopulation());
+        final Population<T> population = new Population<>(1, initializer);
         
         T bestSoFarInd = null;
         int i = 0;

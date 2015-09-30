@@ -82,7 +82,7 @@ public class TestSuiteExperiment extends Experiment {
 
         }
         catch (final Exception e) {
-            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Failed to load properties file while attempting to launch sub-experiment.");
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, String.format("Failed to load properties file '%s' while attempting to launch sub-experiment.", parameterFile));
             return;
         }
             

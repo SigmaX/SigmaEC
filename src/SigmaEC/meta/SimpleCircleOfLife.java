@@ -1,5 +1,6 @@
 package SigmaEC.meta;
 
+import SigmaEC.evaluate.EvaluationOperator;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.represent.Individual;
@@ -20,6 +21,7 @@ import java.util.List;
  */
 public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
     public final static String P_INITIALIZER = "initializer";
+    public final static String P_EVALUATOR = "evaluator";
     public final static String P_OPERATORS = "operators";
     public final static String P_OBJECTIVE = "objective";
     public final static String P_COMPARATOR = "fitnessComparator";
@@ -29,6 +31,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
     
     private final Initializer<T> initializer;
+    private final EvaluationOperator<T, P> evaluator;
     private final List<Operator<T>> operators;
     private final FitnessComparator<T> fitnessComparator;
     private final Option<List<PopulationMetric<T>>> metrics;
@@ -40,6 +43,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         assert(parameters != null);
         assert(base != null);
         initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
+        evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationOperator.class);
         operators = parameters.getInstancesFromParameter(Parameters.push(base, P_OPERATORS), Operator.class);
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
@@ -53,18 +57,21 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public EvolutionResult<T> evolve(final int run) {
         assert(run >= 0);
         reset();
-        final Population<T> population = new Population<>(1);
-        population.setSubpopulation(0, initializer.generatePopulation());
         T bestSoFarInd = null;
         int i = 0;
+        
+        // Initialize and evaluate the starting population
+        final Population<T> population = new Population<>(1, initializer);
+        population.setSubpopulation(0, evaluator.operate(run, i, population.getSubpopulation(0)));
+        
         while (!stoppingCondition.stop(population, i)) {
             // Take measurements
             if (metrics.isDefined())
-                for (PopulationMetric<T> metric : metrics.get())
+                for (final PopulationMetric<T> metric : metrics.get())
                     metric.measurePopulation(run, i, population);
             
             // Apply operators
-            for (Operator<T> gen : operators) {
+            for (final Operator<T> gen : operators) {
                 final List<T> newSubpop = gen.operate(run, i, population.getSubpopulation(0));
                 population.setSubpopulation(0, newSubpop);
             }
@@ -82,7 +89,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             i++;
         }
         
-        // Measure final population
+        // Measure the final population
         if (metrics.isDefined())
             for (PopulationMetric<T> metric : metrics.get())
                 metric.measurePopulation(run, i, population);

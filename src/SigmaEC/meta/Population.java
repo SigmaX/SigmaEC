@@ -2,8 +2,10 @@ package SigmaEC.meta;
 
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
+import SigmaEC.represent.Initializer;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,9 +16,18 @@ import java.util.List;
 public class Population<T extends Individual> extends ContractObject {
     private final List<T>[] subpopulations;
     
-    public Population(final int numSubPopulations) {
+    public Population(final int numSubPopulations, final Initializer<T> initializer) {
         assert(numSubPopulations > 0);
         subpopulations = new List[numSubPopulations];
+        for (int i = 0; i < numSubPopulations; i++)
+            subpopulations[i] = initializer.generatePopulation();
+        assert(repOK());
+    }
+    
+    public Population(final List<T>[] subpopulations) {
+        this.subpopulations = new List[subpopulations.length];
+        for (int i = 0; i < subpopulations.length; i++)
+            this.subpopulations[i] = new ArrayList<>(subpopulations[i]); // Defensive copy
         assert(repOK());
     }
     
@@ -137,7 +148,7 @@ public class Population<T extends Individual> extends ContractObject {
 
     @Override
     public String toString() {
-        return String.format("[%s: subpopulations=%s]", this.getClass().getSimpleName(), Arrays.toString(subpopulations));
+        return String.format("[%s: numSubpopulations=%d]", this.getClass().getSimpleName(), subpopulations.length);
     }
     // </editor-fold>
 }

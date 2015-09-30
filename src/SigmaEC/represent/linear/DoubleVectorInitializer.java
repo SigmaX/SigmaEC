@@ -1,12 +1,10 @@
 package SigmaEC.represent.linear;
 
-import SigmaEC.meta.Operator;
 import SigmaEC.represent.Initializer;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -23,7 +21,6 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     public final static String P_MAX_VALUES = "maxValues";
     public final static String P_MIN_VALUES = "minValues";
     public final static String P_RANDOM = "random";
-    private final static String P_EVALUATOR = "evaluator";
     
     private final int populationSize;
     private final int numDimensions;
@@ -32,14 +29,12 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     private final Option<double[]> maxValues;
     private final Option<double[]> minValues;
     private final Random random;
-    private final Option<Operator<DoubleVectorIndividual>> evaluator;
     
     public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
         this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
-        this.evaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Operator.class);
         
         defaultMaxValue = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE));
         maxValues = parameters.getOptionalDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
@@ -87,7 +82,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                     add(new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get()));
             }
         }};
-        return evaluator.isDefined() ? evaluator.get().operate(0, 0, population) : population;
+        assert(repOK());
+        return population;
     }
 
     @Override
@@ -95,7 +91,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         final DoubleVectorIndividual newInd = defaultMaxValue.isDefined() ?
                 new DoubleVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
                 : new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get());
-        return evaluator.isDefined() ? evaluator.get().operate(0, 0, new ArrayList<DoubleVectorIndividual>() {{ add(newInd); }}).get(0) : newInd;
+        assert(repOK());
+        return newInd;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -105,8 +102,6 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 && !P_DEFAULT_MAX_VALUE.isEmpty()
                 && P_DEFAULT_MIN_VALUE != null
                 && !P_DEFAULT_MIN_VALUE.isEmpty()
-                && P_EVALUATOR != null
-                && !P_EVALUATOR.isEmpty()
                 && P_MAX_VALUES != null
                 && !P_MAX_VALUES.isEmpty()
                 && P_MIN_VALUES != null
@@ -124,8 +119,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 && !(minValues.isDefined() && minValues.get().length != numDimensions)
                 && random != null
                 && !(maxValues.isDefined() && Misc.containsNaNs(maxValues.get()))
-                && !(maxValues.isDefined() && Misc.containsNaNs(minValues.get()))
-                && evaluator != null;
+                && !(maxValues.isDefined() && Misc.containsNaNs(minValues.get()));
     }
 
     @Override
@@ -139,8 +133,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 && maxValues.equals(ref.maxValues)
                 && minValues.equals(ref.minValues)
                 && defaultMaxValue.equals(ref.defaultMaxValue)
-                && defaultMinValue.equals(ref.defaultMinValue)
-                && evaluator.equals(ref.evaluator);
+                && defaultMinValue.equals(ref.defaultMinValue);
     }
 
     @Override
@@ -153,21 +146,19 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         hash = 23 * hash + Objects.hashCode(this.maxValues);
         hash = 23 * hash + Objects.hashCode(this.minValues);
         hash = 23 * hash + Objects.hashCode(this.random);
-        hash = 23 * hash + Objects.hashCode(this.evaluator);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_POPULATION_SIZE, populationSize,
                 P_NUM_DIMENSIONS, numDimensions,
                 P_RANDOM, random,
                 P_DEFAULT_MIN_VALUE, defaultMinValue,
                 P_DEFAULT_MAX_VALUE, defaultMaxValue,
                 P_MIN_VALUES, minValues,
-                P_MAX_VALUES, maxValues,
-                P_EVALUATOR, evaluator);
+                P_MAX_VALUES, maxValues);
     }
     // </editor-fold>
 }

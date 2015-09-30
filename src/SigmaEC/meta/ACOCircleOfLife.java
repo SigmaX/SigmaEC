@@ -63,8 +63,9 @@ public class ACOCircleOfLife extends CircleOfLife {
                 pheromones[i][j] = 0;
         
         // Run initial generation of ants
-        final Population<IntVectorIndividual> ants = new Population<>(1);
-        ants.setSubpopulation(0, executeAnts(pheromones));
+        final List<IntVectorIndividual>[] initialAnts = new List[1];
+        initialAnts[0] = executeAnts(pheromones);
+        final Population<IntVectorIndividual> ants = new Population<>(initialAnts);
         
         IntVectorIndividual bestSoFarInd = null;
         int i = 0;

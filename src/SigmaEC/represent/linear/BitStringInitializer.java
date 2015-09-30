@@ -1,8 +1,6 @@
 package SigmaEC.represent.linear;
 
-import SigmaEC.meta.Operator;
 import SigmaEC.represent.Initializer;
-import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +14,10 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
     private final static String P_POPULATION_SIZE = "populationSize";
     private final static String P_NUM_BITS = "numBits";
     private final static String P_RANDOM = "random";
-    private final static String P_EVALUATOR = "evaluator";
     
     private final int populationSize;
     private final int numBits;
     private final Random random;
-    private final Option<Operator<BitStringIndividual>> evaluator;
     
     public BitStringInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -29,7 +25,6 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
         this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
         this.numBits = parameters.getIntParameter(Parameters.push(base, P_NUM_BITS));
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
-        this.evaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), Operator.class);
         
         if (populationSize <= 0)
             throw new IllegalStateException(String.format("%s: %s is <= 0, must be positive.", this.getClass().getSimpleName(), P_POPULATION_SIZE));
@@ -44,21 +39,21 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
             for (int i = 0; i < populationSize; i++)
                 add(new BitStringIndividual(random, numBits));
         }};
-        return evaluator.isDefined() ? evaluator.get().operate(0, 0, population) : population;
+        assert(repOK());
+        return population;
     }
 
     @Override
     public BitStringIndividual generateIndividual() {
         final BitStringIndividual newInd = new BitStringIndividual(random, numBits);
-        return evaluator.isDefined() ? evaluator.get().operate(0, 0, new ArrayList<BitStringIndividual>() {{ add(newInd); }}).get(0) : newInd;
+        assert(repOK());
+        return newInd;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return P_EVALUATOR != null
-                && !P_EVALUATOR.isEmpty()
-                && P_NUM_BITS != null
+        return P_NUM_BITS != null
                 && !P_NUM_BITS.isEmpty()
                 && P_POPULATION_SIZE != null
                 && !P_POPULATION_SIZE.isEmpty()
@@ -66,8 +61,7 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
                 && !P_RANDOM.isEmpty()
                 && populationSize > 0
                 && numBits > 0
-                && random != null
-                && evaluator != null;
+                && random != null;
     }
 
     @Override
@@ -77,8 +71,7 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
         final BitStringInitializer ref = (BitStringInitializer) o;
         return populationSize == ref.populationSize
                 && numBits == ref.numBits
-                && random.equals(ref.random)
-                && evaluator.equals(ref.evaluator);
+                && random.equals(ref.random);
     }
 
     @Override
@@ -87,17 +80,15 @@ public class BitStringInitializer extends Initializer<BitStringIndividual> {
         hash = 23 * hash + this.populationSize;
         hash = 23 * hash + this.numBits;
         hash = 23 * hash + (this.random != null ? this.random.hashCode() : 0);
-        hash = 23 * hash + (this.evaluator != null ? this.evaluator.hashCode() : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%d, %s=%d, %s=%s]", this.getClass().getSimpleName(),
                 P_POPULATION_SIZE, populationSize,
                 P_NUM_BITS, numBits,
-                P_RANDOM, random,
-                P_EVALUATOR, evaluator);
+                P_RANDOM, random);
     }
     // </editor-fold>
     

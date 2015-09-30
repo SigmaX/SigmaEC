@@ -12,17 +12,17 @@ public class DoubleArrayMeasurement extends Measurement {
     public final static String DELIMITER = ",";
     private final int run;
     private final int generation;
-    private final int individual;
+    private final int index;
     private final double[] array;
     
-    public DoubleArrayMeasurement(final int run, final int generation, final int individual, final double[] array) {
+    public DoubleArrayMeasurement(final int run, final int generation, final int index, final double[] array) {
         assert(run >= 0);
         assert(generation >= 0);
         assert(array != null);
         assert(array.length > 0);
         this.run = run;
         this.generation = generation;
-        this.individual = individual;
+        this.index = index; // This could mean the id of an individual in a subpopulation, or the id of a subpopulation in a population
         this.array = Arrays.copyOf(array, array.length);
         assert(repOK());
     }
@@ -45,7 +45,7 @@ public class DoubleArrayMeasurement extends Measurement {
         StringBuilder sb = new StringBuilder();
         sb.append(run).append(DELIMITER)
                 .append(generation).append(DELIMITER)
-                .append(individual).append(DELIMITER)
+                .append(index).append(DELIMITER)
                 .append(array[0]);
         for (int i = 1; i < array.length; i++)
             sb.append(DELIMITER).append(array[i]);

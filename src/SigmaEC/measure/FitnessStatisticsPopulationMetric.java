@@ -86,7 +86,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         final T worst = Statistics.worst(evaluatedSubpop, fitnessComparator);
 
         final double bsf = auxiliaryEvaluator.isDefined() ? auxiliaryBestSoFar.getFitness() : bestSoFar.getFitness();
-        return new FitnessStatisticsMeasurement(run, step, mean, std, best.getFitness(), worst.getFitness(), bsf, bestSoFar.getID());
+        return new FitnessStatisticsMeasurement(run, step, subpop, mean, std, best.getFitness(), worst.getFitness(), bsf, bestSoFar.getID());
     }
 
     @Override

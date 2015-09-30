@@ -9,9 +9,9 @@ package SigmaEC.measure;
 public class FitnessStatisticsMeasurement extends Measurement {
     private final DoubleArrayMeasurement stats;
     private final long bsfIndividualID;
-    public FitnessStatisticsMeasurement(final int run, final int generation, final double mean, final double std, final double max, final double min, final double bsf, final long bsfIndividualID) {
+    public FitnessStatisticsMeasurement(final int run, final int generation, final int subPopulation, final double mean, final double std, final double max, final double min, final double bsf, final long bsfIndividualID) {
         
-        stats = new DoubleArrayMeasurement(run, generation, 0, new double[] { mean, std, max, min, bsf });
+        stats = new DoubleArrayMeasurement(run, generation, subPopulation, new double[] { mean, std, max, min, bsf });
         this.bsfIndividualID = bsfIndividualID;
     }
     
