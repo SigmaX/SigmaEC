@@ -95,7 +95,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
                     metric.measurePopulation(run, step, population);
             
             // Execute each island in parallel
-            final Collection<Callable<Void>> tasks = new ArrayList<Callable<Void>>(topology.numIslands());
+            final Collection<Callable<Void>> tasks = new ArrayList<>(topology.numIslands());
             for (int i = 0; i < topology.numIslands(); i++)
                 tasks.add(new IslandStepper(run, step, population, i));
             try {

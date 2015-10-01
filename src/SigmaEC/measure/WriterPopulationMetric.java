@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -50,6 +49,12 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": writer is null.");
         if (wrappedMetric == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": wrappedMetric is null.");
+        
+        try {
+            writer.write(csvHeader() + "\n");
+        } catch (final IOException ex) {
+            Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+        }
         assert(repOK());
     }
     
@@ -60,12 +65,17 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
         if (measurement != null) {
             try {
                 writer.write(String.format("%s\n", measurement.toString()));
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         assert(repOK());
         return measurement;
+    }
+
+    @Override
+    public final String csvHeader() {
+        return wrappedMetric.csvHeader();
     }
 
     @Override

@@ -25,6 +25,11 @@ public class PrintIndividualsPopulationMetric<T extends Individual> extends Popu
     }
 
     @Override
+    public String csvHeader() {
+        return "individual";
+    }
+
+    @Override
     public void reset() { }
 
     @Override

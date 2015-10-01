@@ -59,8 +59,13 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     }
     
     private FitnessStatisticsMeasurement measureSubpopulation(final int run, final int step, final int subpop, final Population<T> population) {
-        // Choose the best-so-far individual *without* consulting the auxillary evaluator
+        assert(run >= 0);
+        assert(step >= 0);
+        assert(subpop >= 0);
+        assert(population != null);
+        assert(subpop < population.numSuppopulations());
         
+        // Choose the best-so-far individual *without* consulting the auxillary evaluator
         final T trueBest = population.getBest(subpop, fitnessComparator);
         if (fitnessComparator.betterThan(trueBest, bestSoFar)) {
             bestSoFar = trueBest;
@@ -89,6 +94,11 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
 
         final double bsf = auxiliaryEvaluator.isDefined() ? auxiliaryBestSoFar.getFitness() : bestSoFar.getFitness();
         return new FitnessStatisticsMeasurement(run, step, subpop, mean, std, best.getFitness(), worst.getFitness(), bsf, bestSoFar.getID());
+    }
+
+    @Override
+    public String csvHeader() {
+        return "run, generation, subpopulation, mean, std, best, worst, bsf";
     }
 
     @Override

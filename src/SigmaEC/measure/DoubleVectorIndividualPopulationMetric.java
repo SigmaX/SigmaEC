@@ -24,9 +24,11 @@ public class DoubleVectorIndividualPopulationMetric<T extends DoubleVectorIndivi
     public final static String P_DECODER = "decoder";
     public final static String P_BEST_ONLY = "bestOnly";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
+    public final static String P_DIMENSIONS = "numDimensions";
     
     private final Decoder<T, DoubleVectorIndividual> decoder;
     private final Option<FitnessComparator<T>> fitnessComparator;
+    private final int numDimensions;
     
     public DoubleVectorIndividualPopulationMetric(final Parameters parameters, final String base) {
         final Option<Decoder> decoderOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
@@ -41,24 +43,42 @@ public class DoubleVectorIndividualPopulationMetric<T extends DoubleVectorIndivi
         if (bestOnly && !fitnessComparatorOpt.isDefined())
             throw new IllegalStateException(String.format("%s: '%s' is true, but '%s' is undefined.", this.getClass().getSimpleName(), P_BEST_ONLY, P_FITNESS_COMPARATOR));
         fitnessComparator = bestOnly ? fitnessComparatorOpt : Option.NONE;
+        numDimensions = parameters.getIntParameter(Parameters.push(base, P_DIMENSIONS));
         assert(repOK());
     }
     
     @Override
     public MultipleDoubleArrayMeasurement measurePopulation(int run, int generation, final Population<T> population) {
+        assert(run >= 0);
+        assert(generation >= 0);
+        assert(population != null);
         final List<double[]> arrays = new ArrayList<double[]>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.
                     final T best = population.getBest(i, fitnessComparator.get());
-                    add(Misc.prepend(i, Misc.prepend(best.getID(), decoder.decode(best).getGenomeArray())));
+                    final double[] genome = decoder.decode(best).getGenomeArray();
+                    assert(genome.length == numDimensions);
+                    add(Misc.prepend(i, Misc.prepend(best.getID(), genome)));
                 }
                 else // Record all individuals.
-                    for(final T ind : population.getSubpopulation(i))
-                        add(Misc.prepend(i, Misc.prepend(ind.getID(), decoder.decode(ind).getGenomeArray())));
+                    for(final T ind : population.getSubpopulation(i)) {
+                        final double[] genome = decoder.decode(ind).getGenomeArray();
+                        assert(genome.length == numDimensions);
+                        add(Misc.prepend(i, Misc.prepend(ind.getID(), genome)));
+                    }
             }
         }};
         assert(repOK());
         return new MultipleDoubleArrayMeasurement(run, generation, arrays);
+    }
+
+    @Override
+    public String csvHeader() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("run, generation, subpopulation");
+        for (int i = 0; i < numDimensions; i++)
+            sb.append(", V").append(i);
+        return sb.toString();
     }
 
     @Override
@@ -99,5 +119,4 @@ public class DoubleVectorIndividualPopulationMetric<T extends DoubleVectorIndivi
         return hash;
     }
     //</editor-fold>
-
 }

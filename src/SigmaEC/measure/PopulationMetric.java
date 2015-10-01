@@ -21,6 +21,9 @@ public abstract class PopulationMetric<T extends Individual> extends ContractObj
      */
     public abstract Measurement measurePopulation(int run, int generation, Population<T> population);
     
+    /** Returns a comma-separated list of attribute names that this metric takes measurements of. */
+    public abstract String csvHeader();
+    
     /** Reset any mutable state to prepare for a fresh run. */
     public abstract void reset();
     

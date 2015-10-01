@@ -34,6 +34,16 @@ public class MultipleStringMeasurement extends Measurement {
     @Override
     public int getGeneration() { return generation; }
 
+    @Override
+    public String toString() {
+        assert(repOK());
+        final StringBuilder sb = new StringBuilder();
+        sb.append(strings.get(0));
+        for (int i = 1; i < strings.size(); i++)
+            sb.append("\n").append(strings.get(i));
+        return sb.toString();
+    }
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
@@ -42,14 +52,6 @@ public class MultipleStringMeasurement extends Measurement {
                 && strings != null
                 && strings.size() > 0
                 && !Misc.containsNulls(strings);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        for (final String s : strings)
-            sb.append(s).append("\n");
-        return sb.toString();
     }
     
     @Override

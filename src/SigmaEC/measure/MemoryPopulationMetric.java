@@ -36,6 +36,11 @@ public class MemoryPopulationMetric<T extends Individual> extends PopulationMetr
     }
 
     @Override
+    public String csvHeader() {
+        return wrappedMetric.csvHeader();
+    }
+
+    @Override
     public void reset() {
         wrappedMetric.reset();
         mostRecentMeasurement = null;

@@ -32,9 +32,11 @@ public class MultipleMeasurement extends Measurement {
 
     @Override
     public String toString() {
+        assert(repOK());
         final StringBuilder sb = new StringBuilder();
-        for (final Measurement m : measurements)
-            sb.append(m.toString()).append("\n");
+        sb.append(measurements.get(0).toString());
+        for (int i = 1; i < measurements.size(); i++)
+            sb.append("\n").append(measurements.get(i).toString());
         return sb.toString();
     }
 
