@@ -4,6 +4,7 @@ import SigmaEC.evaluate.EvaluationOperator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
@@ -98,7 +99,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
 
     @Override
     public String csvHeader() {
-        return "run, generation, subpopulation, mean, std, best, worst, bsf";
+        return "run, generation, subpopulation, mean, std, best, worst, bsf, bsf_individualID";
     }
 
     @Override
@@ -162,4 +163,87 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         return hash;
     }
     //</editor-fold>
+    
+    public static class FitnessStatisticsMeasurement extends Measurement {
+        private final int run;
+        private final int generation;
+        private final int subpopulation;
+        private final double mean;
+        private final double std;
+        private final double best;
+        private final double worst;
+        private final double bestSoFar;
+        private final long bsfIndividualID;
+        
+        public FitnessStatisticsMeasurement(final int run_, final int generation_, final int subpopulation_, final double mean_, final double std_, final double best_, final double worst_, final double bsf_, final long bsfIndividualID_) {
+            run = run_;
+            generation = generation_;
+            subpopulation = subpopulation_;
+            mean = mean_;
+            std = std_;
+            best = best_;
+            worst = worst_;
+            bestSoFar = bsf_;
+            bsfIndividualID = bsfIndividualID_;
+            assert(repOK());
+        }
+
+        @Override public int getRun() { return run; }
+        @Override public int getGeneration() { return generation; }
+        public double getMean() { return mean; }
+        public double getStd() { return std; }
+        public double getBest() { return best; }
+        public double getWorst() { return worst; }
+        public double getBestSoFar() { return bestSoFar; }
+        public long getBestSoFarID() { return bsfIndividualID; }
+
+        // <editor-fold defaultstate="collapsed" desc="Standard Methods">
+        @Override
+        public String toString() {
+            return String.format("%d, %d, %d, %f, %f, %f, %f, %f, %d",
+                    run, generation, subpopulation, mean, std, best, worst, bestSoFar, bsfIndividualID);
+        }
+
+        @Override
+        public final boolean repOK() {
+            return run >= 0
+                    && generation >= 0
+                    && subpopulation >= 0
+                    && bsfIndividualID >= 0;
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o)
+                return true;
+            if (!(o instanceof FitnessStatisticsPopulationMetric.FitnessStatisticsMeasurement))
+                return false;
+            final FitnessStatisticsMeasurement ref = (FitnessStatisticsMeasurement)o;
+            return run == ref.run
+                    && generation == ref.generation
+                    && subpopulation == ref.subpopulation
+                    && Misc.doubleEquals(mean, ref.mean)
+                    && Misc.doubleEquals(std, ref.std)
+                    && Misc.doubleEquals(best, ref.best)
+                    && Misc.doubleEquals(worst, ref.worst)
+                    && Misc.doubleEquals(bestSoFar, ref.bestSoFar)
+                    && bsfIndividualID == ref.bsfIndividualID;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 3;
+            hash = 23 * hash + this.run;
+            hash = 23 * hash + this.generation;
+            hash = 23 * hash + this.subpopulation;
+            hash = 23 * hash + (int) (Double.doubleToLongBits(this.mean) ^ (Double.doubleToLongBits(this.mean) >>> 32));
+            hash = 23 * hash + (int) (Double.doubleToLongBits(this.std) ^ (Double.doubleToLongBits(this.std) >>> 32));
+            hash = 23 * hash + (int) (Double.doubleToLongBits(this.best) ^ (Double.doubleToLongBits(this.best) >>> 32));
+            hash = 23 * hash + (int) (Double.doubleToLongBits(this.worst) ^ (Double.doubleToLongBits(this.worst) >>> 32));
+            hash = 23 * hash + (int) (Double.doubleToLongBits(this.bestSoFar) ^ (Double.doubleToLongBits(this.bestSoFar) >>> 32));
+            hash = 23 * hash + (int) (this.bsfIndividualID ^ (this.bsfIndividualID >>> 32));
+            return hash;
+        }
+        // </editor-fold>
+    }
 }

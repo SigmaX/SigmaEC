@@ -26,8 +26,7 @@ public class MemoryPopulationMetric<T extends Individual> extends PopulationMetr
     public Measurement getMostRecentMeasurement() { return mostRecentMeasurement; }
     
     @Override
-    public Measurement measurePopulation(final int run, final int generation, final Population<T> population)
-    {
+    public synchronized Measurement measurePopulation(final int run, final int generation, final Population<T> population) {
         assert(population != null);
         final Measurement measurement = wrappedMetric.measurePopulation(run, generation, population);
         mostRecentMeasurement = measurement;

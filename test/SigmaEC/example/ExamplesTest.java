@@ -1,4 +1,4 @@
-package SigmaEC.examples;
+package SigmaEC.example;
 
 import static SigmaEC.SigmaEC.P_EXPERIMENT;
 import SigmaEC.experiment.Experiment;
@@ -24,12 +24,12 @@ public class ExamplesTest {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {   
-            {"src/SigmaEC/examples/GAExample.properties"},
-            {"src/SigmaEC/examples/FloatingPointExample.properties"}, 
-            {"src/SigmaEC/examples/TestSuiteExample.properties"},
-            //{"src/SigmaEC/examples/TestSuiteViewerExample.properties"},
-            {"src/SigmaEC/examples/IslandModelExample.properties"},
-            {"src/SigmaEC/examples/ACOExample_suite.properties"}
+            {"src/SigmaEC/example/GAExample.properties"},
+            {"src/SigmaEC/example/FloatingPointExample.properties"}, 
+            {"src/SigmaEC/example/TestSuiteExample.properties"},
+            //{"src/SigmaEC/example/TestSuiteViewerExample.properties"},
+            {"src/SigmaEC/example/IslandModelExample.properties"},
+            {"src/SigmaEC/example/ACOExample_suite.properties"}
            });
     }
     

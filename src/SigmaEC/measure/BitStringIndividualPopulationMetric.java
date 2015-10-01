@@ -63,19 +63,17 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
         assert(subPop >= 0);
         assert(ind != null);
         assert(ind.size() == numBits);
-        final StringBuilder sb = new StringBuilder().append(run).append(",")
-                                .append(generation).append(",")
-                                .append(subPop).append(",")
-                                .append(Long.toString(ind.getID()));
+        final StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%d, %d, %d, %d, %f", run, generation, subPop, ind.getID(), ind.getFitness()));
         for(final BitGene g : ind.getGenome())
-            sb.append(",").append(g.value);
+            sb.append(", ").append(g.value ? 1 : 0);
         return sb.toString();
     }
 
     @Override
     public String csvHeader() {
         final StringBuilder sb = new StringBuilder()
-                .append("run, generation, subpopulation");
+                .append("run, generation, subpopulation, individualID, fitness");
         for (int i = 0; i < numBits; i++)
             sb.append(", V").append(i);
         return sb.toString();
@@ -103,7 +101,7 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
     
     @Override
     public boolean equals(Object o) {
-        return o instanceof DoubleVectorIndividualPopulationMetric;
+        return o instanceof DoubleVectorPopulationMetric;
     }
 
     @Override

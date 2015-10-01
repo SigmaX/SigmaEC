@@ -22,11 +22,11 @@ public class MultipleStringMeasurement extends Measurement {
         assert(!Misc.containsNulls(strings));
         this.run = run;
         this.generation = generation;
-        this.strings = new ArrayList<String>(strings);
+        this.strings = new ArrayList<>(strings);
         assert(repOK());
     }
     
-    public List<String> getStrings() { return new ArrayList<String>(strings); }
+    public List<String> getStrings() { return new ArrayList<>(strings); }
     
     @Override
     public int getRun() { return run; }
