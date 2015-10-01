@@ -15,13 +15,20 @@ import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * 
+ * Implements the high-level control logic for a structured population model.
+ * Communication among islands occurs as synchronous intervals, and the
+ * operators and objective function used across the islands are homogeneous.
  * 
  * @author Eric O. Scott
  */
@@ -36,6 +43,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     public final static String P_METRICS = "metrics";
     public final static String P_IS_DYNAMIC = "isDynamic";
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
+    public final static String P_NUM_THREADS = "numThreads";
     
     private final SRandom random;
     private final Topology topology;
@@ -47,6 +55,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     private final Option<List<PopulationMetric<T>>> metrics;
     private final StoppingCondition<T> stoppingCondition;
     private final boolean isDynamic;
+    private final int numThreads;
     
     public IslandModelCircleOfLife(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -61,6 +70,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
         stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
+        numThreads = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_THREADS), topology.numIslands());
         assert(repOK());
     }
     
@@ -76,7 +86,8 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         // Evaluate initial subpopulations
         for (int i = 0; i < population.numSuppopulations(); i++)
             population.setSubpopulation(i, evaluator.operate(run, step, population.getSubpopulation(i)));
-         
+        
+        final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
         while (!(stoppingCondition.stop(population, step))) {
             // Take measurements
             if (metrics.isDefined())
@@ -84,11 +95,14 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
                     metric.measurePopulation(run, step, population);
             
             // Execute each island in parallel
-            final ExecutorService executor = Executors.newFixedThreadPool(topology.numIslands()); // XXX Can we create one threadpool outside the loop and re-use it?
+            final Collection<Callable<Void>> tasks = new ArrayList<Callable<Void>>(topology.numIslands());
             for (int i = 0; i < topology.numIslands(); i++)
-                executor.execute(new IslandStepper(run, step, population, i));
-            executor.shutdown();
-            while (!executor.isTerminated()) { }
+                tasks.add(new IslandStepper(run, step, population, i));
+            try {
+                executor.invokeAll(tasks);
+            } catch (final InterruptedException ex) {
+                Logger.getLogger(IslandModelCircleOfLife.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
             if (isDynamic)
                 objective.setGeneration(step);
@@ -100,6 +114,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
             flushMetrics();
             step++;
         }
+        executor.shutdown();
         
         // Measure final population
         if (metrics.isDefined())
@@ -110,7 +125,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         return new EvolutionResult<>(population, bestSoFarInd, bestSoFarInd.getFitness());
     }
     
-    private class IslandStepper extends ContractObject implements Runnable {
+    private class IslandStepper extends ContractObject implements Callable<Void> {
         private final Population<T> population;
         private final int subpopulation;
         private final int run;
@@ -128,14 +143,15 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         }
         
         @Override
-        public void run() {
+        public Void call() {
             // Apply operators
-            for (Operator<T> gen : operators) {
+            for (final Operator<T> gen : operators) {
                 final List<T> newSubpop = gen.operate(run, generation, population.getSubpopulation(subpopulation));
                 synchronized (population) {
                     population.setSubpopulation(subpopulation, newSubpop);
                 }
             }
+            return null;
         }
 
         // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -246,28 +262,30 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
                 && objective.equals(ref.objective)
                 && fitnessComparator.equals(ref.fitnessComparator)
                 && metrics.equals(ref.metrics)
-                && stoppingCondition.equals(ref.stoppingCondition);
+                && stoppingCondition.equals(ref.stoppingCondition)
+                && numThreads == topology.numIslands();
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 11 * hash + Objects.hashCode(this.random);
-        hash = 11 * hash + Objects.hashCode(this.topology);
-        hash = 11 * hash + Objects.hashCode(this.evaluator);
-        hash = 11 * hash + Objects.hashCode(this.initializer);
-        hash = 11 * hash + Objects.hashCode(this.operators);
-        hash = 11 * hash + Objects.hashCode(this.objective);
-        hash = 11 * hash + Objects.hashCode(this.fitnessComparator);
-        hash = 11 * hash + Objects.hashCode(this.metrics);
-        hash = 11 * hash + Objects.hashCode(this.stoppingCondition);
-        hash = 11 * hash + (this.isDynamic ? 1 : 0);
+        hash = 73 * hash + Objects.hashCode(this.random);
+        hash = 73 * hash + Objects.hashCode(this.topology);
+        hash = 73 * hash + Objects.hashCode(this.evaluator);
+        hash = 73 * hash + Objects.hashCode(this.initializer);
+        hash = 73 * hash + Objects.hashCode(this.operators);
+        hash = 73 * hash + Objects.hashCode(this.objective);
+        hash = 73 * hash + Objects.hashCode(this.fitnessComparator);
+        hash = 73 * hash + Objects.hashCode(this.metrics);
+        hash = 73 * hash + Objects.hashCode(this.stoppingCondition);
+        hash = 73 * hash + (this.isDynamic ? 1 : 0);
+        hash = 73 * hash + this.numThreads;
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%B]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%B, %s=%d]", this.getClass().getSimpleName(),
                 P_RANDOM, random,
                 P_TOPOLOGY, topology,
                 P_INITIALIZER, initializer,
@@ -276,7 +294,8 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
                 P_COMPARATOR, fitnessComparator,
                 P_METRICS, metrics,
                 P_STOPPING_CONDITION, stoppingCondition,
-                P_IS_DYNAMIC, isDynamic);
+                P_IS_DYNAMIC, isDynamic,
+                P_NUM_THREADS, numThreads);
     }
     // </editor-fold>
 }

@@ -14,6 +14,8 @@ import java.util.List;
  * Measures the mean, standard deviation, maximum and minimum, and best-so-far
  * fitness of a population according to some ObjectiveFunction.
  * 
+ * Since it keeps track of best-so-far information, this class is not immutable.
+ * 
  * @author Eric 'Siggy' Scott
  */
 public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T> {
@@ -41,7 +43,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     
     /** Prints a row of the form "run, generation, mean, std, best, worst, bsf" for each subpopulation. */
     @Override
-    public MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public synchronized MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
