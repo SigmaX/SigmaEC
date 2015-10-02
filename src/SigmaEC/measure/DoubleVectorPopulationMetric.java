@@ -4,7 +4,6 @@ import SigmaEC.meta.Population;
 import SigmaEC.represent.CloneDecoder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.linear.DoubleGene;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
@@ -13,7 +12,6 @@ import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -163,9 +161,8 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append(String.format("%d, %d, %d, %d, %f", run, generation, subpopulation, indID, fitness));
-            sb.append(values[0]);
-            for (int i = 1; i < values.length; i++)
-                sb.append(", ").append(values[i]);
+            for (final double d : values)
+                sb.append(", ").append(d);
             assert(repOK());
             return sb.toString();
         }
