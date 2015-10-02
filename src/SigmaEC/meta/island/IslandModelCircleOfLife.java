@@ -36,6 +36,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     public final static String P_RANDOM = "random";
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_TOPOLOGY = "topology";
+    public final static String P_MIGRATION = "migrationPolicy";
     public final static String P_OBJECTIVE = "objective";
     public final static String P_INITIALIZER = "initializer";
     public final static String P_EVALUATOR = "evaluator";
@@ -47,6 +48,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     
     private final SRandom random;
     private final Topology topology;
+    private final MigrationPolicy<T> migrationPolicy;
     private final EvaluationOperator<T, P> evaluator;
     private final Initializer<T> initializer;
     private final List<Operator<T>> operators;
@@ -61,6 +63,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         assert(parameters != null);
         assert(base != null);
         topology = parameters.getInstanceFromParameter(Parameters.push(base, P_TOPOLOGY), Topology.class);
+        migrationPolicy = parameters.getInstanceFromParameter(Parameters.push(base, P_MIGRATION), MigrationPolicy.class);
         evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationOperator.class);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
@@ -103,6 +106,8 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
             } catch (final InterruptedException ex) {
                 Logger.getLogger(IslandModelCircleOfLife.class.getName()).log(Level.SEVERE, null, ex);
             }
+            
+            migrationPolicy.migrateAll(step, population, topology);
 
             if (isDynamic)
                 objective.setGeneration(step);
@@ -232,8 +237,11 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
                 && !P_STOPPING_CONDITION.isEmpty()
                 && P_TOPOLOGY != null
                 && !P_TOPOLOGY.isEmpty()
+                && P_MIGRATION != null
+                && !P_MIGRATION.isEmpty()
                 && random != null
                 && topology != null
+                && migrationPolicy != null
                 && evaluator != null
                 && initializer != null
                 && operators != null
@@ -256,6 +264,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         return isDynamic == ref.isDynamic
                 && random.equals(ref.random)
                 && topology.equals(ref.topology)
+                && migrationPolicy.equals(ref.migrationPolicy)
                 && evaluator.equals(ref.evaluator)
                 && initializer.equals(ref.initializer)
                 && operators.equals(ref.operators)
@@ -271,6 +280,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         int hash = 7;
         hash = 73 * hash + Objects.hashCode(this.random);
         hash = 73 * hash + Objects.hashCode(this.topology);
+        hash = 73 * hash + Objects.hashCode(this.migrationPolicy);
         hash = 73 * hash + Objects.hashCode(this.evaluator);
         hash = 73 * hash + Objects.hashCode(this.initializer);
         hash = 73 * hash + Objects.hashCode(this.operators);
@@ -285,9 +295,10 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%B, %s=%d]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%B, %s=%d]", this.getClass().getSimpleName(),
                 P_RANDOM, random,
                 P_TOPOLOGY, topology,
+                P_MIGRATION, migrationPolicy,
                 P_INITIALIZER, initializer,
                 P_EVALUATOR, evaluator,
                 P_OPERATORS, operators,

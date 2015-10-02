@@ -31,6 +31,10 @@ public class Population<T extends Individual> extends ContractObject {
         assert(repOK());
     }
     
+    /** @return A reference to the ith subpopulation.  This does *not*
+     *  create a defensive copy, so modifying the list that is returned will
+     *  modify the population.
+     */
     public List<T> getSubpopulation(final int i) {
         assert(i >= 0);
         assert(i < subpopulations.length);
