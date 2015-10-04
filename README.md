@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/SigmaX/SigmaEC.svg?branch=master)](https://travis-ci.org/https://travis-ci.org/SigmaX/SigmaEC)
+
 # SigmaEC
 
 SigmaEC is a flexible evolutionary computation experiment framework written in
