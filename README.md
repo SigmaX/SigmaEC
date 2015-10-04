@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/SigmaX/SigmaEC.svg?branch=master)](https://travis-ci.org/https://travis-ci.org/SigmaX/SigmaEC)
+[![Build Status](https://travis-ci.org/SigmaX/SigmaEC.svg?branch=master)](https://travis-ci.org/SigmaX/SigmaEC)
 
 # SigmaEC
 
