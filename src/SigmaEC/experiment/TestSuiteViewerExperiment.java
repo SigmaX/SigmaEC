@@ -15,8 +15,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.rosuda.JRI.RMainLoopCallbacks;
-import org.rosuda.JRI.Rengine;
 
 /**
  * An experiment that takes a suite of objective functions 
@@ -76,7 +74,7 @@ public class TestSuiteViewerExperiment extends Experiment {
     @Override
     public void run() {
         // The callbacks define what happens when R sends back messages or asks for user input.
-        final RMainLoopCallbacks callbacks= new RLoggerCallbacks(Logger.getLogger(this.getClass().getSimpleName()));
+        /* final RMainLoopCallbacks callbacks= new RLoggerCallbacks(Logger.getLogger(this.getClass().getSimpleName()));
         // The engine runs R commands.
         final Rengine re = new Rengine(new String[] {"--no-save"}, false, callbacks);
         final InputStream rScriptStream = this.getClass().getResourceAsStream("TestSuiteViewerExperiment.r");
@@ -103,8 +101,8 @@ public class TestSuiteViewerExperiment extends Experiment {
         }
         catch (final IOException e) {
             Logger.getLogger(this.getClass().getSimpleName()).log(Level.SEVERE, "Failed to load R script.", e);
-        }
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        } */
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
