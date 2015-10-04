@@ -1,7 +1,6 @@
 package SigmaEC.util;
 
 import SigmaEC.evaluate.objective.real.SphereObjective;
-import java.util.List;
 import java.util.Properties;
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +28,14 @@ public class ParametersTest {
                 .setParameter("alpha", "-5")
                 .setParameter("beta", "0.72")
                 .setParameter("gamma", "true")
+                .setParameter("gamma1", "True")
+                .setParameter("gamma2", "TRUE")
+                .setParameter("gamma3", "TrUe")
+                .setParameter("gammaBad", "Hello")
                 .setParameter("epsilon", "false")
+                .setParameter("epsilon1", "False")
+                .setParameter("epsilon2", "FALSE")
+                .setParameter("epsilon3", "FaLsE")
                 .setParameter("alphaRef", "%alpha")
                 .setParameter("alphaRefRef", "%alphaRef")
                 .setParameter("alphaExp", "$(7 + 1)*%alpha - 3")
@@ -202,6 +208,7 @@ public class ParametersTest {
         boolean expResult = true;
         boolean result = sut.getBooleanParameter(parameterName);
         assertEquals(expResult, result);
+        assertTrue(sut.repOK());
     }
 
     /** Test of getBooleanParameter method, of class Parameters. */
@@ -212,6 +219,7 @@ public class ParametersTest {
         boolean expResult = true;
         boolean result = sut.getBooleanParameter(parameterName);
         assertEquals(expResult, result);
+        assertTrue(sut.repOK());
     }
 
     /** Test of getBooleanParameter method, of class Parameters. */
@@ -222,6 +230,7 @@ public class ParametersTest {
         boolean expResult = false;
         boolean result = sut.getBooleanParameter(parameterName);
         assertEquals(expResult, result);
+        assertTrue(sut.repOK());
     }
 
     /** Test of getBooleanParameter method, of class Parameters. */
@@ -232,6 +241,81 @@ public class ParametersTest {
         boolean expResult = false;
         boolean result = sut.getBooleanParameter(parameterName);
         assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetBooleanParameter5() {
+        System.out.println("getBooleanParameter");
+        String parameterName = "gamma1";
+        boolean expResult = true;
+        boolean result = sut.getBooleanParameter(parameterName);
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetBooleanParameter6() {
+        System.out.println("getBooleanParameter");
+        String parameterName = "gamma2";
+        boolean expResult = true;
+        boolean result = sut.getBooleanParameter(parameterName);
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetBooleanParameter7() {
+        System.out.println("getBooleanParameter");
+        String parameterName = "gamma3";
+        boolean expResult = true;
+        boolean result = sut.getBooleanParameter(parameterName);
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetBooleanParameter8() {
+        System.out.println("getBooleanParameter");
+        String parameterName = "epsilon1";
+        boolean expResult = false;
+        boolean result = sut.getBooleanParameter(parameterName);
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetBooleanParameter9() {
+        System.out.println("getBooleanParameter");
+        String parameterName = "epsilon2";
+        boolean expResult = false;
+        boolean result = sut.getBooleanParameter(parameterName);
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetBooleanParameter10() {
+        System.out.println("getBooleanParameter");
+        String parameterName = "epsilon3";
+        boolean expResult = false;
+        boolean result = sut.getBooleanParameter(parameterName);
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getBooleanParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetBooleanParameter11() {
+        System.out.println("getBooleanParameter");
+        final String parameterName = "gammaBad";
+        sut.getBooleanParameter(parameterName);
     }
 
     /** Test of getOptionalBooleanParameter method, of class Parameters. */

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A simple individual with 1 continuous trait.  Intended for use with unit
+ * A simple individual with 1 continuous fitness.  Intended for use with unit
  * tests.
  * 
  * @author Eric 'Siggy' Scott
@@ -19,11 +19,11 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
     private static long nextId = 0;
     
     final private List<TestGene> genome;
-    final private double trait;
-    public double getTrait() { return trait; }
+    final private double fitness;
+    public double getTrait() { return fitness; }
 
-    public TestIndividual(double trait) { this.trait = trait; this.genome = null; this.id = nextId++; }
-    public TestIndividual(double trait, List<TestGene> genome) { this.trait = trait; this.genome = genome; this.id = nextId++; }
+    public TestIndividual(double trait) { this.fitness = trait; this.genome = null; this.id = nextId++; }
+    public TestIndividual(double trait, List<TestGene> genome) { this.fitness = trait; this.genome = genome; this.id = nextId++; }
     
     @Override
     public boolean repOK() { return true; }
@@ -43,7 +43,7 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
         if (!(o instanceof TestIndividual))
             return false;
         final TestIndividual ref = (TestIndividual)o;
-        return Misc.doubleEquals(trait, ref.trait)
+        return Misc.doubleEquals(fitness, ref.fitness)
                 && (genome == null ? ref.genome == null : genome.equals(ref.genome));
     }
 
@@ -51,7 +51,7 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
     public int hashCode() {
         int hash = 7;
         hash = 83 * hash + (this.genome != null ? this.genome.hashCode() : 0);
-        hash = 83 * hash + (int) (Double.doubleToLongBits(this.trait) ^ (Double.doubleToLongBits(this.trait) >>> 32));
+        hash = 83 * hash + (int) (Double.doubleToLongBits(this.fitness) ^ (Double.doubleToLongBits(this.fitness) >>> 32));
         return hash;
     }
 
@@ -70,7 +70,7 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
 
     @Override
     public double getFitness() {
-        return trait;
+        return fitness;
     }
 
     @Override

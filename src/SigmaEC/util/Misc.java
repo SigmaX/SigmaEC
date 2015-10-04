@@ -106,7 +106,9 @@ public final class Misc
     }
     
     public static boolean doubleEquals(final double a, final double b, final double epsilon) {
-        return Math.abs(a - b) < epsilon;
+        final double diff = Math.abs(a - b);
+        return diff < epsilon
+                || (Double.isNaN(diff) && a == b); // Handle the case where a = b = Double.POSITIVE_INFINITY or a = b = Double.NEGATIVE_INFINITY.
     }
     
     public static boolean doubleArrayEquals(final double[] a, final double[] b) {

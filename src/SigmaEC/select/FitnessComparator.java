@@ -16,31 +16,28 @@ import java.util.Comparator;
  */
 public class FitnessComparator<T extends Individual> extends ContractObject implements Comparator<T> {
     final public static String P_MINIMIZE = "minimize";
+    final public static boolean DEFAULT_MINIMIZE = false;
     final public static String P_DOUBLE_EQUALITY_DELTA = "doubleEqualityDelta";
+    final public static double DEFAULT_DOUBLE_EQUALITY_DELTA = 0.00000001;
     final public static String P_EQUAL_IS_BETTER = "equalIsBetter";
+    final public static boolean DEFAULT_EQUAL_IS_BETTER = false;
     
     final private boolean minimize;
     final private double doubleEqualityDelta;
     final private boolean equalIsBetter;
     
+    public boolean minimize() { return minimize; };
+    public double getDoubleEqualityDelta() { return doubleEqualityDelta; }
+    public boolean equalIsBetter() { return equalIsBetter; }
+    
     public FitnessComparator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        final Option<Boolean> minimizeOpt = parameters.getOptionalBooleanParameter(Parameters.push(base, P_MINIMIZE));
-        if (minimizeOpt.isDefined())
-            this.minimize = minimizeOpt.get();
-        else
-            this.minimize = false;
-        final Option<Double> deltaOpt = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DOUBLE_EQUALITY_DELTA));
-        if (deltaOpt.isDefined()) {
-            this.doubleEqualityDelta = deltaOpt.get();
-            if (Double.isInfinite(doubleEqualityDelta) || Double.isNaN(doubleEqualityDelta) || doubleEqualityDelta <= 0)
-                throw new IllegalStateException(String.format("%s: %s is %f, must be positive finite.", this.getClass().getSimpleName(), P_DOUBLE_EQUALITY_DELTA, doubleEqualityDelta));
-        }
-        else
-            this.doubleEqualityDelta = 0.00000001;
-        final Option<Boolean> equalIsBetterOpt = parameters.getOptionalBooleanParameter(Parameters.push(base, P_EQUAL_IS_BETTER));
-        equalIsBetter = equalIsBetterOpt.isDefined() ? equalIsBetterOpt.get() : false;
+        minimize = parameters.getOptionalBooleanParameter(Parameters.push(base, P_MINIMIZE), DEFAULT_MINIMIZE);
+        doubleEqualityDelta = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DOUBLE_EQUALITY_DELTA), DEFAULT_DOUBLE_EQUALITY_DELTA);
+        if (Double.isInfinite(doubleEqualityDelta) || Double.isNaN(doubleEqualityDelta) || doubleEqualityDelta <= 0)
+            throw new IllegalStateException(String.format("%s: %s is %f, must be positive finite.", this.getClass().getSimpleName(), P_DOUBLE_EQUALITY_DELTA, doubleEqualityDelta));
+        equalIsBetter = parameters.getOptionalBooleanParameter(Parameters.push(base, P_EQUAL_IS_BETTER), DEFAULT_EQUAL_IS_BETTER);
         assert(repOK());
     }
     

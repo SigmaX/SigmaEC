@@ -64,6 +64,13 @@ public class Parameters extends ContractObject {
             return this;
         }
         
+        /** Remove an entry from this Parameters database. */
+        public Builder clearParameter(final String parameter) {
+            assert(parameter != null);
+            properties.remove(parameter);
+            return this;
+        }
+        
         public Parameters build() {
             return new Parameters(this);
         }
@@ -208,10 +215,13 @@ public class Parameters extends ContractObject {
     
     public boolean getBooleanParameter(final String parameterName) {
         assert(parameterName != null);
-        final String value = properties.getProperty(parameterName);
+        String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
-        return Boolean.parseBoolean(dereferenceToValue(value));
+        value = dereferenceToValue(value);
+        if (!value.toLowerCase().equals("true") && !value.toLowerCase().equals("false"))
+            throw new IllegalStateException(String.format("%s: Parameter '%s' is set to '%s', but must be either 'true' or 'false'.", Parameters.class.getSimpleName(), parameterName, value));
+        return Boolean.parseBoolean(value);
     }
     
     public Option<Boolean> getOptionalBooleanParameter(final String parameterName) {
