@@ -33,6 +33,10 @@ public final class Statistics
             sum += Math.pow(values[i] - mean, 2);
         return Math.sqrt(sum/(values.length));
     }
+    
+    /*public static double covariance(double[] x, double[] y) {
+        
+    }*/
 
     /** Index of maximum value in an array. */
     public static int maxIndex(final double[] values) {
