@@ -64,7 +64,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     public Option<List<Individual>> getParents() {
         if (!parents.isDefined())
             return Option.NONE;
-        return new Option<>(new ArrayList<>(parents.get())); // Defensive copy
+        return new Option<>((List<Individual>)new ArrayList<>(parents.get())); // Defensive copy
     }
 
     @Override
@@ -115,7 +115,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
         public Builder setParents(final List<? extends Individual> parents) {
             assert(parents != null);
             assert(!Misc.containsNulls(parents));
-            this.parents = new Option<>(new ArrayList<Individual>(parents));
+            this.parents = new Option<>((List<Individual>)new ArrayList<>(parents));
             return this;
         }
         

@@ -50,7 +50,7 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
     }
     
     @Override
-    public MultipleMeasurement measurePopulation(int run, int generation, final Population<T> population) {
+    public MultipleMeasurement measurePopulation(final int run, final int generation, final Population<T> population) {
         assert(run >= 0);
         assert(generation >= 0);
         assert(population != null);

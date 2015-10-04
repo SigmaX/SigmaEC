@@ -34,7 +34,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     public Option<List<Individual>> getParents() {
         if (!parents.isDefined())
             return Option.NONE;
-        return new Option<>(new ArrayList<>(parents.get())); // Defensive copy
+        return new Option<>((List<Individual>)new ArrayList<>(parents.get())); // Defensive copy
     }
 
     @Override
@@ -121,7 +121,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
         public Builder setParents(final List<? extends Individual> parents) {
             assert(parents != null);
             assert(!Misc.containsNulls(parents));
-            this.parents = new Option<>(new ArrayList<Individual>(parents));
+            this.parents = new Option<>((List<Individual>)new ArrayList<Individual>(parents));
             return this;
         }
         
