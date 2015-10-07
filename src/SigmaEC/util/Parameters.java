@@ -12,7 +12,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * This class interprets a properties file as a simple declarative programming
+ * language.  Properties can define parameters, objects, or references to
+ * other parameters (allowing values and object instances to be reused in
+ * many parts of the program).
+ * 
  * @author Eric 'Siggy' Scott
  */
 public class Parameters extends ContractObject {
@@ -25,6 +29,7 @@ public class Parameters extends ContractObject {
     // Used to store instances that are referenced by other parameters with the "%param" syntax.
     private final Map<String, Object> instanceRegistry;
     
+    // <editor-fold defaultstate="collapsed" desc="Construction">
     public Parameters(final Properties properties) {
         assert(properties != null);
         this.properties = (Properties) properties.clone();
@@ -75,11 +80,18 @@ public class Parameters extends ContractObject {
             return new Parameters(this);
         }
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Helpers">
     public static String push(final String base, final String param) {
         assert(base != null);
         assert(param != null);
         return String.format("%s%s%s", base, PROPERTY_DELIMITER, param);
+    }
+    
+    public boolean isDefined(final String parameterName) {
+        assert(parameterName != null);
+        return properties.containsKey(parameterName);
     }
     
     private static boolean isReference(final String parameterValue) {
@@ -120,7 +132,9 @@ public class Parameters extends ContractObject {
         assert(parameterValue != null);
         return parameterValue.charAt(0) == EXPRESSION_SYMBOL;
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Expression Evaluation">
     private double evalExpression(final String parameterValue) {
         assert(parameterValue != null);
         if (!(isExpression(parameterValue) || Misc.isNumber(parameterValue)))
@@ -164,15 +178,14 @@ public class Parameters extends ContractObject {
                 return i;
         return expression.length();
     }
-    
-    public boolean isDefined(final String parameterName) {
-        assert(parameterName != null);
-        return properties.containsKey(parameterName);
-    }
+    // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Basic Types">
+    
+    // <editor-fold defaultstate="collapsed" desc="Int">
     public int getIntParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
@@ -181,6 +194,7 @@ public class Parameters extends ContractObject {
     
     public Option<Integer> getOptionalIntParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         if (properties.containsKey(parameterName))
             return new Option<Integer>(getIntParameter(parameterName));
         else
@@ -188,12 +202,39 @@ public class Parameters extends ContractObject {
     }
     
     public int getOptionalIntParameter(final String parameterName, final int deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final Option<Integer> opt = getOptionalIntParameter(parameterName);
         return opt.isDefined() ? opt.get() : deflt;
     }
     
+    public int getOptionalIntParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Integer> opt = getOptionalIntParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getIntParameter(defaultParameter);
+    }
+    
+    public int getOptionalIntParameter(final String parameterName, final String defaultParameter, final int defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Integer> opt = getOptionalIntParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalIntParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Long">
     public long getLongParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
@@ -202,6 +243,7 @@ public class Parameters extends ContractObject {
     
     public Option<Long> getOptionalLongParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         if (properties.containsKey(parameterName))
             return new Option<Long>(getLongParameter(parameterName));
         else
@@ -209,12 +251,39 @@ public class Parameters extends ContractObject {
     }
     
     public long getOptionalLongParameter(final String parameterName, final long deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final Option<Long> opt = getOptionalLongParameter(parameterName);
         return opt.isDefined() ? opt.get() : deflt;
     }
     
+    public long getOptionalLongParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Long> opt = getOptionalLongParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getLongParameter(defaultParameter);
+    }
+    
+    public long getOptionalLongParameter(final String parameterName, final String defaultParameter, final long defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Long> opt = getOptionalLongParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalLongParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Boolean">
     public boolean getBooleanParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
@@ -226,6 +295,7 @@ public class Parameters extends ContractObject {
     
     public Option<Boolean> getOptionalBooleanParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         if (properties.containsKey(parameterName))
             return new Option<Boolean>(getBooleanParameter(parameterName));
         else
@@ -233,12 +303,39 @@ public class Parameters extends ContractObject {
     }
     
     public boolean getOptionalBooleanParameter(final String parameterName, final boolean deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final Option<Boolean> opt = getOptionalBooleanParameter(parameterName);
         return opt.isDefined() ? opt.get() : deflt;
     }
     
+    public boolean getOptionalBooleanParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Boolean> opt = getOptionalBooleanParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getBooleanParameter(defaultParameter);
+    }
+    
+    public boolean getOptionalBooleanParameter(final String parameterName, final String defaultParameter, final boolean defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Boolean> opt = getOptionalBooleanParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalBooleanParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Double">
     public double getDoubleParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
@@ -247,19 +344,57 @@ public class Parameters extends ContractObject {
     
     public Option<Double> getOptionalDoubleParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         if (properties.containsKey(parameterName))
-            return new Option<Double>(getDoubleParameter(parameterName));
+            return new Option<>(getDoubleParameter(parameterName));
         else
             return Option.NONE;
     }
     
     public double getOptionalDoubleParameter(final String parameterName, final double deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final Option<Double> opt = getOptionalDoubleParameter(parameterName);
         return opt.isDefined() ? opt.get() : deflt;
     }
     
+    public double getOptionalDoubleParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Double> opt = getOptionalDoubleParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getDoubleParameter(defaultParameter);
+    }
+    
+    public double getOptionalDoubleParameter(final String parameterName, final String defaultParameter, final double defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<Double> opt = getOptionalDoubleParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalDoubleParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Double Array">
+    
+    public double[] getDoubleArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        final String[] doubleStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
+        final double[] array = new double[doubleStrings.length];
+        for (int i = 0; i < doubleStrings.length; i++)
+            array[i] = Double.parseDouble(doubleStrings[i]);
+        return array;
+    }
     public Option<double[]> getOptionalDoubleArrayParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         if (properties.containsKey(parameterName))
             return new Option<double[]>(getDoubleArrayParameter(parameterName));
         else
@@ -267,21 +402,41 @@ public class Parameters extends ContractObject {
     }
     
     public double[] getOptionalDoubleArrayParameter(final String parameterName, final double[] deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(deflt != null);
         final Option<double[]> opt = getOptionalDoubleArrayParameter(parameterName);
         return opt.isDefined() ? opt.get() : deflt;
     }
     
-    public double[] getDoubleArrayParameter(final String parameterName) {
-        final String[] doubleStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
-        final double[] array = new double[doubleStrings.length];
-        for (int i = 0; i < doubleStrings.length; i++)
-            array[i] = Double.parseDouble(doubleStrings[i]);
-        return array;
+    public double[] getOptionalDoubleArrayParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<double[]> opt = getOptionalDoubleArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getDoubleArrayParameter(defaultParameter);
     }
     
+    public double[] getOptionalDoubleArrayParameter(final String parameterName, final String defaultParameter, final double[] defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        assert(defaultValue != null);
+        final Option<double[]> opt = getOptionalDoubleArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalDoubleArrayParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="String">
     public String getStringParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final String value = properties.getProperty(parameterName);
         if (value == null)
             throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
@@ -292,32 +447,79 @@ public class Parameters extends ContractObject {
     
     public Option<String> getOptionalStringParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final String value = properties.getProperty(parameterName);
         return (value == null) ? Option.NONE : new Option<String>(getStringParameter(parameterName));
     }
     
     public String getOptionalStringParameter(final String parameterName, final String deflt) {
-        assert(deflt != null);
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final Option<String> opt = getOptionalStringParameter(parameterName);
         return opt.isDefined() ? opt.get() : deflt;
     }
     
+    public String getOptionalStringParameter(final String parameterName, final String defaultParameter, final String defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        assert(defaultValue != null);
+        final Option<String> opt = getOptionalStringParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalStringParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="String Array">
     public String[] getStringArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         return getStringParameter(parameterName).split(LIST_DELIMITER);
     }
     
     
     public Option<String[]> getOptionalStringArrayParameter(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         final String value = properties.getProperty(parameterName);
         return (value == null) ? Option.NONE : new Option<String[]>(getStringArrayParameter(parameterName));
     }
     
     public String[] getOptionalStringArrayParameter(final String parameterName, final String[] deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(deflt != null);
+        assert(!Misc.containsNulls(deflt));
         final Option<String[]> opt = getOptionalStringArrayParameter(parameterName);
         return opt.isDefined() ? opt.get() : deflt;
     }
+    
+    public String[] getOptionalStringArrayParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<String[]> opt = getOptionalStringArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getStringArrayParameter(defaultParameter);
+    }
+    
+    public String[] getOptionalStringArrayParameter(final String parameterName, final String defaultParameter, final String[] defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        assert(defaultValue != null);
+        assert(!Misc.containsNulls(defaultValue));
+        final Option<String[]> opt = getOptionalStringArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalStringArrayParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
     
     //</editor-fold>
     
