@@ -8,6 +8,7 @@ import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,16 +25,25 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
     private final Option<FitnessComparator<T>> fitnessComparator;
     private final int numBits;
     
+    public int numBits() { return numBits; }
+    
+    public boolean bestOnly() { return fitnessComparator.isDefined(); }
+    
+    public Option<FitnessComparator<T>> getFitnessComparator() { return fitnessComparator; }
+    
     public BitStringIndividualPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
-        assert(base != null);final boolean bestOnly = parameters.getBooleanParameter(Parameters.push(base, P_BEST_ONLY));
+        assert(base != null);
+        final boolean bestOnly = parameters.getBooleanParameter(Parameters.push(base, P_BEST_ONLY));
         final Option<FitnessComparator<T>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
         if (!bestOnly && fitnessComparatorOpt.isDefined())
-            Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING, String.format("ignoring '%s' because '%s' is false.", P_FITNESS_COMPARATOR, P_BEST_ONLY));
+            Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING, String.format("ignoring '%s' because '%s' is false.", Parameters.push(base, P_FITNESS_COMPARATOR), Parameters.push(base, P_BEST_ONLY)));
         if (bestOnly && !fitnessComparatorOpt.isDefined())
-            throw new IllegalStateException(String.format("%s: '%s' is true, but '%s' is undefined.", this.getClass().getSimpleName(), P_BEST_ONLY, P_FITNESS_COMPARATOR));
+            throw new IllegalStateException(String.format("%s: '%s' is true, but '%s' is undefined.", this.getClass().getSimpleName(), Parameters.push(base, P_BEST_ONLY), Parameters.push(base, P_FITNESS_COMPARATOR)));
         fitnessComparator = bestOnly ? fitnessComparatorOpt : Option.NONE;
         numBits = parameters.getIntParameter(Parameters.push(base, P_BITS));
+        if (numBits < 0)
+            throw new IllegalStateException(String.format("%s: parameter '%s' is set to %d, but must be >= 0.", this.getClass().getSimpleName(), Parameters.push(base, P_BITS), numBits));
         assert(repOK());
     }
     
@@ -76,6 +86,7 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
                 .append("run, generation, subpopulation, individualID, fitness");
         for (int i = 0; i < numBits; i++)
             sb.append(", V").append(i);
+        assert(repOK());
         return sb.toString();
     }
 
@@ -91,24 +102,41 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return true;
+        return P_BEST_ONLY != null
+                && !P_BEST_ONLY.isEmpty()
+                && P_BITS != null
+                && !P_BITS.isEmpty()
+                && P_FITNESS_COMPARATOR != null
+                && !P_FITNESS_COMPARATOR.isEmpty()
+                && numBits > 0
+                && fitnessComparator != null;
     }
     
     @Override
     public String toString() {
-        return String.format("[%s]", this.getClass().getSimpleName());
+        return String.format("[%s: %s=%d, %s=%B, %s=%s]", this.getClass().getSimpleName(),
+                P_BITS, numBits,
+                P_BEST_ONLY, bestOnly(),
+                P_FITNESS_COMPARATOR, fitnessComparator);
     }
     
     @Override
-    public boolean equals(Object o) {
-        return o instanceof DoubleVectorPopulationMetric;
+    public boolean equals(final Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof BitStringIndividualPopulationMetric))
+            return false;
+        final BitStringIndividualPopulationMetric ref = (BitStringIndividualPopulationMetric)o;
+        return numBits == ref.numBits
+                && fitnessComparator.equals(ref.fitnessComparator);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.fitnessComparator);
+        hash = 97 * hash + this.numBits;
         return hash;
     }
     //</editor-fold>
-
 }
