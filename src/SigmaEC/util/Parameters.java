@@ -396,7 +396,7 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         if (properties.containsKey(parameterName))
-            return new Option<double[]>(getDoubleArrayParameter(parameterName));
+            return new Option<>(getDoubleArrayParameter(parameterName));
         else
             return Option.NONE;
     }
@@ -476,7 +476,10 @@ public class Parameters extends ContractObject {
     public String[] getStringArrayParameter(final String parameterName) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
-        return getStringParameter(parameterName).split(LIST_DELIMITER);
+        final String[] result = getStringParameter(parameterName).split(LIST_DELIMITER);
+        for (int i = 0; i < result.length; i++)
+            result[i] = result[i].trim();
+        return result;
     }
     
     

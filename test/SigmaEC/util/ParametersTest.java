@@ -33,7 +33,9 @@ public class ParametersTest {
                 .setParameter("epsilon", "false")
                 .setParameter("epsilonRef", "%epsilon")
                 .setParameter("dArray", "0.1, 0.2,0.3, 0.4, 0.5")
-                .setParameter("dArrayRef", "%dArray");
+                .setParameter("dArrayRef", "%dArray")
+                .setParameter("sArray", "Hello, world, foo, bar, baz, qux")
+                .setParameter("sArrayRef", "%sArray");
     }
 
     // <editor-fold defaultstate="collapsed" desc="Helpers">
@@ -89,7 +91,7 @@ public class ParametersTest {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Basic Types">
+    // <editor-fold defaultstate="collapsed" desc="Primitive Types">
     // <editor-fold defaultstate="collapsed" desc="Int">
     /** Test of getIntParameter method, of class Parameters. */
     @Test
@@ -150,6 +152,14 @@ public class ParametersTest {
         final int result = sut.getIntParameter(parameterName);
         assertEquals(expResult, result);
     }
+    
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetIntParameter6() {
+        System.out.println("getIntParameter");
+        final String parameterName = "omega";
+        sutBuilder.build().getIntParameter(parameterName);
+    }
 
     /** Test of getOptionalIntParameter method, of class Parameters. */
     @Test
@@ -191,6 +201,255 @@ public class ParametersTest {
                 .build();
         final Option expResult = new Option<>(-43);
         final Option result = sut.getOptionalIntParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalIntParameter5() {
+        System.out.println("getOptionalIntParameter two-args");
+        final String parameterName = "alpha";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "8")
+                .build();
+        final int expResult = -5;
+        final int result = sut.getOptionalIntParameter(parameterName, defaultParameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalIntParameter6() {
+        System.out.println("getOptionalIntParameter two-args");
+        final String parameterName = "omega";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "8")
+                .build();
+        final int expResult = 8;
+        final int result = sut.getOptionalIntParameter(parameterName, defaultParameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalIntParameter7() {
+        System.out.println("getOptionalIntParameter three-args");
+        final String parameterName = "alpha";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "8")
+                .build();
+        final int expResult = -5;
+        final int result = sut.getOptionalIntParameter(parameterName, defaultParameterName, 100);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalIntParameter8() {
+        System.out.println("getOptionalIntParameter three-args");
+        final String parameterName = "omega";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "8")
+                .build();
+        final int expResult = 8;
+        final int result = sut.getOptionalIntParameter(parameterName, defaultParameterName, 100);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalIntParameter9() {
+        System.out.println("getOptionalIntParameter three-args");
+        final String parameterName = "omega";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder.build();
+        final int expResult = 100;
+        final int result = sut.getOptionalIntParameter(parameterName, defaultParameterName, 100);
+        assertEquals(expResult, result);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Long">
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test
+    public void testGetLongParameter1() {
+        System.out.println("getLongParameter");
+        final String parameterName = "alpha";
+        final long expResult = -5L;
+        final long result = sutBuilder.build().getLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test
+    public void testGetLongParameter2() {
+        System.out.println("getLongParameter reference");
+        final String parameterName = "alphaRef";
+        final long expResult = -5L;
+        final long result = sutBuilder.build().getLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test
+    public void testGetLongParameter3() {
+        System.out.println("getLongParameter expression");
+        final String parameterName = "alphaExp";
+        final Parameters sut = sutBuilder
+                .setParameter(parameterName, "$(7 + 1)*%alpha - 3")
+                .build();
+        final long expResult = -43L;
+        final long result = sut.getLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test
+    public void testGetLongParameter4() {
+        System.out.println("getLongParameter reference chain");
+        final String parameterName = "alphaRefRef";
+        final Parameters sut = sutBuilder
+                .setParameter(parameterName, "%alphaRef")
+                .build();
+        final long expResult = -5L;
+        final long result = sut.getIntParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test
+    public void testGetLongParameter5() {
+        System.out.println("getLongParameter reference to expression");
+        final String parameterName = "alphaExpRef";
+        final Parameters sut = sutBuilder
+                .setParameter("alphaExp", "$(7 + 1)*%alpha - 3")
+                .setParameter(parameterName, "%alphaExp")
+                .build();
+        final long expResult = -43L;
+        final long result = sut.getLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+    
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetLongParameter6() {
+        System.out.println("getLongParameter");
+        final String parameterName = "omega";
+        sutBuilder.build().getLongParameter(parameterName);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter1() {
+        System.out.println("getOptionalLongParameter");
+        final String parameterName = "alpha";
+        final Option<Long> expResult = new Option<>(-5L);
+        final Option<Long> result = sutBuilder.build().getOptionalLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter2() {
+        System.out.println("getOptionalLongParameter");
+        final String parameterName = "omega";
+        final Option<Long> expResult = Option.NONE;
+        final Option<Long> result = sutBuilder.build().getOptionalLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter3() {
+        System.out.println("getOptionalLongParameter reference");
+        final String parameterName = "alphaRef";
+        final Option<Long> expResult = new Option<>(-5L);
+        final Option<Long> result = sutBuilder.build().getOptionalLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter4() {
+        System.out.println("getOptionalLongParameter expression");
+        final String parameterName = "alphaExp";
+        final Parameters sut = sutBuilder
+                .setParameter(parameterName, "$(7 + 1)*%alpha - 3")
+                .build();
+        final Option<Long> expResult = new Option<>(-43L);
+        final Option<Long> result = sut.getOptionalLongParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter5() {
+        System.out.println("getOptionalLongParameter two-args");
+        final String parameterName = "alpha";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "8")
+                .build();
+        final long expResult = -5L;
+        final long result = sut.getOptionalLongParameter(parameterName, defaultParameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter6() {
+        System.out.println("getOptionalLongParameter two-args");
+        final String parameterName = "omega";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "8")
+                .build();
+        final long expResult = 8L;
+        final long result = sut.getOptionalLongParameter(parameterName, defaultParameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter7() {
+        System.out.println("getOptionalLongParameter three-args");
+        final String parameterName = "alpha";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "8")
+                .build();
+        final long expResult = -5L;
+        final long result = sut.getOptionalLongParameter(parameterName, defaultParameterName, 100);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter8() {
+        System.out.println("getOptionalLongParameter three-args");
+        final String parameterName = "omega";
+        final String defaultParameterName = "alpha2";
+        final long expResult = 2L * (long)Integer.MAX_VALUE;
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, Long.toString(expResult))
+                .build();
+        final long result = sut.getOptionalLongParameter(parameterName, defaultParameterName, 100);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalIntParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalLongParameter9() {
+        System.out.println("getOptionalLongParameter three-args");
+        final String parameterName = "omega";
+        final String defaultParameterName = "alpha2";
+        final Parameters sut = sutBuilder.build();
+        final long expResult = 100L;
+        final long result = sut.getOptionalLongParameter(parameterName, defaultParameterName, 100);
         assertEquals(expResult, result);
     }
     // </editor-fold>
@@ -367,14 +626,22 @@ public class ParametersTest {
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
     }
+    
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetLongParameter14() {
+        System.out.println("getBooleanParameter");
+        final String parameterName = "omega";
+        sutBuilder.build().getBooleanParameter(parameterName);
+    }
 
     /** Test of getOptionalBooleanParameter method, of class Parameters. */
     @Test
     public void testGetOptionalBooleanParameter1() {
         System.out.println("getOptionalBooleanParameter");
-        String parameterName = "gamma";
-        Option expResult = new Option<>(true);
-        Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
+        final String parameterName = "gamma";
+        final Option expResult = new Option<>(true);
+        final Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
         assertEquals(expResult, result);
     }
 
@@ -382,9 +649,9 @@ public class ParametersTest {
     @Test
     public void testGetOptionalBooleanParameter2() {
         System.out.println("getOptionalBooleanParameter reference");
-        String parameterName = "gammaRef";
-        Option expResult = new Option<>(true);
-        Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
+        final String parameterName = "gammaRef";
+        final Option expResult = new Option<>(true);
+        final Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
         assertEquals(expResult, result);
     }
 
@@ -392,9 +659,9 @@ public class ParametersTest {
     @Test
     public void testGetOptionalBooleanParameter3() {
         System.out.println("getOptionalBooleanParameter");
-        String parameterName = "epsilon";
-        Option expResult = new Option<>(false);
-        Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
+        final String parameterName = "epsilon";
+        final Option expResult = new Option<>(false);
+        final Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
         assertEquals(expResult, result);
     }
 
@@ -402,9 +669,9 @@ public class ParametersTest {
     @Test
     public void testGetOptionalBooleanParameter4() {
         System.out.println("getOptionalBooleanParameter reference");
-        String parameterName = "epsilonRef";
-        Option expResult = new Option<>(false);
-        Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
+        final String parameterName = "epsilonRef";
+        final Option expResult = new Option<>(false);
+        final Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
         assertEquals(expResult, result);
     }
 
@@ -412,9 +679,81 @@ public class ParametersTest {
     @Test
     public void testGetOptionalBooleanParameter5() {
         System.out.println("getOptionalBooleanParameter");
-        String parameterName = "omega";
-        Option expResult = Option.NONE;
-        Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
+        final String parameterName = "omega";
+        final Option expResult = Option.NONE;
+        final Option result = sutBuilder.build().getOptionalBooleanParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalBooleanParameter6() {
+        System.out.println("getOptionalBooleanParameter two-args");
+        final String parameterName = "gamma";
+        final String defaultParameterName = "gamma2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "false")
+                .build();
+        final boolean expResult = true;
+        final boolean result = sut.getOptionalBooleanParameter(parameterName, defaultParameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalBooleanParameter7() {
+        System.out.println("getOptionalBooleanParameter two-args");
+        final String parameterName = "gamma";
+        final String defaultParameterName = "gamma2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .setParameter(defaultParameterName, "false")
+                .build();
+        final boolean expResult = false;
+        final boolean result = sut.getOptionalBooleanParameter(parameterName, defaultParameterName);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalBooleanParameter8() {
+        System.out.println("getOptionalBooleanParameter three-args");
+        final String parameterName = "gamma";
+        final String defaultParameterName = "gamma2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameterName, "false")
+                .build();
+        final boolean expResult = true;
+        final boolean result = sut.getOptionalBooleanParameter(parameterName, defaultParameterName, false);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalBooleanParameter9() {
+        System.out.println("getOptionalBooleanParameter three-args");
+        final String parameterName = "gamma";
+        final String defaultParameterName = "gamma2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .setParameter(defaultParameterName, "false")
+                .build();
+        final boolean expResult = false;
+        final boolean result = sut.getOptionalBooleanParameter(parameterName, defaultParameterName, true);
+        assertEquals(expResult, result);
+    }
+
+    /** Test of getOptionalBooleanParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalBooleanParameter10() {
+        System.out.println("getOptionalBooleanParameter three-args");
+        final String parameterName = "gamma";
+        final String defaultParameterName = "gamma2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .build();
+        final boolean expResult = false;
+        final boolean result = sut.getOptionalBooleanParameter(parameterName, defaultParameterName, false);
         assertEquals(expResult, result);
     }
     // </editor-fold>
@@ -517,6 +856,14 @@ public class ParametersTest {
         assertEquals(expResult, result, 0.0000001);
         assertTrue(sut.repOK());
     }
+    
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetDoubleParameter9() {
+        System.out.println("getDoubleParameter");
+        final String parameterName = "omega";
+        sutBuilder.build().getDoubleParameter(parameterName);
+    }
 
     /** Test of getOptionalDoubleParameter method, of class Parameters. */
     @Test
@@ -537,6 +884,81 @@ public class ParametersTest {
         final Option result = sutBuilder.build().getOptionalDoubleParameter(parameterName);
         assertEquals(expResult, result);
     }
+    
+    /** Test of getDoubleParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleParameter3() {
+        System.out.println("getOptionalDoubleParameter two-args");
+        final String parameterName = "beta";
+        final String defaultParameter = "beta2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87")
+                .build();
+        final double expResult = 0.72;
+        final double result = sut.getOptionalDoubleParameter(parameterName, defaultParameter);
+        assertEquals(expResult, result, 0.0000001);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getDoubleParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleParameter4() {
+        System.out.println("getOptionalDoubleParameter two-args");
+        final String parameterName = "omega";
+        final String defaultParameter = "beta2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87")
+                .build();
+        final double expResult = 100.87;
+        final double result = sut.getOptionalDoubleParameter(parameterName, defaultParameter);
+        assertEquals(expResult, result, 0.0000001);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getDoubleParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleParameter5() {
+        System.out.println("getOptionalDoubleParameter three-args");
+        final String parameterName = "beta";
+        final String defaultParameter = "beta2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87")
+                .build();
+        final double expResult = 0.72;
+        final double result = sut.getOptionalDoubleParameter(parameterName, defaultParameter, -0.0009);
+        assertEquals(expResult, result, 0.0000001);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getDoubleParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleParameter6() {
+        System.out.println("getOptionalDoubleParameter three-args");
+        final String parameterName = "omega";
+        final String defaultParameter = "beta2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87")
+                .build();
+        final double expResult = 100.87;
+        final double result = sut.getOptionalDoubleParameter(parameterName, defaultParameter, -0.0009);
+        assertEquals(expResult, result, 0.0000001);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getDoubleParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleParameter7() {
+        System.out.println("getOptionalDoubleParameter three-args");
+        final String parameterName = "beta";
+        final String defaultParameter = "beta2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .build();
+        final double expResult = -0.0009;
+        final double result = sut.getOptionalDoubleParameter(parameterName, defaultParameter, -0.0009);
+        assertEquals(expResult, result, 0.0000001);
+        assertTrue(sut.repOK());
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Double Array">
@@ -544,9 +966,9 @@ public class ParametersTest {
     @Test
     public void testGetDoubleArrayParameter1() {
         System.out.println("getDoubleArrayParameter");
-        String parameterName = "dArray";
-        double[] expResult = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5 };
-        double[] result = sutBuilder.build().getDoubleArrayParameter(parameterName);
+        final String parameterName = "dArray";
+        final double[] expResult = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5 };
+        final double[] result = sutBuilder.build().getDoubleArrayParameter(parameterName);
         assertArrayEquals(expResult, result, 0.00001);
     }
 
@@ -554,11 +976,113 @@ public class ParametersTest {
     @Test
     public void testGetDoubleArrayParameter2() {
         System.out.println("getDoubleArrayParameter reference");
-        String parameterName = "dArrayRef";
-        double[] expResult = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5 };
-        double[] result = sutBuilder.build().getDoubleArrayParameter(parameterName);
+        final String parameterName = "dArrayRef";
+        final double[] expResult = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5 };
+        final double[] result = sutBuilder.build().getDoubleArrayParameter(parameterName);
         assertArrayEquals(expResult, result, 0.00001);
     }
+    
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetDoubleArrayParameter3() {
+        System.out.println("getDoubleArrayParameter");
+        final String parameterName = "omega";
+        sutBuilder.build().getDoubleArrayParameter(parameterName);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleArrayParameter1() {
+        System.out.println("getOptionalDoubleArrayParameter");
+        final String parameterName = "dArray";
+        final double[] expResult = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5 };
+        final Option<double[]> result = sutBuilder.build().getOptionalDoubleArrayParameter(parameterName);
+        assertTrue(result.isDefined());
+        assertArrayEquals(expResult, result.get(), 0.00001);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleArrayParameter2() {
+        System.out.println("getOptionalDoubleArrayParameter");
+        final String parameterName = "omega";
+        final Option<double[]> expResult = Option.NONE;
+        final Option<double[]> result = sutBuilder.build().getOptionalDoubleArrayParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleArrayParameter3() {
+        System.out.println("getOptionalDoubleArrayParameter two-args");
+        final String parameterName = "dArray";
+        final String defaultParameter = "dArray2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87, 18.6")
+                .build();
+        final double[] expResult = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5 };
+        final double[] result = sut.getOptionalDoubleArrayParameter(parameterName, defaultParameter);
+        assertArrayEquals(expResult, result, 0.00001);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleArrayParameter4() {
+        System.out.println("getOptionalDoubleArrayParameter two-args");
+        final String parameterName = "dArray";
+        final String defaultParameter = "dArray2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .setParameter(defaultParameter, "100.87, 18.6")
+                .build();
+        final double[] expResult = new double[] { 100.87, 18.6 };
+        final double[] result = sut.getOptionalDoubleArrayParameter(parameterName, defaultParameter);
+        assertArrayEquals(expResult, result, 0.00001);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleArrayParameter5() {
+        System.out.println("getOptionalDoubleArrayParameter three-args");
+        final String parameterName = "dArray";
+        final String defaultParameter = "dArray2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87, 18.6")
+                .build();
+        final double[] expResult = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5 };
+        final double[] result = sut.getOptionalDoubleArrayParameter(parameterName, defaultParameter, new double[] { -19.0, Double.NaN });
+        assertArrayEquals(expResult, result, 0.00001);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleArrayParameter6() {
+        System.out.println("getOptionalDoubleArrayParameter three-args");
+        final String parameterName = "dArray";
+        final String defaultParameter = "dArray2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .setParameter(defaultParameter, "100.87, 18.6")
+                .build();
+        final double[] expResult = new double[] { 100.87, 18.6 };
+        final double[] result = sut.getOptionalDoubleArrayParameter(parameterName, defaultParameter, new double[] { -19.0, Double.NaN });
+        assertArrayEquals(expResult, result, 0.00001);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalDoubleArrayParameter7() {
+        System.out.println("getOptionalDoubleArrayParameter three-args");
+        final String parameterName = "dArray";
+        final String defaultParameter = "dArray2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .build();
+        final double[] expResult = new double[] { -19.0, Double.NaN };
+        final double[] result = sut.getOptionalDoubleArrayParameter(parameterName, defaultParameter, new double[] { -19.0, Double.NaN });
+        assertArrayEquals(expResult, result, 0.00001);
+    }
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="String">
@@ -629,6 +1153,14 @@ public class ParametersTest {
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
     }
+    
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetStringParameter7() {
+        System.out.println("getStringParameter");
+        final String parameterName = "omega";
+        sutBuilder.build().getStringParameter(parameterName);
+    }
 
     /** Test of getOptionalStringParameter method, of class Parameters. */
     @Test
@@ -673,11 +1205,213 @@ public class ParametersTest {
         final Option result = sutBuilder.build().getOptionalStringParameter(parameterName);
         assertEquals(expResult, result);
     }
+
+    /** Test of getStringParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringParameter5() {
+        System.out.println("getOptionalStringParameter two-args");
+        final String parameterName = "gamma";
+        final Parameters sut = sutBuilder
+                .build();
+        final String expResult = "true";
+        final String result = sut.getOptionalStringParameter(parameterName, "This is a default value.");
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getStringParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringParameter6() {
+        System.out.println("getOptionalStringParameter two-args");
+        final String parameterName = "gamma";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .build();
+        final String expResult = "This is a default value.";
+        final String result = sut.getOptionalStringParameter(parameterName, "This is a default value.");
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getStringParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringParameter7() {
+        System.out.println("getOptionalStringParameter three-args");
+        final String parameterName = "gamma";
+        final String defaultParameter = "gamma2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "Hide! Uh.")
+                .build();
+        final String expResult = "true";
+        final String result = sut.getOptionalStringParameter(parameterName, defaultParameter, "Downtown.");
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getStringParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringParameter8() {
+        System.out.println("getOptionalStringParameter three-args");
+        final String parameterName = "gamma";
+        final String defaultParameter = "gamma2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .setParameter(defaultParameter, "Hide! Uh.")
+                .build();
+        final String expResult = "Hide! Uh.";
+        final String result = sut.getOptionalStringParameter(parameterName, defaultParameter, "Downtown.");
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getStringParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringParameter9() {
+        System.out.println("getOptionalStringParameter three-args");
+        final String parameterName = "gamma";
+        final String defaultParameter = "gamma2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .build();
+        final String expResult = "Downtown.";
+        final String result = sut.getOptionalStringParameter(parameterName, defaultParameter, "Downtown.");
+        assertEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="String Array">
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetStringArrayParameter1() {
+        System.out.println("getStringArrayParameter");
+        final String parameterName = "sArray";
+        final String[] expResult = new String[] { "Hello", "world", "foo", "bar", "baz", "qux" };
+        final String[] result = sutBuilder.build().getStringArrayParameter(parameterName);
+        assertArrayEquals(expResult, result);
+    }
+
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetStringArrayParameter2() {
+        System.out.println("getStringArrayParameter reference");
+        final String parameterName = "sArrayRef";
+        final String[] expResult = new String[] { "Hello", "world", "foo", "bar", "baz", "qux" };
+        final String[] result = sutBuilder.build().getStringArrayParameter(parameterName);
+        assertArrayEquals(expResult, result);
+    }
+    
+    /** Test of getIntParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetStringArrayParameter3() {
+        System.out.println("getStringArrayParameter");
+        final String parameterName = "omega";
+        sutBuilder.build().getStringArrayParameter(parameterName);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringArrayParameter1() {
+        System.out.println("getStringArrayParameter");
+        final String parameterName = "sArray";
+        final String[] expResult = new String[] { "Hello", "world", "foo", "bar", "baz", "qux" };
+        final Option<String[]> result = sutBuilder.build().getOptionalStringArrayParameter(parameterName);
+        assertTrue(result.isDefined());
+        assertArrayEquals(expResult, result.get());
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringArrayParameter2() {
+        System.out.println("getStringArrayParameter");
+        final String parameterName = "omega";
+        final Option<String[]> expResult = Option.NONE;
+        final Option<String[]> result = sutBuilder.build().getOptionalStringArrayParameter(parameterName);
+        assertEquals(expResult, result);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringArrayParameter3() {
+        System.out.println("getStringArrayParameter two-args");
+        final String parameterName = "sArray";
+        final String defaultParameter = "sArray2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87, 18.6, *snicker*")
+                .build();
+        final String[] expResult = new String[] { "Hello", "world", "foo", "bar", "baz", "qux" };
+        final String[] result = sut.getOptionalStringArrayParameter(parameterName, defaultParameter);
+        assertArrayEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringArrayParameter4() {
+        System.out.println("getStringArrayParameter two-args");
+        final String parameterName = "sArray";
+        final String defaultParameter = "sArray2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .setParameter(defaultParameter, "100.87, 18.6, *snicker*")
+                .build();
+        final String[] expResult = new String[] { "100.87", "18.6", "*snicker*" };
+        final String[] result = sut.getOptionalStringArrayParameter(parameterName, defaultParameter);
+        assertArrayEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringArrayParameter5() {
+        System.out.println("getStringArrayParameter three-args");
+        final String parameterName = "sArray";
+        final String defaultParameter = "sArray2";
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "100.87, 18.6, *snicker*")
+                .build();
+        final String[] expResult = new String[] { "Hello", "world", "foo", "bar", "baz", "qux" };
+        final String[] result = sut.getOptionalStringArrayParameter(parameterName, defaultParameter, new String[] { "Lorem", "Ipsum" });
+        assertArrayEquals(expResult, result);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringArrayParameter6() {
+        System.out.println("getStringArrayParameter three-args");
+        final String parameterName = "sArray";
+        final String defaultParameter = "sArray2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .setParameter(defaultParameter, "100.87, 18.6, *snicker*")
+                .build();
+        final String[] expResult = new String[] { "100.87", "18.6", "*snicker*" };
+        final String[] result = sut.getOptionalStringArrayParameter(parameterName, defaultParameter, new String[] { "Lorem", "Ipsum" });
+        assertArrayEquals(expResult, result);
+    }
+    
+    /** Test of getDoubleArrayParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalStringArrayParameter7() {
+        System.out.println("getStringArrayParameter three-args");
+        final String parameterName = "sArray";
+        final String defaultParameter = "sArray2";
+        final Parameters sut = sutBuilder
+                .clearParameter(parameterName)
+                .build();
+        final String[] expResult = new String[] { "Lorem", "Ipsum" };
+        final String[] result = sut.getOptionalStringArrayParameter(parameterName, defaultParameter, new String[] { "Lorem", "Ipsum" });
+        assertArrayEquals(expResult, result);
+    }
+    
     // </editor-fold>
 
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Instances">
+    
+    // <editor-fold defaultstate="collapsed" desc="Single Instances">
     /** Test of getInstanceFromParameter method, of class Parameters. */
     @Test
     public void testGetInstanceFromParameter1() {
@@ -741,7 +1475,9 @@ public class ParametersTest {
         final Option<Object> result = sutBuilder.build().getOptionalInstanceFromParameter(parameterName, SphereObjective.class);
         assertEquals(expResult, result);
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="List of Instances">
     /** Test of getInstancesFromParameter method, of class Parameters. */
     @Test
     public void testGetInstancesFromParameter() {
@@ -760,6 +1496,7 @@ public class ParametersTest {
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
+    // </editor-fold>
     // </editor-fold>
 
     /** Test of equals method, of class Parameters. */
