@@ -616,11 +616,30 @@ public class Parameters extends ContractObject {
             return Option.NONE;
     }
     
+    public <T> Option<T> getOptionalNewInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(expectedSuperClass != null);
+        if (properties.containsKey(parameterName))
+            return new Option<>((T) getNewInstanceFromParameter(parameterName, expectedSuperClass));
+        else
+            return Option.NONE;
+    }
+    
     public <T> T getOptionalInstanceFromParameter(final String parameterName, final T deflt) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(deflt != null);
         final Option<T> opt = getOptionalInstanceFromParameter(parameterName, deflt.getClass());
+        assert(repOK());
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
+    public <T> T getOptionalNewInstanceFromParameter(final String parameterName, final T deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(deflt != null);
+        final Option<T> opt = getOptionalNewInstanceFromParameter(parameterName, deflt.getClass());
         assert(repOK());
         return opt.isDefined() ? opt.get() : deflt;
     }
@@ -637,6 +656,18 @@ public class Parameters extends ContractObject {
         return getInstanceFromParameter(defaultParameterName, expectedSuperClass);
     }
     
+    public <T> T getOptionalNewInstanceFromParameter(final String parameterName, final String defaultParameterName, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameterName != null);
+        assert(!defaultParameterName.isEmpty());
+        final Option<T> opt = getOptionalNewInstanceFromParameter(parameterName, expectedSuperClass);
+        assert(repOK());
+        if (opt.isDefined())
+            return opt.get();
+        return getNewInstanceFromParameter(defaultParameterName, expectedSuperClass);
+    }
+    
     public <T> T getOptionalInstanceFromParameter(final String parameterName, final String defaultParameterName, final T defaultValue) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
@@ -647,6 +678,18 @@ public class Parameters extends ContractObject {
         if (opt.isDefined())
             return opt.get();
         return getOptionalInstanceFromParameter(defaultParameterName, defaultValue);
+    }
+    
+    public <T> T getOptionalNewInstanceFromParameter(final String parameterName, final String defaultParameterName, final T defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameterName != null);
+        assert(!defaultParameterName.isEmpty());
+        final Option<T> opt = getOptionalNewInstanceFromParameter(parameterName, defaultValue.getClass());
+        assert(repOK());
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalNewInstanceFromParameter(defaultParameterName, defaultValue);
     }
     // </editor-fold>
     
