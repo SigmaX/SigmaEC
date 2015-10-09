@@ -20,10 +20,10 @@ import java.util.logging.Logger;
  * @author Eric 'Siggy' Scott
  */
 public class Parameters extends ContractObject {
-    private final static String LIST_DELIMITER = ",";
-    private final static String PROPERTY_DELIMITER = ".";
-    private final static char REFERENCE_SYMBOL = '%';
-    private final static char EXPRESSION_SYMBOL = '$';
+    public final static String LIST_DELIMITER = ",";
+    public final static String PROPERTY_DELIMITER = ".";
+    public final static char REFERENCE_SYMBOL = '%';
+    public final static char EXPRESSION_SYMBOL = '$';
     
     private final Properties properties;
     // Used to store instances that are referenced by other parameters with the "%param" syntax.
@@ -33,14 +33,14 @@ public class Parameters extends ContractObject {
     public Parameters(final Properties properties) {
         assert(properties != null);
         this.properties = (Properties) properties.clone();
-        this.instanceRegistry = new HashMap<String, Object>();
+        this.instanceRegistry = new HashMap<>();
         assert(repOK());
     }
     
     private Parameters(final Builder builder) {
         assert(builder != null);
-        this.properties = builder.properties;
-        this.instanceRegistry = builder.instanceRegistry;
+        this.properties = (Properties) builder.properties.clone();
+        this.instanceRegistry = new HashMap<>(builder.instanceRegistry);
     }
     
     public static class Builder {
@@ -96,6 +96,7 @@ public class Parameters extends ContractObject {
     
     private static boolean isReference(final String parameterValue) {
         assert(parameterValue != null);
+        assert(!parameterValue.isEmpty());
         return parameterValue.charAt(0) == REFERENCE_SYMBOL && !parameterValue.contains(LIST_DELIMITER);
     }
     
@@ -632,10 +633,11 @@ public class Parameters extends ContractObject {
     // <editor-fold defaultstate="collapsed" desc="List of Instances">
     public <T> List<T> getInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
         final String value = properties.getProperty(parameterName);
-        if (value == null)
-            throw new IllegalStateException(String.format("%s: Parameter '%s' was not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (value == null || value.isEmpty())
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was empty or not found in properties.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value))
             return (List<T>) instanceRegistry.get(dereferenceToValue(value));
         
@@ -656,6 +658,7 @@ public class Parameters extends ContractObject {
     
     public <T> Option<List<T>> getOptionalInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
         if (properties.containsKey(parameterName))
             return new Option<>((List<T>) getInstancesFromParameter(parameterName, expectedSuperClass));
@@ -664,18 +667,53 @@ public class Parameters extends ContractObject {
     }
     
     public <T> List<T> getOptionalInstancesFromParameter(final String parameterName, final List<T> deflt, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(deflt != null);
+        assert(!deflt.isEmpty());
+        assert(!Misc.containsNulls(deflt));
         final Option<List<T>> opt = getOptionalInstancesFromParameter(parameterName, expectedSuperClass);
         return opt.isDefined() ? opt.get() : deflt;
     }
+    
+    public <T> List<T> getOptionalInstancesFromParameter(final String parameterName, final String defaultParameter, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<List<T>> opt = getOptionalInstancesFromParameter(parameterName, expectedSuperClass);
+        if (opt.isDefined())
+            return opt.get();
+        return getInstancesFromParameter(defaultParameter, expectedSuperClass);
+    }
+    
+    public <T> List<T> getOptionalInstancesFromParameter(final String parameterName, final String defaultParameter, final List<T> deflt, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        assert(deflt != null);
+        assert(!deflt.isEmpty());
+        assert(!Misc.containsNulls(deflt));
+        final Option<List<T>> opt = getOptionalInstancesFromParameter(parameterName, expectedSuperClass);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalInstancesFromParameter(defaultParameter, deflt, expectedSuperClass);
+    }
     // <?editor-fold>
+    
+    // </editor-fold>
     
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return properties != null
+        return LIST_DELIMITER != null
+                && !LIST_DELIMITER.isEmpty()
+                && PROPERTY_DELIMITER != null
+                && !PROPERTY_DELIMITER.isEmpty()
+                && properties != null
                 && instanceRegistry != null;
     }
 
