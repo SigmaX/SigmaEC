@@ -561,11 +561,11 @@ public class Parameters extends ContractObject {
         assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
         final String value = properties.getProperty(parameterName);
-        if (value == null)
+        if (value == null || value.isEmpty())
             if (instanceRegistry.containsKey(parameterName))
                 return (T) instanceRegistry.get(parameterName);
             else
-                throw new IllegalStateException(String.format("%s: Parameter '%s' was not found.", Parameters.class.getSimpleName(), parameterName));
+                throw new IllegalStateException(String.format("%s: Parameter '%s' was empty or not found.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value)) {
             final String drefVal = dereferenceToValue(value);
             if (instanceRegistry.containsKey(drefVal))
@@ -582,6 +582,26 @@ public class Parameters extends ContractObject {
             result = (T) instanceRegistry.get(parameterName);
         else
             result = getInstanceFromClassName(value, parameterName, expectedSuperClass);
+        registerInstance(parameterName, result);
+        return result;
+    }
+    
+    public <T> T getNewInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(expectedSuperClass != null);
+        final String value = properties.getProperty(parameterName);
+        if (value == null || value.isEmpty())
+                throw new IllegalStateException(String.format("%s: Parameter '%s' was empty or not found.", Parameters.class.getSimpleName(), parameterName));
+        if (isReference(value)) {
+            final String drefVal = dereferenceToValue(value);
+            final String drefParam = dereferenceToParameter(value);
+            final T result = getInstanceFromClassName(drefVal, drefParam, expectedSuperClass);
+            registerInstance(drefParam, result);
+            return result;
+        }
+        final T result;
+        result = getInstanceFromClassName(value, parameterName, expectedSuperClass);
         registerInstance(parameterName, result);
         return result;
     }

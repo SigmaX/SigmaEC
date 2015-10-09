@@ -1490,6 +1490,8 @@ public class ParametersTest {
         final String parameterName = Parameters.push("test", "objective2");
         final Parameters sut = sutBuilder
                 .registerInstance(Parameters.push("test", "objective2"), sphereObjective)
+                .setParameter("test.objective2", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective2.numDimensions", "5")
                 .build();
         final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
                 .setParameter("obj.numDimensions", "5")
@@ -1541,6 +1543,127 @@ public class ParametersTest {
                 .setParameter("test.objective1", "%omega")
                 .build();
         sut.getInstanceFromParameter(parameterName, SphereObjective.class);
+    }
+    @Test
+    public void testGetInstanceFromParameter7() {
+        System.out.println("getInstanceFromParameter");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Object result1 = sut.getInstanceFromParameter(parameterName, SphereObjective.class);
+        final Object result2 = sut.getInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result1);
+        assertEquals(expResult, result2);
+        assertFalse(result1 == sphereObjective);
+        assertFalse(result1 == expResult);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+    
+    /** Test of getNewInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetNewInstanceFromParameter1() {
+        System.out.println("getNewInstanceFromParameter");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Object result1 = sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
+        final Object result2 = sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result1);
+        assertEquals(expResult, result2);
+        assertFalse(result1 == sphereObjective);
+        assertFalse(result1 == expResult);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetNewInstanceFromParameter2() {
+        System.out.println("getNewInstanceFromParameter");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Object result = sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result);
+        assertFalse(result == sphereObjective);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetNewInstanceFromParameter3() {
+        System.out.println("getNewInstanceFromParameter from registry");
+        final String parameterName = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder
+                .registerInstance(Parameters.push("test", "objective2"), sphereObjective)
+                .setParameter("test.objective2", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective2.numDimensions", "5")
+                .build();
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "5")
+                .build(), "obj");
+        final Object result = sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result);
+        assertEquals(sphereObjective, result);
+        assertFalse(result == sphereObjective);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test (expected = IllegalStateException.class)
+    public void testGetNewInstanceFromParameter4() {
+        System.out.println("getNewInstanceFromParameter bad class name");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "omega.badpackage.awefipahewfiawe")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
+    }
+    
+    @Test (expected = IllegalStateException.class)
+    public void testGetNewInstanceFromParameter5() {
+        System.out.println("getNewInstanceFromParameter missing required sub-parameter");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .build();
+        sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
+    }
+    
+    @Test (expected = IllegalStateException.class)
+    public void testGetNewInstanceFromParameter6() {
+        System.out.println("getNewInstanceFromParameter incorrect expected class");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        sut.getNewInstanceFromParameter(parameterName, String.class);
+    }
+    
+    @Test (expected = IllegalStateException.class)
+    public void testGetNewInstanceFromParameter7() {
+        System.out.println("getNewInstanceFromParameter bad class name");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "%omega")
+                .build();
+        sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
     }
 
     /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
