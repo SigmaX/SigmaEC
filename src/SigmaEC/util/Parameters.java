@@ -527,6 +527,8 @@ public class Parameters extends ContractObject {
     //</editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc="Instances">
+    
+    // <editor-fold defaultstate="collapsed" desc="Single Instances">
     private <T> T getInstanceFromClassName(final String className, final String parameterName, final Class expectedSuperClass) {
         // Check that the class exists and is the expected subtype
         final Class c;
@@ -548,13 +550,14 @@ public class Parameters extends ContractObject {
    
     private void registerInstance(final String parameterName, final Object instance) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(instance != null);
-        //if (properties.containsValue(REFERENCE_SYMBOL + parameterName))
         instanceRegistry.put(parameterName, instance);
     }
     
     public <T> T getInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
         final String value = properties.getProperty(parameterName);
         if (value == null)
@@ -584,19 +587,49 @@ public class Parameters extends ContractObject {
     
     public <T> Option<T> getOptionalInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
         if (properties.containsKey(parameterName))
-            return new Option<T>((T) getInstanceFromParameter(parameterName, expectedSuperClass));
+            return new Option<>((T) getInstanceFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;
     }
     
     public <T> T getOptionalInstanceFromParameter(final String parameterName, final T deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         assert(deflt != null);
         final Option<T> opt = getOptionalInstanceFromParameter(parameterName, deflt.getClass());
+        assert(repOK());
         return opt.isDefined() ? opt.get() : deflt;
     }
     
+    public <T> T getOptionalInstanceFromParameter(final String parameterName, final String defaultParameterName, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameterName != null);
+        assert(!defaultParameterName.isEmpty());
+        final Option<T> opt = getOptionalInstanceFromParameter(parameterName, expectedSuperClass);
+        assert(repOK());
+        if (opt.isDefined())
+            return opt.get();
+        return getInstanceFromParameter(defaultParameterName, expectedSuperClass);
+    }
+    
+    public <T> T getOptionalInstanceFromParameter(final String parameterName, final String defaultParameterName, final T defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameterName != null);
+        assert(!defaultParameterName.isEmpty());
+        final Option<T> opt = getOptionalInstanceFromParameter(parameterName, defaultValue.getClass());
+        assert(repOK());
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalInstanceFromParameter(defaultParameterName, defaultValue);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="List of Instances">
     public <T> List<T> getInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(expectedSuperClass != null);
@@ -635,6 +668,8 @@ public class Parameters extends ContractObject {
         final Option<List<T>> opt = getOptionalInstancesFromParameter(parameterName, expectedSuperClass);
         return opt.isDefined() ? opt.get() : deflt;
     }
+    // <?editor-fold>
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
