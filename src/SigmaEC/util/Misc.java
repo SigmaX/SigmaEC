@@ -12,6 +12,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -236,5 +237,26 @@ public final class Misc
         for (int i = 0; i < array.length; i++)
             array[i] = val;
         return array;
+    }
+    
+    /** @return true iff the two collections contain the exact same
+     * elements in the exact same order.
+     */
+    public static boolean shallowEquals(final Iterable a, final Iterable b) {
+        assert(a != null);
+        assert(b != null);
+        
+        final Iterator itA = a.iterator();
+        final Iterator itB = b.iterator();
+        while (itA.hasNext()) {
+            if (!itB.hasNext())
+                return false;
+            if (itA.next() != itB.next())
+                return false;
+        }
+        assert(!itA.hasNext());
+        if (itB.hasNext())
+            return false;
+        return true;
     }
 }

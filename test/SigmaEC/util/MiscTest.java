@@ -2,7 +2,7 @@ package SigmaEC.util;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Random;
+import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -12,10 +12,9 @@ import static org.junit.Assert.*;
  */
 public class MiscTest {
     
-    public MiscTest()
-    {
-    }
+    public MiscTest() { }
     
+    // <editor-fold defaultstate="collapsed" desc="containsOnlyClass">
     /** Test of containsOnlyClass method, of class Misc. */
     @Test
     public void testContainsOnlyClass1() {
@@ -46,7 +45,9 @@ public class MiscTest {
         assertTrue(Misc.containsOnlyClass(collection, Integer.class));
         assertTrue(Misc.containsOnlyClass(collection, Double.class));
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="containsNulls">
     /** Test of containsNulls method, of class Misc. */
     @Test
     public void testContainsNulls1() {
@@ -144,6 +145,9 @@ public class MiscTest {
         final IDoublePoint[] array = new IDoublePoint[] { new IDoublePoint(0.0, 0.0), new IDoublePoint(1.0, -100.0), null };
         assertTrue(Misc.containsNulls(array));
     }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="containsNaNs">
     
     /** Test of containsNaNs method, of class Misc. */
     @Test
@@ -200,7 +204,9 @@ public class MiscTest {
         final double[] array = new double[] { 0.8, 34523453245.0, -3452345.123, Double.NaN };
         assertTrue(Misc.containsNaNs(array));
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="finiteValued">
     /** Test of finiteValued method, of class Misc. */
     @Test
     public void testFiniteValued1() {
@@ -256,7 +262,9 @@ public class MiscTest {
         final double[] array = new double[] { 0.8, 34523453245.0, -3452345.123, Double.NaN };
         assertFalse(Misc.finiteValued(array));
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="deepCopy2DArray">
     /** Test of deepCopy2DArray method, of class Misc. */
     @Test
     public void testDeepCopy2DArray1() {
@@ -299,7 +307,9 @@ public class MiscTest {
         assertFalse(copy == null);
         assertEquals(0, copy.length);
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="boundsOK">
     /** Test of boundsOK method, of class Misc. */
     @Test
     public void testBoundsOK1() {
@@ -355,12 +365,14 @@ public class MiscTest {
         };
         assertFalse(Misc.boundsOK(bounds));
     }
+    // </editor-fold>
     
     @Test
     public void testGaussianSample() {
         fail("This test case is a prototype.");
     }
-    
+
+    // <editor-fold defaultstate="collapsed" desc="doubleEquals">
     @Test
     public void testDoubleEquals1() {
         System.out.println("doubleEquals");
@@ -429,6 +441,7 @@ public class MiscTest {
         assert(a != b);
         assertFalse(Misc.doubleEquals(a, b));
     }
+    // </editor-fold>
     
     @Test
     public void testDoubleArrayEquals() {
@@ -475,4 +488,62 @@ public class MiscTest {
         fail("This test case is a prototype.");
     }
     
+    // <editor-fold defaultstate="collapsed" desc="shallowEquals">
+    @Test
+    public void testShallowEquals1() {
+        System.out.println("shallowEquals");
+        final List<String> list1 = new ArrayList<>();
+        list1.add(new String("Hello"));
+        list1.add(new String("world"));
+        final List<String> list2 = new ArrayList<>();
+        list2.add(new String("Hello"));
+        list2.add(new String("world"));
+        
+        assertTrue(Misc.shallowEquals(list1, list1));
+        assertTrue(Misc.shallowEquals(list2, list2));
+        assertFalse(Misc.shallowEquals(list1,list2));
+    }
+    
+    @Test
+    public void testShallowEquals2() {
+        System.out.println("shallowEquals");
+        final String s1 = new String("Hello");
+        final String s2 = new String("world");
+        final List<String> list1 = new ArrayList<>();
+        list1.add(s1);
+        list1.add(s2);
+        final List<String> list2 = new ArrayList<>();
+        list2.add(s1);
+        list2.add(s2);
+        
+        assertTrue(Misc.shallowEquals(list1, list1));
+        assertTrue(Misc.shallowEquals(list2, list2));
+        assertTrue(Misc.shallowEquals(list1,list2));
+        assertTrue(Misc.shallowEquals(list2,list1));
+    }
+    
+    @Test
+    public void testShallowEquals3() {
+        System.out.println("shallowEquals");
+        final List<String> list1 = new ArrayList<>();
+        final List<String> list2 = new ArrayList<>();
+        assertTrue(Misc.shallowEquals(list1, list1));
+        assertTrue(Misc.shallowEquals(list2, list2));
+        assertTrue(Misc.shallowEquals(list1,list2));
+        assertTrue(Misc.shallowEquals(list2,list1));
+    }
+    
+    @Test
+    public void testShallowEquals4() {
+        System.out.println("shallowEquals");
+        final List<String> list1 = new ArrayList<>();
+        list1.add("Hello");
+        final List<String> list2 = new ArrayList<>();
+        list2.add("Hello"); list2.add("world");
+        assertTrue(Misc.shallowEquals(list1, list1));
+        assertTrue(Misc.shallowEquals(list2, list2));
+        assertFalse(Misc.shallowEquals(list1,list2));
+        assertFalse(Misc.shallowEquals(list2,list1));
+    }
+    // </editor-fold>
 }

@@ -716,7 +716,17 @@ public class Parameters extends ContractObject {
             }
         }};
         registerInstance(parameterName, result);
+        assert(repOK());
         return result;
+    }
+    
+    public <T> List<T> getNewInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(expectedSuperClass != null);
+        
+        assert(repOK());
+        return null;
     }
     
     public <T> Option<List<T>> getOptionalInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
@@ -725,6 +735,16 @@ public class Parameters extends ContractObject {
         assert(expectedSuperClass != null);
         if (properties.containsKey(parameterName))
             return new Option<>((List<T>) getInstancesFromParameter(parameterName, expectedSuperClass));
+        else
+            return Option.NONE;
+    }
+    
+    public <T> Option<List<T>> getOptionalNewInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(expectedSuperClass != null);
+        if (properties.containsKey(parameterName))
+            return new Option<>((List<T>) getNewInstancesFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;
     }
@@ -739,6 +759,16 @@ public class Parameters extends ContractObject {
         return opt.isDefined() ? opt.get() : deflt;
     }
     
+    public <T> List<T> getOptionalNewInstancesFromParameter(final String parameterName, final List<T> deflt, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(deflt != null);
+        assert(!deflt.isEmpty());
+        assert(!Misc.containsNulls(deflt));
+        final Option<List<T>> opt = getOptionalNewInstancesFromParameter(parameterName, expectedSuperClass);
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
     public <T> List<T> getOptionalInstancesFromParameter(final String parameterName, final String defaultParameter, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
@@ -748,6 +778,17 @@ public class Parameters extends ContractObject {
         if (opt.isDefined())
             return opt.get();
         return getInstancesFromParameter(defaultParameter, expectedSuperClass);
+    }
+    
+    public <T> List<T> getOptionalNewInstancesFromParameter(final String parameterName, final String defaultParameter, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<List<T>> opt = getOptionalNewInstancesFromParameter(parameterName, expectedSuperClass);
+        if (opt.isDefined())
+            return opt.get();
+        return getNewInstancesFromParameter(defaultParameter, expectedSuperClass);
     }
     
     public <T> List<T> getOptionalInstancesFromParameter(final String parameterName, final String defaultParameter, final List<T> deflt, final Class expectedSuperClass) {
@@ -762,6 +803,20 @@ public class Parameters extends ContractObject {
         if (opt.isDefined())
             return opt.get();
         return getOptionalInstancesFromParameter(defaultParameter, deflt, expectedSuperClass);
+    }
+    
+    public <T> List<T> getOptionalNewInstancesFromParameter(final String parameterName, final String defaultParameter, final List<T> deflt, final Class expectedSuperClass) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        assert(deflt != null);
+        assert(!deflt.isEmpty());
+        assert(!Misc.containsNulls(deflt));
+        final Option<List<T>> opt = getOptionalNewInstancesFromParameter(parameterName, expectedSuperClass);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalNewInstancesFromParameter(defaultParameter, deflt, expectedSuperClass);
     }
     // <?editor-fold>
     
