@@ -1502,6 +1502,24 @@ public class ParametersTest {
         assertTrue(result == sphereObjective);
         assertTrue(sut.repOK());
     }
+
+    /** Test of getInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetInstanceFromParameter2b() {
+        System.out.println("getInstanceFromParameter from registry");
+        final String parameterName = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder
+                .registerInstance(Parameters.push("test", "objective2"), sphereObjective)
+                .build();
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "5")
+                .build(), "obj");
+        final Object result = sut.getInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result);
+        assertEquals(sphereObjective, result);
+        assertTrue(result == sphereObjective);
+        assertTrue(sut.repOK());
+    }
     
     @Test (expected = IllegalStateException.class)
     public void testGetInstanceFromParameter3() {
@@ -1902,6 +1920,22 @@ public class ParametersTest {
     }
     
     @Test
+    public void testGetOptionalNewInstanceFromParameter2b() {
+        System.out.println("getOptionalNewInstanceFromParameter");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Option<Object> expResult = new Option(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .build();
+        final Option<Object> result = sut.getOptionalNewInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result);
+        assertFalse(result.get() == sphereObjective);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
     public void testGetOptionalNewInstanceFromParameter3() {
         System.out.println("getOptionalNewInstanceFromParameter");
         final String parameterName = Parameters.push("test", "objective1");
@@ -2148,6 +2182,7 @@ public class ParametersTest {
         assertTrue(Misc.shallowEquals(result1, result2));
         assertTrue(sut.repOK());
     }
+    
     @Test
     public void testGetNewInstancesFromParameter1() {
         System.out.println("getNewInstancesFromParameter");
@@ -2391,6 +2426,114 @@ public class ParametersTest {
     }
     
     @Test
+    public void testGetInstancesFromParameter9() {
+        System.out.println("getInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }};
+        final Parameters sut = sutBuilder
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
+                .registerInstance(parameterName, expResult)
+                .build();
+        final List<ObjectiveFunction> result = sut.getInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        
+        assertEquals(expResult, result);
+        assertTrue(expResult == result);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetNewInstancesFromParameter9() {
+        System.out.println("getNewInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }};
+        final Parameters sut = sutBuilder
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
+                .registerInstance(parameterName, expResult)
+                .build();
+        final List<ObjectiveFunction> result = sut.getNewInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        
+        assertEquals(expResult, result);
+        assertFalse(expResult == result);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetInstancesFromParameter10() {
+        System.out.println("getInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }};
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .build();
+        final List<ObjectiveFunction> result = sut.getInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        
+        assertEquals(expResult, result);
+        assertTrue(expResult == result);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetNewInstancesFromParameter10() {
+        System.out.println("getNewInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }};
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .build();
+        final List<ObjectiveFunction> result = sut.getNewInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        
+        assertEquals(expResult, result);
+        assertFalse(expResult == result);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
     public void testGetOptionalInstancesFromParameter1() {
         System.out.println("getOptionalInstancesFromParameter");
         final String parameterName = Parameters.push("test", "objectives");
@@ -2598,7 +2741,7 @@ public class ParametersTest {
     
     @Test
     public void testGetOptionalNewInstancesFromParameter6() {
-        System.out.println("getOptionalNewInstancesFromParameter");
+        System.out.println("getOptionalNewInstancesFromParameter with default");
         final String parameterName = Parameters.push("test", "objectives");
         final Parameters sut = sutBuilder
                 .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective")
@@ -2640,7 +2783,7 @@ public class ParametersTest {
     
     @Test
     public void testGetOptionalInstancesFromParameter7() {
-        System.out.println("getOptionalInstancesFromParameter");
+        System.out.println("getOptionalInstancesFromParameter with default");
         final String parameterName = Parameters.push("test", "objectives");
         final Parameters sut = sutBuilder
                 .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
@@ -2681,7 +2824,7 @@ public class ParametersTest {
     
     @Test
     public void testGetOptionalNewInstancesFromParameter7() {
-        System.out.println("getOptionalNewInstancesFromParameter");
+        System.out.println("getOptionalNewInstancesFromParameter with default");
         final String parameterName = Parameters.push("test", "objectives");
         final Parameters sut = sutBuilder
                 .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
@@ -2716,7 +2859,7 @@ public class ParametersTest {
         assertEquals(defaultValue, result1);
         assertTrue(defaultValue == result1);
         assertEquals(result1, result2);
-        assertFalse(Misc.shallowEquals(result1, result2));
+        assertTrue(Misc.shallowEquals(result1, result2));
         assertTrue(sut.repOK());
     }
     
@@ -3198,7 +3341,7 @@ public class ParametersTest {
         assertEquals(defaultValue, result1);
         assertTrue(defaultValue == result1);
         assertEquals(result1, result2);
-        assertFalse(Misc.shallowEquals(result1, result2));
+        assertTrue(Misc.shallowEquals(result1, result2));
         assertTrue(sut.repOK());
     }
     

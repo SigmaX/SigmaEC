@@ -724,9 +724,26 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
+        final String value = properties.getProperty(parameterName);
+        if (value == null || value.isEmpty())
+            throw new IllegalStateException(String.format("%s: Parameter '%s' was empty or not found in properties.", Parameters.class.getSimpleName(), parameterName));
+        if (isReference(value))
+            return getNewInstancesFromParameter(dereferenceToParameter(value), expectedSuperClass);
         
+        final String[] classNames = value.split(LIST_DELIMITER);
+        final List<T> result =  new ArrayList<T>() {{
+            for (int i = 0; i < classNames.length; i++) {
+                if (classNames[i].trim().isEmpty())
+                    throw new IllegalStateException(String.format("%s: encountered an empty element in the list defined by '%s'.", Parameters.class.getSimpleName(), parameterName));
+                if (isReference(classNames[i].trim()))
+                    add((T) getNewInstanceFromParameter(dereferenceToParameter(classNames[i].trim()), expectedSuperClass));
+                else
+                    add((T) getInstanceFromClassName(classNames[i].trim(), push(parameterName, String.valueOf(i)), expectedSuperClass));
+            }
+        }};
+        registerInstance(parameterName, result);
         assert(repOK());
-        return null;
+        return result;
     }
     
     public <T> Option<List<T>> getOptionalInstancesFromParameter(final String parameterName, final Class expectedSuperClass) {
