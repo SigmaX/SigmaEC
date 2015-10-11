@@ -1465,6 +1465,8 @@ public class ParametersTest {
     // <editor-fold defaultstate="collapsed" desc="Instances">
     
     // <editor-fold defaultstate="collapsed" desc="Single Instances">
+    
+    // <editor-fold defaultstate="collapsed" desc="Required (one arg)">
     /** Test of getInstanceFromParameter method, of class Parameters. */
     @Test
     public void testGetInstanceFromParameter1() {
@@ -1554,6 +1556,21 @@ public class ParametersTest {
     }
     
     @Test (expected = IllegalStateException.class)
+    public void testGetInstanceFromParameter5b() {
+        System.out.println("getInstanceFromParameter incorrect expected class");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "5")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        sut.getInstanceFromParameter(parameterName, String.class);
+    }
+    
+    @Test (expected = IllegalStateException.class)
     public void testGetInstanceFromParameter6() {
         System.out.println("getInstanceFromParameter bad class name");
         final String parameterName = Parameters.push("test", "objective1");
@@ -1582,7 +1599,9 @@ public class ParametersTest {
         assertTrue(result1 == result2);
         assertTrue(sut.repOK());
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Required New (one arg)">
     /** Test of getNewInstanceFromParameter method, of class Parameters. */
     @Test
     public void testGetNewInstanceFromParameter1() {
@@ -1641,6 +1660,20 @@ public class ParametersTest {
         assertFalse(result == sphereObjective);
         assertTrue(sut.repOK());
     }
+
+    /** Test of getInstanceFromParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetNewInstanceFromParameter3b() {
+        System.out.println("getNewInstanceFromParameter from registry");
+        final String parameterName = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder
+                .registerInstance(Parameters.push("test", "objective2"), sphereObjective)
+                .build();
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "5")
+                .build(), "obj");
+        sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
+    }
     
     @Test (expected = IllegalStateException.class)
     public void testGetNewInstanceFromParameter4() {
@@ -1675,6 +1708,21 @@ public class ParametersTest {
     }
     
     @Test (expected = IllegalStateException.class)
+    public void testGetNewInstanceFromParameter6b() {
+        System.out.println("getNewInstanceFromParameter incorrect expected class");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Object expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        sut.getNewInstanceFromParameter(parameterName, String.class);
+    }
+    
+    @Test (expected = IllegalStateException.class)
     public void testGetNewInstanceFromParameter7() {
         System.out.println("getNewInstanceFromParameter bad class name");
         final String parameterName = Parameters.push("test", "objective1");
@@ -1683,7 +1731,10 @@ public class ParametersTest {
                 .build();
         sut.getNewInstanceFromParameter(parameterName, SphereObjective.class);
     }
+    
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Optional (one arg)">
     /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
     @Test
     public void testGetOptionalInstanceFromParameter1() {
@@ -1701,6 +1752,42 @@ public class ParametersTest {
         assertFalse(result.get() == sphereObjective);
         assertTrue(sut.repOK());
     }
+    
+    @Test
+    public void testGetOptionalInstanceFromParameter1b() {
+        System.out.println("getOptionalInstanceFromParameter");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Option<Object> expResult = new Option(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult.get())
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        final Option<Object> result = sut.getOptionalInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result);
+        assertTrue(expResult.get() == result.get());
+        assertFalse(result.get() == sphereObjective);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalInstanceFromParameter1c() {
+        System.out.println("getOptionalInstanceFromParameter");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Option<Object> expResult = new Option(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult.get())
+                .build();
+        final Option<Object> result = sut.getOptionalInstanceFromParameter(parameterName, SphereObjective.class);
+        assertEquals(expResult, result);
+        assertTrue(expResult.get() == result.get());
+        assertFalse(result.get() == sphereObjective);
+        assertTrue(sut.repOK());
+    }
 
     /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
     @Test
@@ -1711,179 +1798,9 @@ public class ParametersTest {
         final Option<Object> result = sutBuilder.build().getOptionalInstanceFromParameter(parameterName, SphereObjective.class);
         assertEquals(expResult, result);
     }
-
-    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
-    @Test
-    public void testGetOptionalInstanceFromParameter3() {
-        System.out.println("getOptionalInstanceFromParameter with default value");
-        final String parameterName = Parameters.push("test", "objective1");
-        final Parameters sut = sutBuilder
-                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
-                .setParameter("test.objective1.numDimensions", "10")
-                .build();
-        final SphereObjective expResult = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "10")
-                .build(), "obj");
-        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "15")
-                .build(), "obj");
-        
-        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultValue);
-        
-        assertEquals(expResult, result);
-        assertNotEquals(sphereObjective, result);
-        assertNotEquals(defaultValue, result);
-        assertFalse(defaultValue == result);
-        assertTrue(sut.repOK());
-    }
-
-    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
-    @Test
-    public void testGetOptionalInstanceFromParameter4() {
-        System.out.println("getOptionalInstanceFromParameter with default value");
-        final String parameterName = Parameters.push("test", "objective1");
-        final Parameters sut = sutBuilder.build();
-        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "15")
-                .build(), "obj");
-        
-        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultValue);
-        
-        assertNotEquals(sphereObjective, result);
-        assertEquals(defaultValue, result);
-        assertTrue(defaultValue == result);
-        assertTrue(sut.repOK());
-    }
-
-    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
-    @Test
-    public void testGetOptionalInstanceFromParameter5() {
-        System.out.println("getOptionalInstanceFromParameter two-args");
-        final String parameterName = Parameters.push("test", "objective1");
-        final String defaultParameter = Parameters.push("test", "objective2");
-        final Parameters sut = sutBuilder
-                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
-                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
-                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
-                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
-        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "10")
-                .build(), "obj");
-        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "15")
-                .build(), "obj");
-        
-        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
-        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
-        
-        assertEquals(expectedResult, result1);
-        assertFalse(expectedResult == result1);
-        assertNotEquals(defaultValue, result1);
-        assertFalse(defaultValue == result1);
-        assertEquals(result1, result2);
-        assertTrue(result1 == result2);
-        assertTrue(sut.repOK());
-    }
-
-    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
-    @Test
-    public void testGetOptionalInstanceFromParameter6() {
-        System.out.println("getOptionalInstanceFromParameter two-args");
-        final String parameterName = Parameters.push("test", "objective1");
-        final String defaultParameter = Parameters.push("test", "objective2");
-        final Parameters sut = sutBuilder
-                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
-                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
-        final SphereObjective expectedValue = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "15")
-                .build(), "obj");
-        
-        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
-        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
-        
-        assertEquals(expectedValue, result1);
-        assertFalse(expectedValue == result1);
-        assertEquals(result1, result2);
-        assertTrue(result1 == result2);
-        assertTrue(sut.repOK());
-    }
-
-    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
-    @Test
-    public void testGetOptionalInstanceFromParameter7() {
-        System.out.println("getOptionalInstanceFromParameter three-args");
-        final String parameterName = Parameters.push("test", "objective1");
-        final String defaultParameter = Parameters.push("test", "objective2");
-        final Parameters sut = sutBuilder
-                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
-                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
-                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
-                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
-        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "20")
-                .build(), "obj");
-        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "10")
-                .build(), "obj");
-        
-        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
-        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
-        
-        assertEquals(expectedResult, result1);
-        assertFalse(expectedResult == result1);
-        assertNotEquals(defaultValue, result1);
-        assertFalse(defaultValue == result1);
-        assertEquals(result1, result2);
-        assertTrue(result1 == result2);
-        assertTrue(sut.repOK());
-    }
-
-    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
-    @Test
-    public void testGetOptionalInstanceFromParameter8() {
-        System.out.println("getOptionalInstanceFromParameter three-args");
-        final String parameterName = Parameters.push("test", "objective1");
-        final String defaultParameter = Parameters.push("test", "objective2");
-        final Parameters sut = sutBuilder
-                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
-                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
-        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "20")
-                .build(), "obj");
-        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "15")
-                .build(), "obj");
-        
-        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
-        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
-        
-        assertEquals(expectedResult, result1);
-        assertFalse(expectedResult == result1);
-        assertNotEquals(defaultValue, result1);
-        assertFalse(defaultValue == result1);
-        assertEquals(result1, result2);
-        assertTrue(result1 == result2);
-        assertTrue(sut.repOK());
-    }
-
-    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
-    @Test
-    public void testGetOptionalInstanceFromParameter9() {
-        System.out.println("getOptionalInstanceFromParameter three-args");
-        final String parameterName = Parameters.push("test", "objective1");
-        final String defaultParameter = Parameters.push("test", "objective2");
-        final Parameters sut = sutBuilder.build();
-        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "20")
-                .build(), "obj");
-        
-        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
-        
-        assertEquals(defaultValue, result);
-        assertTrue(defaultValue == result);
-        assertTrue(sut.repOK());
-    }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Optional New (one arg)">
     @Test
     public void testGetOptionalNewInstanceFromParameter1() {
         System.out.println("getOptionalNewInstanceFromParameter");
@@ -1911,22 +1828,6 @@ public class ParametersTest {
         final Parameters sut = sutBuilder
                 .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
                 .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
-                .registerInstance(parameterName, expResult)
-                .build();
-        final Option<Object> result = sut.getOptionalNewInstanceFromParameter(parameterName, SphereObjective.class);
-        assertEquals(expResult, result);
-        assertFalse(result.get() == sphereObjective);
-        assertTrue(sut.repOK());
-    }
-    
-    @Test
-    public void testGetOptionalNewInstanceFromParameter2b() {
-        System.out.println("getOptionalNewInstanceFromParameter");
-        final String parameterName = Parameters.push("test", "objective1");
-        final Option<Object> expResult = new Option(new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "10")
-                .build(), "obj"));
-        final Parameters sut = sutBuilder
                 .registerInstance(parameterName, expResult)
                 .build();
         final Option<Object> result = sut.getOptionalNewInstanceFromParameter(parameterName, SphereObjective.class);
@@ -1978,6 +1879,107 @@ public class ParametersTest {
         assertEquals(Option.NONE, result);
         assertTrue(sut.repOK());
     }
+    
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Optional (one arg with default)">
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter3() {
+        System.out.println("getOptionalInstanceFromParameter with default value");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        final SphereObjective expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultValue);
+        
+        assertEquals(expResult, result);
+        assertNotEquals(sphereObjective, result);
+        assertNotEquals(defaultValue, result);
+        assertFalse(defaultValue == result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter3b() {
+        System.out.println("getOptionalInstanceFromParameter with default value");
+        final String parameterName = Parameters.push("test", "objective1");
+        final SphereObjective expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultValue);
+        
+        assertEquals(expResult, result);
+        assertTrue(expResult == result);
+        assertNotEquals(sphereObjective, result);
+        assertNotEquals(defaultValue, result);
+        assertFalse(defaultValue == result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter3c() {
+        System.out.println("getOptionalInstanceFromParameter with default value");
+        final String parameterName = Parameters.push("test", "objective1");
+        final SphereObjective expResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultValue);
+        
+        assertEquals(expResult, result);
+        assertTrue(expResult == result);
+        assertNotEquals(sphereObjective, result);
+        assertNotEquals(defaultValue, result);
+        assertFalse(defaultValue == result);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter4() {
+        System.out.println("getOptionalInstanceFromParameter with default value");
+        final String parameterName = Parameters.push("test", "objective1");
+        final Parameters sut = sutBuilder.build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultValue);
+        
+        assertNotEquals(sphereObjective, result);
+        assertEquals(defaultValue, result);
+        assertTrue(defaultValue == result);
+        assertTrue(sut.repOK());
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Optional New (one arg with default)">
 
     @Test
     public void testGetOptionalNewInstanceFromParameter6() {
@@ -2007,6 +2009,57 @@ public class ParametersTest {
     }
 
     @Test
+    public void testGetOptionalNewInstanceFromParameter6b() {
+        System.out.println("getOptionalNewInstanceFromParameter with default value");
+        final String parameterName = Parameters.push("test", "objective1");
+        final SphereObjective instance = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, instance)
+                .setParameter("test.objective1", "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter("test.objective1.numDimensions", "10")
+                .build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultValue);
+        
+        assertEquals(instance, result1);
+        assertFalse(instance == result1);
+        assertNotEquals(sphereObjective, result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    @Test
+    public void testGetOptionalNewInstanceFromParameter6c() {
+        System.out.println("getOptionalNewInstanceFromParameter with default value");
+        final String parameterName = Parameters.push("test", "objective1");
+        final SphereObjective instance = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, instance)
+                .build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result = sut.getOptionalNewInstanceFromParameter(parameterName, defaultValue);
+        
+        assertEquals(defaultValue, result);
+        assertTrue(defaultValue == result);
+        assertNotEquals(sphereObjective, result);
+        assertTrue(sut.repOK());
+    }
+
+    @Test
     public void testGetOptionalNewInstanceFromParameter7() {
         System.out.println("getOptionalNewInstanceFromParameter with default value");
         final String parameterName = Parameters.push("test", "objective1");
@@ -2022,6 +2075,164 @@ public class ParametersTest {
         assertTrue(defaultValue == result);
         assertTrue(sut.repOK());
     }
+    
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Optional (two args)">
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter5() {
+        System.out.println("getOptionalInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(expectedResult, result1);
+        assertFalse(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter5b() {
+        System.out.println("getOptionalInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(expectedResult, result1);
+        assertTrue(expectedResult == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter5c() {
+        System.out.println("getOptionalInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(expectedResult, result1);
+        assertTrue(expectedResult == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter6() {
+        System.out.println("getOptionalInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective expectedValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(expectedValue, result1);
+        assertFalse(expectedValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter6b() {
+        System.out.println("getOptionalInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(defaultParameter, expectedValue)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(expectedValue, result1);
+        assertTrue(expectedValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter6c() {
+        System.out.println("getOptionalInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(defaultParameter, expectedValue)
+                .build();
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(expectedValue, result1);
+        assertTrue(expectedValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Optional New (two args)">
 
     @Test
     public void testGetOptionalNewInstanceFromParameter8() {
@@ -2052,6 +2263,64 @@ public class ParametersTest {
         assertTrue(sut.repOK());
     }
 
+    @Test
+    public void testGetOptionalNewInstanceFromParameter8b() {
+        System.out.println("getOptionalNewInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective instance = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, instance)
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(instance, result1);
+        assertFalse(instance == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    @Test
+    public void testGetOptionalNewInstanceFromParameter8c() {
+        System.out.println("getOptionalNewInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective instance = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, instance)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(instance, result1);
+        assertFalse(instance == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
     /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
     @Test
     public void testGetOptionalNewInstanceFromParameter9() {
@@ -2075,6 +2344,244 @@ public class ParametersTest {
         assertTrue(sut.repOK());
     }
 
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalNewInstanceFromParameter9b() {
+        System.out.println("getOptionalNewInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedValue)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+        
+        assertEquals(expectedValue, result1);
+        assertFalse(expectedValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test (expected = IllegalStateException.class)
+    public void testGetOptionalNewInstanceFromParameter9c() {
+        System.out.println("getOptionalNewInstanceFromParameter two-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedValue)
+                .build();
+        
+        sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, ObjectiveFunction.class);
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Optional (three args)">
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter7() {
+        System.out.println("getOptionalInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertFalse(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter7b() {
+        System.out.println("getOptionalInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertTrue(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter7c() {
+        System.out.println("getOptionalInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertTrue(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter8() {
+        System.out.println("getOptionalInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertFalse(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter8b() {
+        System.out.println("getOptionalInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertTrue(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter8c() {
+        System.out.println("getOptionalInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertTrue(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalInstanceFromParameter9() {
+        System.out.println("getOptionalInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final Parameters sut = sutBuilder.build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result = sut.getOptionalInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(defaultValue, result);
+        assertTrue(defaultValue == result);
+        assertTrue(sut.repOK());
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Optional New (three args)">
+
     @Test
     public void testGetOptionalInstanceFromParameter10() {
         System.out.println("getOptionalNewInstanceFromParameter three-args");
@@ -2090,6 +2597,64 @@ public class ParametersTest {
                 .build(), "obj");
         final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
                 .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertFalse(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    @Test
+    public void testGetOptionalInstanceFromParameter10b() {
+        System.out.println("getOptionalNewInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(parameterName, "numDimensions"), "10")
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertFalse(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    @Test
+    public void testGetOptionalInstanceFromParameter10c() {
+        System.out.println("getOptionalNewInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
                 .build(), "obj");
         
         final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
@@ -2134,6 +2699,61 @@ public class ParametersTest {
 
     /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
     @Test
+    public void testGetOptionalNewInstanceFromParameter11b() {
+        System.out.println("getOptionalNewInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .setParameter(defaultParameter, "SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(defaultParameter, "numDimensions"), "15").build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(expectedResult, result1);
+        assertFalse(expectedResult == result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
+    public void testGetOptionalNewInstanceFromParameter11c() {
+        System.out.println("getOptionalNewInstanceFromParameter three-args");
+        final String parameterName = Parameters.push("test", "objective1");
+        final String defaultParameter = Parameters.push("test", "objective2");
+        final SphereObjective expectedResult = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "15")
+                .build(), "obj");
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expectedResult)
+                .build();
+        final SphereObjective defaultValue = new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj");
+        
+        final ObjectiveFunction result1 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        final ObjectiveFunction result2 = sut.getOptionalNewInstanceFromParameter(parameterName, defaultParameter, defaultValue);
+        
+        assertEquals(defaultValue, result1);
+        assertTrue(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(result1 == result2);
+        assertTrue(sut.repOK());
+    }
+
+    /** Test of getOptionalInstanceFromParameter method, of class Parameters. */
+    @Test
     public void testGetOptionalNewInstanceFromParameter12() {
         System.out.println("getOptionalNewInstanceFromParameter three-args");
         final String parameterName = Parameters.push("test", "objective1");
@@ -2150,8 +2770,12 @@ public class ParametersTest {
         assertTrue(sut.repOK());
     }
     // </editor-fold>
+    
+    // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="List of Instances">
+    
+    // <editor-fold defaultstate="collapsed" desc="Required">
     /** Test of getInstancesFromParameter method, of class Parameters. */
     @Test
     public void testGetInstancesFromParameter1() {
@@ -2532,7 +3156,9 @@ public class ParametersTest {
         assertFalse(expResult == result);
         assertTrue(sut.repOK());
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Optional (one arg)">
     @Test
     public void testGetOptionalInstancesFromParameter1() {
         System.out.println("getOptionalInstancesFromParameter");
@@ -2563,6 +3189,64 @@ public class ParametersTest {
     }
     
     @Test
+    public void testGetOptionalInstancesFromParameter1b() {
+        System.out.println("getOptionalInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final Option<List<ObjectiveFunction>> expResult = new Option<>((List<ObjectiveFunction>) new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }});
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult.get())
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
+                .build();
+        final Option<List<ObjectiveFunction>> result1 = sut.getOptionalInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        final Option<List<ObjectiveFunction>> result2 = sut.getOptionalInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        assertEquals(expResult, result1);
+        assertEquals(result1, result2);
+        assertTrue(Misc.shallowEquals(result1.get(), result2.get()));
+        assertTrue(expResult.get() == result1.get());
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalInstancesFromParameter1c() {
+        System.out.println("getOptionalInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final Option<List<ObjectiveFunction>> expResult = new Option<>((List<ObjectiveFunction>) new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }});
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult.get())
+                .build();
+        final Option<List<ObjectiveFunction>> result1 = sut.getOptionalInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        final Option<List<ObjectiveFunction>> result2 = sut.getOptionalInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        assertEquals(expResult, result1);
+        assertEquals(result1, result2);
+        assertTrue(Misc.shallowEquals(result1.get(), result2.get()));
+        assertTrue(expResult.get() == result1.get());
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
     public void testGetOptionalNewInstancesFromParameter1() {
         System.out.println("getOptionalNewInstancesFromParameter");
         final String parameterName = Parameters.push("test", "objectives");
@@ -2588,6 +3272,62 @@ public class ParametersTest {
         assertEquals(expResult, result1);
         assertEquals(result1, result2);
         assertFalse(Misc.shallowEquals(result1.get(), result2.get()));
+        assertFalse(expResult.get() == result1.get());
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalNewInstancesFromParameter1b() {
+        System.out.println("getOptionalNewInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final Option<List<ObjectiveFunction>> expResult = new Option<>((List<ObjectiveFunction>) new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }});
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult.get())
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
+                .build();
+        final Option<List<ObjectiveFunction>> result1 = sut.getOptionalNewInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        final Option<List<ObjectiveFunction>> result2 = sut.getOptionalNewInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        assertEquals(expResult, result1);
+        assertEquals(result1, result2);
+        assertFalse(Misc.shallowEquals(result1.get(), result2.get()));
+        assertFalse(expResult.get() == result1.get());
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalNewInstancesFromParameter1c() {
+        System.out.println("getOptionalNewInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final Option<List<ObjectiveFunction>> instance = new Option<>((List<ObjectiveFunction>) new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }});
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, instance.get())
+                .build();
+        final Option<List<ObjectiveFunction>> result1 = sut.getOptionalNewInstancesFromParameter(parameterName, ObjectiveFunction.class);
+        assertNotEquals(instance, result1);
+        assertEquals(Option.NONE, result1);
         assertTrue(sut.repOK());
     }
     
@@ -2696,7 +3436,9 @@ public class ParametersTest {
                 .build();
         sut.getOptionalNewInstancesFromParameter(parameterName, EvaluationOperator.class);
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Optional (one arg with default)">
     @Test
     public void testGetOptionalInstancesFromParameter6() {
         System.out.println("getOptionalInstancesFromParameter");
@@ -2736,6 +3478,92 @@ public class ParametersTest {
         assertFalse(defaultValue == result1);
         assertEquals(result1, result2);
         assertTrue(Misc.shallowEquals(result1, result2));
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalInstancesFromParameter6b() {
+        System.out.println("getOptionalInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }};
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
+                .build();
+        final List<ObjectiveFunction> defaultValue = new ArrayList<ObjectiveFunction>() {{
+            add(new RastriginObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "21")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "22")
+                .build(), "obj"));
+        }};
+        final List<ObjectiveFunction> result1 = sut.getOptionalInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        final List<ObjectiveFunction> result2 = sut.getOptionalInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        assertEquals(expResult, result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(Misc.shallowEquals(result1, result2));
+        assertTrue(result1 == result2);
+        assertTrue(expResult == result1);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalInstancesFromParameter6c() {
+        System.out.println("getOptionalInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }};
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .build();
+        final List<ObjectiveFunction> defaultValue = new ArrayList<ObjectiveFunction>() {{
+            add(new RastriginObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "21")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "22")
+                .build(), "obj"));
+        }};
+        final List<ObjectiveFunction> result1 = sut.getOptionalInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        final List<ObjectiveFunction> result2 = sut.getOptionalInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        assertEquals(expResult, result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(Misc.shallowEquals(result1, result2));
+        assertTrue(result1 == result2);
+        assertTrue(expResult == result1);
         assertTrue(sut.repOK());
     }
     
@@ -2782,14 +3610,9 @@ public class ParametersTest {
     }
     
     @Test
-    public void testGetOptionalInstancesFromParameter7() {
-        System.out.println("getOptionalInstancesFromParameter with default");
+    public void testGetOptionalNewInstancesFromParameter6b() {
+        System.out.println("getOptionalNewInstancesFromParameter");
         final String parameterName = Parameters.push("test", "objectives");
-        final Parameters sut = sutBuilder
-                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
-                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
-                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
-                .build();
         final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
             add(new SphereObjective(new Parameters.Builder(new Properties())
                 .setParameter("obj.numDimensions", "10")
@@ -2801,6 +3624,86 @@ public class ParametersTest {
                 .setParameter("obj.numDimensions", "12")
                 .build(), "obj"));
         }};
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, expResult)
+                .setParameter(parameterName, "SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective,SigmaEC.evaluate.objective.real.SphereObjective")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
+                .build();
+        final List<ObjectiveFunction> defaultValue = new ArrayList<ObjectiveFunction>() {{
+            add(new RastriginObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "21")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "22")
+                .build(), "obj"));
+        }};
+        final List<ObjectiveFunction> result1 = sut.getOptionalNewInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        final List<ObjectiveFunction> result2 = sut.getOptionalNewInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        assertEquals(expResult, result1);
+        assertNotEquals(defaultValue, result1);
+        assertFalse(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertFalse(Misc.shallowEquals(result1, result2));
+        assertFalse(result1 == result2);
+        assertFalse(expResult == result1);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalNewInstancesFromParameter6c() {
+        System.out.println("getOptionalNewInstancesFromParameter");
+        final String parameterName = Parameters.push("test", "objectives");
+        final List<ObjectiveFunction> instance = new ArrayList<ObjectiveFunction>() {{
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "10")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "11")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "12")
+                .build(), "obj"));
+        }};
+        final Parameters sut = sutBuilder
+                .registerInstance(parameterName, instance)
+                .build();
+        final List<ObjectiveFunction> defaultValue = new ArrayList<ObjectiveFunction>() {{
+            add(new RastriginObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "20")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "21")
+                .build(), "obj"));
+            add(new SphereObjective(new Parameters.Builder(new Properties())
+                .setParameter("obj.numDimensions", "22")
+                .build(), "obj"));
+        }};
+        final List<ObjectiveFunction> result1 = sut.getOptionalNewInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        final List<ObjectiveFunction> result2 = sut.getOptionalNewInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
+        assertEquals(defaultValue, result1);
+        assertNotEquals(instance, result1);
+        assertTrue(defaultValue == result1);
+        assertEquals(result1, result2);
+        assertTrue(Misc.shallowEquals(result1, result2));
+        assertTrue(result1 == result2);
+        assertFalse(instance == result1);
+        assertTrue(sut.repOK());
+    }
+    
+    @Test
+    public void testGetOptionalInstancesFromParameter7() {
+        System.out.println("getOptionalInstancesFromParameter with default");
+        final String parameterName = Parameters.push("test", "objectives");
+        final Parameters sut = sutBuilder
+                .setParameter(Parameters.push(Parameters.push(parameterName, "0"), "numDimensions"), "10")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
+                .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
+                .build();
         final List<ObjectiveFunction> defaultValue = new ArrayList<ObjectiveFunction>() {{
             add(new RastriginObjective(new Parameters.Builder(new Properties())
                 .setParameter("obj.numDimensions", "20")
@@ -2814,7 +3717,6 @@ public class ParametersTest {
         }};
         final List<ObjectiveFunction> result1 = sut.getOptionalInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
         final List<ObjectiveFunction> result2 = sut.getOptionalInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
-        assertNotEquals(expResult, result1);
         assertEquals(defaultValue, result1);
         assertTrue(defaultValue == result1);
         assertEquals(result1, result2);
@@ -2831,17 +3733,6 @@ public class ParametersTest {
                 .setParameter(Parameters.push(Parameters.push(parameterName, "1"), "numDimensions"), "11")
                 .setParameter(Parameters.push(Parameters.push(parameterName, "2"), "numDimensions"), "12")
                 .build();
-        final List<ObjectiveFunction> expResult = new ArrayList<ObjectiveFunction>() {{
-            add(new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "10")
-                .build(), "obj"));
-            add(new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "11")
-                .build(), "obj"));
-            add(new SphereObjective(new Parameters.Builder(new Properties())
-                .setParameter("obj.numDimensions", "12")
-                .build(), "obj"));
-        }};
         final List<ObjectiveFunction> defaultValue = new ArrayList<ObjectiveFunction>() {{
             add(new RastriginObjective(new Parameters.Builder(new Properties())
                 .setParameter("obj.numDimensions", "20")
@@ -2855,7 +3746,6 @@ public class ParametersTest {
         }};
         final List<ObjectiveFunction> result1 = sut.getOptionalNewInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
         final List<ObjectiveFunction> result2 = sut.getOptionalNewInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
-        assertNotEquals(expResult, result1);
         assertEquals(defaultValue, result1);
         assertTrue(defaultValue == result1);
         assertEquals(result1, result2);
@@ -2907,6 +3797,9 @@ public class ParametersTest {
         sut.getOptionalNewInstancesFromParameter(parameterName, defaultValue, ObjectiveFunction.class);
     }
     
+     // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Optional (two args)">
     @Test
     public void testGetOptionalInstancesFromParameter9() {
         System.out.println("getOptionalInstancesFromParameter two-args");
@@ -3118,7 +4011,9 @@ public class ParametersTest {
                 .build();
         sut.getOptionalNewInstancesFromParameter(parameterName, defaultParameter, SphereObjective.class);
     }
+    // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Optional (three args)">
     @Test
     public void testGetOptionalInstancesFromParameter14() {
         System.out.println("getOptionalInstancesFromParameter three-args");
@@ -3348,6 +4243,7 @@ public class ParametersTest {
     // </editor-fold>
     
     // </editor-fold>
+    
 
     /** Test of equals method, of class Parameters. */
     @Test

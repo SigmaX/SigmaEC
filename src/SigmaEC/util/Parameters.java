@@ -69,6 +69,13 @@ public class Parameters extends ContractObject {
             return this;
         }
         
+        public Builder addAll(final Parameters parameters) {
+            assert(parameters != null);
+            properties.putAll(parameters.properties);
+            instanceRegistry.putAll(parameters.instanceRegistry);
+            return this;
+        }
+        
         /** Remove an entry from this Parameters database. */
         public Builder clearParameter(final String parameter) {
             assert(parameter != null);
@@ -620,7 +627,7 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
-        if (properties.containsKey(parameterName))
+        if (properties.containsKey(parameterName) || instanceRegistry.containsKey(parameterName))
             return new Option<>((T) getNewInstanceFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;

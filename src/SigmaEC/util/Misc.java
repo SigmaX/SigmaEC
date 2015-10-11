@@ -140,6 +140,39 @@ public final class Misc
         return true;
     }
     
+    public static <T> boolean collectionOfArraysEquals(final Collection<T[]> a, final Collection<T[]> b) {
+        assert(a != null);
+        assert(b != null);
+        if (a == b)
+            return true;
+        if (a.size() != b.size())
+            return false;
+        for (final T[] aE : a) {
+            if (!containsArray(b, aE))
+                return false;
+        }
+        return true;
+    }
+    
+    /**
+     * A 'contains' method that can be used on collections of arrays.
+     * 
+     * Because the equals() method for arrays is broken, collections of arrays
+     * are broken. This is a work-around.
+     * 
+     * @param c
+     * @param array
+     * @return True iff c contains an array a such that Arrays.equals(a, array).
+     */
+    public static <T> boolean containsArray(final Collection<T[]> c, final T[] array) {
+        assert(c != null);
+        assert(array != null);
+        for (final T[] e : c)
+            if (Arrays.equals(array, e))
+                return true;
+        return false;
+    }
+    
     public static boolean allFinite(final double[] a) {
         assert(a != null);
         for (final double d : a)
