@@ -101,6 +101,11 @@ public class Parameters extends ContractObject {
         return properties.containsKey(parameterName);
     }
     
+    public boolean isRegistered(final String parameterName) {
+        assert(parameterName != null);
+        return instanceRegistry.containsKey(parameterName);
+    }
+    
     private static boolean isReference(final String parameterValue) {
         assert(parameterValue != null);
         assert(!parameterValue.isEmpty());
@@ -570,13 +575,13 @@ public class Parameters extends ContractObject {
         final String value = properties.getProperty(parameterName);
         if (value == null || value.isEmpty())
             if (instanceRegistry.containsKey(parameterName))
-                return (T) instanceRegistry.get(parameterName);
+                return (T) getRegisteredInstanceIfCorrectType(parameterName, expectedSuperClass);
             else
                 throw new IllegalStateException(String.format("%s: Parameter '%s' was empty or not found.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value)) {
             final String drefVal = dereferenceToValue(value);
             if (instanceRegistry.containsKey(drefVal))
-                return (T) instanceRegistry.get(drefVal);
+                return (T) getRegisteredInstanceIfCorrectType(drefVal, expectedSuperClass);
             else {
                 final String drefParam = dereferenceToParameter(value);
                 final T result = getInstanceFromClassName(drefVal, drefParam, expectedSuperClass);
@@ -586,11 +591,21 @@ public class Parameters extends ContractObject {
         }
         final T result;
         if (instanceRegistry.containsKey(parameterName))
-            result = (T) instanceRegistry.get(parameterName);
+            result = (T) getRegisteredInstanceIfCorrectType(parameterName, expectedSuperClass);
         else
             result = getInstanceFromClassName(value, parameterName, expectedSuperClass);
         registerInstance(parameterName, result);
         return result;
+    }
+    
+    private <T> T getRegisteredInstanceIfCorrectType(final String key, final Class expectedSuperClass) {
+        assert(key != null);
+        assert(!key.isEmpty());
+        assert(expectedSuperClass != null);
+        final T instance = (T) instanceRegistry.get(key);
+        if (expectedSuperClass.isAssignableFrom(instance.getClass()))
+            return instance;
+        throw new IllegalStateException(String.format("%s: The object registered for parmaeter '%s' is not a subtype of '%s'.", this.getClass().getSimpleName(), key, expectedSuperClass.getSimpleName()));
     }
     
     public <T> T getNewInstanceFromParameter(final String parameterName, final Class expectedSuperClass) {
@@ -617,7 +632,7 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
-        if (properties.containsKey(parameterName))
+        if (properties.containsKey(parameterName) || instanceRegistry.containsKey(parameterName))
             return new Option<>((T) getInstanceFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;
@@ -627,26 +642,28 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
-        if (properties.containsKey(parameterName) || instanceRegistry.containsKey(parameterName))
+        if (properties.containsKey(parameterName))
             return new Option<>((T) getNewInstanceFromParameter(parameterName, expectedSuperClass));
         else
             return Option.NONE;
     }
     
-    public <T> T getOptionalInstanceFromParameter(final String parameterName, final T deflt) {
+    public <T> T getOptionalInstanceFromParameter(final String parameterName, final T deflt, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(deflt != null);
-        final Option<T> opt = getOptionalInstanceFromParameter(parameterName, deflt.getClass());
+        assert(expectedSuperClass.isAssignableFrom(deflt.getClass()));
+        final Option<T> opt = getOptionalInstanceFromParameter(parameterName, expectedSuperClass);
         assert(repOK());
         return opt.isDefined() ? opt.get() : deflt;
     }
     
-    public <T> T getOptionalNewInstanceFromParameter(final String parameterName, final T deflt) {
+    public <T> T getOptionalNewInstanceFromParameter(final String parameterName, final T deflt, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(deflt != null);
-        final Option<T> opt = getOptionalNewInstanceFromParameter(parameterName, deflt.getClass());
+        assert(expectedSuperClass.isAssignableFrom(deflt.getClass()));
+        final Option<T> opt = getOptionalNewInstanceFromParameter(parameterName, expectedSuperClass);
         assert(repOK());
         return opt.isDefined() ? opt.get() : deflt;
     }
@@ -675,28 +692,30 @@ public class Parameters extends ContractObject {
         return getNewInstanceFromParameter(defaultParameterName, expectedSuperClass);
     }
     
-    public <T> T getOptionalInstanceFromParameter(final String parameterName, final String defaultParameterName, final T defaultValue) {
+    public <T> T getOptionalInstanceFromParameter(final String parameterName, final String defaultParameterName, final T defaultValue, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(defaultParameterName != null);
         assert(!defaultParameterName.isEmpty());
-        final Option<T> opt = getOptionalInstanceFromParameter(parameterName, defaultValue.getClass());
+        assert(expectedSuperClass.isAssignableFrom(defaultValue.getClass()));
+        final Option<T> opt = getOptionalInstanceFromParameter(parameterName, expectedSuperClass);
         assert(repOK());
         if (opt.isDefined())
             return opt.get();
-        return getOptionalInstanceFromParameter(defaultParameterName, defaultValue);
+        return getOptionalInstanceFromParameter(defaultParameterName, defaultValue, expectedSuperClass);
     }
     
-    public <T> T getOptionalNewInstanceFromParameter(final String parameterName, final String defaultParameterName, final T defaultValue) {
+    public <T> T getOptionalNewInstanceFromParameter(final String parameterName, final String defaultParameterName, final T defaultValue, final Class expectedSuperClass) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(defaultParameterName != null);
         assert(!defaultParameterName.isEmpty());
-        final Option<T> opt = getOptionalNewInstanceFromParameter(parameterName, defaultValue.getClass());
+        assert(expectedSuperClass.isAssignableFrom(defaultValue.getClass()));
+        final Option<T> opt = getOptionalNewInstanceFromParameter(parameterName, expectedSuperClass);
         assert(repOK());
         if (opt.isDefined())
             return opt.get();
-        return getOptionalNewInstanceFromParameter(defaultParameterName, defaultValue);
+        return getOptionalNewInstanceFromParameter(defaultParameterName, defaultValue, expectedSuperClass);
     }
     // </editor-fold>
     
