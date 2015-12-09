@@ -9,8 +9,12 @@ import SigmaEC.util.Parameters;
  */
 public class NumStepsStoppingCondition<T extends Individual> extends StoppingCondition<T> {
     public final static String P_NUM_STEPS = "numSteps";
+    public final static String P_PROGRESS_BAR = "progressBar";
+    private final static int NUM_PROGRESS_BAR_BLOCKS = 20;
     
     private final int numSteps;
+    private final boolean progressBar;
+    private final int stepsPerProgressBarBlock;
     
     public NumStepsStoppingCondition(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -18,13 +22,30 @@ public class NumStepsStoppingCondition<T extends Individual> extends StoppingCon
         numSteps = parameters.getIntParameter(Parameters.push(base, P_NUM_STEPS));
         if (numSteps < 0)
             throw new IllegalStateException(String.format("%s: %s is negative, must be >= 0.", this.getClass().getSimpleName(), P_NUM_STEPS));
+        progressBar = parameters.getOptionalBooleanParameter(Parameters.push(base, P_PROGRESS_BAR), false);
+        stepsPerProgressBarBlock = numSteps/20;
         assert(repOK());
     }
     @Override
     public boolean stop(final Population<T> population, int step) {
         assert(step >= 0);
         assert(repOK());
+        if (progressBar && (step % stepsPerProgressBarBlock == 0)) {
+            System.err.print("\r");
+            System.err.print(progressBar(step/stepsPerProgressBarBlock, NUM_PROGRESS_BAR_BLOCKS));
+        }
         return step >= numSteps;
+    }
+    
+    private static String progressBar(final int complete, final int total) {
+        final StringBuilder sb = new StringBuilder("[");
+        int i = 0;
+        for (; i < complete; i++)
+            sb.append("=");
+        for (; i < total; i++)
+            sb.append(" ");
+        sb.append("]");
+        return sb.toString();
     }
 
     @Override
