@@ -98,12 +98,21 @@ public class Parameters extends ContractObject {
     
     public boolean isDefined(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         return properties.containsKey(parameterName);
     }
     
     public boolean isRegistered(final String parameterName) {
         assert(parameterName != null);
+        assert(!parameterName.isEmpty());
         return instanceRegistry.containsKey(parameterName);
+    }
+    
+    public boolean isReferenceParameter(final String parameterName) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(properties.containsKey(parameterName));
+        return isReference(properties.getProperty(parameterName));
     }
     
     private static boolean isReference(final String parameterValue) {
@@ -579,6 +588,8 @@ public class Parameters extends ContractObject {
             else
                 throw new IllegalStateException(String.format("%s: Parameter '%s' was empty or not found.", Parameters.class.getSimpleName(), parameterName));
         if (isReference(value)) {
+            if (instanceRegistry.containsKey(parameterName))
+                throw new IllegalStateException(String.format("%s: An instance was registered for parameter '%s', but that parameter is a reference to '%s'.  A parameter cannot both be a reference and have its own instance.", Parameters.class.getSimpleName(), parameterName, value));
             final String drefVal = dereferenceToValue(value);
             if (instanceRegistry.containsKey(drefVal))
                 return (T) getRegisteredInstanceIfCorrectType(drefVal, expectedSuperClass);

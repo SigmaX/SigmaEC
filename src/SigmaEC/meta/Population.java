@@ -31,6 +31,12 @@ public class Population<T extends Individual> extends ContractObject {
         assert(repOK());
     }
     
+    public Population(final List<T> population) {
+        assert(population != null);
+        this.subpopulations = new List[] { new ArrayList<>(population) }; // Defensive copy
+        assert(repOK());
+    }
+    
     /** @return A reference to the ith subpopulation.  This does *not*
      *  create a defensive copy, so modifying the list that is returned will
      *  modify the population.
