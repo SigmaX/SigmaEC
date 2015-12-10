@@ -1,7 +1,6 @@
-package SigmaEC.evaluate.objective.real;
+package SigmaEC.evaluate.objective;
 
-import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.represent.linear.DoubleVectorIndividual;
+import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -11,7 +10,7 @@ import SigmaEC.util.Parameters;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class ConstantObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+public class ConstantObjective<T extends Individual> extends ObjectiveFunction<T> {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_VALUE = "fitnessValue";
 
@@ -32,8 +31,6 @@ public class ConstantObjective<T extends DoubleVectorIndividual> extends Objecti
     public ConstantObjective(final int numDimensions, final double fitnessValue) {
         if (numDimensions <= 0)
             throw new IllegalArgumentException(String.format("%s: numDimensions is negative, must be positive", this.getClass().getSimpleName()));
-        if (Double.isNaN(fitnessValue))
-            throw new IllegalArgumentException(String.format("%s: fitnessValue is NaN, must be a number.", this.getClass().getSimpleName()));
         this.numDimensions = numDimensions;
         this.value = fitnessValue;
         assert(repOK());
@@ -45,9 +42,7 @@ public class ConstantObjective<T extends DoubleVectorIndividual> extends Objecti
     }
     
     @Override
-    public double fitness(DoubleVectorIndividual ind)
-    {
-        assert(ind.size() == numDimensions);
+    public double fitness(final T ind) {
         assert(repOK());
         return value;
     }
@@ -60,16 +55,22 @@ public class ConstantObjective<T extends DoubleVectorIndividual> extends Objecti
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return numDimensions > 0;
+        return P_NUM_DIMENSIONS != null
+                && !P_NUM_DIMENSIONS.isEmpty()
+                && P_VALUE != null
+                && !P_VALUE.isEmpty()
+                && numDimensions > 0;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: numDimensions=%d, value=%f]", this.getClass().getSimpleName(), numDimensions, value);
+        return String.format("[%s: %s=%d, %s=%f]", this.getClass().getSimpleName(),
+                P_NUM_DIMENSIONS, numDimensions,
+                P_VALUE, value);
     }
     
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (!(o instanceof ConstantObjective))
             return false;
         
