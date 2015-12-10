@@ -40,10 +40,10 @@ public class PinCushionGaussianObjective  extends ObjectiveFunction<DoubleVector
         final ObjectiveFunction<DoubleVectorIndividual> gaussian, plane, reducedGaussian;
         gaussian = new GaussianObjective(numDimensions, height, std);
         plane = new ConstantObjective(numDimensions, -height);
-        reducedGaussian = new AdditiveObjective<DoubleVectorIndividual>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual>>() {{
+        reducedGaussian = new AdditiveObjective<>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual>>() {{
             add(gaussian);
             add(plane);
-        }}, numDimensions);
+        }});
         
         this.objective = new PinCushionObjective(intervals, -height, reducedGaussian);
         

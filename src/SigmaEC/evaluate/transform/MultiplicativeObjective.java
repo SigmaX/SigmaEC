@@ -3,7 +3,9 @@ package SigmaEC.evaluate.transform;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Parameters;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A decorator that multiplies two or more objective functions.
@@ -12,27 +14,26 @@ import java.util.List;
  * @author Jeff Bassett
  */
 public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+    public final static String P_OBJECTIVES = "objectives";
     private final List<ObjectiveFunction<T>> objectives;
     private final int numDimensions;
 
     @Override
-    public int getNumDimensions()
-    {
+    public int getNumDimensions() {
         return numDimensions;
     }
     
-    public MultiplicativeObjective(final List<ObjectiveFunction<T>> objectives, final int numDimensions) throws IllegalArgumentException {
-        if (numDimensions <= 0)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is <= 0, must be positive.");
-        if (objectives == null)
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null.");
+    public MultiplicativeObjective(final Parameters parameters, final String base) throws IllegalStateException {
+        assert(parameters != null);
+        assert(base != null);
+        objectives = parameters.getInstancesFromParameter(Parameters.push(base, P_OBJECTIVES), ObjectiveFunction.class);
+        if (objectives == null || objectives.isEmpty())
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null or empty.");
         if (Misc.containsNulls(objectives))
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives contains null value.");
+        numDimensions = objectives.get(0).getNumDimensions();
         if (!Misc.allElementsHaveDimension(objectives, numDimensions))
-            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions does not match the dimensionality of all objectives.");
-        
-        this.objectives = objectives;
-        this.numDimensions = numDimensions;
+            throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives have different number of dimensions—must all be the same dimensionality.");
         assert(repOK());
     }
     
@@ -55,7 +56,10 @@ public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends O
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     final public boolean repOK() {
-        return objectives != null
+        return P_OBJECTIVES != null
+                && !P_OBJECTIVES.isEmpty()
+                && objectives != null
+                && !objectives.isEmpty()
                 && numDimensions > 0
                 && !Misc.containsNulls(objectives)
                 && Misc.allElementsHaveDimension(objectives, numDimensions);
@@ -63,12 +67,12 @@ public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends O
     
     @Override
     public String toString() {
-        return String.format("[%s: Objectives=%s]", this.getClass().getSimpleName(), objectives);
+        return String.format("[%s: %s=%s]", this.getClass().getSimpleName(),
+                P_OBJECTIVES, objectives);
     }
     
     @Override
-    public boolean equals(final Object o)
-    {
+    public boolean equals(final Object o) {
         if (o == this)
             return true;
         if (!(o instanceof MultiplicativeObjective))
@@ -83,7 +87,8 @@ public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends O
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 47 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
+        hash = 11 * hash + Objects.hashCode(this.objectives);
+        hash = 11 * hash + this.numDimensions;
         return hash;
     }
     //</editor-fold>
