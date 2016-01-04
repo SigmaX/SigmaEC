@@ -134,7 +134,7 @@ public class Population<T extends Individual> extends ContractObject {
     private final boolean subpopsOkay(final List<T>[] subpopulations) {
         assert(subpopulations != null);
         for (int i = 0; i < subpopulations.length; i++)
-            if (subpopulations[i].isEmpty() || Misc.containsNulls(subpopulations[i]))
+            if (Misc.containsNulls(subpopulations[i]))
                 return false;
         return true;
     }

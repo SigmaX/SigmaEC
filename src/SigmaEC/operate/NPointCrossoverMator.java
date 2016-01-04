@@ -65,7 +65,6 @@ public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends
     @Override
     public List<T> mate(final List<T> parents) {
         assert(parents.size() == 2);
-        assert(allParentsHaveOrDontHaveParents(parents));
         final List<List<G>> parentGenomes = new ArrayList<List<G>>() {{
            add(parents.get(0).getGenome());
            add(parents.get(1).getGenome());
