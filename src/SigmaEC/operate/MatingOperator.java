@@ -35,10 +35,7 @@ public class MatingOperator<T extends Individual> extends Operator<T> {
     }
     
     /**
-     * @return A generation of offspring.  Behavior depends on
-     * produceOffspring() and this.selector, which chooses the parents.
-     * 
-     * @see #produceOffspring(java.util.List, SigmaEC.function.ObjectiveFunction) 
+     * @return A generation of offspring.
      */
     @Override
     public List<T> operate(final int run, final int generation, final List<T> population)

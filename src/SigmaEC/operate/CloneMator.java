@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Creates a child by cloning a single parent.
+ * 
  * @author Eric O. Scott
  */
 public class CloneMator<T extends LinearGenomeIndividual> extends Mator<T> {
@@ -19,6 +20,11 @@ public class CloneMator<T extends LinearGenomeIndividual> extends Mator<T> {
         assert(repOK());
     }
     
+    /**
+     * PRECONDITION: parents must contain exactly one individual.
+     * @return An individual with the same genome as the parent, and whose
+     *  'parent' field points to the parent.
+     */
     @Override
     public List<T> mate(final List<T> parents) {
         assert(parents != null);
