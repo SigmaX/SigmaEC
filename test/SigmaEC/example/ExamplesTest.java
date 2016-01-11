@@ -27,7 +27,7 @@ public class ExamplesTest {
             {"src/SigmaEC/example/GAExample.properties"},
             {"src/SigmaEC/example/FloatingPointExample.properties"}, 
             {"src/SigmaEC/example/TestSuiteExample.properties"},
-            //{"src/SigmaEC/example/TestSuiteViewerExample.properties"},
+            {"src/SigmaEC/example/TestSuiteViewerExample.properties"},
             {"src/SigmaEC/example/IslandModelExample.properties"},
             {"src/SigmaEC/example/ACOExample_suite.properties"}
            });

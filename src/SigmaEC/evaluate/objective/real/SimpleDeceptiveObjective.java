@@ -16,6 +16,7 @@ public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndi
     public final static String P_BASIN_STD = "basinStd";
     
     private final int numDimensions;
+    private final double basinStd;
     private final ObjectiveFunction<DoubleVectorIndividual> objective;
     
     public SimpleDeceptiveObjective(final Parameters parameters, final String base) {
@@ -26,7 +27,7 @@ public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndi
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
         
-        final double basinStd = parameters.getDoubleParameter(Parameters.push(base, P_BASIN_STD));
+        basinStd = parameters.getDoubleParameter(Parameters.push(base, P_BASIN_STD));
         if (basinStd <= 0.0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": basinStd is <= 0, must be positive.");
         if (Double.isNaN(basinStd) || Double.isInfinite(basinStd))
@@ -53,6 +54,7 @@ public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndi
     public SimpleDeceptiveObjective(final int numDimensions, final double basinStd) {
         if (numDimensions < 1)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": numDimensions is < 1.");
+        this.basinStd = basinStd;
         if (basinStd <= 0.0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": basinStd is <= 0, must be positive.");
         if (Double.isNaN(basinStd) || Double.isInfinite(basinStd))
@@ -81,6 +83,9 @@ public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndi
     @Override
     public final boolean repOK() {
         return numDimensions > 0
+                && !Double.isNaN(basinStd)
+                && Double.isFinite(basinStd)
+                && basinStd > 0.0
                 && objective != null
                 && objective.getNumDimensions() == numDimensions
                 && P_BASIN_STD != null
@@ -106,7 +111,9 @@ public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndi
 
     @Override
     public String toString() {
-        return String.format("[%s: numDimensions=%d]", this.getClass().getSimpleName(), numDimensions);
+        return String.format("[%s: %s=%d, %s=%f]", this.getClass().getSimpleName(),
+                P_NUM_DIMENSIONS, numDimensions,
+                P_BASIN_STD, basinStd);
     }
     // </editor-fold>
 }

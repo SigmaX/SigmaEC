@@ -7,14 +7,13 @@ import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * An experiment that takes a suite of objective functions 
@@ -29,7 +28,6 @@ public class TestSuiteViewerExperiment extends Experiment {
     final public static String P_Y_MAX = "yMax";
     final public static String P_GRANULARITY = "granularity";
     final public static String P_RANDOM = "random";
-    final public static String P_FILE = "file";
     final public static String P_GENERATIONS = "generations";
     
     final private List<ObjectiveFunction> objectives;
@@ -37,7 +35,7 @@ public class TestSuiteViewerExperiment extends Experiment {
     final private IDoublePoint[] bounds;
     final private double granularity;
     final private Random random;
-    final private String file;
+    // FIXME: generations not used
     final private Option<Integer> generations;
 
     public TestSuiteViewerExperiment(final Parameters parameters, final String base) {
@@ -54,11 +52,10 @@ public class TestSuiteViewerExperiment extends Experiment {
         bounds[0] = new IDoublePoint(xMin, xMax);
         bounds[1] = new IDoublePoint(yMin, yMax);
         granularity = parameters.getDoubleParameter(Parameters.push(base, P_GRANULARITY));
-        file = parameters.getStringParameter(Parameters.push(base, P_FILE));
         generations = parameters.getOptionalIntParameter(Parameters.push(base, P_GENERATIONS));
         
-        if (!allObjectivesTwoDimensions(objectives))
-            throw new IllegalArgumentException(String.format("%s: all objectives must have at least 2 dimensions", this.getClass().getSimpleName()));
+        if (!allObjectivesLessThanThreeDimensions(objectives))
+            throw new IllegalArgumentException(String.format("%s: all objectives must have at most 2 dimensions", this.getClass().getSimpleName()));
         if (granularity <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": granularity is not positive.");
         if (bounds == null)
@@ -73,36 +70,20 @@ public class TestSuiteViewerExperiment extends Experiment {
     
     @Override
     public void run() {
-        // The callbacks define what happens when R sends back messages or asks for user input.
-        /* final RMainLoopCallbacks callbacks= new RLoggerCallbacks(Logger.getLogger(this.getClass().getSimpleName()));
-        // The engine runs R commands.
-        final Rengine re = new Rengine(new String[] {"--no-save"}, false, callbacks);
-        final InputStream rScriptStream = this.getClass().getResourceAsStream("TestSuiteViewerExperiment.r");
-        try {
-            final int numPlots = generations.isDefined() ? generations.get() : 1;
-            final String rScript = Misc.inputStreamToString(rScriptStream);
-            re.eval(rScript);
-            re.eval(String.format("pdf(\"%s\")", file));
-            for (final ObjectiveFunction obj : objectives) {
-                if (numPlots > 1)
-                    re.eval(String.format("par(mfrow=c(%d,%d))", 3,2)); 
-                for (int i = 0; i < numPlots; i++) {
-                    obj.setGeneration(i);
-                    final StringWriter gridDataWriter = new StringWriter();
-                    viewObjective(obj, gridDataWriter);
-                    final String gridData = gridDataWriter.toString();
-                    re.eval(String.format("x <- \"%s\"", gridData));
-                    re.eval("d <- read.csv(text=x)");
-                    re.eval(String.format("plot_objective(x, \"%s\")", obj.getClass().getSimpleName()));
-                }
+        for (int i = 0; i < objectives.size(); i++) {
+            final ObjectiveFunction obj = objectives.get(i);
+            final String fileName = (objectives.size() > 1) ?
+                    String.format("%sFunction_%d.csv", prefix, i)
+                    : String.format("%sFunction.csv", prefix);
+            try {
+                final Writer writer = new FileWriter(fileName);
+                viewObjective(obj, writer);
             }
-            re.eval("dev.off()");
-            re.eval("quit(save=\"no\")");
+            catch (final IOException e) {
+                throw new IllegalStateException(this.getClass().getSimpleName() +": could not open file " + fileName, e);
+            }
         }
-        catch (final IOException e) {
-            Logger.getLogger(this.getClass().getSimpleName()).log(Level.SEVERE, "Failed to load R script.", e);
-        } */
-        throw new UnsupportedOperationException("Not supported yet.");
+        assert(repOK());
     }
 
     @Override
@@ -110,25 +91,53 @@ public class TestSuiteViewerExperiment extends Experiment {
         return null;
     }
     
-    private static boolean allObjectivesTwoDimensions(final List<ObjectiveFunction> objectives) {
+    private static boolean allObjectivesLessThanThreeDimensions(final List<ObjectiveFunction> objectives) {
         assert(objectives != null);
         for (final ObjectiveFunction obj : objectives)
-            if (obj.getNumDimensions() < 2)
+            if (obj.getNumDimensions() > 2)
                 return false;
         return true;
     }
     
-    private void viewObjective(final ObjectiveFunction<DoubleVectorIndividual> objective, final Writer outputDestination) throws IllegalArgumentException, IOException {
-        
-        outputDestination.write(String.valueOf(0));
-        // Print the y grid values along the first row
-        for (double y = bounds[1].x; y <= bounds[1].y; y += granularity) {
-            outputDestination.write(", " + y);
-        }
-        outputDestination.write("\n");
+    private void viewObjective(final ObjectiveFunction<DoubleVectorIndividual> objective, final Writer output) throws IOException {
+        assert(objective != null);
+        if (objective.getNumDimensions() == 1)
+            viewObjective1D(objective, output);
+        else if (objective.getNumDimensions() == 2)
+            viewObjective2D(objective, output);
+        else
+            throw new IllegalStateException(String.format("%s: encountered an objective function with %d dimensions, but can only sample the landscape of 1- or 2-dimensional objectives.", this.getClass().getSimpleName(), objective.getNumDimensions()));
+    }
+    
+    private void viewObjective1D(final ObjectiveFunction<DoubleVectorIndividual> objective, final Writer output) throws IOException {
+        assert(objective != null);
+        assert(objective.getNumDimensions() == 1);
+        assert(output != null);
         
         for (double x = bounds[0].x; x <= bounds[0].y; x += granularity) {
-            outputDestination.write(String.valueOf(x));
+            output.write(String.valueOf(x));
+            final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { x }).build();
+            final double fitness = objective.fitness(ind);
+            output.write(", ");
+            output.write(String.valueOf(fitness));
+            output.write("\n");
+        }
+        output.flush();
+    }
+    
+    private void viewObjective2D(final ObjectiveFunction<DoubleVectorIndividual> objective, final Writer output) throws IOException {
+        assert(objective != null);
+        assert(objective.getNumDimensions() == 2);
+        assert(output != null);
+        output.write(String.valueOf(0));
+        // Print the y grid values along the first row
+        for (double y = bounds[1].x; y <= bounds[1].y; y += granularity) {
+            output.write(", " + y);
+        }
+        output.write("\n");
+        
+        for (double x = bounds[0].x; x <= bounds[0].y; x += granularity) {
+            output.write(String.valueOf(x));
             for (double y = bounds[1].x; y <= bounds[1].y; y += granularity) {
                 final double[] point = new double[objective.getNumDimensions()];
                 point[0] = x;
@@ -136,30 +145,46 @@ public class TestSuiteViewerExperiment extends Experiment {
                 // The remaining dimensions are left set to zero
                 final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(point).build();
                 final double fitness = objective.fitness(ind);
-                outputDestination.write(", " + fitness);
+                output.write(", " + fitness);
             }
-            outputDestination.write("\n");
+            output.write("\n");
         }
-        outputDestination.flush();
+        output.flush();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
         return P_OBJECTIVES != null
+                && !P_OBJECTIVES.isEmpty()
                 && P_PREFIX != null
+                && !P_PREFIX.isEmpty()
+                && P_GENERATIONS != null
+                && !P_GENERATIONS.isEmpty()
+                && P_GRANULARITY != null
+                && !P_GRANULARITY.isEmpty()
+                && P_RANDOM != null
+                && !P_RANDOM.isEmpty()
+                && P_X_MAX != null
+                && !P_X_MAX.isEmpty()
+                && P_X_MIN != null
+                && !P_X_MIN.isEmpty()
+                && P_Y_MAX != null
+                && !P_Y_MIN.isEmpty()
                 && objectives != null
                 && prefix != null
+                && !prefix.isEmpty()
                 && !objectives.isEmpty()
                 && !Misc.containsNulls(objectives)
-                && allObjectivesTwoDimensions(objectives)
+                && allObjectivesLessThanThreeDimensions(objectives)
                 && bounds != null
                 && bounds.length == 2
                 && Misc.boundsOK(bounds)
                 && !Double.isNaN(granularity)
                 && !Double.isInfinite(granularity)
                 && granularity > 0
-                && random != null;
+                && random != null
+                && generations != null;
     }
 
     @Override
@@ -170,20 +195,34 @@ public class TestSuiteViewerExperiment extends Experiment {
             return false;
         final TestSuiteViewerExperiment ref = (TestSuiteViewerExperiment) o;
         return prefix.equals(ref.prefix)
-                && objectives.equals(ref.objectives);
+                && objectives.equals(ref.objectives)
+                && Arrays.equals(bounds, ref.bounds)
+                && generations.equals(ref.generations)
+                && Misc.doubleEquals(granularity, ref.granularity)
+                && random.equals(ref.random);
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 97 * hash + (this.objectives != null ? this.objectives.hashCode() : 0);
-        hash = 97 * hash + (this.prefix != null ? this.prefix.hashCode() : 0);
+        int hash = 5;
+        hash = 79 * hash + Objects.hashCode(this.objectives);
+        hash = 79 * hash + Objects.hashCode(this.prefix);
+        hash = 79 * hash + Arrays.deepHashCode(this.bounds);
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.granularity) ^ (Double.doubleToLongBits(this.granularity) >>> 32));
+        hash = 79 * hash + Objects.hashCode(this.random);
+        hash = 79 * hash + Objects.hashCode(this.generations);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: prefix=%s, objectives=%s]", this.getClass().getSimpleName(), prefix, objectives);
+        return String.format("[%s: %s=%s, %s=%s, bounds=%s, %s=%f, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+                P_PREFIX, prefix,
+                P_OBJECTIVES, objectives,
+                Arrays.toString(bounds),
+                P_GRANULARITY, granularity,
+                P_RANDOM, random,
+                P_GENERATIONS, generations);
     }
     // </editor-fold>
 }

@@ -89,7 +89,7 @@ public final class Misc
     /** Check that x &lt; y for all IDoublePoints in an array. */
     public static boolean boundsOK(final IDoublePoint[] bounds) {
         for (IDoublePoint p : bounds)
-            if (p.x >= p.y)
+            if (p == null || p.x >= p.y)
                 return false;
         return true;
     }
