@@ -17,9 +17,9 @@ public abstract class PopulationMetric<T extends Individual> extends ContractObj
 {
     /** Gathers some information about a population and does something with it.
      * @param run The run the sample is coming from
-     * @param generation The generation the sample is coming from
+     * @param step The generation the sample is coming from
      */
-    public abstract Measurement measurePopulation(int run, int generation, Population<T> population);
+    public abstract Measurement measurePopulation(int run, int step, Population<T> population);
     
     /** Returns a comma-separated list of attribute names that this metric takes measurements of. */
     public abstract String csvHeader();

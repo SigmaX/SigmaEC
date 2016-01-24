@@ -26,8 +26,8 @@ public class MultipleMeasurement extends Measurement {
     }
 
     @Override
-    public int getGeneration() {
-        return measurements.get(0).getGeneration();
+    public int getStep() {
+        return measurements.get(0).getStep();
     }
 
     @Override
@@ -51,9 +51,9 @@ public class MultipleMeasurement extends Measurement {
         if (measurements.isEmpty() || Misc.containsNulls(measurements))
             return false;
         final int run = measurements.get(0).getRun();
-        final int generation = measurements.get(0).getGeneration();
+        final int generation = measurements.get(0).getStep();
         for (final Measurement m : measurements)
-            if (m.getRun() != run || m.getGeneration() != generation)
+            if (m.getRun() != run || m.getStep() != generation)
                 return false;
         return true;
     }

@@ -13,7 +13,7 @@ import SigmaEC.ContractObject;
  */
 public abstract class Measurement extends ContractObject {
     public abstract int getRun();
-    public abstract int getGeneration();
+    public abstract int getStep();
     
     /** @return A CSV representation of the measurement suitable for
      * printing to a file.  This may be more than one line, but every line

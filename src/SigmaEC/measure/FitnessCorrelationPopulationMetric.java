@@ -10,7 +10,7 @@ import SigmaEC.represent.Individual;
 public class FitnessCorrelationPopulationMetric<T extends Individual> extends PopulationMetric<T> {
 
     @Override
-    public Measurement measurePopulation(final int run, final int generation, final Population<T> population) {
+    public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -32,7 +32,7 @@ public class MultipleStringMeasurement extends Measurement {
     public int getRun() { return run; }
 
     @Override
-    public int getGeneration() { return generation; }
+    public int getStep() { return generation; }
 
     @Override
     public String toString() {

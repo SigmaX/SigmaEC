@@ -59,9 +59,9 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     }
     
     @Override
-    public Measurement measurePopulation(final int run, final int generation, final Population<T> population) {
+    public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(population != null);
-        final Measurement measurement = wrappedMetric.measurePopulation(run, generation, population);
+        final Measurement measurement = wrappedMetric.measurePopulation(run, step, population);
         if (measurement != null) {
             try {
                 writer.write(String.format("%s\n", measurement.toString()));

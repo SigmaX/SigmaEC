@@ -44,7 +44,7 @@ public class OneMaxObjective extends ObjectiveFunction<BitStringIndividual>{
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    public boolean repOK() {
+    public final boolean repOK() {
         return P_NUM_DIMENSIONS != null
                 && !P_NUM_DIMENSIONS.isEmpty()
                 && numDimensions > 0;

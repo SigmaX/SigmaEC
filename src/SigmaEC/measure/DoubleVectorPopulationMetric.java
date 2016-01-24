@@ -50,39 +50,39 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
     }
     
     @Override
-    public MultipleMeasurement measurePopulation(final int run, final int generation, final Population<T> population) {
+    public MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(run >= 0);
-        assert(generation >= 0);
+        assert(step >= 0);
         assert(population != null);
         final List<DoubleVectorMeasurement> measurements = new ArrayList<DoubleVectorMeasurement>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.
                     final T best = population.getBest(i, fitnessComparator.get());
-                    add(measureIndividual(run, generation, i, best));
+                    add(measureIndividual(run, step, i, best));
                 }
                 else // Record all individuals.
                     for(final T ind : population.getSubpopulation(i))
-                        add(measureIndividual(run, generation, i, ind));
+                        add(measureIndividual(run, step, i, ind));
             }
         }};
         assert(repOK());
         return new MultipleMeasurement(measurements);
     }
     
-    private DoubleVectorMeasurement measureIndividual(final int run, final int generation, final int subpop, final T individual) {
+    private DoubleVectorMeasurement measureIndividual(final int run, final int step, final int subpop, final T individual) {
         assert(run >= 0);
-        assert(generation >= 0);
+        assert(step >= 0);
         assert(subpop >= 0);
         assert(individual != null);
         final DoubleVectorIndividual decodedInd = decoder.decode(individual);
         assert(decodedInd.size() == numDimensions);
-        return new DoubleVectorMeasurement(run, generation, subpop, individual.getFitness(), individual.getID(), decodedInd.getGenomeArray());
+        return new DoubleVectorMeasurement(run, step, subpop, individual.getFitness(), individual.getID(), decodedInd.getGenomeArray());
     }
 
     @Override
     public String csvHeader() {
         final StringBuilder sb = new StringBuilder();
-        sb.append("run, generation, subpopulation, individualID, fitness");
+        sb.append("run, step, subpopulation, individualID, fitness");
         for (int i = 0; i < numDimensions; i++)
             sb.append(", V").append(i);
         return sb.toString();
@@ -129,20 +129,20 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
     
     public static class DoubleVectorMeasurement extends Measurement {
         private final int run;
-        private final int generation;
+        private final int step;
         private final int subpopulation;
         private final double fitness;
         private final long indID;
         private final double[] values;
 
-        public DoubleVectorMeasurement(final int run, final int generation, final int subpopulation, final double fitness, final long indID, final double[] values) {
+        public DoubleVectorMeasurement(final int run, final int step, final int subpopulation, final double fitness, final long indID, final double[] values) {
             assert(run >= 0);
-            assert(generation >= 0);
+            assert(step >= 0);
             assert(subpopulation >= 0);
             assert(indID >= 0);
             assert(values != null);
             this.run = run;
-            this.generation = generation;
+            this.step = step;
             this.subpopulation = subpopulation;
             this.fitness = fitness;
             this.indID = indID;
@@ -154,13 +154,13 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         public int getRun() { return run; }
 
         @Override
-        public int getGeneration() { return generation; }
+        public int getStep() { return step; }
         
         
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("%d, %d, %d, %d, %f", run, generation, subpopulation, indID, fitness));
+            sb.append(String.format("%d, %d, %d, %d, %f", run, step, subpopulation, indID, fitness));
             for (final double d : values)
                 sb.append(", ").append(d);
             assert(repOK());
@@ -171,7 +171,7 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         @Override
         public final boolean repOK() {
             return run >= 0
-                    && generation >= 0
+                    && step >= 0
                     && subpopulation >= 0
                     && indID >= 0
                     && values != null;
@@ -183,7 +183,7 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
                 return false;
             final DoubleVectorMeasurement ref = (DoubleVectorMeasurement)o;
             return run == ref.run
-                    && generation == ref.generation
+                    && step == ref.step
                     && subpopulation == ref.subpopulation
                     && indID == ref.indID
                     && Misc.doubleEquals(fitness, ref.fitness)
@@ -194,7 +194,7 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         public int hashCode() {
             int hash = 7;
             hash = 79 * hash + this.run;
-            hash = 79 * hash + this.generation;
+            hash = 79 * hash + this.step;
             hash = 79 * hash + this.subpopulation;
             hash = 79 * hash + (int) (Double.doubleToLongBits(this.fitness) ^ (Double.doubleToLongBits(this.fitness) >>> 32));
             hash = 79 * hash + (int) (this.indID ^ (this.indID >>> 32));

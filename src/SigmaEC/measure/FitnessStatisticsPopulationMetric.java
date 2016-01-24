@@ -42,7 +42,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         assert(repOK());
     }
     
-    /** Prints a row of the form "run, generation, mean, std, best, worst, bsf" for each subpopulation. */
+    /** Prints a row of the form "run, step, mean, std, best, worst, bsf" for each subpopulation. */
     @Override
     public synchronized MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(run >= 0);
@@ -99,7 +99,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
 
     @Override
     public String csvHeader() {
-        return "run, generation, subpopulation, mean, std, best, worst, bsf, bsf_individualID";
+        return "run, step, subpopulation, mean, std, best, worst, bsf, bsf_individualID";
     }
 
     @Override
@@ -166,7 +166,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     
     public static class FitnessStatisticsMeasurement extends Measurement {
         private final int run;
-        private final int generation;
+        private final int step;
         private final int subpopulation;
         private final double mean;
         private final double std;
@@ -175,9 +175,9 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         private final double bestSoFar;
         private final long bsfIndividualID;
         
-        public FitnessStatisticsMeasurement(final int run_, final int generation_, final int subpopulation_, final double mean_, final double std_, final double best_, final double worst_, final double bsf_, final long bsfIndividualID_) {
+        public FitnessStatisticsMeasurement(final int run_, final int step_, final int subpopulation_, final double mean_, final double std_, final double best_, final double worst_, final double bsf_, final long bsfIndividualID_) {
             run = run_;
-            generation = generation_;
+            step = step_;
             subpopulation = subpopulation_;
             mean = mean_;
             std = std_;
@@ -189,7 +189,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         }
 
         @Override public int getRun() { return run; }
-        @Override public int getGeneration() { return generation; }
+        @Override public int getStep() { return step; }
         public double getMean() { return mean; }
         public double getStd() { return std; }
         public double getBest() { return best; }
@@ -201,13 +201,13 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         @Override
         public String toString() {
             return String.format("%d, %d, %d, %f, %f, %f, %f, %f, %d",
-                    run, generation, subpopulation, mean, std, best, worst, bestSoFar, bsfIndividualID);
+                    run, step, subpopulation, mean, std, best, worst, bestSoFar, bsfIndividualID);
         }
 
         @Override
         public final boolean repOK() {
             return run >= 0
-                    && generation >= 0
+                    && step >= 0
                     && subpopulation >= 0
                     && bsfIndividualID >= 0;
         }
@@ -220,7 +220,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
                 return false;
             final FitnessStatisticsMeasurement ref = (FitnessStatisticsMeasurement)o;
             return run == ref.run
-                    && generation == ref.generation
+                    && step == ref.step
                     && subpopulation == ref.subpopulation
                     && Misc.doubleEquals(mean, ref.mean)
                     && Misc.doubleEquals(std, ref.std)
@@ -234,7 +234,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         public int hashCode() {
             int hash = 3;
             hash = 23 * hash + this.run;
-            hash = 23 * hash + this.generation;
+            hash = 23 * hash + this.step;
             hash = 23 * hash + this.subpopulation;
             hash = 23 * hash + (int) (Double.doubleToLongBits(this.mean) ^ (Double.doubleToLongBits(this.mean) >>> 32));
             hash = 23 * hash + (int) (Double.doubleToLongBits(this.std) ^ (Double.doubleToLongBits(this.std) >>> 32));

@@ -48,33 +48,33 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
     }
     
     @Override
-    public MultipleStringMeasurement measurePopulation(final int run, final int generation, final Population<T> population) {
+    public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(run >= 0);
-        assert(generation >= 0);
+        assert(step >= 0);
         assert(population != null);
         final List<String> arrays = new ArrayList<String>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.
                     final T best = population.getBest(i, fitnessComparator.get());
-                    add(individualToCSV(run, generation, i, best));
+                    add(individualToCSV(run, step, i, best));
                 }
                 else // Record all individuals.
                     for(final T ind : population.getSubpopulation(i))
-                        add(individualToCSV(run, generation, i, ind));
+                        add(individualToCSV(run, step, i, ind));
             }
         }};
         assert(repOK());
-        return new MultipleStringMeasurement(run, generation, arrays);
+        return new MultipleStringMeasurement(run, step, arrays);
     }
     
-    private String individualToCSV(final int run, final int generation, final int subPop, final T ind) {
+    private String individualToCSV(final int run, final int step, final int subPop, final T ind) {
         assert(run >= 0);
-        assert(generation >= 0);
+        assert(step >= 0);
         assert(subPop >= 0);
         assert(ind != null);
         assert(ind.size() == numBits);
         final StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%d, %d, %d, %d, %f", run, generation, subPop, ind.getID(), ind.getFitness()));
+        sb.append(String.format("%d, %d, %d, %d, %f", run, step, subPop, ind.getID(), ind.getFitness()));
         for(final BitGene g : ind.getGenome())
             sb.append(", ").append(g.value ? 1 : 0);
         return sb.toString();
@@ -83,7 +83,7 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
     @Override
     public String csvHeader() {
         final StringBuilder sb = new StringBuilder()
-                .append("run, generation, subpopulation, individualID, fitness");
+                .append("run, step, subpopulation, individualID, fitness");
         for (int i = 0; i < numBits; i++)
             sb.append(", V").append(i);
         assert(repOK());
