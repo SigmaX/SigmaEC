@@ -253,6 +253,58 @@ public class Parameters extends ContractObject {
     }
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Int Array">
+    
+    public int[] getIntArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        final String[] intStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
+        final int[] array = new int[intStrings.length];
+        for (int i = 0; i < intStrings.length; i++)
+            array[i] = Integer.parseInt(intStrings[i]);
+        return array;
+    }
+    public Option<int[]> getOptionalIntArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        if (properties.containsKey(parameterName))
+            return new Option<>(getIntArrayParameter(parameterName));
+        else
+            return Option.NONE;
+    }
+    
+    public int[] getOptionalIntArrayParameter(final String parameterName, final int[] deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(deflt != null);
+        final Option<int[]> opt = getOptionalIntArrayParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
+    public int[] getOptionalIntArrayParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<int[]> opt = getOptionalIntArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getIntArrayParameter(defaultParameter);
+    }
+    
+    public int[] getOptionalIntArrayParameter(final String parameterName, final String defaultParameter, final int[] defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        assert(defaultValue != null);
+        final Option<int[]> opt = getOptionalIntArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalIntArrayParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc="Long">
     public long getLongParameter(final String parameterName) {
         assert(parameterName != null);

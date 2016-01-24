@@ -137,7 +137,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     }
     
     
-    /** Construct a random double vector. */
+    /** Construct a random int vector. */
     public IntVectorIndividual(final Random random, final int numDimensions, final int[] minValues, final int[] maxValues) {
         assert(random != null);
         assert(numDimensions > 0);
@@ -150,6 +150,23 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
                final int delta = maxValues[i] - minValues[i];
                assert(delta >= 0);
                final int roll = minValues[i] + (random.nextInt()*delta);
+               add(new IntGene(roll));
+           } 
+        }};
+        this.id = nextId++;
+        fitness = Option.NONE;
+        parents = Option.NONE;
+        assert(repOK());
+    }
+    
+    public IntVectorIndividual(final Random random, final int numDimensions, final int defaultMinValue, final int defaultMaxValue) {
+        assert(random != null);
+        assert(numDimensions > 0);
+        this.genome = new ArrayList<IntGene>(numDimensions) {{
+           for (int i = 0; i < numDimensions; i++) {
+               final int delta = defaultMaxValue - defaultMinValue;
+               assert(delta >= 0);
+               final int roll = defaultMinValue + (random.nextInt()*delta);
                add(new IntGene(roll));
            } 
         }};
