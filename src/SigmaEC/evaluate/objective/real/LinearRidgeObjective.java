@@ -114,7 +114,7 @@ public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends Obje
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setStep(int i) {
         // Do nothing
     }
     

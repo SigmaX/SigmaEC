@@ -48,7 +48,7 @@ public class ConstantObjective<T extends Individual> extends ObjectiveFunction<T
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setStep(int i) {
         // Do nothing
     }
 

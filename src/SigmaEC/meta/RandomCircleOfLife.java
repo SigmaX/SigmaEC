@@ -58,7 +58,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         while (!stoppingCondition.stop(population, i)) {
             // Tell the problem what generation we're on (in case it's a dynamic landscape)
             if (isDynamic)
-                objective.setGeneration(i);
+                objective.setStep(i);
             
             // Take measurements
             if (metrics.isDefined())

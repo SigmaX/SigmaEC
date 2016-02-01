@@ -57,7 +57,7 @@ public class TSPObjective extends ObjectiveFunction<IntVectorIndividual> {
     }
 
     @Override
-    public void setGeneration(int i) { /* Do nothing */ }
+    public void setStep(int i) { /* Do nothing */ }
 
     @Override
     public int getNumDimensions() {

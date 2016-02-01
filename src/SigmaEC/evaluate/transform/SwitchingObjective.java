@@ -55,7 +55,7 @@ public class SwitchingObjective<T extends Individual> extends ObjectiveFunction<
     }
 
     @Override
-    public void setGeneration(final int i) {
+    public void setStep(final int i) {
         assert(i >= 0);
         currentStep = i;
     }

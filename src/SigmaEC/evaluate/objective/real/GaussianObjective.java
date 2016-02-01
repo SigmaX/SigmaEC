@@ -69,7 +69,7 @@ public class GaussianObjective extends ObjectiveFunction<DoubleVectorIndividual>
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setStep(int i) {
         // Do nothing
     }
 

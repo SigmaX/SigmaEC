@@ -47,10 +47,10 @@ public class CachedObjective<P> extends ObjectiveFunction<P> {
     }
 
     @Override
-    public void setGeneration(final int i) {
+    public void setStep(final int i) {
         if (flush)
             memory.clear();
-        objective.setGeneration(i);
+        objective.setStep(i);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

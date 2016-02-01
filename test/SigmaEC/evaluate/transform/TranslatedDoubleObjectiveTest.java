@@ -219,18 +219,18 @@ public class TranslatedDoubleObjectiveTest {
     public void testSetGeneration() {
         System.out.println("setGeneration");
         final int i = 0;
-        // Mocking the wrapped objective to confirm that its setGeneration method is called.
+        // Mocking the wrapped objective to confirm that its setStep method is called.
         final Mockery context = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);
         }};
         final ObjectiveFunction<DoubleVectorIndividual> objective = context.mock(ObjectiveFunction.class);
         context.checking(new Expectations() {{
             allowing (objective).getNumDimensions(); will(returnValue(2));
-            oneOf (objective).setGeneration(i);
+            oneOf (objective).setStep(i);
         }});
         TranslatedDoubleObjective sut = new TranslatedDoubleObjective(new double[] {5, 5}, objective);
         
-        sut.setGeneration(i);
+        sut.setStep(i);
         context.assertIsSatisfied();
     }
 

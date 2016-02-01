@@ -16,7 +16,7 @@ public abstract class ObjectiveFunction<P> extends ContractObject
      * This may be used, for instance, to update a dynamically changing
      * landscape.
      */
-    public abstract void setGeneration(int i);
+    public abstract void setStep(int i);
     
     public abstract int getNumDimensions();
 }

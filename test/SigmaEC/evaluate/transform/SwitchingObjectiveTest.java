@@ -43,7 +43,7 @@ public class SwitchingObjectiveTest {
     public void testFitness2() {
         System.out.println("fitness");
         final SwitchingObjective instance = new SwitchingObjective(builder.build(), BASE);
-        instance.setGeneration(9);
+        instance.setStep(9);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
         double result = instance.fitness(ind);
@@ -55,7 +55,7 @@ public class SwitchingObjectiveTest {
     public void testFitness3() {
         System.out.println("fitness");
         final SwitchingObjective instance = new SwitchingObjective(builder.build(), BASE);
-        instance.setGeneration(10);
+        instance.setStep(10);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
         double result = instance.fitness(ind);
@@ -67,7 +67,7 @@ public class SwitchingObjectiveTest {
     public void testFitness4() {
         System.out.println("fitness");
         final SwitchingObjective instance = new SwitchingObjective(builder.build(), BASE);
-        instance.setGeneration(19);
+        instance.setStep(19);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
         double result = instance.fitness(ind);
@@ -79,7 +79,7 @@ public class SwitchingObjectiveTest {
     public void testFitness5() {
         System.out.println("fitness");
         final SwitchingObjective instance = new SwitchingObjective(builder.build(), BASE);
-        instance.setGeneration(20);
+        instance.setStep(20);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
         double result = instance.fitness(ind);
@@ -91,7 +91,7 @@ public class SwitchingObjectiveTest {
     public void testFitness6() {
         System.out.println("fitness");
         final SwitchingObjective instance = new SwitchingObjective(builder.build(), BASE);
-        instance.setGeneration(40);
+        instance.setStep(40);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
         double result = instance.fitness(ind);
@@ -120,7 +120,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(9);
+        instance.setStep(9);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
         double result = instance.fitness(ind);
@@ -134,7 +134,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(10);
+        instance.setStep(10);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
         double result = instance.fitness(ind);
@@ -148,7 +148,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(19);
+        instance.setStep(19);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
         double result = instance.fitness(ind);
@@ -162,7 +162,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(20);
+        instance.setStep(20);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
         double result = instance.fitness(ind);
@@ -176,7 +176,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(29);
+        instance.setStep(29);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
         double result = instance.fitness(ind);
@@ -190,7 +190,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(30);
+        instance.setStep(30);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
         double result = instance.fitness(ind);
@@ -204,7 +204,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(39);
+        instance.setStep(39);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
         double result = instance.fitness(ind);
@@ -218,7 +218,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(40);
+        instance.setStep(40);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
         double result = instance.fitness(ind);
@@ -232,7 +232,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(49);
+        instance.setStep(49);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
         double result = instance.fitness(ind);
@@ -246,7 +246,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder
                 .setParameter(Parameters.push(BASE, SwitchingObjective.P_REPEAT), "true")
                 .build(), BASE);
-        instance.setGeneration(50);
+        instance.setStep(50);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
         double result = instance.fitness(ind);

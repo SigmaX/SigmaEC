@@ -29,7 +29,7 @@ public class TestVectorObjective extends ObjectiveFunction<DoubleVectorIndividua
     public int getNumDimensions() { return 3;}
 
     @Override
-    public void setGeneration(final int i) {
+    public void setStep(final int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

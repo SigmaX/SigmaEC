@@ -59,9 +59,9 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
     }
 
     @Override
-    public void setGeneration(final int i) {
+    public void setStep(final int i) {
         for (final ObjectiveFunction o : objectives)
-            o.setGeneration(i);
+            o.setStep(i);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">

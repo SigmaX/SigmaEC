@@ -78,7 +78,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             
             // Tell the problem what generation we're on (if it's a dynamic landscape)
             if (isDynamic)
-                objective.setGeneration(i);
+                objective.setStep(i);
             
             // Update our local best-so-far variable
             final T bestOfGen = Statistics.best(population.getSubpopulation(0), fitnessComparator);

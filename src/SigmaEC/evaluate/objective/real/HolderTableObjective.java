@@ -29,7 +29,7 @@ public class HolderTableObjective extends ObjectiveFunction<DoubleVectorIndividu
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setStep(int i) {
         // Do nothing
     }
 

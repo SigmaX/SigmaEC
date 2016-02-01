@@ -33,7 +33,7 @@ public class OneMaxObjective extends ObjectiveFunction<BitStringIndividual>{
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setStep(int i) {
         /* Do nothing. */
     }
 

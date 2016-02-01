@@ -105,8 +105,8 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
     }
 
     @Override
-    public void setGeneration(final int i) {
-        objective.setGeneration(i);
+    public void setStep(final int i) {
+        objective.setStep(i);
     }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

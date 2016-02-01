@@ -57,8 +57,8 @@ public class PinCushionGaussianObjective  extends ObjectiveFunction<DoubleVector
     }
 
     @Override
-    public void setGeneration(int i) {
-        objective.setGeneration(i);
+    public void setStep(int i) {
+        objective.setStep(i);
     }
 
     @Override

@@ -36,7 +36,7 @@ public class DynamicInstanceObjective extends ObjectiveFunction<DoubleVectorIndi
     }
 
     @Override
-    public void setGeneration(final int i) {
+    public void setStep(final int i) {
         currentObjective = problemClass.getNewInstance();
     }
 

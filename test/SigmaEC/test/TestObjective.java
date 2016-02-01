@@ -32,7 +32,7 @@ public class TestObjective extends ObjectiveFunction<Double> {
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setStep(int i) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

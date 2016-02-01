@@ -37,7 +37,7 @@ public class AckleyObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     }
 
     @Override
-    public void setGeneration(int i) { /** Do nothing */ }
+    public void setStep(int i) { /** Do nothing */ }
 
     @Override
     public int getNumDimensions() { return numDimensions; }

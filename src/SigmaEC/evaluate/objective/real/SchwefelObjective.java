@@ -32,7 +32,7 @@ public class SchwefelObjective extends ObjectiveFunction<DoubleVectorIndividual>
     }
 
     @Override
-    public void setGeneration(final int i) {
+    public void setStep(final int i) {
         // Do nothing
     }
 

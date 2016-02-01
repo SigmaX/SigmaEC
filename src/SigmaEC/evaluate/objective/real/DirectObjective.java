@@ -25,7 +25,7 @@ public class DirectObjective extends ObjectiveFunction<Double> {
     }
 
     @Override
-    public void setGeneration(int i) { }
+    public void setStep(int i) { }
 
     @Override
     public int getNumDimensions() {

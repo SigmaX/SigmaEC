@@ -40,8 +40,8 @@ public class InvertedObjective<T> extends ObjectiveFunction<T>
     }
 
     @Override
-    public void setGeneration(int i) {
-        objective.setGeneration(i);
+    public void setStep(int i) {
+        objective.setStep(i);
     }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

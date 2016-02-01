@@ -47,8 +47,8 @@ public class ScalarMultipliedObjective<T extends Individual> extends ObjectiveFu
 
 
     @Override
-    public void setGeneration(final int i) {
-        objective.setGeneration(i);
+    public void setStep(final int i) {
+        objective.setStep(i);
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">

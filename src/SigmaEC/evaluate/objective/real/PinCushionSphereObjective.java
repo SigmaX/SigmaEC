@@ -60,8 +60,8 @@ public class PinCushionSphereObjective extends ObjectiveFunction<DoubleVectorInd
     }
 
     @Override
-    public void setGeneration(int i) {
-        objective.setGeneration(i);
+    public void setStep(int i) {
+        objective.setStep(i);
     }
 
     @Override

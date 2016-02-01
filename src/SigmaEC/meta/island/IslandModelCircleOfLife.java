@@ -110,7 +110,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
             migrationPolicy.migrateAll(step, population, topology);
 
             if (isDynamic)
-                objective.setGeneration(step);
+                objective.setStep(step);
             
             // Update our local best-so-far variable
             final T bestOfGen = population.getBest(fitnessComparator);

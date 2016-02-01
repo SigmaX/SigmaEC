@@ -129,7 +129,7 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
     }
 
     @Override
-    public void setGeneration(int i) {
+    public void setStep(int i) {
         // Do nothing
     }
 
