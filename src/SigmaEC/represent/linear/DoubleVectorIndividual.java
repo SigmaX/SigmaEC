@@ -208,8 +208,7 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         if (!(o instanceof DoubleVectorIndividual))
             return false;
         final DoubleVectorIndividual ref = (DoubleVectorIndividual) o;
-        return id == ref.id
-                && genome.equals(ref.genome)
+        return genome.equals(ref.genome)
                 && fitness.equals(ref.fitness)
                 && parents.equals(ref.parents);
     }
@@ -218,7 +217,6 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     public int hashCode() {
         int hash = 5;
         hash = 53 * hash + Objects.hashCode(this.genome);
-        hash = 53 * hash + (int) (this.id ^ (this.id >>> 32));
         hash = 53 * hash + Objects.hashCode(this.fitness);
         hash = 53 * hash + Objects.hashCode(this.parents);
         return hash;

@@ -1,6 +1,7 @@
 package SigmaEC.util.math;
 
 import SigmaEC.represent.Individual;
+import SigmaEC.represent.distance.DistanceMeasure;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import java.util.List;
@@ -25,13 +26,19 @@ public final class Statistics
         return sum/values.length;
     }
 
-    /** Sample standard deviation (without Bessel's correction). */
+    /** Sample standard deviation (with Bessel's correction). */
     public static double std(double[] values, double mean) {
+        assert(Misc.doubleEquals(mean, mean(values)));
         assert(values != null);
         double sum = 0;
         for (int i = 0; i < values.length; i++)
             sum += Math.pow(values[i] - mean, 2);
-        return Math.sqrt(sum/(values.length));
+        return Math.sqrt(sum/((values.length) - 1));
+    }
+
+    /** Sample standard deviation (with Bessel's correction). */
+    public static double std(double[] values) {
+        return std(values, mean(values));
     }
     
     /*public static double covariance(double[] x, double[] y) {
@@ -128,5 +135,18 @@ public final class Statistics
         for (final double d : array)
             sum += d;
         return Misc.doubleEquals(sum, 1.0);
+    }
+    
+    /** Compute distance matrix among a set of individuals. */
+    public static <T extends Individual> double[][] distanceMatrix(final List<T> points, final DistanceMeasure<T> distanceMeasure) {
+        assert(points != null);
+        assert(points.size() > 0);
+        final double[][] distances = new double[points.size()][points.size()];
+        for (int i = 0; i < points.size(); i++) {
+            for (int j = 0; j < points.size(); j++) {
+                distances[i][j] = distanceMeasure.distance(points.get(i), points.get(j));
+            }
+        }
+        return distances;
     }
 }

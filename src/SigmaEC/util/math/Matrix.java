@@ -13,8 +13,7 @@ public class Matrix {
         throw new AssertionError(Matrix.class.getSimpleName() + ": Attempted to instantiate static utility class.");
     }
     
-    public static boolean isSquare(final double[][] matrix)
-    {
+    public static boolean isSquare(final double[][] matrix) {
         assert(matrix != null);
         int d = matrix.length;
         for (double[] c : matrix)
@@ -35,10 +34,11 @@ public class Matrix {
     }
     
     /** @return The cross product of two matrices M1 * M2 */
-    public static double[][] multiply(double[][] M1, double[][] M2) throws IllegalArgumentException
-    {
-        assert(M1[0].length == M2.length);
+    public static double[][] multiply(final double[][] M1, final double[][] M2) throws IllegalArgumentException {
+        assert(M1 != null);
+        assert(M2 != null);
         assert(allRowsEqualLength(M1) && allRowsEqualLength(M2));
+        assert(M1[0].length == M2.length);
 
         int numRows = M1.length;
         int numCols = M2[0].length;
@@ -59,6 +59,52 @@ public class Matrix {
         }
                 
         return productMatrix;
+    }
+    
+    public static String prettyPrint(final double[][] matrix) {
+        assert(allRowsEqualLength(matrix));
+        if (matrix.length == 0)
+            return "";
+        final StringBuilder sb = new StringBuilder();
+        final int columns = matrix[0].length;
+        if (columns == 0)
+            return "";
+        for (int i = 0; i < matrix.length; i++) {
+            sb.append(matrix[i][0]);
+            for (int j = 1; j < columns; j++) {
+                sb.append(", ").append(matrix[i][j]);
+            }
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+    
+    public static double meanElementValue(final double[][] matrix) {
+        assert(matrix != null);
+        assert(allRowsEqualLength(matrix));
+        final int columns = matrix[0].length;
+        double sum = 0.0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < columns; j++) {
+                sum += matrix[i][j];
+            }
+        }
+        return sum / (matrix.length * columns);
+    }
+    
+    /** Standard deviation of the values of all elements (with Bessel's correction). */
+    public static double stdElementValue(final double[][] matrix) {
+        assert(matrix != null);
+        assert(allRowsEqualLength(matrix));
+        final int columns = matrix[0].length;
+        final double mean = meanElementValue(matrix);
+        double sumSqrDiff = 0.0;
+        for (int i = 0; i < matrix.length; i++) {
+            for (int j = 0; j < columns; j++) {
+                sumSqrDiff += Math.pow(matrix[i][j] - mean, 2);
+            }
+        }
+        return Math.sqrt(sumSqrDiff / (matrix.length * columns - 1));
     }
     
     public static double[][] copy(double[][] matrix) {

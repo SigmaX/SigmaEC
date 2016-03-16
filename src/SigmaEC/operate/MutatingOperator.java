@@ -16,7 +16,7 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public class MutatingOperator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Operator<T> {
-    private final static String P_MUTATOR = "mutator";
+    public final static String P_MUTATOR = "mutator";
     
     private final Mutator<T, G> mutator;
     private final Selector<T> parentSelector = new IterativeSelector<T>();

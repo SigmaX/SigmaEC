@@ -47,6 +47,13 @@ public class EvaluationOperator<T extends Individual, P> extends Operator<T> {
                 }
         }};
     }
+    
+    public T evaluate(final T ind) {
+        final P phenotype = decoder.isDefined() ? decoder.get().decode(ind) : (P) ind;
+        final double fitness = objective.fitness(phenotype);
+        assert(!Double.isNaN(fitness)) : String.format("The following individual, decoder, and phenotype yielded a fitness value of NaN, which is not allowed.\nindiviual: %s\ndecoder: %s\nphenotype: %s", ind, decoder, phenotype);
+        return (T) ind.clearParents().setFitness(fitness);
+    }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override

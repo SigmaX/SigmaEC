@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -22,7 +24,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     public final static String P_MIN_VALUES = "minValues";
     public final static String P_RANDOM = "random";
     
-    private final int populationSize;
+    private final Option<Integer> populationSize;
     private final int numDimensions;
     private final Option<Double> defaultMaxValue;
     private final Option<Double> defaultMinValue;
@@ -33,8 +35,10 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
-        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        populationSize = parameters.getOptionalIntParameter(Parameters.push(base, P_POPULATION_SIZE));
+        if (!populationSize.isDefined())
+            Logger.getLogger(this.getClass().toString()).log(Level.INFO, String.format("Parameter '%s' is not defined.  This initializer will only be able to generate single individuals.", Parameters.push(base, P_POPULATION_SIZE)));
+        numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         
         defaultMaxValue = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE));
         maxValues = parameters.getOptionalDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
@@ -58,8 +62,10 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
 
     @Override
     public List<DoubleVectorIndividual> generatePopulation() {
-        final List<DoubleVectorIndividual> population = new ArrayList<DoubleVectorIndividual>(populationSize) {{
-            for (int i = 0; i < populationSize; i++)
+        if (!populationSize.isDefined())
+            throw new IllegalStateException("Attempted to generate a population, but population size is not defined.");
+        final List<DoubleVectorIndividual> population = new ArrayList<DoubleVectorIndividual>(populationSize.get()) {{
+            for (int i = 0; i < populationSize.get(); i++)
                 add(generateIndividual());
         }};
         assert(repOK());
@@ -92,7 +98,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 && !P_POPULATION_SIZE.isEmpty()
                 && P_RANDOM != null
                 && !P_RANDOM.isEmpty()
-                && populationSize > 0
+                && populationSize != null
+                && !(populationSize.isDefined() && populationSize.get() <= 0)
                 && numDimensions > 0
                 && ((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) ^ (maxValues.isDefined() && minValues.isDefined()))
                 && !(maxValues.isDefined() && maxValues.get().length != numDimensions)
@@ -107,8 +114,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         if (!(o instanceof DoubleVectorInitializer))
             return false;
         final DoubleVectorInitializer ref = (DoubleVectorInitializer) o;
-        return populationSize == ref.populationSize
-                && numDimensions == ref.numDimensions
+        return numDimensions == ref.numDimensions
+                && populationSize.equals(ref.populationSize)
                 && random.equals(ref.random)
                 && maxValues.equals(ref.maxValues)
                 && minValues.equals(ref.minValues)
@@ -118,20 +125,20 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 23 * hash + this.populationSize;
-        hash = 23 * hash + this.numDimensions;
-        hash = 23 * hash + Objects.hashCode(this.defaultMaxValue);
-        hash = 23 * hash + Objects.hashCode(this.defaultMinValue);
-        hash = 23 * hash + Objects.hashCode(this.maxValues);
-        hash = 23 * hash + Objects.hashCode(this.minValues);
-        hash = 23 * hash + Objects.hashCode(this.random);
+        int hash = 7;
+        hash = 61 * hash + Objects.hashCode(this.populationSize);
+        hash = 61 * hash + this.numDimensions;
+        hash = 61 * hash + Objects.hashCode(this.defaultMaxValue);
+        hash = 61 * hash + Objects.hashCode(this.defaultMinValue);
+        hash = 61 * hash + Objects.hashCode(this.maxValues);
+        hash = 61 * hash + Objects.hashCode(this.minValues);
+        hash = 61 * hash + Objects.hashCode(this.random);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_POPULATION_SIZE, populationSize,
                 P_NUM_DIMENSIONS, numDimensions,
                 P_RANDOM, random,

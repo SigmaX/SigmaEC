@@ -125,7 +125,7 @@ public class Parameters extends ContractObject {
         assert(parameterValue != null);
         if (!isReference(parameterValue))
             return parameterValue;
-        final String targetName = parameterValue.substring(1);
+        final String targetName = parameterValue.substring(1).trim();
         if (instanceRegistry.containsKey(targetName))
             return targetName;
         final String targetValue = properties.getProperty(targetName);
@@ -140,7 +140,7 @@ public class Parameters extends ContractObject {
     private String dereferenceToParameter(final String parameterValue) {
         assert(parameterValue != null);
         assert(isReference(parameterValue));
-        final String targetName = parameterValue.substring(1);
+        final String targetName = parameterValue.substring(1).trim();
         final String targetValue = properties.getProperty(targetName);
         if (targetValue == null)
             throw new IllegalStateException(String.format("%s: referenced parameter %s not found.", this.getClass().getSimpleName(), targetName));

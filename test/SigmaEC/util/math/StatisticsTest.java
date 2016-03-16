@@ -1,5 +1,12 @@
 package SigmaEC.util.math;
 
+import SigmaEC.represent.distance.DistanceMeasure;
+import SigmaEC.represent.distance.DoubleVectorEuclideanDistanceMeasure;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
+import SigmaEC.util.Parameters;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -113,5 +120,27 @@ public class StatisticsTest {
         double result = Statistics.min(values);
         assertEquals(expResult, result, 0.0);
         assertEquals(10, Statistics.minIndex(values));
+    }
+    
+    @Test
+    public void testDistanceMatrix() {
+        System.out.println("distanceMatrix");
+        final DistanceMeasure<DoubleVectorIndividual> dist = new DoubleVectorEuclideanDistanceMeasure(new Parameters.Builder(new Properties()).build(), "");
+        final List<DoubleVectorIndividual> points = new ArrayList<DoubleVectorIndividual>() {{
+            add(new DoubleVectorIndividual.Builder(new double[] { 0, 0, 0 }).build());
+            add(new DoubleVectorIndividual.Builder(new double[] { 0, 0, 1 }).build());
+            add(new DoubleVectorIndividual.Builder(new double[] { 0, 1, 0 }).build());
+            add(new DoubleVectorIndividual.Builder(new double[] { 1, 0, 0 }).build());
+            add(new DoubleVectorIndividual.Builder(new double[] { 1, 1, 1 }).build());
+        }};
+        final double[][] expectedResult = new double[][] {
+            { 0, 1, 1, 1, Math.sqrt(3) },
+            { 1, 0, Math.sqrt(2), Math.sqrt(2), Math.sqrt(2) },
+            { 1, Math.sqrt(2), 0, Math.sqrt(2), Math.sqrt(2) },
+            { 1, Math.sqrt(2), Math.sqrt(2), 0, Math.sqrt(2) },
+            { Math.sqrt(3), Math.sqrt(2), Math.sqrt(2), Math.sqrt(2), 0}
+        };
+        final double[][] result = Statistics.distanceMatrix(points, dist);
+        assertTrue(Matrix.equals(result, expectedResult, 0.00000001));
     }
 }

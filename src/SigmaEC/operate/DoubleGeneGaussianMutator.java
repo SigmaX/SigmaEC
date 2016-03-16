@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene>, DoubleGene> {
+public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<DoubleGene>, DoubleGene> {
     public final static String P_GAUSSIAN_STD = "gaussianStd";
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
@@ -35,7 +35,7 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
     private final Option<double[]> maxValues;
     private final Option<double[]> minValues;
     
-    public DoubleGeneMutator(final Parameters parameters, final String base) {
+    public DoubleGeneGaussianMutator(final Parameters parameters, final String base) {
         this.gaussianStd = parameters.getDoubleParameter(Parameters.push(base, P_GAUSSIAN_STD));
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         mutationRate = parameters.getDoubleParameter(Parameters.push(base, P_MUTATION_RATE));
@@ -156,10 +156,10 @@ public class DoubleGeneMutator extends Mutator<LinearGenomeIndividual<DoubleGene
     final public boolean equals(final Object o) {
         if (o == this)
             return true;
-        if (!(o instanceof DoubleGeneMutator))
+        if (!(o instanceof DoubleGeneGaussianMutator))
             return false;
         
-        DoubleGeneMutator ref = (DoubleGeneMutator) o;
+        DoubleGeneGaussianMutator ref = (DoubleGeneGaussianMutator) o;
         return Misc.doubleEquals(gaussianStd, ref.gaussianStd)
                 && Misc.doubleEquals(mutationRate, ref.mutationRate)
                 && random.equals(ref.random);
