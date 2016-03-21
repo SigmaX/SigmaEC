@@ -24,7 +24,7 @@ public class NAND extends ContractObject implements BooleanFunction {
     @Override
     public boolean[] execute(boolean[] input) {
         assert(input != null);
-        assert(input.length == arity());
+        assert(input.length >= arity());
         assert(repOK());
         return new boolean[] { !(input[0] && input[1]) };
     }

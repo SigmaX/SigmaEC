@@ -7,18 +7,20 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric O. Scott
  */
-public class AND extends ContractObject implements BooleanFunction {
+public class PAIRWISE_XOR extends ContractObject implements BooleanFunction {
     public final static String P_ARITY = "arity";
     
     private final int arity;
     
-    public AND(final Parameters parameters, final String base) {
+    public PAIRWISE_XOR(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        arity = parameters.getOptionalIntParameter(Parameters.push(base, P_ARITY), 2);
+        arity = parameters.getOptionalIntParameter(Parameters.push(base, P_ARITY), 4);
+        if (!(arity % 2 == 0))
+            throw new IllegalStateException(String.format("%s: parameter '%s' must be even.", this.getClass().getSimpleName(), Parameters.push(base, P_ARITY)));
         assert(repOK());
     }
-
+    
     @Override
     public int arity() {
         return arity;
@@ -26,39 +28,38 @@ public class AND extends ContractObject implements BooleanFunction {
 
     @Override
     public int numOutputs() {
-        return 1;
+        return arity()/2;
     }
 
     @Override
     public boolean[] execute(boolean[] input) {
         assert(input != null);
         assert(input.length >= arity);
-        boolean result = true;
-        for (final boolean b : input)
-            result &= b;
-        return new boolean[] { result };
+        boolean[] output = new boolean[numOutputs()];
+        for (int i = 0; i < numOutputs(); i++)
+            output[i] = input[2*i] ^ input[2*i + 1];
+        return output;
     }
-
+    
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
         return P_ARITY != null
                 && !P_ARITY.isEmpty()
-                && arity > 0;
+                && arity >= 3;
     }
 
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof AND))
+        if (!(o instanceof PAIRWISE_XOR))
             return false;
-        final AND ref = (AND)o;
-        return arity == ref.arity;
+        return arity == ((PAIRWISE_XOR)o).arity;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 73 * hash + this.arity;
+        int hash = 7;
+        hash = 89 * hash + this.arity;
         return hash;
     }
 
@@ -68,4 +69,5 @@ public class AND extends ContractObject implements BooleanFunction {
                 P_ARITY, arity);
     }
     // </editor-fold>
+    
 }

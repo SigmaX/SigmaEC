@@ -24,7 +24,7 @@ public class FULL_ADDER extends ContractObject implements BooleanFunction {
     @Override
     public boolean[] execute(boolean[] input) {
         assert(input != null);
-        assert(input.length == arity());
+        assert(input.length >= arity());
         int sum = 0;
         sum += (input[0] ? 1 : 0);
         sum += (input[1] ? 1 : 0);

@@ -138,7 +138,7 @@ public final class Statistics
     }
     
     /** Compute distance matrix among a set of individuals. */
-    public static <T extends Individual> double[][] distanceMatrix(final List<T> points, final DistanceMeasure<T> distanceMeasure) {
+    public static <T> double[][] distanceMatrix(final List<T> points, final DistanceMeasure<T> distanceMeasure) {
         assert(points != null);
         assert(points.size() > 0);
         final double[][] distances = new double[points.size()][points.size()];

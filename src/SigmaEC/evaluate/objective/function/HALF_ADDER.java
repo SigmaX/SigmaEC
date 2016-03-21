@@ -5,7 +5,7 @@ import SigmaEC.util.Parameters;
 
 /**
  *
- * @author eric
+ * @author Eric O. Scott
  */
 public class HALF_ADDER extends ContractObject implements BooleanFunction {
 
@@ -24,7 +24,7 @@ public class HALF_ADDER extends ContractObject implements BooleanFunction {
     @Override
     public boolean[] execute(boolean[] input) {
         assert(input != null);
-        assert(input.length == arity());
+        assert(input.length >= arity());
         if (input[0] && input[1])
             return new boolean[] { true, false };
         else if (input[0] || input[1])

@@ -24,16 +24,23 @@ public class TruthTableObjective extends ObjectiveFunction<BooleanFunction> {
         assert(repOK());
     }
     
+    public TruthTableObjective(final BooleanFunction targetFunction) {
+        assert(targetFunction != null);
+        this.targetFunction = targetFunction;
+        assert(repOK());
+    }
+    
     @Override
     public double fitness(final BooleanFunction ind) {
         assert(ind != null);
         assert(ind.arity() >= targetFunction.arity());
-        assert(ind.numOutputs() >= targetFunction.numOutputs());
         final List<boolean[]> inputs = bitStringPermutations(ind.arity());
         int matches = 0;
         for (final boolean[] input : inputs) {
-            final boolean[] targetResult = targetFunction.execute(input);
-            final boolean[] indResult = Arrays.copyOf(ind.execute(input), targetResult.length);
+            final int minNumOutputs = Math.min(ind.numOutputs(), targetFunction.numOutputs());
+            final boolean[] targetResult = Arrays.copyOf(targetFunction.execute(input), minNumOutputs);
+            final boolean[] indResult = Arrays.copyOf(ind.execute(input), minNumOutputs);
+            // FIXME Need to give credit for partial matches
             if (Arrays.equals(indResult, targetResult))
                 matches++;
         }

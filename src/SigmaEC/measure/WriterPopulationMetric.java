@@ -22,8 +22,10 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     final public static String P_PREFIX = "prefix";
     final public static String P_FILE = "file";
     final public static String P_METRIC = "metric";
+    public final static String P_MODULO = "modulo";
     
     final private Writer writer;
+    private final int modulo;
     final private PopulationMetric<T> wrappedMetric;
     
     public WriterPopulationMetric(final Parameters parameters, final String base) throws IllegalArgumentException {
@@ -55,6 +57,9 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
         } catch (final IOException ex) {
             Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
         }
+        modulo = parameters.getOptionalIntParameter(Parameters.push(base, P_MODULO), 1);
+        if (modulo <= 0)
+            throw new IllegalStateException(String.format("%s: %s is %d, must be positive.", this.getClass().getSimpleName(), P_MODULO, modulo));
         assert(repOK());
     }
     
@@ -62,7 +67,7 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(population != null);
         final Measurement measurement = wrappedMetric.measurePopulation(run, step, population);
-        if (measurement != null) {
+        if (measurement != null && (step % modulo == 0)) {
             try {
                 writer.write(String.format("%s\n", measurement.toString()));
             } catch (final IOException ex) {
