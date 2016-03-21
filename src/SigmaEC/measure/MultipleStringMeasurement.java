@@ -11,17 +11,17 @@ import java.util.List;
  */
 public class MultipleStringMeasurement extends Measurement {
     private final int run;
-    private final int generation;
+    private final int step;
     private final List<String> strings;
     
-    public MultipleStringMeasurement(final int run, final int generation, final List<String> strings) {
+    public MultipleStringMeasurement(final int run, final int step, final List<String> strings) {
         assert(run >= 0);
-        assert(generation >= 0);
+        assert(step >= 0);
         assert(strings != null);
         assert(strings.size() > 0);
         assert(!Misc.containsNulls(strings));
         this.run = run;
-        this.generation = generation;
+        this.step = step;
         this.strings = new ArrayList<>(strings);
         assert(repOK());
     }
@@ -32,7 +32,7 @@ public class MultipleStringMeasurement extends Measurement {
     public int getRun() { return run; }
 
     @Override
-    public int getStep() { return generation; }
+    public int getStep() { return step; }
 
     @Override
     public String toString() {
@@ -48,7 +48,7 @@ public class MultipleStringMeasurement extends Measurement {
     @Override
     public final boolean repOK() {
         return run >= 0
-                && generation >= 0
+                && step >= 0
                 && strings != null
                 && strings.size() > 0
                 && !Misc.containsNulls(strings);
@@ -60,7 +60,7 @@ public class MultipleStringMeasurement extends Measurement {
             return false;
         final MultipleStringMeasurement ref = (MultipleStringMeasurement) o;
         return run == ref.run
-                && generation == ref.generation
+                && step == ref.step
                 && strings.equals(ref.strings);
     }
 
@@ -68,7 +68,7 @@ public class MultipleStringMeasurement extends Measurement {
     public int hashCode() {
         int hash = 5;
         hash = 17 * hash + this.run;
-        hash = 17 * hash + this.generation;
+        hash = 17 * hash + this.step;
         hash = 17 * hash + (this.strings != null ? this.strings.hashCode() : 0);
         return hash;
     }

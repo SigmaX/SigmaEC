@@ -1,9 +1,12 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.operate.constraint.Constraint;
 import SigmaEC.represent.Initializer;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -15,43 +18,68 @@ import java.util.Random;
 public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
     public final static String P_POPULATION_SIZE = "populationSize";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
-    public final static String P_DEFAULT_MAX_VALUE = "defaultMaxValue";
-    public final static String P_DEFAULT_MIN_VALUE = "defaultMinValue";
-    public final static String P_MAX_VALUES = "maxValues";
-    public final static String P_MIN_VALUES = "minValues";
+    public final static String P_DEFAULT_MAX = "defaultMax";
+    public final static String P_DEFAULT_MIN = "defaultMin";
+    public final static String P_MAXES = "maxes";
+    public final static String P_MINS = "mins";
     public final static String P_RANDOM = "random";
+    public final static String P_CONSTRAINT = "constraint";
+    public final static String P_STOP_ON_CONSTRAINT_VIOLATION = "stopOnConstraintViolation";
+    public final static int HARDBOUND_ATTEMPTS = 10000;
     
     private final int populationSize;
     private final int numDimensions;
     private final Option<Integer> defaultMaxValue;
     private final Option<Integer> defaultMinValue;
-    private final Option<int[]> maxValues;
-    private final Option<int[]> minValues;
+    private final Option<int[]> maxes;
+    private final Option<int[]> mins;
     private final Random random;
+    private final Option<Constraint<LinearGenomeIndividual<IntGene>>> constraint;
+    private final boolean stopOnConstraintViolation;
 
     public IntVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        this.populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
-        this.numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        populationSize = parameters.getIntParameter(Parameters.push(base, P_POPULATION_SIZE));
+        numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        constraint = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_CONSTRAINT), Constraint.class);
+        stopOnConstraintViolation = parameters.getOptionalBooleanParameter(Parameters.push(base, P_STOP_ON_CONSTRAINT_VIOLATION), false);
         
-        defaultMaxValue = parameters.getOptionalIntParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE));
-        maxValues = parameters.getOptionalIntArrayParameter(Parameters.push(base, P_MAX_VALUES));
+        defaultMaxValue = parameters.getOptionalIntParameter(Parameters.push(base, P_DEFAULT_MAX));
+        maxes = parameters.getOptionalIntArrayParameter(Parameters.push(base, P_MAXES));
             
-        defaultMinValue = parameters.getOptionalIntParameter(Parameters.push(base, P_DEFAULT_MIN_VALUE));
-        minValues = parameters.getOptionalIntArrayParameter(Parameters.push(base, P_MIN_VALUES));
+        defaultMinValue = parameters.getOptionalIntParameter(Parameters.push(base, P_DEFAULT_MIN));
+        mins = parameters.getOptionalIntArrayParameter(Parameters.push(base, P_MINS));
         
-        if (!(defaultMaxValue.isDefined() ^ maxValues.isDefined()))
-            throw new IllegalStateException(String.format("%s: One of %s and %s must be defined, and not both.", this.getClass().getSimpleName(), P_DEFAULT_MAX_VALUE, P_MAX_VALUES));
+        if (!(defaultMaxValue.isDefined() ^ maxes.isDefined()))
+            throw new IllegalStateException(String.format("%s: One of %s and %s must be defined, and not both.", this.getClass().getSimpleName(), P_DEFAULT_MAX, P_MAXES));
         
-        if (!(defaultMinValue.isDefined() ^ minValues.isDefined()))
-            throw new IllegalStateException(String.format("%s: One of %s and %s must be defined, and not both.", this.getClass().getSimpleName(), P_DEFAULT_MIN_VALUE, P_MIN_VALUES));
+        if (!(defaultMinValue.isDefined() ^ mins.isDefined()))
+            throw new IllegalStateException(String.format("%s: One of %s and %s must be defined, and not both.", this.getClass().getSimpleName(), P_DEFAULT_MIN, P_MINS));
         
-        if (!((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) || (maxValues.isDefined() && minValues.isDefined())))
+        if (!((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) || (maxes.isDefined() && mins.isDefined())))
             throw new IllegalStateException(String.format("%s: Must use either default values or vectors for both max and min.", this.getClass().getSimpleName()));
 
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         
+        assert(repOK());
+    }
+    
+    public IntVectorInitializer(final int populationSize, final int numDimensions, final int[] mins, final int[] maxes, final Random random, final Option<Constraint<LinearGenomeIndividual<IntGene>>> constraint, final boolean stopOnConstraintViolation) {
+        assert(populationSize > 0);
+        assert(numDimensions > 0);
+        assert(mins != null);
+        assert(maxes != null);
+        assert(Misc.arrayLessThanOrEqualTo(mins, maxes));
+        this.populationSize = populationSize;
+        this.numDimensions = numDimensions;
+        this.mins = new Option<>(Arrays.copyOf(mins, mins.length));
+        this.maxes = new Option<>(Arrays.copyOf(maxes, maxes.length));
+        defaultMaxValue = Option.NONE;
+        defaultMinValue = Option.NONE;
+        this.random = random;
+        this.constraint = constraint;
+        this.stopOnConstraintViolation = stopOnConstraintViolation;
         assert(repOK());
     }
     
@@ -67,24 +95,30 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
 
     @Override
     public IntVectorIndividual generateIndividual() {
-        final IntVectorIndividual newInd = defaultMaxValue.isDefined() ?
-                new IntVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
-                : new IntVectorIndividual(random, numDimensions, minValues.get(), maxValues.get());
         assert(repOK());
-        return newInd;
+        for (int i = 0; i < HARDBOUND_ATTEMPTS; i++) {
+            final IntVectorIndividual newInd = defaultMaxValue.isDefined() ?
+                    new IntVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
+                    : new IntVectorIndividual(random, numDimensions, mins.get(), maxes.get());
+            if (!constraint.isDefined() || !constraint.get().isViolated(newInd))
+                return newInd;
+            else if (stopOnConstraintViolation)
+                throw new IllegalStateException(String.format("%s: unexpected constraint violation.", this.getClass().getSimpleName()));
+        }
+        throw new IllegalStateException(String.format("%s: maximum number of attempts reached (%d) while trying to generate and individual that did not violate the specified constraints.", this.getClass().getSimpleName(), HARDBOUND_ATTEMPTS));
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return P_DEFAULT_MAX_VALUE != null
-                && !P_DEFAULT_MAX_VALUE.isEmpty()
-                && P_DEFAULT_MIN_VALUE != null
-                && !P_DEFAULT_MIN_VALUE.isEmpty()
-                && P_MAX_VALUES != null
-                && !P_MAX_VALUES.isEmpty()
-                && P_MIN_VALUES != null
-                && !P_MAX_VALUES.isEmpty()
+        return P_DEFAULT_MAX != null
+                && !P_DEFAULT_MAX.isEmpty()
+                && P_DEFAULT_MIN != null
+                && !P_DEFAULT_MIN.isEmpty()
+                && P_MAXES != null
+                && !P_MAXES.isEmpty()
+                && P_MINS != null
+                && !P_MAXES.isEmpty()
                 && P_NUM_DIMENSIONS != null
                 && !P_NUM_DIMENSIONS.isEmpty()
                 && P_POPULATION_SIZE != null
@@ -93,10 +127,11 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
                 && !P_RANDOM.isEmpty()
                 && populationSize > 0
                 && numDimensions > 0
-                && ((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) ^ (maxValues.isDefined() && minValues.isDefined()))
-                && !(maxValues.isDefined() && maxValues.get().length != numDimensions)
-                && !(minValues.isDefined() && minValues.get().length != numDimensions)
-                && random != null;
+                && ((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) ^ (maxes.isDefined() && mins.isDefined()))
+                && !(maxes.isDefined() && maxes.get().length != numDimensions)
+                && !(mins.isDefined() && mins.get().length != numDimensions)
+                && random != null
+                && !(stopOnConstraintViolation && !constraint.isDefined());
         
     }
 
@@ -108,8 +143,8 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
         return populationSize == ref.populationSize
                 && numDimensions == ref.numDimensions
                 && random.equals(ref.random)
-                && maxValues.equals(ref.maxValues)
-                && minValues.equals(ref.minValues)
+                && maxes.equals(ref.maxes)
+                && mins.equals(ref.mins)
                 && defaultMaxValue.equals(ref.defaultMaxValue)
                 && defaultMinValue.equals(ref.defaultMinValue);
     }
@@ -121,8 +156,8 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
         hash = 53 * hash + this.numDimensions;
         hash = 53 * hash + Objects.hashCode(this.defaultMaxValue);
         hash = 53 * hash + Objects.hashCode(this.defaultMinValue);
-        hash = 53 * hash + Objects.hashCode(this.maxValues);
-        hash = 53 * hash + Objects.hashCode(this.minValues);
+        hash = 53 * hash + Objects.hashCode(this.maxes);
+        hash = 53 * hash + Objects.hashCode(this.mins);
         hash = 53 * hash + Objects.hashCode(this.random);
         return hash;
     }
@@ -133,10 +168,10 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
                 P_POPULATION_SIZE, populationSize,
                 P_NUM_DIMENSIONS, numDimensions,
                 P_RANDOM, random,
-                P_DEFAULT_MIN_VALUE, defaultMinValue,
-                P_DEFAULT_MAX_VALUE, defaultMaxValue,
-                P_MIN_VALUES, minValues,
-                P_MAX_VALUES, maxValues);
+                P_DEFAULT_MIN, defaultMinValue,
+                P_DEFAULT_MAX, defaultMaxValue,
+                P_MINS, mins,
+                P_MAXES, maxes);
     }
     // </editor-fold>
 }

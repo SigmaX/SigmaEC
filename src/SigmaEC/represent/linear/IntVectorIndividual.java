@@ -76,6 +76,8 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     @Override
     public IntVectorIndividual create(final List<IntGene> genome, final List<? extends Individual> parents) {
         assert(genome != null);
+        if (parents.isEmpty())
+            return new Builder(genome).build();
         return new Builder(genome).setParents(parents).build();
     }
 
@@ -148,8 +150,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
         this.genome = new ArrayList<IntGene>(numDimensions) {{
            for (int i = 0; i < numDimensions; i++) {
                final int delta = maxValues[i] - minValues[i];
-               assert(delta >= 0);
-               final int roll = minValues[i] + (random.nextInt()*delta);
+               final int roll = (delta == 0) ? minValues[i] : minValues[i] + (random.nextInt(delta));
                add(new IntGene(roll));
            } 
         }};
@@ -166,7 +167,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
            for (int i = 0; i < numDimensions; i++) {
                final int delta = defaultMaxValue - defaultMinValue;
                assert(delta >= 0);
-               final int roll = defaultMinValue + (random.nextInt()*delta);
+               final int roll = defaultMinValue + (random.nextInt(delta));
                add(new IntGene(roll));
            } 
         }};

@@ -53,10 +53,6 @@ public class DoubleGeneUniformMutator extends Mutator<LinearGenomeIndividual<Dou
             widths = widthsOpt.get();
         assert(repOK());
     }
-    
-    private DoubleGene mutate(final DoubleGene gene, final int i) {
-        return new DoubleGene(gene.value + random.nextDouble()*widths[i] - widths[i]/2);
-    }
 
     /** Takes an individual and produces a version of that individual with zero or more mutated genes.
      * 
@@ -90,6 +86,10 @@ public class DoubleGeneUniformMutator extends Mutator<LinearGenomeIndividual<Dou
                 ind.getParents().get() :
                 new ArrayList<Individual>() {{ add(ind); }};
         return ind.create(newGenome, parents);
+    }
+    
+    private DoubleGene mutate(final DoubleGene gene, final int i) {
+        return new DoubleGene(gene.value + random.nextDouble()*widths[i] - widths[i]/2);
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -139,7 +139,7 @@ public class DoubleGeneUniformMutator extends Mutator<LinearGenomeIndividual<Dou
     final public String toString() {
         return String.format("[%s: %s=%f, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_MUTATION_RATE, mutationRate,
-                P_WIDTHS, widths,
+                P_WIDTHS, Arrays.toString(widths),
                 P_RANDOM, random);
     }
     //</editor-fold>

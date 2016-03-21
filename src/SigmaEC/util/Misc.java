@@ -229,6 +229,14 @@ public final class Misc
         return newArray;
     }
     
+    public static boolean[] prepend(final boolean value, final boolean[] array) {
+        assert(array != null);
+        final boolean[] newArray = new boolean[array.length + 1];
+        newArray[0] = value;
+        System.arraycopy(array, 0, newArray, 1, array.length);
+        return newArray;
+    }
+    
     public static char[] prepend(final char[] pre, final char[] post) {
         assert(post != null);
         final char[] newArray = new char[post.length + pre.length];
@@ -273,6 +281,14 @@ public final class Misc
             array[i] = val;
         return array;
     }
+        
+    public static int[] repeatValue(final int val, final int times) {
+        assert(times >= 0);
+        final int[] array = new int[times];
+        for (int i = 0; i < array.length; i++)
+            array[i] = val;
+        return array;
+    }
     
     /** @return true iff the two collections contain the exact same
      * elements in the exact same order.
@@ -292,6 +308,27 @@ public final class Misc
         assert(!itA.hasNext());
         if (itB.hasNext())
             return false;
+        return true;
+    }
+    
+    public static <T> boolean allRowsEqualLength(final T[][] matrix) {
+        assert(matrix != null);
+        if (matrix.length == 0)
+            return true;
+        final int columns = matrix[0].length;
+        for (int i = 1; i < matrix.length; i++)
+            if (matrix[i].length != columns)
+                return false;
+        return true;
+    }
+    
+    public static boolean arrayLessThanOrEqualTo(final int[] mins, final int[] maxes) {
+        assert(mins != null);
+        assert(maxes != null);
+        assert(mins.length == maxes.length);
+        for (int i = 0; i < mins.length; i++)
+            if (mins[i] > maxes[i])
+                return false;
         return true;
     }
 }

@@ -261,7 +261,7 @@ public class Parameters extends ContractObject {
         final String[] intStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
         final int[] array = new int[intStrings.length];
         for (int i = 0; i < intStrings.length; i++)
-            array[i] = Integer.parseInt(intStrings[i]);
+            array[i] = Integer.parseInt(intStrings[i].trim());
         return array;
     }
     public Option<int[]> getOptionalIntArrayParameter(final String parameterName) {
@@ -463,7 +463,7 @@ public class Parameters extends ContractObject {
         final String[] doubleStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
         final double[] array = new double[doubleStrings.length];
         for (int i = 0; i < doubleStrings.length; i++)
-            array[i] = Double.parseDouble(doubleStrings[i]);
+            array[i] = Double.parseDouble(doubleStrings[i].trim());
         return array;
     }
     public Option<double[]> getOptionalDoubleArrayParameter(final String parameterName) {
