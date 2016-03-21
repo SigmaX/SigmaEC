@@ -27,12 +27,14 @@ public class TruthTableObjective extends ObjectiveFunction<BooleanFunction> {
     @Override
     public double fitness(final BooleanFunction ind) {
         assert(ind != null);
-        assert(ind.arity() == targetFunction.arity());
-        assert(ind.numOutputs() == targetFunction.numOutputs());
-        final List<boolean[]> inputs = bitStringPermutations(targetFunction.arity());
+        assert(ind.arity() >= targetFunction.arity());
+        assert(ind.numOutputs() >= targetFunction.numOutputs());
+        final List<boolean[]> inputs = bitStringPermutations(ind.arity());
         int matches = 0;
         for (final boolean[] input : inputs) {
-            if (Arrays.equals(ind.execute(input), targetFunction.execute(input)))
+            final boolean[] targetResult = targetFunction.execute(input);
+            final boolean[] indResult = Arrays.copyOf(ind.execute(input), targetResult.length);
+            if (Arrays.equals(indResult, targetResult))
                 matches++;
         }
         assert(repOK());

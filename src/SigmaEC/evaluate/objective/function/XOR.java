@@ -32,10 +32,10 @@ public class XOR extends ContractObject implements BooleanFunction {
     @Override
     public boolean[] execute(boolean[] input) {
         assert(input != null);
-        assert(input.length == arity);
+        assert(input.length >= arity);
         boolean result = false;
-        for (final boolean b : input)
-            result ^= b;
+        for (int i = 0; i < arity; i++)
+            result ^= input[i];
         return new boolean[] { result };
     }
 

@@ -32,9 +32,9 @@ public class OR extends ContractObject implements BooleanFunction {
     @Override
     public boolean[] execute(boolean[] input) {
         assert(input != null);
-        assert(input.length == arity);
-        for (final boolean b : input)
-            if (b)
+        assert(input.length >= arity);
+        for (int i = 0; i < arity; i++)
+            if (input[i])
                 return new boolean[] { true };
         return new boolean[] { false };
     }

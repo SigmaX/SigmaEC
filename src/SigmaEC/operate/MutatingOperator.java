@@ -17,6 +17,10 @@ import java.util.List;
  */
 public class MutatingOperator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Operator<T> {
     public final static String P_MUTATOR = "mutator";
+    public final static String P_OVERLAP_STYLE = "overlapStyle";
+    
+    public static enum OverlapStyle { COMMA, PLUS };
+    private final OverlapStyle overlapStyle;
     
     private final Mutator<T, G> mutator;
     private final Selector<T> parentSelector = new IterativeSelector<T>();
@@ -25,6 +29,7 @@ public class MutatingOperator<T extends LinearGenomeIndividual<G>, G extends Gen
         assert(parameters != null);
         assert(base != null);
         this.mutator = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATOR), Mutator.class);
+        overlapStyle = OverlapStyle.valueOf(parameters.getOptionalStringParameter(Parameters.push(base, P_OVERLAP_STYLE), OverlapStyle.COMMA.toString()));
         assert(repOK());
     }
 
@@ -35,7 +40,15 @@ public class MutatingOperator<T extends LinearGenomeIndividual<G>, G extends Gen
             final T individual = parentSelector.selectIndividual(parentPopulation);
             newPopulation.add(mutator.mutate(individual));
         }
-        return newPopulation;
+        switch (overlapStyle) {
+            case COMMA:
+                return newPopulation;
+            case PLUS:
+                parentPopulation.addAll(newPopulation);
+                return parentPopulation;
+            default:
+                throw new IllegalStateException("Unrecognized overlap style encountered.");
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
