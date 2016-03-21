@@ -24,9 +24,9 @@ public class AdditiveNoiseObjective<T> extends ObjectiveFunction<T> {
             throw new IllegalArgumentException(String.format("%s: objective is null.", this.getClass().getSimpleName()));
         std = parameters.getDoubleParameter(Parameters.push(base, P_STD));
         if (Double.isInfinite(std) || Double.isNaN(std))
-            throw new IllegalStateException(String.format("%s: %s is $f, but must be finite.", this.getClass().getSimpleName(), P_STD, std));
-        if (std <= 0.0)
-            throw new IllegalStateException(String.format("%s: %s is $f, but must be positive.", this.getClass().getSimpleName(), P_STD, std));
+            throw new IllegalStateException(String.format("%s: %s is %f, but must be finite.", this.getClass().getSimpleName(), P_STD, std));
+        if (std < 0.0)
+            throw new IllegalStateException(String.format("%s: %s is %f, but must be positive.", this.getClass().getSimpleName(), P_STD, std));
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         assert(repOK());
     }
@@ -59,7 +59,7 @@ public class AdditiveNoiseObjective<T> extends ObjectiveFunction<T> {
                 && random != null
                 && !Double.isInfinite(std)
                 && !Double.isNaN(std)
-                && std > 0;
+                && std >= 0;
     }
     
     @Override
