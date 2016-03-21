@@ -85,7 +85,9 @@ public class CGPParameters extends ContractObject {
                 }
             }
         }
-        mins[mins.length - 1] = 0;
+        // Outputs
+        for (int i = mins.length - numOutputs; i < mins.length; i++)
+            mins[i] = 0;
         return mins;
     }
     
@@ -101,7 +103,9 @@ public class CGPParameters extends ContractObject {
                 }
             }
         }
-        maxes[maxes.length - 1] = numInputs + numLayers*nodesPerLayer;
+        // Outputs
+        for (int i = maxes.length - numOutputs; i < maxes.length; i++)
+            maxes[i] = numInputs + numLayers*nodesPerLayer;
         return maxes;
     }
     

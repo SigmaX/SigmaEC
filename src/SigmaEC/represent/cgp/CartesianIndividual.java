@@ -240,7 +240,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         }
         return true;
     }
-    
+
     private boolean nodeFitsConstraints(final Node node, final int layer) {
         assert(node != null);
         assert(layer >= 0);
@@ -249,9 +249,12 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         if (sources.length != cgpParameters.maxArity())
             return false;
         for (int source = 0; source < cgpParameters.maxArity(); source++) {
-            if ((sources[source] > cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer())
-                    || (sources[source] < cgpParameters.numInputs() + (layer-1-cgpParameters.levelsBack())*cgpParameters.numNodesPerLayer())
-                    || (sources[source] < 0))
+            if (sources[source] >= cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer())
+                return true;
+            if (layer >= cgpParameters.levelsBack()
+                && (sources[source] < cgpParameters.numInputs() + (layer-cgpParameters.levelsBack())*cgpParameters.numNodesPerLayer()))
+                return true;
+            if (layer < cgpParameters.levelsBack() && sources[source] < 0)
                 return false;
         }
         return true;
