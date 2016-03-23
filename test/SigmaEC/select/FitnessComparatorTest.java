@@ -31,7 +31,7 @@ public class FitnessComparatorTest {
         final FitnessComparator sut = new FitnessComparator(parameters.build(), BASE);
         assertEquals(FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
         assertEquals(FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
-        assertEquals(FitnessComparator.DEFAULT_DOUBLE_EQUALITY_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
+        assertEquals(FitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
         assertTrue(sut.repOK());
     }
 
@@ -43,7 +43,7 @@ public class FitnessComparatorTest {
                 .build(), BASE);
         assertEquals(!FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
         assertEquals(FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
-        assertEquals(FitnessComparator.DEFAULT_DOUBLE_EQUALITY_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
+        assertEquals(FitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
         assertTrue(sut.repOK());
     }
 
@@ -55,7 +55,7 @@ public class FitnessComparatorTest {
                 .build(), BASE);
         assertEquals(FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
         assertEquals(!FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
-        assertEquals(FitnessComparator.DEFAULT_DOUBLE_EQUALITY_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
+        assertEquals(FitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
         assertTrue(sut.repOK());
     }
 
@@ -63,7 +63,7 @@ public class FitnessComparatorTest {
     public void testConstructor4() {
         System.out.println("constructor");
         final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DOUBLE_EQUALITY_DELTA), "0.1")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.1")
                 .build(), BASE);
         assertEquals(FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
         assertEquals(FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
@@ -75,7 +75,7 @@ public class FitnessComparatorTest {
     public void testConstructor5() {
         System.out.println("constructor");
         final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DOUBLE_EQUALITY_DELTA), "-0.1")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "-0.1")
                 .build(), BASE);
     }
     
@@ -83,7 +83,7 @@ public class FitnessComparatorTest {
     public void testConstructor6() {
         System.out.println("constructor");
         final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DOUBLE_EQUALITY_DELTA), "NaN")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "NaN")
                 .build(), BASE);
     }
     
@@ -91,7 +91,7 @@ public class FitnessComparatorTest {
     public void testConstructor7() {
         System.out.println("constructor");
         final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DOUBLE_EQUALITY_DELTA), "-Infinity")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "-Infinity")
                 .build(), BASE);
     }
     
@@ -99,7 +99,7 @@ public class FitnessComparatorTest {
     public void testConstructor8() {
         System.out.println("constructor");
         final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DOUBLE_EQUALITY_DELTA), "Infinity")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "Infinity")
                 .build(), BASE);
     }
     
@@ -107,7 +107,7 @@ public class FitnessComparatorTest {
     public void testConstructor9() {
         System.out.println("constructor");
         final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DOUBLE_EQUALITY_DELTA), "Hello")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "Hello")
                 .build(), BASE);
     }
     
@@ -516,6 +516,30 @@ public class FitnessComparatorTest {
         assertTrue(instance.repOK());
     }
     
+    @Test
+    public void testCompare28() {
+        System.out.println("compare");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(0.9999999999999999);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        int expResult = 0;
+        int result = instance.compare(ind, ind1);
+        assertEquals(expResult, result);
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testCompare29() {
+        System.out.println("compare");
+        final TestIndividual ind = new TestIndividual(0.9999999999999999);
+        final TestIndividual ind1 = new TestIndividual(1.0);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        int expResult = 0;
+        int result = instance.compare(ind, ind1);
+        assertEquals(expResult, result);
+        assertTrue(instance.repOK());
+    }
+    
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BetterThan">
@@ -708,7 +732,7 @@ public class FitnessComparatorTest {
                 .build(), BASE);
         final FitnessComparator f = new FitnessComparator(parameters.build(), BASE);
         final FitnessComparator g = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DOUBLE_EQUALITY_DELTA), "0.1")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.1")
                 .build(), BASE);
         final FitnessComparator h = new FitnessComparator(parameters.build(), BASE);
         

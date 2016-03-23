@@ -17,26 +17,26 @@ import java.util.Comparator;
 public class FitnessComparator<T extends Individual> extends ContractObject implements Comparator<T> {
     final public static String P_MINIMIZE = "minimize";
     final public static boolean DEFAULT_MINIMIZE = false;
-    final public static String P_DOUBLE_EQUALITY_DELTA = "doubleEqualityDelta";
-    final public static double DEFAULT_DOUBLE_EQUALITY_DELTA = 0.00000001;
+    final public static String P_DELTA = "delta";
+    final public static double DEFAULT_DELTA = 0.00000001;
     final public static String P_EQUAL_IS_BETTER = "equalIsBetter";
     final public static boolean DEFAULT_EQUAL_IS_BETTER = false;
     
     final private boolean minimize;
-    final private double doubleEqualityDelta;
+    final private double delta;
     final private boolean equalIsBetter;
     
     public boolean minimize() { return minimize; };
-    public double getDoubleEqualityDelta() { return doubleEqualityDelta; }
+    public double getDoubleEqualityDelta() { return delta; }
     public boolean equalIsBetter() { return equalIsBetter; }
     
     public FitnessComparator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         minimize = parameters.getOptionalBooleanParameter(Parameters.push(base, P_MINIMIZE), DEFAULT_MINIMIZE);
-        doubleEqualityDelta = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DOUBLE_EQUALITY_DELTA), DEFAULT_DOUBLE_EQUALITY_DELTA);
-        if (Double.isInfinite(doubleEqualityDelta) || Double.isNaN(doubleEqualityDelta) || doubleEqualityDelta <= 0)
-            throw new IllegalStateException(String.format("%s: %s is %f, must be positive finite.", this.getClass().getSimpleName(), P_DOUBLE_EQUALITY_DELTA, doubleEqualityDelta));
+        delta = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DELTA), DEFAULT_DELTA);
+        if (Double.isInfinite(delta) || Double.isNaN(delta) || delta <= 0)
+            throw new IllegalStateException(String.format("%s: %s is %f, must be positive finite.", this.getClass().getSimpleName(), P_DELTA, delta));
         equalIsBetter = parameters.getOptionalBooleanParameter(Parameters.push(base, P_EQUAL_IS_BETTER), DEFAULT_EQUAL_IS_BETTER);
         assert(repOK());
     }
@@ -44,7 +44,7 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
     public FitnessComparator(final FitnessComparator ref, final boolean minimize) {
         assert(ref != null);
         this.minimize = minimize;
-        doubleEqualityDelta = ref.doubleEqualityDelta;
+        delta = ref.delta;
         equalIsBetter = ref.equalIsBetter;
         assert(repOK());
     }
@@ -64,7 +64,7 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
             return 1; // Always better than NaN.
         if (t < t1)
             return (minimize ? 1 : -1);
-        if (Misc.doubleEquals(t, t1, doubleEqualityDelta))
+        if (Misc.doubleEquals(t, t1, delta))
             return 0;
         else
             return (minimize ? -1 : 1);
@@ -84,11 +84,11 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
     public final boolean repOK() {
         return P_MINIMIZE != null
                 && !P_MINIMIZE.isEmpty()
-                && P_DOUBLE_EQUALITY_DELTA != null
-                && !P_DOUBLE_EQUALITY_DELTA.isEmpty()
-                && !Double.isInfinite(doubleEqualityDelta)
-                && !Double.isNaN(doubleEqualityDelta)
-                && doubleEqualityDelta >= 0.0;
+                && P_DELTA != null
+                && !P_DELTA.isEmpty()
+                && !Double.isInfinite(delta)
+                && !Double.isNaN(delta)
+                && delta >= 0.0;
     }
     
     @Override
@@ -98,14 +98,14 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         final FitnessComparator ref = (FitnessComparator)o;
         return minimize == ref.minimize
                 && equalIsBetter == ref.equalIsBetter
-                && Misc.doubleEquals(doubleEqualityDelta, ref.doubleEqualityDelta, 0.0000000000001);
+                && Misc.doubleEquals(delta, ref.delta, 0.0000000000001);
     }
 
     @Override
     public int hashCode() {
         int hash = 5;
         hash = 79 * hash + (this.minimize ? 1 : 0);
-        hash = 79 * hash + (int) (Double.doubleToLongBits(this.doubleEqualityDelta) ^ (Double.doubleToLongBits(this.doubleEqualityDelta) >>> 32));
+        hash = 79 * hash + (int) (Double.doubleToLongBits(this.delta) ^ (Double.doubleToLongBits(this.delta) >>> 32));
         hash = 79 * hash + (this.equalIsBetter ? 1 : 0);
         return hash;
     }
@@ -115,7 +115,7 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         return String.format("[%s: %s=%s, %s=%s, %s=%f]", this.getClass().getSimpleName(),
                 P_MINIMIZE, minimize,
                 P_EQUAL_IS_BETTER, equalIsBetter,
-                P_DOUBLE_EQUALITY_DELTA, doubleEqualityDelta);
+                P_DELTA, delta);
     }
     // </editor-fold>
 }
