@@ -522,8 +522,8 @@ public class FitnessComparatorTest {
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(0.9999999999999999);
         final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
-        int expResult = 0;
-        int result = instance.compare(ind, ind1);
+        final int expResult = 0;
+        final int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
         assertTrue(instance.repOK());
     }
@@ -534,8 +534,78 @@ public class FitnessComparatorTest {
         final TestIndividual ind = new TestIndividual(0.9999999999999999);
         final TestIndividual ind1 = new TestIndividual(1.0);
         final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
-        int expResult = 0;
-        int result = instance.compare(ind, ind1);
+        final int expResult = 0;
+        final int result = instance.compare(ind, ind1);
+        assertEquals(expResult, result);
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testCompare30() {
+        System.out.println("compare");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(1.1);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        final int expResult = 0;
+        final int result = instance.compare(ind, ind1);
+        assertEquals(expResult, result);
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testCompare31() {
+        System.out.println("compare");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(1.49);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        final int expResult = 0;
+        final int result = instance.compare(ind, ind1);
+        assertEquals(expResult, result);
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testCompare32() {
+        System.out.println("compare");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(1.5);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        final int expResult = -1;
+        final int result = instance.compare(ind, ind1);
+        assertEquals(expResult, result);
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testCompare33() {
+        System.out.println("compare");
+        final TestIndividual ind = new TestIndividual(1);
+        final TestIndividual ind1 = new TestIndividual(0.5);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        final int expResult = 1;
+        final int result = instance.compare(ind, ind1);
+        assertEquals(expResult, result);
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testCompare34() {
+        System.out.println("compare");
+        final TestIndividual ind = new TestIndividual(1);
+        final TestIndividual ind1 = new TestIndividual(0.51);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        final int expResult = 0;
+        final int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
         assertTrue(instance.repOK());
     }
@@ -686,6 +756,92 @@ public class FitnessComparatorTest {
         assertTrue(instance.repOK());
     }
     
+    @Test
+    public void testBetterThan12() {
+        System.out.println("betterThan");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(1.3);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        boolean result = instance.betterThan(ind, ind1);
+        assertTrue(result);
+        assertTrue(instance.betterThan(ind1, ind));
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testBetterThan13() {
+        System.out.println("betterThan");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(1.3);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        boolean result = instance.betterThan(ind, ind1);
+        assertFalse(result);
+        assertFalse(instance.betterThan(ind1, ind));
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testBetterThan14() {
+        System.out.println("betterThan");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(1.5);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        boolean result = instance.betterThan(ind, ind1);
+        assertFalse(result);
+        assertTrue(instance.betterThan(ind1, ind));
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testBetterThan15() {
+        System.out.println("betterThan");
+        final TestIndividual ind = new TestIndividual(1.0);
+        final TestIndividual ind1 = new TestIndividual(1.5);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        boolean result = instance.betterThan(ind, ind1);
+        assertFalse(result);
+        assertTrue(instance.betterThan(ind1, ind));
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testBetterThan16() {
+        System.out.println("betterThan");
+        final TestIndividual ind = new TestIndividual(0.5);
+        final TestIndividual ind1 = new TestIndividual(1.0);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        boolean result = instance.betterThan(ind, ind1);
+        assertFalse(result);
+        assertTrue(instance.betterThan(ind1, ind));
+        assertTrue(instance.repOK());
+    }
+    
+    @Test
+    public void testBetterThan17() {
+        System.out.println("betterThan");
+        final TestIndividual ind = new TestIndividual(0.5);
+        final TestIndividual ind1 = new TestIndividual(1.0);
+        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+                .build(), BASE);
+        boolean result = instance.betterThan(ind, ind1);
+        assertFalse(result);
+        assertTrue(instance.betterThan(ind1, ind));
+        assertTrue(instance.repOK());
+    }
     // </editor-fold>
     
     /** Test of invert method, of class FitnessComparator. */
