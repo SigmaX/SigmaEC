@@ -3,7 +3,6 @@ package SigmaEC.select;
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
-import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.Comparator;
 
@@ -62,10 +61,10 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         final double t1 = ind1.getFitness();
         if (Double.isNaN(t1))
             return 1; // Always better than NaN.
-        if (t < t1)
-            return (minimize ? 1 : -1);
         if (Misc.doubleEquals(t, t1, delta))
             return 0;
+        if (t < t1)
+            return (minimize ? 1 : -1);
         else
             return (minimize ? -1 : 1);
     }
