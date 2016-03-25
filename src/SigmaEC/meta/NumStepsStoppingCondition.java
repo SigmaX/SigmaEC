@@ -26,6 +26,7 @@ public class NumStepsStoppingCondition<T extends Individual> extends StoppingCon
         stepsPerProgressBarBlock = numSteps/20;
         assert(repOK());
     }
+    
     @Override
     public boolean stop(final Population<T> population, int step) {
         assert(step >= 0);
@@ -35,6 +36,11 @@ public class NumStepsStoppingCondition<T extends Individual> extends StoppingCon
             System.err.print(progressBar(step/stepsPerProgressBarBlock, NUM_PROGRESS_BAR_BLOCKS));
         }
         return step >= numSteps;
+    }
+
+    @Override
+    public boolean stopInd(final T individual, final int step) {
+        return stop(null, step);
     }
     
     private static String progressBar(final int complete, final int total) {

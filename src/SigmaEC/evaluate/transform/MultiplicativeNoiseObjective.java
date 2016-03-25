@@ -2,57 +2,48 @@ package SigmaEC.evaluate.transform;
 
 import SigmaEC.SRandom;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.util.Option;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.Objects;
 
 /**
- *
+ * An Objective with Gaussian noise that follows a constant signal-to-noise ratio.
+ * 
  * @author Eric O. Scott
  */
 public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T> {
     public final static String P_OBJECTIVE = "objective";
-    public final static String P_DISTRIBUTION = "distribution";
-    public final static String P_STD = "std";
-    public final static String P_NOISE_RATIO = "noiseRatio";
+    public final static String P_STD_FRACTION = "stdFraction";
     public final static String P_RANDOM = "random";
+    public final static String P_GLOBAL_BEST_FITNESS = "globalBestFitness";
     
     private final ObjectiveFunction<? super T> objective;
-    private final Option<Double> std;
-    private final Option<Double> noiseRatio;
+    private final double stdFraction;
     private final SRandom random;
+    private final double globalBestFitness;
     
     public MultiplicativeNoiseObjective(final Parameters parameters, final String base) {
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         if (objective == null)
             throw new IllegalArgumentException(String.format("%s: objective is null.", this.getClass().getSimpleName()));
         
-        std = parameters.getOptionalDoubleParameter(Parameters.push(base, P_STD));
-        if (std.isDefined()) {
-        if (Double.isInfinite(std.get()) || Double.isNaN(std.get()))
-            throw new IllegalStateException(String.format("%s: %s is %f, but must be finite.", this.getClass().getSimpleName(), P_STD, std.get()));
-        if (std.get() < 0.0)
-            throw new IllegalStateException(String.format("%s: %s is %f, but must be positive.", this.getClass().getSimpleName(), P_STD, std.get()));}
-        
-        noiseRatio = parameters.getOptionalDoubleParameter(Parameters.push(base, P_NOISE_RATIO));
-        if (noiseRatio.isDefined()) {
-        if (Double.isInfinite(noiseRatio.get()) || Double.isNaN(noiseRatio.get()))
-            throw new IllegalStateException(String.format("%s: %s is %f, but must be finite.", this.getClass().getSimpleName(), P_NOISE_RATIO, noiseRatio.get()));
-        if (noiseRatio.get() < 0.0 || noiseRatio.get() > 1.0)
-            throw new IllegalStateException(String.format("%s: %s is %f, but must be in the range [0, 1].", this.getClass().getSimpleName(), P_NOISE_RATIO, noiseRatio.get()));}
-        
-        if (!(std.isDefined() ^ noiseRatio.isDefined()))
-            throw new IllegalStateException(String.format("%s: one of '%s' or '%s' must be defined, and not both.", this.getClass().getSimpleName(), Parameters.push(base, P_STD), Parameters.push(base, P_NOISE_RATIO)));
+        stdFraction = parameters.getDoubleParameter(Parameters.push(base, P_STD_FRACTION));
+        if (Double.isInfinite(stdFraction) || Double.isNaN(stdFraction))
+            throw new IllegalStateException(String.format("%s: %s is %f, but must be finite.", this.getClass().getSimpleName(), P_STD_FRACTION, stdFraction));
+        if (stdFraction < 0.0)
+            throw new IllegalStateException(String.format("%s: %s is %f, but must be positive.", this.getClass().getSimpleName(), P_STD_FRACTION, stdFraction));
         
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
+        globalBestFitness = parameters.getIntParameter(Parameters.push(base, P_GLOBAL_BEST_FITNESS));
+        if (!Double.isFinite(globalBestFitness) || Double.isNaN(globalBestFitness))
+            throw new IllegalStateException(String.format("%s: '%s' is %f, but must be finite.", this.getClass().getSimpleName(), Parameters.push(base, P_GLOBAL_BEST_FITNESS), globalBestFitness));
         assert(repOK());
     }
     
     @Override
     public double fitness(final T ind) {
-        // FIXME Uniform noise needs to be able to both add and subtract
-        return std.isDefined() ? objective.fitness(ind) + std.get()*random.nextGaussian()
-                : objective.fitness(ind)*(1 + noiseRatio.get()*random.nextDouble());
+        final double f = objective.fitness(ind);
+        return f + stdFraction*Math.abs(f - globalBestFitness)*random.nextGaussian();
     }
     
     @Override
@@ -72,15 +63,17 @@ public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T> {
                 && !P_OBJECTIVE.isEmpty()
                 && P_RANDOM != null
                 && !P_RANDOM.isEmpty()
-                && P_STD != null
-                && !P_STD.isEmpty()
+                && P_STD_FRACTION != null
+                && !P_STD_FRACTION.isEmpty()
+                && P_GLOBAL_BEST_FITNESS != null
+                && !P_GLOBAL_BEST_FITNESS.isEmpty()
                 && objective != null
                 && random != null
-                && std != null
-                && noiseRatio != null
-                && std.isDefined() ^ noiseRatio.isDefined()
-                && !(std.isDefined() && (std.get() < 0 || Double.isInfinite(std.get()) || Double.isNaN(std.get())))
-                && !(noiseRatio.isDefined() && (noiseRatio.get() < 0 || noiseRatio.get() > 1.0));
+                && Double.isFinite(stdFraction)
+                && !Double.isNaN(stdFraction)
+                && stdFraction >= 0
+                && Double.isFinite(globalBestFitness)
+                && !Double.isNaN(globalBestFitness);
     }
     
     @Override
@@ -91,27 +84,27 @@ public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T> {
             return false;
         
         final MultiplicativeNoiseObjective ref = (MultiplicativeNoiseObjective) o;
-        return std.equals(ref.std)
-                && noiseRatio.equals(ref.noiseRatio)
+        return Misc.doubleEquals(stdFraction, ref.stdFraction)
+                && Misc.doubleEquals(globalBestFitness, ref.globalBestFitness)
                 && objective.equals(ref.objective)
                 && random.equals(ref.random);
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
+        int hash = 5;
         hash = 97 * hash + Objects.hashCode(this.objective);
-        hash = 97 * hash + Objects.hashCode(this.std);
-        hash = 97 * hash + Objects.hashCode(this.noiseRatio);
+        hash = 97 * hash + (int) (Double.doubleToLongBits(this.stdFraction) ^ (Double.doubleToLongBits(this.stdFraction) >>> 32));
         hash = 97 * hash + Objects.hashCode(this.random);
+        hash = 97 * hash + (int) (Double.doubleToLongBits(this.globalBestFitness) ^ (Double.doubleToLongBits(this.globalBestFitness) >>> 32));
         return hash;
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
-                P_STD, std,
-                P_NOISE_RATIO, noiseRatio,
+        return String.format("[%s: %s=%f, %s=%f, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+                P_STD_FRACTION, stdFraction,
+                P_GLOBAL_BEST_FITNESS, globalBestFitness,
                 P_OBJECTIVE, objective,
                 P_RANDOM, random);
     }

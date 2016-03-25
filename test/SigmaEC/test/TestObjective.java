@@ -9,12 +9,12 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */ 
-public class TestObjective extends ObjectiveFunction<Double> {
+public class TestObjective extends ObjectiveFunction<TestIndividual> {
     
     public TestObjective(final Parameters parameters, final String base) { }
     
     @Override
-    public double fitness(final Double ind) { return ind; }
+    public double fitness(final TestIndividual ind) { return ind.getTrait(); }
 
     @Override
     public boolean repOK() { return true; }

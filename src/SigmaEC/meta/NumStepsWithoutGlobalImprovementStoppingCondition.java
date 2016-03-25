@@ -39,14 +39,19 @@ public class NumStepsWithoutGlobalImprovementStoppingCondition<T extends Individ
     public boolean stop(final Population<T> population, int step) {
         assert(step >= 0);
         final T bestOfGen = population.getBest(fitnessComparator);
-        if (fitnessComparator.betterThan(bestOfGen, bestSoFar)) {
+        return stopInd(bestOfGen, step);
+    }
+
+    @Override
+    public boolean stopInd(T individual, int step) {
+        if (fitnessComparator.betterThan(individual, bestSoFar)) {
             // Only reset step count if the new BSF is *strictly* better than the old one
-            if (fitnessComparator.compare(bestOfGen, bestSoFar) > 0) {
+            if (fitnessComparator.compare(individual, bestSoFar) > 0) {
                 stepsPassedSinceLastImprovement = 0;
             }
             else
                 stepsPassedSinceLastImprovement++;
-            bestSoFar = bestOfGen;
+            bestSoFar = individual;
         }
         else
             stepsPassedSinceLastImprovement++;
