@@ -10,6 +10,7 @@ import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -94,7 +95,8 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             for (PopulationMetric<T> metric : metrics.get())
                 metric.measurePopulation(run, i, population);
         
-        return new EvolutionResult<T>(population, bestSoFarInd, bestSoFarInd.getFitness());
+        assert(repOK());
+        return new EvolutionResult<>(population, bestSoFarInd, bestSoFarInd.getFitness());
     }
     
     /** Flush I/O buffers. */

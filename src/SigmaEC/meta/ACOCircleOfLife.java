@@ -93,6 +93,7 @@ public class ACOCircleOfLife extends CircleOfLife {
             for (PopulationMetric<IntVectorIndividual> metric : metrics.get())
                 metric.measurePopulation(run, i, ants);
         
+        assert(repOK());
         return new EvolutionResult(ants, bestSoFarInd, bestSoFarInd.getFitness());
     }
     

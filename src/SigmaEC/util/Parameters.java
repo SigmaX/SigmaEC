@@ -633,12 +633,13 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(expectedSuperClass != null);
-        final String value = properties.getProperty(parameterName);
+        String value = properties.getProperty(parameterName);
         if (value == null || value.isEmpty())
             if (instanceRegistry.containsKey(parameterName))
                 return (T) getRegisteredInstanceIfCorrectType(parameterName, expectedSuperClass);
             else
                 throw new IllegalStateException(String.format("%s: Parameter '%s' was empty or not found.", Parameters.class.getSimpleName(), parameterName));
+        value = value.trim();
         if (isReference(value)) {
             if (instanceRegistry.containsKey(parameterName))
                 throw new IllegalStateException(String.format("%s: An instance was registered for parameter '%s', but that parameter is a reference to '%s'.  A parameter cannot both be a reference and have its own instance.", Parameters.class.getSimpleName(), parameterName, value));

@@ -9,7 +9,7 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric O. Scott
  */
-public class OneMaxObjective extends ObjectiveFunction<BitStringIndividual>{
+public class OneMaxObjective extends ObjectiveFunction<BitStringIndividual> {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;

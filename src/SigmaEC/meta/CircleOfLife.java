@@ -3,6 +3,9 @@ package SigmaEC.meta;
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A main evolution loop
@@ -14,20 +17,32 @@ public abstract class CircleOfLife<T extends Individual> extends ContractObject 
     
     public static class EvolutionResult<T extends Individual> extends ContractObject {
         final private Population<T> finalPopulation;
-        final private T bestIndividual;
-        final private double bestFitness;
+        final private List<T> bestIndividuals;
+        final private List<Double> bestFitnesses;
         
         public Population<T> getFinalPopulation() { return finalPopulation; }
-        public T getBestIndividual() { return bestIndividual; }
-        public double getBestFitness() { return bestFitness; }
+        public List<T> getBestIndividual() { return bestIndividuals; }
+        public List<Double> getBestFitness() { return bestFitnesses; }
         
         public EvolutionResult(final Population<T> finalPopulation, final T bestIndividual, final double bestFitness) {
             assert(finalPopulation != null);
             assert(bestIndividual != null);
             assert(!Double.isNaN(bestFitness));
             this.finalPopulation = finalPopulation;
-            this.bestIndividual = bestIndividual;
-            this.bestFitness = bestFitness;
+            this.bestIndividuals = new ArrayList<T>() {{ add(bestIndividual); }};
+            this.bestFitnesses = new ArrayList<Double>() {{ add(bestFitness); }};
+            assert(repOK());
+        }
+        
+        public EvolutionResult(final Population<T> finalPopulation, final List<T> bestIndividuals, final List<Double> bestFitnesses) {
+            assert(finalPopulation != null);
+            assert(bestIndividuals != null);
+            assert(!Misc.containsNulls(bestFitnesses));
+            assert(!Misc.containsNulls(bestIndividuals));
+            assert(bestIndividuals.size() == bestFitnesses.size());
+            this.finalPopulation = finalPopulation;
+            this.bestIndividuals = bestIndividuals;
+            this.bestFitnesses = bestFitnesses;
             assert(repOK());
         }
 
@@ -35,8 +50,11 @@ public abstract class CircleOfLife<T extends Individual> extends ContractObject 
         @Override
         public final boolean repOK() {
             return finalPopulation != null
-                    && bestIndividual != null
-                    && !Double.isNaN(bestFitness);
+                    && bestIndividuals != null
+                    && bestFitnesses != null
+                    && bestIndividuals.size() == bestFitnesses.size()
+                    && !Misc.containsNulls(bestIndividuals)
+                    && !Misc.containsNulls(bestFitnesses);
         }
 
         @Override
@@ -44,23 +62,23 @@ public abstract class CircleOfLife<T extends Individual> extends ContractObject 
             if (!(o instanceof EvolutionResult))
                 return false;
             final EvolutionResult ref = (EvolutionResult) o;
-            return bestIndividual.equals(ref.bestIndividual)
-                    && Misc.doubleEquals(bestFitness, ref.bestFitness)
+            return bestIndividuals.equals(ref.bestIndividuals)
+                    && bestFitnesses.equals(ref.bestFitnesses)
                     && finalPopulation.equals(ref.finalPopulation);
         }
 
         @Override
         public int hashCode() {
             int hash = 7;
-            hash = 59 * hash + (this.finalPopulation != null ? this.finalPopulation.hashCode() : 0);
-            hash = 59 * hash + (this.bestIndividual != null ? this.bestIndividual.hashCode() : 0);
-            hash = 59 * hash + (int) (Double.doubleToLongBits(this.bestFitness) ^ (Double.doubleToLongBits(this.bestFitness) >>> 32));
+            hash = 43 * hash + Objects.hashCode(this.finalPopulation);
+            hash = 43 * hash + Objects.hashCode(this.bestIndividuals);
+            hash = 43 * hash + Objects.hashCode(this.bestFitnesses);
             return hash;
         }
 
         @Override
         public String toString() {
-            return String.format("[%s: bestFitness=%f, bestIndividual=%s, finalPopulation=%s]", bestFitness, bestIndividual, finalPopulation);
+            return String.format("[%s: bestFitnesses=%f, bestIndividuals=%s, finalPopulation=%s]", this.getClass().getSimpleName(), bestFitnesses, bestIndividuals, finalPopulation);
         }
         // </editor-fold>
         

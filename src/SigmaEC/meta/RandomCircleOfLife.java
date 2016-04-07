@@ -8,6 +8,7 @@ import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -80,7 +81,9 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         if (metrics.isDefined())
             for (PopulationMetric<T> metric : metrics.get())
                 metric.measurePopulation(run, i, population);
-        return new EvolutionResult<T>(population, bestSoFarInd, bestSoFarInd.getFitness());
+        
+        assert(repOK());
+        return new EvolutionResult<>(population, bestSoFarInd, bestSoFarInd.getFitness());
     }
     
     /** Flush I/O buffers. */
