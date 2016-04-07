@@ -6,6 +6,7 @@ import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.select.Selector;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.List;
@@ -61,14 +62,12 @@ public class RandomMigrationPolicy<T extends Individual> extends MigrationPolicy
         if ((generation % interval) != 0)
             return;
         
+        // For each island
         for (int source = 0; source < topology.numIslands(); source++) {
             final Set<Integer> neighbors = topology.getNeighbors(source);
-            final int targetNeighbor = random.nextInt(neighbors.size());
-            int neighborIndex = 0;
-            int target = -1;
-            for (final Integer n : neighbors)
-                if (neighborIndex == targetNeighbor)
-                    target = n;
+            // Randomly choose a destination from its neighbors
+            final int targetIndex = random.nextInt(neighbors.size());
+            final int target = Misc.getIthSetElement(neighbors, targetIndex);
             assert(target >= 0);
             assert(target < population.numSuppopulations());
             migrate(source, target, population);
@@ -94,7 +93,7 @@ public class RandomMigrationPolicy<T extends Individual> extends MigrationPolicy
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    public boolean repOK() {
+    public final boolean repOK() {
         return P_INTERVAL != null
                 && !P_INTERVAL.isEmpty()
                 && P_RANDOM != null

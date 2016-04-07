@@ -2,7 +2,6 @@ package SigmaEC.util;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.linear.DoubleVectorIndividual;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -16,6 +15,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 /**
  * Miscellaneous utility methods.
@@ -330,5 +330,18 @@ public final class Misc
             if (mins[i] > maxes[i])
                 return false;
         return true;
+    }
+    
+    public static <T> T getIthSetElement(final Set<T> set, final int i) {
+        assert(set != null);
+        assert(i >= 0);
+        assert(i < set.size());
+        int j = 0;
+        for (final T e : set) {
+            if (j == i)
+                return e;
+            j++;
+        }
+        throw new IllegalArgumentException(String.format("%s: attempted to retrieve the %dth element from a set whose size was %d.", Misc.class.getSimpleName(), i, set.size()));
     }
 }
