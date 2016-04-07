@@ -19,7 +19,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
     private final CGPParameters cgpParameters;
     private final Node[][] nodes;
     private final int[] outputSources;
-    private final double fitness;
+    private final Option<Double> fitness;
 
     @Override
     public int arity() {
@@ -64,6 +64,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         private final CGPParameters cgpParameters;
         private Node[][] nodes;
         private int[] outputSources;
+        private Option<Double> fitness = Option.NONE;
         
         public Builder(final CGPParameters cgpParameters, final int[] outputSources) {
             assert(cgpParameters !=  null);
@@ -75,9 +76,27 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
                 nodes[i] = new Node[cgpParameters.numNodesPerLayer()];
             this.outputSources = outputSources;
         }
+    
+        private Builder(final CartesianIndividual ref) {
+            assert(ref != null);
+            cgpParameters = ref.cgpParameters;
+            nodes = ref.nodes;
+            outputSources = ref.outputSources;
+            fitness = ref.fitness;
+        }
         
         public CartesianIndividual build() {
             return new CartesianIndividual(this);
+        }
+        
+        public Builder setFitness(final double fitness) {
+            this.fitness = new Option<>(fitness);
+            return this;
+        }
+        
+        public Builder clearFitness() {
+            fitness = Option.NONE;
+            return this;
         }
         
         public Builder setFunction(final int layer, final int node, final BooleanFunction function, final int[] inputSources) {
@@ -163,16 +182,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         cgpParameters = builder.cgpParameters;
         nodes = builder.nodes;
         outputSources = builder.outputSources;
-        fitness = Double.NaN;
-        assert(repOK());
-    }
-    
-    private CartesianIndividual(final CartesianIndividual ref, final double newFitness) {
-        assert(ref != null);
-        cgpParameters = ref.cgpParameters;
-        nodes = ref.nodes;
-        outputSources = ref.outputSources;
-        fitness = newFitness;
+        fitness = builder.fitness;
         assert(repOK());
     }
     
@@ -184,12 +194,25 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
 
     @Override
     public double getFitness() {
-        return fitness;
+        if (fitness.isDefined())
+            return fitness.get();
+        else
+            throw new IllegalStateException(String.format("%s: attempted to read the fitness of an individual whose fitness has not been evaluated.", this.getClass().getSimpleName()));
+    }
+    
+    @Override
+    public boolean isEvaluated() {
+        return fitness.isDefined();
     }
 
     @Override
-    public Individual setFitness(double fitness) {
-        return new CartesianIndividual(this, fitness);
+    public CartesianIndividual setFitness(double fitness) {
+        return new Builder(this).setFitness(fitness).build();
+    }
+    
+    @Override
+    public CartesianIndividual clearFitness() {
+        return new Builder(this).clearFitness().build();
     }
 
     @Override
@@ -222,7 +245,8 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
                 && outputSources.length == cgpParameters.numOutputs()
                 && !Misc.containsNulls(nodes)
                 && Misc.allRowsEqualLength(nodes)
-                && sourcesFitConstraints(nodes);
+                && sourcesFitConstraints(nodes)
+                && fitness != null;
     }
     
     private boolean sourcesFitConstraints(final Node[][] nodes) {
@@ -270,22 +294,22 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         return cgpParameters.equals(ref.cgpParameters)
                 && Arrays.equals(outputSources, ref.outputSources)
                 && Arrays.deepEquals(nodes, ref.nodes)
-                && Misc.doubleEquals(fitness, ref.fitness);
+                && fitness.equals(ref.fitness);
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 61 * hash + Objects.hashCode(this.cgpParameters);
-        hash = 61 * hash + Arrays.deepHashCode(this.nodes);
-        hash = 61 * hash + Arrays.hashCode(this.outputSources);
-        hash = 61 * hash + (int) (Double.doubleToLongBits(this.fitness) ^ (Double.doubleToLongBits(this.fitness) >>> 32));
+        int hash = 3;
+        hash = 19 * hash + Objects.hashCode(this.cgpParameters);
+        hash = 19 * hash + Arrays.deepHashCode(this.nodes);
+        hash = 19 * hash + Arrays.hashCode(this.outputSources);
+        hash = 19 * hash + Objects.hashCode(this.fitness);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: cgpParameters=%s, nodes=%s, outputSources=%s, fitness=%f]", this.getClass().getSimpleName(),
+        return String.format("[%s: cgpParameters=%s, nodes=%s, outputSources=%s, fitness=%s]", this.getClass().getSimpleName(),
                 cgpParameters, Arrays.toString(nodes), Arrays.toString(outputSources), fitness);
     }
     // </editor-fold>

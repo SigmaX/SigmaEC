@@ -34,8 +34,18 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     }
     
     @Override
+    public boolean isEvaluated() {
+        return fitness.isDefined();
+    }
+    
+    @Override
     public BitStringIndividual setFitness(double fitness) {
         return new Builder(this).setFitness(fitness).build();
+    }
+    
+    @Override
+    public BitStringIndividual clearFitness() {
+        return new Builder(this).clearFitness().build();
     }
     
     @Override

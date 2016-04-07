@@ -24,6 +24,8 @@ public abstract class Individual extends ContractObject
     
     public abstract boolean hasParents();
     
+    public abstract boolean isEvaluated();
+    
     public abstract Option<List<Individual>> getParents();
     
     /** Produces a copy of this individual with the fitness set or altered. */
@@ -35,5 +37,8 @@ public abstract class Individual extends ContractObject
     
     /** Produces a copy of this individual with an empty set of parents. */
     public abstract Individual clearParents();
+    
+    /** Produces a copy of this individual with an empty fitness attribute. */
+    public abstract Individual clearFitness();
     
 }

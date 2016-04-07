@@ -63,6 +63,11 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
         else
             throw new IllegalStateException(String.format("%s: attempted to read the fitness of an individual whose fitness has not been evaluated.", this.getClass().getSimpleName()));
     }
+    
+    @Override
+    public boolean isEvaluated() {
+        return fitness.isDefined();
+    }
 
     @Override
     public Individual setParents(List<? extends Individual> parents) {
@@ -72,6 +77,11 @@ public class DoubleVectorIndividual extends LinearGenomeIndividual<DoubleGene> {
     @Override
     public DoubleVectorIndividual setFitness(double fitness) {
         return new Builder(this).setFitness(fitness).build();
+    }
+    
+    @Override
+    public DoubleVectorIndividual clearFitness() {
+        return new Builder(this).clearFitness().build();
     }
     
     @Override
