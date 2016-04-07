@@ -62,7 +62,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
             bestSoFar.addAll(newBests);
         }
         
-        // Don't measure anything else until the sepcified interval has elapsed
+        // Don't measure anything else until the specified interval has elapsed
         if (step % modulo != 0)
             return null;
         

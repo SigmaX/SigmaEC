@@ -9,8 +9,6 @@ import SigmaEC.meta.CircleOfLife;
 import SigmaEC.meta.Operator;
 import SigmaEC.meta.Population;
 import SigmaEC.meta.StoppingCondition;
-import SigmaEC.meta.island.MigrationPolicy;
-import SigmaEC.meta.island.Topology;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
 import SigmaEC.select.FitnessComparator;
@@ -49,7 +47,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
     public final static String P_DEFAULT_OPERATORS = "defaultOperators";
     public final static String P_DEFAULT_IS_DYNAMIC = "defaultIsDynamic";
     
-    // Island-specific parameter names
+    // IslandConfiguration-specific parameter names
     public final static String P_ISLAND = "island";
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_OBJECTIVE = "objective";
@@ -65,7 +63,14 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
     private final Option<List<PopulationMetric<T>>> metrics;
     private final int numThreads;
     
-    private final List<IslandConfiguration> islands;
+    private final List<HeterogeneousIslandConfiguration> islands;
+    
+    public List<IslandConfiguration> getIslands() {
+        final ArrayList<IslandConfiguration> result = new ArrayList<>();
+        result.addAll(islands);
+        assert(repOK());
+        return result;
+    }
     
     public HeterogeneousIslandModelCircleOfLife(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -79,9 +84,9 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
         stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
         numThreads = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_THREADS), topology.numIslands());
         metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
-        islands = new ArrayList<IslandConfiguration>(topology.numIslands()) {{
+        islands = new ArrayList<HeterogeneousIslandConfiguration>(topology.numIslands()) {{
                 for (int i = 0; i < topology.numIslands(); i++)
-                    add(new IslandConfiguration(i, parameters, base));
+                    add(new HeterogeneousIslandConfiguration(i, parameters, base));
         }};
         assert(repOK());
     }
@@ -94,7 +99,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
 
             // Initialize subpopulations
             final Population<T> population = new Population<>(topology.numIslands(), initializer);
-            // Evaluate initial subpopulations
+            // Evaluate fitness of initial subpopulations
             for (int i = 0; i < population.numSuppopulations(); i++)
                 population.setSubpopulation(i, islands.get(i).getEvaluator().operate(run, step, population.getSubpopulation(i)));
 
@@ -108,6 +113,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
                         metric.measurePopulation(run, step, population);
 
                 // Execute each island in parallel
+                // FIXME This is causing race conditions.
                 final Collection<Callable<Void>> tasks = new ArrayList<>(topology.numIslands());
                 for (int i = 0; i < topology.numIslands(); i++)
                     tasks.add(new HeterogeneousIslandModelCircleOfLife.IslandStepper(run, step, islands.get(i), population));
@@ -117,7 +123,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
                     Logger.getLogger(HeterogeneousIslandModelCircleOfLife.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
-                migrationPolicy.migrateAll(step, population, topology);
+                migrationPolicy.migrateAll(step, population, topology, new Option(getIslands()));
 
                 // Update our local best-so-far variable
                 final List<T> bestOfStepInds = getBestsOfStep(population);
@@ -185,11 +191,11 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
     
     private class IslandStepper extends ContractObject implements Callable<Void> {
         private final Population<T> population;
-        private final IslandConfiguration island;
+        private final HeterogeneousIslandConfiguration island;
         private final int run;
         private final int step;
         
-        public IslandStepper(final int run, final int step, final IslandConfiguration island, final Population<T> population) {
+        public IslandStepper(final int run, final int step, final HeterogeneousIslandConfiguration island, final Population<T> population) {
             assert(island != null);
             assert(population != null);
             this.island = island;
@@ -245,7 +251,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
         // </editor-fold>
     }
     
-    private class IslandConfiguration extends ContractObject {
+    private class HeterogeneousIslandConfiguration extends IslandConfiguration {
         private final int islandID;
         private final EvaluationOperator<T, P> evaluator;
         private final List<Operator<T>> operators;
@@ -253,15 +259,17 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
         private final FitnessComparator<T> fitnessComparator;
         private final boolean isDynamic;
         
+        @Override
         public EvaluationOperator<T, P> getEvaluator() {
             return evaluator;
         }
         
+        @Override
         public FitnessComparator<T> getFitnessComparator() {
             return fitnessComparator;
         }
         
-        public IslandConfiguration(final int islandID, final Parameters parameters, final String base) {
+        public HeterogeneousIslandConfiguration(final int islandID, final Parameters parameters, final String base) {
             assert(islandID >= 0);
             assert(islandID < topology.numIslands());
             assert(parameters != null);
@@ -279,6 +287,14 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
         public void step(final int run, final int step, final Population<T> population) {
             assert(population != null);
             assert(population.numSuppopulations() == topology.numIslands());
+            /*
+            // Evaluate any new individuals that have been inserted into this island's subpopulation
+            final List<T> subPop = population.getSubpopulation(islandID);
+            for (int i = 0; i < subPop.size(); i++) {
+                final T ind = subPop.get(i);
+                if (!ind.isEvaluated())
+                    subPop.set(i, evaluator.evaluate(ind));
+            }*/
             
             // Apply operators
             for (final Operator<T> gen : operators) {
@@ -310,9 +326,9 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
         public boolean equals(final Object o) {
             if (this == o)
                 return true;
-            if (!(o instanceof HeterogeneousIslandModelCircleOfLife.IslandConfiguration))
+            if (!(o instanceof HeterogeneousIslandModelCircleOfLife.HeterogeneousIslandConfiguration))
                 return false;
-            final IslandConfiguration ref = (IslandConfiguration)o;
+            final HeterogeneousIslandConfiguration ref = (HeterogeneousIslandConfiguration)o;
             return islandID == ref.islandID
                     && isDynamic == ref.isDynamic
                     && fitnessComparator.equals(ref.fitnessComparator)

@@ -54,12 +54,20 @@ public class RandomMigrationPolicy<T extends Individual> extends MigrationPolicy
     }
     
     @Override
-    public void migrateAll(final int generation, final Population<T> population, final Topology topology) {
-        assert(generation >= 0);
+    public void migrateAll(final int step, final Population<T> population, final Topology topology) {
+        migrateAll(step, population, topology, Option.NONE);
+    }
+            
+    @Override
+    public void migrateAll(final int step, final Population<T> population, final Topology topology, final Option<List<IslandConfiguration>> islandConfigs) {
+        assert(step >= 0);
         assert(population != null);
         assert(topology != null);
+        assert(population.numSuppopulations() == topology.numIslands());
+        assert(!(islandConfigs.isDefined() && (islandConfigs.get().size() != topology.numIslands())));
+        assert(!(islandConfigs.isDefined() && islandConfigs.get().isEmpty()));
         
-        if ((generation % interval) != 0)
+        if ((step % interval) != 0)
             return;
         
         // For each island
@@ -70,12 +78,15 @@ public class RandomMigrationPolicy<T extends Individual> extends MigrationPolicy
             final int target = Misc.getIthSetElement(neighbors, targetIndex);
             assert(target >= 0);
             assert(target < population.numSuppopulations());
-            migrate(source, target, population);
+            if (islandConfigs.isDefined())
+                migrate(source, target, population, new Option(islandConfigs.get().get(target)));
+            else
+                migrate(source, target, population, Option.NONE);
         }
         assert(repOK());
     }
     
-    private void migrate(final int sourcePopIndex, final int targetPopIndex, final Population<T> population) {
+    private void migrate(final int sourcePopIndex, final int targetPopIndex, final Population<T> population, final Option<IslandConfiguration> targetIsland) {
         assert(sourcePopIndex >= 0);
         assert(sourcePopIndex < population.numSuppopulations());
         assert(targetPopIndex >= 0);
@@ -84,7 +95,9 @@ public class RandomMigrationPolicy<T extends Individual> extends MigrationPolicy
         
         final List<T> sourcePop = population.getSubpopulation(sourcePopIndex);
         final List<T> targetPop = population.getSubpopulation(targetPopIndex);
-        final T sourceInd = sourceSelector.selectIndividual(sourcePop);
+        final T sourceInd = targetIsland.isDefined() ?
+                (T) targetIsland.get().getEvaluator().evaluate(sourceSelector.selectIndividual(sourcePop))
+                : sourceSelector.selectIndividual(sourcePop);
         final int targetIndex = replacementSelector.selectIndividualIndex(targetPop);
         final T targetInd = targetPop.get(targetIndex);
         if (alwaysReplace || fitnessComparator.get().betterThan(sourceInd, targetInd))
