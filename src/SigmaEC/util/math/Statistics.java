@@ -30,6 +30,8 @@ public final class Statistics
     public static double std(double[] values, double mean) {
         assert(Misc.doubleEquals(mean, mean(values)));
         assert(values != null);
+        if (values.length <= 1)
+            return 0;
         double sum = 0;
         for (int i = 0; i < values.length; i++)
             sum += Math.pow(values[i] - mean, 2);
@@ -38,6 +40,9 @@ public final class Statistics
 
     /** Sample standard deviation (with Bessel's correction). */
     public static double std(double[] values) {
+        assert(values != null);
+        if (values.length <= 1)
+            return 0;
         return std(values, mean(values));
     }
     

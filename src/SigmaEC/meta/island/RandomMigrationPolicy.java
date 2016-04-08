@@ -101,7 +101,9 @@ public class RandomMigrationPolicy<T extends Individual> extends MigrationPolicy
         final int targetIndex = replacementSelector.selectIndividualIndex(targetPop);
         final T targetInd = targetPop.get(targetIndex);
         if (alwaysReplace || fitnessComparator.get().betterThan(sourceInd, targetInd))
-            targetPop.set(targetIndex, sourceInd);
+            synchronized (this) { // XXX Ew.  Move this synchronization logic inside the Population class.
+                targetPop.set(targetIndex, sourceInd);
+            }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

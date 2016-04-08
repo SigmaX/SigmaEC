@@ -13,16 +13,16 @@ import java.util.List;
  */
 public class SelectionOperator<T extends Individual> extends Operator<T> {
     public final static String P_SELECTOR = "selector";
-    public final static String P_CHILD_POP_SIZE = "childPopSize";
+    public final static String P_SURVIVOR_POP_SIZE = "survivorPopSize";
     
     private final Selector<T> selector;
-    private final Option<Integer> childPopSize;
+    private final Option<Integer> survivorPopSize;
     
     public SelectionOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         selector = parameters.getInstanceFromParameter(Parameters.push(base, P_SELECTOR), Selector.class);
-        childPopSize = parameters.getOptionalIntParameter(Parameters.push(base, P_CHILD_POP_SIZE));
+        survivorPopSize = parameters.getOptionalIntParameter(Parameters.push(base, P_SURVIVOR_POP_SIZE));
         assert(repOK());
     }
     
@@ -30,7 +30,7 @@ public class SelectionOperator<T extends Individual> extends Operator<T> {
     public List<T> operate(final int run, final int generation, final List<T> population) {
         assert(population != null);
         assert(repOK());
-        return selector.selectMultipleIndividuals(population, childPopSize.isDefined() ? childPopSize.get() : population.size());
+        return selector.selectMultipleIndividuals(population, survivorPopSize.isDefined() ? survivorPopSize.get() : population.size());
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

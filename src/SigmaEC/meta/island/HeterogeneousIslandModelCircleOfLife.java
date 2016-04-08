@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -115,11 +116,13 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
                 // Execute each island in parallel
                 // FIXME This is causing race conditions.
                 final Collection<Callable<Void>> tasks = new ArrayList<>(topology.numIslands());
-                for (int i = 0; i < topology.numIslands(); i++)
-                    tasks.add(new HeterogeneousIslandModelCircleOfLife.IslandStepper(run, step, islands.get(i), population));
+                for (final HeterogeneousIslandConfiguration isl : islands)
+                    tasks.add(new HeterogeneousIslandModelCircleOfLife.IslandStepper(run, step, isl, population));
                 try {
-                    executor.invokeAll(tasks);
-                } catch (final InterruptedException ex) {
+                    final List<Future<Void>> results = executor.invokeAll(tasks);
+                    for (final Future<Void> f : results)
+                        f.get(); // Throw exception if a thread dies
+                } catch (final Exception ex) {
                     Logger.getLogger(HeterogeneousIslandModelCircleOfLife.class.getName()).log(Level.SEVERE, null, ex);
                 }
 
@@ -143,6 +146,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
             return new EvolutionResult<>(population, bestSoFarInds, getFitnesses(bestSoFarInds));
     }
     
+    // <editor-fold defaultstate="collapsed" desc="CircleOfLife helpers">
     private List<T> getBestsOfStep(final Population<T> population) {
         return new ArrayList<T>() {{
            for (int i = 0; i < population.numSuppopulations(); i++)
@@ -174,7 +178,8 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
                 add(ind.getFitness());
         }};
     }
-
+    // </editor-fold>
+    
     /** Flush I/O buffers. */
     private void flushMetrics() {
         if (metrics.isDefined())
@@ -299,9 +304,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
             // Apply operators
             for (final Operator<T> gen : operators) {
                 final List<T> newSubpop = gen.operate(run, step, population.getSubpopulation(islandID));
-                synchronized (population) {
                     population.setSubpopulation(islandID, newSubpop);
-                }
             }
             
             if (isDynamic)
@@ -411,7 +414,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
                 && !islands.isEmpty()
                 && !Misc.containsNulls(islands);
     }
-
+            
     @Override
     public boolean equals(final Object o) {
         if (this == o)

@@ -47,7 +47,7 @@ public class Population<T extends Individual> extends ContractObject {
         return subpopulations[i];
     }
     
-    public void setSubpopulation(final int i, final List<T> population) {
+    public synchronized void setSubpopulation(final int i, final List<T> population) {
         assert(i >= 0);
         assert(i < subpopulations.length);
         assert(population != null);
