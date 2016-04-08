@@ -5,15 +5,19 @@ import SigmaEC.util.Parameters;
 
 /**
  *
- * @author Eric 'Siggy' Scott
+ * @author Eric O. Scott
  */
-public class NOT extends ContractObject implements BooleanFunction {
+public class EQU extends ContractObject implements BooleanFunction {
+        
+    public EQU(final Parameters parameters, final String base) {
+        assert(parameters != null);
+        assert(base != null);
+        assert(repOK());
+    }
 
-    public NOT(final Parameters parameters, final String base) { }
-    
     @Override
     public int arity() {
-        return 1;
+        return 2;
     }
 
     @Override
@@ -24,20 +28,19 @@ public class NOT extends ContractObject implements BooleanFunction {
     @Override
     public boolean[] execute(boolean[] input) {
         assert(input != null);
-        assert(input.length >= arity());
-        assert(repOK());
-        return new boolean[] { !input[0] };
+        assert(input.length >= 2);
+        return new boolean[] { (input[0] && input[1]) || (!input[0] && !input[1]) };
     }
-    
+
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    public boolean repOK() {
+    public final boolean repOK() {
         return true;
     }
 
     @Override
     public boolean equals(final Object o) {
-        return (o instanceof NOT);
+        return (o instanceof EQU);
     }
 
     @Override
