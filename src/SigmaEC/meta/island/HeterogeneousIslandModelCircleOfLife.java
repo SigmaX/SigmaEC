@@ -114,7 +114,6 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
                         metric.measurePopulation(run, step, population);
 
                 // Execute each island in parallel
-                // FIXME This is causing race conditions.
                 final Collection<Callable<Void>> tasks = new ArrayList<>(topology.numIslands());
                 for (final HeterogeneousIslandConfiguration isl : islands)
                     tasks.add(new HeterogeneousIslandModelCircleOfLife.IslandStepper(run, step, isl, population));
@@ -148,10 +147,11 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
     
     // <editor-fold defaultstate="collapsed" desc="CircleOfLife helpers">
     private List<T> getBestsOfStep(final Population<T> population) {
-        return new ArrayList<T>() {{
-           for (int i = 0; i < population.numSuppopulations(); i++)
-               add(population.getBest(i, islands.get(i).getFitnessComparator()));
-        }};
+        final List<T> bests = new ArrayList<>(population.numSuppopulations());
+        for (int i = 0; i < population.numSuppopulations(); i++)
+            bests.add(population.getBest(i, islands.get(i).getFitnessComparator()));
+        assert(!Misc.containsNulls(bests));
+        return bests;
     }
     
     private List<T> updateBestSoFars(final List<T> bestOfStep, final List<T> previousBestSoFars) {
@@ -160,14 +160,15 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual, P> exten
         assert(previousBestSoFars != null);
         assert(!Misc.containsNulls(previousBestSoFars));
         assert(bestOfStep.size() == previousBestSoFars.size());
-        return new ArrayList<T>() {{
-            for (int i = 0; i < bestOfStep.size(); i++) {
-                if (islands.get(i).getFitnessComparator().betterThan(bestOfStep.get(i), previousBestSoFars.get(i)))
-                    add(bestOfStep.get(i));
-                else
-                    add(previousBestSoFars.get(i));
-            }
-        }};
+        final List<T> newBests = new ArrayList<>(bestOfStep.size());
+        for (int i = 0; i < bestOfStep.size(); i++) {
+            if (islands.get(i).getFitnessComparator().betterThan(bestOfStep.get(i), previousBestSoFars.get(i)))
+                newBests.add(bestOfStep.get(i));
+            else
+                newBests.add(previousBestSoFars.get(i));
+        }
+        assert(!Misc.containsNulls(newBests));
+        return newBests;
     }
     
     private List<Double> getFitnesses(final List<T> inds) {
