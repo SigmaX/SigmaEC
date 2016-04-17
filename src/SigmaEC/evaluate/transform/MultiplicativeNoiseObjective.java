@@ -29,15 +29,35 @@ public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T> {
         
         stdFraction = parameters.getDoubleParameter(Parameters.push(base, P_STD_FRACTION));
         if (Double.isInfinite(stdFraction) || Double.isNaN(stdFraction))
-            throw new IllegalStateException(String.format("%s: %s is %f, but must be finite.", this.getClass().getSimpleName(), P_STD_FRACTION, stdFraction));
+            throw new IllegalStateException(String.format("%s: '%s' is %f, but must be finite.", this.getClass().getSimpleName(), Parameters.push(base, P_STD_FRACTION), stdFraction));
         if (stdFraction < 0.0)
-            throw new IllegalStateException(String.format("%s: %s is %f, but must be positive.", this.getClass().getSimpleName(), P_STD_FRACTION, stdFraction));
+            throw new IllegalStateException(String.format("%s: '%s' is %f, but must be positive.", this.getClass().getSimpleName(), Parameters.push(base, P_STD_FRACTION), stdFraction));
         
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         globalBestFitness = parameters.getIntParameter(Parameters.push(base, P_GLOBAL_BEST_FITNESS));
         if (!Double.isFinite(globalBestFitness) || Double.isNaN(globalBestFitness))
             throw new IllegalStateException(String.format("%s: '%s' is %f, but must be finite.", this.getClass().getSimpleName(), Parameters.push(base, P_GLOBAL_BEST_FITNESS), globalBestFitness));
         assert(repOK());
+    }
+    
+    public MultiplicativeNoiseObjective(final ObjectiveFunction<? super T> objective, final double stdFraction, final SRandom random, final double globalBestFitness) {
+        this.objective = objective;
+        if (objective == null)
+            throw new IllegalArgumentException(String.format("%s: objective is null.", this.getClass().getSimpleName()));
+        this.stdFraction = stdFraction;
+        if (Double.isInfinite(stdFraction) || Double.isNaN(stdFraction))
+            throw new IllegalStateException(String.format("%s: %s is %f, but must be finite.", this.getClass().getSimpleName(), P_STD_FRACTION, stdFraction));
+        if (stdFraction < 0.0)
+            throw new IllegalStateException(String.format("%s: %s is %f, but must be positive.", this.getClass().getSimpleName(), P_STD_FRACTION, stdFraction));
+        
+        this.random = random;
+        if (random == null)
+            throw new IllegalArgumentException(String.format("%s: random is null.", this.getClass().getSimpleName()));
+        this.globalBestFitness = globalBestFitness;
+        if (!Double.isFinite(globalBestFitness) || Double.isNaN(globalBestFitness))
+            throw new IllegalStateException(String.format("%s: globalBestFitness is %f, but must be finite.", this.getClass().getSimpleName(), globalBestFitness));
+        assert(repOK());
+        
     }
     
     @Override
