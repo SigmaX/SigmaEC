@@ -10,7 +10,6 @@ import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
