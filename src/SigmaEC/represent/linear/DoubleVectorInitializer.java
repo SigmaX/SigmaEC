@@ -54,6 +54,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         
         if (!((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) || (maxValues.isDefined() && minValues.isDefined())))
             throw new IllegalStateException(String.format("%s: Must use either default values or vectors for both max and min.", this.getClass().getSimpleName()));
+        if (((defaultMaxValue.isDefined() && defaultMinValue.isDefined()) && defaultMaxValue.get() < defaultMinValue.get()))
+            throw new IllegalStateException(String.format("%s: Max must be greater than or equal to min!.", this.getClass().getSimpleName()));
 
         
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
