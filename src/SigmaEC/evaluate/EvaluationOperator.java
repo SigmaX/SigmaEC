@@ -18,16 +18,19 @@ public class EvaluationOperator<T extends Individual, P> extends Operator<T> {
     public final static String P_DECODER = "decoder";
     public final static String P_OBJECTIVE = "objective";
     public final static String P_NUM_SAMPLES = "numSamples";
+    public final static String P_REEVALUATE = "reevaluate";
     
     private final Option<Decoder<T, P>> decoder;
     private final ObjectiveFunction<P> objective;
     private final int numSamples;
+    private final boolean reevaluate;
     
     public EvaluationOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         decoder = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
+        reevaluate = parameters.getOptionalBooleanParameter(Parameters.push(base, P_REEVALUATE), false);
         numSamples = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_SAMPLES), 1);
         if (numSamples < 1)
             throw new IllegalStateException(String.format("%s: '%s' is %d, but must be positive.", this.getClass().getSimpleName(), Parameters.push(base, P_NUM_SAMPLES), numSamples));
@@ -46,10 +49,16 @@ public class EvaluationOperator<T extends Individual, P> extends Operator<T> {
     public List<T> operate(final int run, final int generation, final List<T> parentPopulation) {
         return new ArrayList<T>(parentPopulation.size()) {{
                 for (final T ind : parentPopulation) {
-                    final P phenotype = decoder.isDefined() ? decoder.get().decode(ind) : (P) ind;
-                    final double fitness = getExpectedFitness(phenotype);
-                    assert(!Double.isNaN(fitness)) : String.format("The following individual, decoder, and phenotype yielded a fitness value of NaN, which is not allowed.\nindiviual: %s\ndecoder: %s\nphenotype: %s", ind, decoder, phenotype);
-                    add((T) ind.clearParents().setFitness(fitness));
+                    if (!reevaluate && ind.isEvaluated())
+                        // Keep existing fitness value
+                        add((T) ind.clearParents());
+                    else {
+                        // Evaluate or re-evaluate fitness
+                        final P phenotype = decoder.isDefined() ? decoder.get().decode(ind) : (P) ind;
+                        final double fitness = getExpectedFitness(phenotype);
+                        assert(!Double.isNaN(fitness)) : String.format("The following individual, decoder, and phenotype yielded a fitness value of NaN, which is not allowed.\nindiviual: %s\ndecoder: %s\nphenotype: %s", ind, decoder, phenotype);
+                        add((T) ind.clearParents().setFitness(fitness));
+                    }
                 }
         }};
     }
