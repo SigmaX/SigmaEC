@@ -26,11 +26,11 @@ or simulations.
 
 Other evolutionary computation frameworks such as Sean Luke's [ECJ][3] achieve
 a great deal of extensibility and inversion of control, but SigmaEC takes it
-to an extreme.  Components have access only to the dependencies they are 'wired
-to' in the configuration files.  There is no concept of globally accessible
-state in SigmaEC algorithms; therefore components cannot create unexpected side
-effects in other parts of the program.  This makes unit testing easier and
-reduces the potential for confusion on the part of the user.
+to an extreme.  To encourage close adherence to the [Law of Demeter][5], components
+have access only to the dependencies they are 'wired to' in the configuration files.  There
+is no concept of globally accessible state in SigmaEC algorithms; therefore components
+cannot create unexpected side effects in other parts of the program.  This makes unit
+testing easier and reduces the potential for confusion on the part of the user.
 
 SigmaEC's notion of wiring together general components to create applications
 will be familiar to users of dependency injection frameworks such as [Spring][4].
@@ -51,4 +51,5 @@ easier to read and extend with special features like arithmetic operators, etc.
 [1]: http://en.wikipedia.org/wiki/Inversion_of_control
 [2]: http://en.wikipedia.org/wiki/Dependency_injection
 [3]: http://cs.gmu.edu/~eclab/projects/ecj
-[4]: htpp://projects.spring.io/spring-framework
+[4]: http://projects.spring.io/spring-framework
+[5]: https://en.wikipedia.org/wiki/Law_of_Demeter
