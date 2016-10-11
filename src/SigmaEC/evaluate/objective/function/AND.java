@@ -12,6 +12,12 @@ public class AND extends ContractObject implements BooleanFunction {
     
     private final int arity;
     
+    public AND(final int arity) {
+        assert(arity > 0);
+        this.arity = arity;
+        assert(repOK());
+    }
+    
     public AND(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);

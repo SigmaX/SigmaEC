@@ -42,6 +42,16 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         assert(repOK());
     }
     
+    public FitnessStatisticsPopulationMetric(final FitnessComparator<T> fitnessComparator, final Option<EvaluationOperator<T, P>> auxiliaryEvaluator, final int modulo) {
+        assert(fitnessComparator != null);
+        assert(auxiliaryEvaluator != null);
+        assert(modulo > 0);
+        this.fitnessComparator = fitnessComparator;
+        this.auxiliaryEvaluator = auxiliaryEvaluator;
+        this.modulo = modulo;
+        assert(repOK());
+    }
+    
     /** Prints a row of the form "run, step, mean, std, best, worst, bsf" for each subpopulation. */
     @Override
     public synchronized MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {

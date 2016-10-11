@@ -37,6 +37,17 @@ public class EvaluationOperator<T extends Individual, P> extends Operator<T> {
         assert(repOK());
     }
     
+    public EvaluationOperator(final Decoder<T, P> decoder, final ObjectiveFunction<P> objective, final int numSamples, final boolean reevaluate) {
+        assert(decoder != null);
+        assert(objective != null);
+        assert(numSamples > 0);
+        this.decoder = new Option<>(decoder);
+        this.objective = objective;
+        this.numSamples = numSamples;
+        this.reevaluate = reevaluate;
+        assert(repOK());
+    }
+    
     /** Evaluate the fitness of all the individuals in a population.
      * 
      * @param run Ignored.

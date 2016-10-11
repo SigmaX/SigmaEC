@@ -245,6 +245,14 @@ public final class Misc
         return newArray;
     }
     
+    public static boolean[] prepend(final boolean[] pre, final boolean[] post) {
+        assert(post != null);
+        final boolean[] newArray = new boolean[post.length + pre.length];
+        System.arraycopy(pre, 0, newArray, 0, pre.length);
+        System.arraycopy(post, 0, newArray, pre.length, post.length);
+        return newArray;
+    }
+    
     public static <T extends Individual> boolean allElementsHaveDimension(final List<ObjectiveFunction<T>> objectives, final int dimensions) {
         assert(objectives != null);
         assert(objectives.size() > 0);

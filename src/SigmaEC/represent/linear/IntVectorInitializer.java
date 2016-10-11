@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -100,8 +102,11 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
             final IntVectorIndividual newInd = defaultMaxValue.isDefined() ?
                     new IntVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
                     : new IntVectorIndividual(random, numDimensions, mins.get(), maxes.get());
-            if (!constraint.isDefined() || !constraint.get().isViolated(newInd))
+            if (!constraint.isDefined() || !constraint.get().isViolated(newInd)) {
+                if (i > 0)
+                    Logger.getLogger(this.getClass().getSimpleName()).log(Level.INFO, String.format("Individual generated after %d attempts.", i));
                 return newInd;
+            }
             else if (stopOnConstraintViolation)
                 throw new IllegalStateException(String.format("%s: unexpected constraint violation.", this.getClass().getSimpleName()));
         }

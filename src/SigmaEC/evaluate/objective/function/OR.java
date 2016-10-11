@@ -12,6 +12,12 @@ public class OR extends ContractObject implements BooleanFunction {
     
     private final int arity;
     
+    public OR(final int arity) {
+        assert(arity > 0);
+        this.arity = arity;
+        assert(repOK());
+    }
+    
     public OR(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
