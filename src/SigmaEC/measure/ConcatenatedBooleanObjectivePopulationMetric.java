@@ -71,7 +71,8 @@ public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> 
         // Prepend the subFunction ID to each measurement
         for (int i = 0; i < subFunctionMetrics.size(); i++) {
             final PopulationMetric metric = subFunctionMetrics.get(i);
-            functionStrings.add(String.format("%d, %s, %s", i, targetFunction.getFunction(i).getClass().getSimpleName(), metric.measurePopulation(run, step, population)));
+            final String arityPostfix = (targetFunction.getFunction(i).arity() == 2) ? "" : "." + String.valueOf(targetFunction.getFunction(i).arity());
+            functionStrings.add(String.format("%d, %s%s, %s", i, targetFunction.getFunction(i).getClass().getSimpleName(), arityPostfix, metric.measurePopulation(run, step, population)));
         }
         return new MultipleStringMeasurement(run, step, functionStrings);
     }
