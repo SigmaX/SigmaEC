@@ -187,6 +187,26 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
     }
     
     // <editor-fold defaultstate="collapsed" desc="Accessors and Producers">
+    public BooleanFunction getFunction(final int layer, final int node) {
+            assert(layer >= 0);
+        assert(layer < cgpParameters.numLayers());
+        assert(node >= 0);
+        assert(node < cgpParameters.numNodesPerLayer());
+        return nodes[layer][node].function;
+    }
+    
+    public int[] getInputs(final int layer, final int node) {
+        assert(layer >= 0);
+        assert(layer < cgpParameters.numLayers());
+        assert(node >= 0);
+        assert(node < cgpParameters.numNodesPerLayer());
+        return Arrays.copyOf(nodes[layer][node].inputSources, nodes[layer][node].inputSources.length);
+    }
+    
+    public int[] getOutputSources() {
+        return Arrays.copyOf(outputSources, outputSources.length);
+    }
+    
     @Override
     public long getID() {
         return id++;
