@@ -32,7 +32,7 @@ public class IntVectorCSVFormatter extends GenomeFormatter<IntVectorIndividual> 
         final String[] split = individual.split(",");
         final int[] genome = new int[split.length];
         for (int i = 0; i < split.length; i++)
-            genome[i] = Integer.valueOf(split[i]);
+            genome[i] = Integer.valueOf(split[i].trim());
         assert(repOK());
         return new IntVectorIndividual.Builder(genome).build();
     }
