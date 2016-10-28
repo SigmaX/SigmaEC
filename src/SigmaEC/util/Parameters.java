@@ -548,9 +548,12 @@ public class Parameters extends ContractObject {
     
     // <editor-fold defaultstate="collapsed" desc="String Array">
     public String[] getStringArrayParameter(final String parameterName) {
+        return getStringArrayParameter(parameterName, LIST_DELIMITER);
+    }
+    public String[] getStringArrayParameter(final String parameterName, final String delimiter) {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
-        final String[] result = getStringParameter(parameterName).split(LIST_DELIMITER);
+        final String[] result = getStringParameter(parameterName).split(delimiter);
         for (int i = 0; i < result.length; i++)
             result[i] = result[i].trim();
         return result;
@@ -562,6 +565,14 @@ public class Parameters extends ContractObject {
         assert(!parameterName.isEmpty());
         final String value = properties.getProperty(parameterName);
         return (value == null) ? Option.NONE : new Option<String[]>(getStringArrayParameter(parameterName));
+    }
+    
+    
+    public Option<String[]> getOptionalStringArrayParameterWithDelimiter(final String parameterName, final String delimiter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        final String value = properties.getProperty(parameterName);
+        return (value == null) ? Option.NONE : new Option<String[]>(getStringArrayParameter(parameterName, delimiter));
     }
     
     public String[] getOptionalStringArrayParameter(final String parameterName, final String[] deflt) {

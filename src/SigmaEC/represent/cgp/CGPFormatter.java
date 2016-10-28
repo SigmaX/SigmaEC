@@ -9,6 +9,8 @@ import SigmaEC.evaluate.objective.function.OR;
 import SigmaEC.evaluate.objective.function.Shunt;
 import SigmaEC.evaluate.objective.function.XOR;
 import SigmaEC.represent.format.GenomeFormatter;
+import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.Objects;
 
@@ -18,14 +20,20 @@ import java.util.Objects;
  */
 public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
     public final static String P_OUTPUT_FORMAT = "outputFormat";
+    public final static String P_ANNOTATE_PATHS = "annotatePaths";
+    public final static String P_TIKZ_COLORS = "tikzColors";
     
     public static enum OutputFormat { TIKZ, DOT };
     private final OutputFormat outputFormat;
+    private final boolean annotatePaths;
+    private final Option<String[]> tikzColors;
     
     public CGPFormatter(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         outputFormat = OutputFormat.valueOf(parameters.getStringParameter(Parameters.push(base, P_OUTPUT_FORMAT)));
+        annotatePaths =  parameters.getOptionalBooleanParameter(Parameters.push(base, P_ANNOTATE_PATHS), true);
+        tikzColors =  parameters.getOptionalStringArrayParameter(Parameters.push(base, P_TIKZ_COLORS));
         assert(repOK());
     }
     
@@ -42,29 +50,35 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
         }
     }
     
-    private static String cgpToDot(final CartesianIndividual individual) {
+    private String cgpToDot(final CartesianIndividual individual) {
         assert(individual != null);
-        final CGPParameters p = individual.cgpParmaeters();
+        final CGPParameters p = individual.cgpParameters();
         final StringBuilder sb = new StringBuilder("graph X {\n");
         
         throw new UnsupportedOperationException();
     }
     
-    private static String cgpToTikz(final CartesianIndividual individual) {
+    private String cgpToTikz(CartesianIndividual individual) {
         assert(individual != null);
-        final CGPParameters p = individual.cgpParmaeters();
+        if (annotatePaths)
+            individual = individual.computeExecutionPaths();
+        final String[] colors = tikzColors.isDefined() ? tikzColors.get() : getDefaultColors(individual.numOutputs());
+        if (colors.length < individual.numOutputs() + 1)
+            throw new IllegalStateException(String.format("%s: received individual with %d outputs, but '%s' only specifies %d colors (need %d).", this.getClass().getSimpleName(), individual.numOutputs(), P_TIKZ_COLORS, colors.length, individual.numOutputs() + 1));
+        
+        final CGPParameters p = individual.cgpParameters();
         final StringBuilder sb = new StringBuilder("\\begin{tikzpicture}[circuit logic US, every circuit symbol/.style={thick}]\n");
         // Inputs
         final int spacing = 2;
         for (int i = 0; i < p.numInputs(); i++)
-            sb.append(String.format("\t\\node[buffer gate, point down,draw=none] (node%d) at (%d,0) {\\rotatebox{90}{$I_{%d}$}};\n", i, i*spacing, i));
+            sb.append(String.format("\t\\node[%s,buffer gate,point down,draw=none] (node%d) at (%d,0) {\\rotatebox{90}{$I_{%d}$}};\n", getColorForInput(colors, individual, i), i, i*spacing, i));
         // Nodes and edges
         for (int i = 0; i < p.numLayers(); i++) {
             for (int j = 0; j < p.numNodesPerLayer(); j++) {
                 final int thisNodeID = p.numInputs() + i*p.numNodesPerLayer() + j;
                 // Print node
                 final BooleanFunction function = individual.getFunction(i, j);
-                sb.append(String.format("\t\\node[%s,inputs={%s}, point down] (node%d) at (%d,-%d) {};\n", functionName(function), functionInputs(function), thisNodeID, j*spacing, (i + 1)*spacing));
+                sb.append(String.format("\t\\node[%s,%s,inputs={%s}, point down] (node%d) at (%d,-%d) {};\n", getColorForNode(colors, individual, i, j), functionName(function), functionInputs(function), thisNodeID, j*spacing, (i + 1)*spacing));
                 // Print input edges
                 final int[] inputs = individual.getInputs(i, j);
                 for (int k = 0; k < inputs.length; k++)
@@ -75,11 +89,57 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
         final int[] outputSources = individual.getOutputSources();
         assert(outputSources.length == p.numOutputs());
         for (int i = 0; i < p.numOutputs(); i++) {
-            sb.append(String.format("\t\\node[buffer gate, point down,draw=none] (out%d) at (%d,-%d) {\\rotatebox{90}{$O_{%d}$}};\n", i, i*spacing, spacing*(p.numLayers() + 1), i));
+            sb.append(String.format("\t\\node[%s,buffer gate, point down,draw=none] (out%d) at (%d,-%d) {\\rotatebox{90}{$O_{%d}$}};\n", getColorForOutput(colors, i), i, i*spacing, spacing*(p.numLayers() + 1), i));
             sb.append(String.format("\t\t\\draw (node%d.output) -- ++(down:5mm) -| (out%d);\n", outputSources[i], i));
         }
         sb.append("\\end{tikzpicture}\n");
         return sb.toString();
+    }
+    
+    private static String[] getDefaultColors(final int numOutputs) {
+        final String[] colors = new String[numOutputs + 1];
+        colors[0] = "gray";
+        for (int i = 1; i < colors.length; i++)
+            colors[i] = "black";
+        return colors;
+    }
+    
+    private String getColorForNode(final String[] colors, final CartesianIndividual individual, final int layer, final int column) {
+        assert(individual != null);
+        assert(layer >= 0);
+        assert(layer < individual.cgpParameters().numLayers());
+        assert(column >= 0);
+        assert(column < individual.cgpParameters().numNodesPerLayer());
+        if (!annotatePaths)
+            return "black";
+        int lowestPath = Integer.MAX_VALUE;
+        for (final int executionPath : individual.getExecutionPaths(layer, column))
+            if (executionPath < lowestPath)
+                lowestPath = executionPath;
+        return colors[(lowestPath == Integer.MAX_VALUE) ? 0 : lowestPath + 1];
+    }
+    
+    private String getColorForInput(final String[] colors, final CartesianIndividual individual, final int input) {
+        assert(individual != null);
+        assert(input >= 0);
+        assert(input < individual.cgpParameters().numInputs());
+        if (!annotatePaths)
+            return "black";
+        int lowestPath = Integer.MAX_VALUE;
+        for (final int executionPath : individual.getExecutionPaths(input))
+            if (executionPath < lowestPath)
+                lowestPath = executionPath;
+        return colors[(lowestPath == Integer.MAX_VALUE) ? 0 : lowestPath + 1];
+    }
+    
+    private String getColorForOutput(final String[] colors, final int output) {
+        assert(colors != null);
+        assert(!Misc.containsNulls(colors));
+        if (!annotatePaths)
+            return "black";
+        assert(output >= 0);
+        assert(output < colors.length - 1);
+        return colors[output + 1];
     }
     
     private static String functionName(final BooleanFunction function) {
