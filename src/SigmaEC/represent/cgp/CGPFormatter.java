@@ -12,7 +12,10 @@ import SigmaEC.represent.format.GenomeFormatter;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  *
@@ -21,19 +24,29 @@ import java.util.Objects;
 public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
     public final static String P_OUTPUT_FORMAT = "outputFormat";
     public final static String P_ANNOTATE_PATHS = "annotatePaths";
-    public final static String P_TIKZ_COLORS = "tikzColors";
+    public final static String P_PATH_COLORS = "pathColors";
+    public final static String P_PATHS_TO_HIGHLIGHT = "pathsToHighlight";
+    
+    private final static String DEFAULT_COLOR = "black";
+    private final static String INTRON_COLOR = "gray";
     
     public static enum OutputFormat { TIKZ, DOT };
     private final OutputFormat outputFormat;
     private final boolean annotatePaths;
-    private final Option<String[]> tikzColors;
+    private final Option<String[]> pathColors;
+    private final Option<Set<Integer>> pathsToHighlight;
     
     public CGPFormatter(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         outputFormat = OutputFormat.valueOf(parameters.getStringParameter(Parameters.push(base, P_OUTPUT_FORMAT)));
         annotatePaths =  parameters.getOptionalBooleanParameter(Parameters.push(base, P_ANNOTATE_PATHS), true);
-        tikzColors =  parameters.getOptionalStringArrayParameter(Parameters.push(base, P_TIKZ_COLORS));
+        pathColors = parameters.getOptionalStringArrayParameter(Parameters.push(base, P_PATH_COLORS));
+        final Option<int[]> pathsToHighlightArray = parameters.getOptionalIntArrayParameter(Parameters.push(base, P_PATHS_TO_HIGHLIGHT));
+        pathsToHighlight = !pathsToHighlightArray.isDefined() ? Option.NONE : new Option<>(new HashSet<Integer>() {{
+                for (final int path : pathsToHighlightArray.get())
+                    add(path);
+        }});
         assert(repOK());
     }
     
@@ -62,9 +75,9 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
         assert(individual != null);
         if (annotatePaths)
             individual = individual.computeExecutionPaths();
-        final String[] colors = tikzColors.isDefined() ? tikzColors.get() : getDefaultColors(individual.numOutputs());
+        final String[] colors = pathColors.isDefined() ? pathColors.get() : getDefaultColors(individual.numOutputs());
         if (colors.length < individual.numOutputs() + 1)
-            throw new IllegalStateException(String.format("%s: received individual with %d outputs, but '%s' only specifies %d colors (need %d).", this.getClass().getSimpleName(), individual.numOutputs(), P_TIKZ_COLORS, colors.length, individual.numOutputs() + 1));
+            throw new IllegalStateException(String.format("%s: received individual with %d outputs, but '%s' only specifies %d colors (need %d).", this.getClass().getSimpleName(), individual.numOutputs(), P_PATH_COLORS, colors.length, individual.numOutputs() + 1));
         
         final CGPParameters p = individual.cgpParameters();
         final StringBuilder sb = new StringBuilder("\\begin{tikzpicture}[circuit logic US, every circuit symbol/.style={thick}]\n");
@@ -98,9 +111,9 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
     
     private static String[] getDefaultColors(final int numOutputs) {
         final String[] colors = new String[numOutputs + 1];
-        colors[0] = "gray";
+        colors[0] = INTRON_COLOR;
         for (int i = 1; i < colors.length; i++)
-            colors[i] = "black";
+            colors[i] = DEFAULT_COLOR;
         return colors;
     }
     
@@ -111,12 +124,15 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
         assert(column >= 0);
         assert(column < individual.cgpParameters().numNodesPerLayer());
         if (!annotatePaths)
-            return "black";
+            return DEFAULT_COLOR;
+        if (individual.getExecutionPaths(layer, column).isEmpty())
+            return INTRON_COLOR;
         int lowestPath = Integer.MAX_VALUE;
         for (final int executionPath : individual.getExecutionPaths(layer, column))
-            if (executionPath < lowestPath)
+            if (executionPath < lowestPath && (!pathsToHighlight.isDefined() || pathsToHighlight.get().contains(executionPath)))
                 lowestPath = executionPath;
-        return colors[(lowestPath == Integer.MAX_VALUE) ? 0 : lowestPath + 1];
+        final boolean onHighlightedPath = !(lowestPath == Integer.MAX_VALUE);
+        return !onHighlightedPath ? getNonHighlightedColor() : colors[lowestPath + 1];
     }
     
     private String getColorForInput(final String[] colors, final CartesianIndividual individual, final int input) {
@@ -124,19 +140,26 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
         assert(input >= 0);
         assert(input < individual.cgpParameters().numInputs());
         if (!annotatePaths)
-            return "black";
+            return DEFAULT_COLOR;
+        if (individual.getExecutionPaths(input).isEmpty())
+            return INTRON_COLOR;
         int lowestPath = Integer.MAX_VALUE;
         for (final int executionPath : individual.getExecutionPaths(input))
-            if (executionPath < lowestPath)
+            if (executionPath < lowestPath && (!pathsToHighlight.isDefined() || pathsToHighlight.get().contains(executionPath)))
                 lowestPath = executionPath;
-        return colors[(lowestPath == Integer.MAX_VALUE) ? 0 : lowestPath + 1];
+        final boolean onHighlightedPath = !(lowestPath == Integer.MAX_VALUE);
+        return !onHighlightedPath ? getNonHighlightedColor() : colors[lowestPath + 1];
+    }
+    
+    private String getNonHighlightedColor() {
+        return pathColors.isDefined() ? DEFAULT_COLOR : INTRON_COLOR; 
     }
     
     private String getColorForOutput(final String[] colors, final int output) {
         assert(colors != null);
         assert(!Misc.containsNulls(colors));
-        if (!annotatePaths)
-            return "black";
+        if (!annotatePaths || (pathsToHighlight.isDefined() && !pathsToHighlight.get().contains(output)))
+            return DEFAULT_COLOR;
         assert(output >= 0);
         assert(output < colors.length - 1);
         return colors[output + 1];
