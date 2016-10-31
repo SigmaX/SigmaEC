@@ -4,7 +4,7 @@ import SigmaEC.meta.Population;
 import SigmaEC.represent.CloneDecoder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.represent.linear.DoubleVectorIndividual;
+import SigmaEC.represent.linear.IntVectorIndividual;
 import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -17,23 +17,23 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Prints a population of DoubleVectorIndividuals.  If the population has
- * a different kind of genotype, but a phenotype that can be interpreted as a
- * DoubleVectorIndividual, a decoder may be used to print the phenotypes.
+ * Prints a population of IntVectorIndividuals.  If the population has
+ * a different kind of genotype, but a phenotype that can be interpreted as an
+ * IntVectorIndividual, a decoder may be used to print the phenotypes.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleVectorPopulationMetric<T extends Individual> extends PopulationMetric<T> {
+public class IntVectorPopulationMetric<T extends Individual> extends PopulationMetric<T> {
     public final static String P_DECODER = "decoder";
     public final static String P_BEST_ONLY = "bestOnly";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     public final static String P_DIMENSIONS = "numDimensions";
     
-    private final Decoder<T, DoubleVectorIndividual> decoder;
+    private final Decoder<T, IntVectorIndividual> decoder;
     private final Option<FitnessComparator<T>> fitnessComparator;
     private final int numDimensions;
     
-    public DoubleVectorPopulationMetric(final Parameters parameters, final String base) {
+    public IntVectorPopulationMetric(final Parameters parameters, final String base) {
         decoder = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_DECODER), new CloneDecoder(parameters, base), Decoder.class);
         final boolean bestOnly = parameters.getBooleanParameter(Parameters.push(base, P_BEST_ONLY));
         final Option<FitnessComparator<T>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
@@ -51,7 +51,7 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
-        final List<DoubleVectorMeasurement> measurements = new ArrayList<DoubleVectorMeasurement>() {{
+        final List<IntVectorMeasurement> measurements = new ArrayList<IntVectorMeasurement>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.
                     final T best = population.getBest(i, fitnessComparator.get());
@@ -66,14 +66,14 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         return new MultipleMeasurement(measurements);
     }
     
-    private DoubleVectorMeasurement measureIndividual(final int run, final int step, final int subpop, final T individual) {
+    private IntVectorMeasurement measureIndividual(final int run, final int step, final int subpop, final T individual) {
         assert(run >= 0);
         assert(step >= 0);
         assert(subpop >= 0);
         assert(individual != null);
-        final DoubleVectorIndividual decodedInd = decoder.decode(individual);
+        final IntVectorIndividual decodedInd = decoder.decode(individual);
         assert(decodedInd.size() == numDimensions);
-        return new DoubleVectorMeasurement(run, step, subpop, individual.getFitness(), individual.getID(), decodedInd.getGenomeArray());
+        return new IntVectorMeasurement(run, step, subpop, individual.getFitness(), individual.getID(), decodedInd.getGenomeArray());
     }
 
     @Override
@@ -121,9 +121,9 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
     
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof DoubleVectorPopulationMetric))
+        if (!(o instanceof IntVectorPopulationMetric))
             return false;
-        final DoubleVectorPopulationMetric ref = (DoubleVectorPopulationMetric)o;
+        final IntVectorPopulationMetric ref = (IntVectorPopulationMetric)o;
         return numDimensions == ref.numDimensions
                 && fitnessComparator.equals(ref.fitnessComparator)
                 && decoder.equals(ref.decoder);
@@ -131,23 +131,23 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 43 * hash + Objects.hashCode(this.decoder);
-        hash = 43 * hash + Objects.hashCode(this.fitnessComparator);
-        hash = 43 * hash + this.numDimensions;
+        int hash = 3;
+        hash = 83 * hash + Objects.hashCode(this.decoder);
+        hash = 83 * hash + Objects.hashCode(this.fitnessComparator);
+        hash = 83 * hash + this.numDimensions;
         return hash;
     }
     //</editor-fold>
     
-    public static class DoubleVectorMeasurement extends Measurement {
+    public static class IntVectorMeasurement extends Measurement {
         private final int run;
         private final int step;
         private final int subpopulation;
         private final double fitness;
         private final long indID;
-        private final double[] values;
+        private final int[] values;
 
-        public DoubleVectorMeasurement(final int run, final int step, final int subpopulation, final double fitness, final long indID, final double[] values) {
+        public IntVectorMeasurement(final int run, final int step, final int subpopulation, final double fitness, final long indID, final int[] values) {
             assert(run >= 0);
             assert(step >= 0);
             assert(subpopulation >= 0);
@@ -173,7 +173,7 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append(String.format("%d, %d, %d, %d, %f", run, step, subpopulation, indID, fitness));
-            for (final double d : values)
+            for (final int d : values)
                 sb.append(", ").append(d);
             assert(repOK());
             return sb.toString();
@@ -191,26 +191,26 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
 
         @Override
         public boolean equals(final Object o) {
-            if(!(o instanceof DoubleVectorMeasurement))
+            if(!(o instanceof IntVectorMeasurement))
                 return false;
-            final DoubleVectorMeasurement ref = (DoubleVectorMeasurement)o;
+            final IntVectorMeasurement ref = (IntVectorMeasurement)o;
             return run == ref.run
                     && step == ref.step
                     && subpopulation == ref.subpopulation
                     && indID == ref.indID
                     && Misc.doubleEquals(fitness, ref.fitness)
-                    && Misc.doubleArrayEquals(values, ref.values);
+                    && Arrays.equals(values, ref.values);
         }
 
         @Override
         public int hashCode() {
             int hash = 7;
-            hash = 79 * hash + this.run;
-            hash = 79 * hash + this.step;
-            hash = 79 * hash + this.subpopulation;
-            hash = 79 * hash + (int) (Double.doubleToLongBits(this.fitness) ^ (Double.doubleToLongBits(this.fitness) >>> 32));
-            hash = 79 * hash + (int) (this.indID ^ (this.indID >>> 32));
-            hash = 79 * hash + Arrays.hashCode(this.values);
+            hash = 97 * hash + this.run;
+            hash = 97 * hash + this.step;
+            hash = 97 * hash + this.subpopulation;
+            hash = 97 * hash + (int) (Double.doubleToLongBits(this.fitness) ^ (Double.doubleToLongBits(this.fitness) >>> 32));
+            hash = 97 * hash + (int) (this.indID ^ (this.indID >>> 32));
+            hash = 97 * hash + Arrays.hashCode(this.values);
             return hash;
         }
         // </editor-fold>
