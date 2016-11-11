@@ -34,7 +34,7 @@ public class Shunt extends ContractObject implements BooleanFunction  {
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
-    public boolean repOK() {
+    public final boolean repOK() {
         return P_ARITY != null
                 && !P_ARITY.isEmpty()
                 && arity > 0;

@@ -3,6 +3,7 @@ package SigmaEC.represent.cgp;
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import SigmaEC.evaluate.objective.function.BooleanFunction;
+import SigmaEC.evaluate.objective.function.InputSelector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
@@ -133,30 +134,82 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         assert(repOK());
     }
     
-    
     @Override
     public boolean[] execute(final boolean[] input) {
+        if (containsInputSelector(nodes))
+            return executeWithADFs(input);
+        else {
+            assert(Arrays.equals(executeWithADFs(input), executeWithNoADFs(input)));
+            return executeWithNoADFs(input);
+        }
+    }
+    
+    private static boolean containsInputSelector(final Node[][] nodes) {
+        assert(nodes != null);
+        assert(!Misc.containsNulls(nodes));
+        for (final Node[] row : nodes)
+            for (final Node node : row)
+                if (node.function instanceof InputSelector)
+                    return true;
+        return false;
+    }
+    
+    public boolean[] executeWithADFs(final boolean[] input) {
+        final boolean[] outputVector = new boolean[cgpParameters.numOutputs()];
+        // Execute the circute once for output.  Yes, this is grossly inefficient.
+        for (int output = 0; output < outputVector.length; output++) {
+            final boolean[] intermediateOutputs = Arrays.copyOf(input, cgpParameters.numInputs() + cgpParameters.numLayers()*cgpParameters.numNodesPerLayer());
+            // Execute each node of the graph, moving from the input layer toward the outputs
+            for (int layer = 0; layer < cgpParameters.numLayers(); layer++) {
+                for (int n = 0; n < cgpParameters.numNodesPerLayer(); n++) {
+                    final Node node = nodes[layer][n];
+                    final boolean[] nodeInput = getNodeInputData(node, intermediateOutputs);
+                    final BooleanFunction nodeFunction = (node.function instanceof InputSelector) ?
+                            ((InputSelector) node.function).setChannel(((InputSelector) node.function).outputToChannel(output))
+                            : node.function;
+                    final boolean[] result = nodeFunction.execute(nodeInput);
+                    assert(result.length == 1);
+                    // Record the output of this node
+                    intermediateOutputs[cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer()] = result[0];
+                }
+            }
+            outputVector[output] = intermediateOutputs[outputSources[output]];
+        }
+        return outputVector;
+    }
+    
+    public boolean[] executeWithNoADFs(final boolean[] input) {
         assert(input != null);
         assert(input.length == cgpParameters.numInputs());
         final boolean[] intermediateOutputs = Arrays.copyOf(input, cgpParameters.numInputs() + cgpParameters.numLayers()*cgpParameters.numNodesPerLayer());
+        // Execute each node of the graph, moving from the input layer toward the outputs
         for (int layer = 0; layer < cgpParameters.numLayers(); layer++) {
             for (int n = 0; n < cgpParameters.numNodesPerLayer(); n++) {
                 final Node node = nodes[layer][n];
-                final boolean[] nodeInput = new boolean[node.function.arity()];
-                for (int i = 0; i < nodeInput.length; i++) {
-                    nodeInput[i] = intermediateOutputs[node.inputSources[i]];
-                }
+                assert(!(node.function instanceof InputSelector));
+                final boolean[] nodeInput = getNodeInputData(node, intermediateOutputs);
                 final boolean[] result = node.function.execute(nodeInput);
                 assert(result.length == 1);
+                // Record the output of this node
                 intermediateOutputs[cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer()] = result[0];
             }
         }
+        // Compute the output layer
         final boolean[] output = new boolean[cgpParameters.numOutputs()];
         for (int i = 0; i < output.length; i++) {
             output[i] = intermediateOutputs[outputSources[i]];
         }
         assert(repOK());
         return output;
+    }
+    
+    private static boolean[] getNodeInputData(final Node node, final boolean[] intermediateOutputs) {
+        assert(node != null);
+        assert(intermediateOutputs != null);
+        final boolean[] nodeInput = new boolean[node.function.arity()];
+        for (int i = 0; i < node.function.arity(); i++)
+            nodeInput[i] = intermediateOutputs[node.inputSources[i]];
+        return nodeInput;
     }
     
     /** Annotate each node in this circuit with a set listing the outputs that it
@@ -344,7 +397,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         }
     }
     
-    private static class Node extends ContractObject {
+    protected static class Node extends ContractObject {
         final BooleanFunction function;
         final int[] inputSources;
         final Option<Set<Integer>> executionPaths;
