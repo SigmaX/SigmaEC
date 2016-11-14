@@ -125,7 +125,7 @@ public class ExpressionParser {
     
     private static boolean isPartOfNumber(final char c) {
         final int ascii = (int) c;
-        return ascii >= 0x30 && ascii <= 0x39 || c == '.'; // 0-9 or '.'
+        return ascii >= 0x30 && ascii <= 0x39 || c == '.' || c == 'E'; // 0-9 or '.'
     }
     
     private static boolean isOperator(final String s) {

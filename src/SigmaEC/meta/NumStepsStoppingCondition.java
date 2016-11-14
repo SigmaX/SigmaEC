@@ -10,7 +10,7 @@ import SigmaEC.util.Parameters;
 public class NumStepsStoppingCondition<T extends Individual> extends StoppingCondition<T> {
     public final static String P_NUM_STEPS = "numSteps";
     public final static String P_PROGRESS_BAR = "progressBar";
-    private final static int NUM_PROGRESS_BAR_BLOCKS = 20;
+    private final static int NUM_PROGRESS_BAR_BLOCKS = 50;
     
     private final int numSteps;
     private final boolean progressBar;
@@ -23,7 +23,7 @@ public class NumStepsStoppingCondition<T extends Individual> extends StoppingCon
         if (numSteps < 0)
             throw new IllegalStateException(String.format("%s: %s is negative, must be >= 0.", this.getClass().getSimpleName(), P_NUM_STEPS));
         progressBar = parameters.getOptionalBooleanParameter(Parameters.push(base, P_PROGRESS_BAR), false);
-        stepsPerProgressBarBlock = numSteps/20;
+        stepsPerProgressBarBlock = numSteps/NUM_PROGRESS_BAR_BLOCKS;
         assert(repOK());
     }
     
