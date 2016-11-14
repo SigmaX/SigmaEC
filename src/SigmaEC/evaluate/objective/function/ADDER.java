@@ -36,8 +36,7 @@ public class ADDER extends ContractObject implements BooleanFunction {
         assert(input != null);
         boolean[] output = new boolean[numOutputs()];
         boolean carry = false;
-        for (int i = output.length - 2; i >= 0; i--)
-        {
+        for (int i = output.length - 2; i >= 0; i--) {
             boolean[] sum = fullAdder.execute(new boolean[] { carry, input[i], input[arity()/2 + i] });
             output[i+1] = sum[1];
             carry = sum[0];

@@ -5,7 +5,7 @@ import SigmaEC.util.Parameters;
 
 /**
  *
- * @author eric
+ * @author Eric O. Scott
  */
 public class FULL_ADDER extends ContractObject implements BooleanFunction {
 

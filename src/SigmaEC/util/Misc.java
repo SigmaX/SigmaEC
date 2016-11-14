@@ -352,4 +352,15 @@ public final class Misc
         }
         throw new IllegalArgumentException(String.format("%s: attempted to retrieve the %dth element from a set whose size was %d.", Misc.class.getSimpleName(), i, set.size()));
     }
+    
+    /** Convert an array of bits into its corresponding integer representation, assuming a big-endian encoding. */
+    public static int bitStringToInt(final boolean[] bitString) {
+        assert(bitString != null);
+        int result = 0;
+        for (int i = 0; i < bitString.length; i++) {
+            if (bitString[i])
+                result += Math.pow(2, bitString.length - 1 - i);
+        }
+        return result;
+    }
 }
