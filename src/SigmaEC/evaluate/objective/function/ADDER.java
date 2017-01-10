@@ -17,6 +17,8 @@ public class ADDER extends ContractObject implements BooleanFunction {
         assert(parameters != null);
         assert(base != null);
         arity = parameters.getOptionalIntParameter(Parameters.push(base, P_ARITY), 4);
+        if (arity % 2 != 0)
+            throw new IllegalStateException(String.format("%s: '%s' is %d, but must be an even number.", this.getClass().getSimpleName(), Parameters.push(base, P_ARITY), arity));
         fullAdder = new FULL_ADDER(parameters, base);
         assert(repOK());
     }
