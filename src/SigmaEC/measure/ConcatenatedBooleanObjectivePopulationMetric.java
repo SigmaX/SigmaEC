@@ -23,6 +23,7 @@ import java.util.Objects;
  * @author Eric O. Scott
  */
 public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> extends PopulationMetric<T> {
+    final public static String P_ROW_PREFIX = "rowPrefix";
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_MODULO = "modulo";
     public final static String P_DECODER = "decoder";
@@ -34,6 +35,7 @@ public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> 
     private final Decoder<T, BooleanFunction> decoder;
     private final ConcatenatedBooleanFunction targetFunction;
     private final boolean partialMatches;
+    private final String rowPrefix;
     
     private FitnessStatisticsPopulationMetric<T, BooleanFunction> targetFunctionMetric;
     private List<FitnessStatisticsPopulationMetric<T, BooleanFunction>> subFunctionMetrics;
@@ -50,6 +52,8 @@ public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> 
             throw new IllegalStateException(String.format("%s: %s is %d, must be positive.", this.getClass().getSimpleName(), P_MODULO, modulo));
         targetFunctionMetric = new FitnessStatisticsPopulationMetric(fitnessComparator, new Option<>(new EvaluationOperator(decoder, new TruthTableObjective(targetFunction), 1, true)), modulo);
         subFunctionMetrics = setupSubfunctionMetrics();
+        final Option<String> rowPrefixOpt = parameters.getOptionalStringParameter(Parameters.push(base, P_ROW_PREFIX));
+        rowPrefix = rowPrefixOpt.isDefined() ? rowPrefixOpt.get() + ", " : "";
         assert(repOK());
     }
     
@@ -67,19 +71,20 @@ public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> 
     @Override
     public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
         final List<String> functionStrings = new ArrayList<>();
-        functionStrings.add(String.format("%d, %s, %s", -1, "All", targetFunctionMetric.measurePopulation(run, step, population)));
+        functionStrings.add(String.format("%s%d, %s, %s", rowPrefix, -1, "All", targetFunctionMetric.measurePopulation(run, step, population)));
         // Prepend the subFunction ID to each measurement
         for (int i = 0; i < subFunctionMetrics.size(); i++) {
             final PopulationMetric metric = subFunctionMetrics.get(i);
             final String arityPostfix = (targetFunction.getFunction(i).arity() == 2) ? "" : "." + String.valueOf(targetFunction.getFunction(i).arity());
-            functionStrings.add(String.format("%d, %s%s, %s", i, targetFunction.getFunction(i).getClass().getSimpleName(), arityPostfix, metric.measurePopulation(run, step, population)));
+            functionStrings.add(String.format("%s%d, %s%s, %s", rowPrefix, i, targetFunction.getFunction(i).getClass().getSimpleName(), arityPostfix, metric.measurePopulation(run, step, population)));
         }
         return new MultipleStringMeasurement(run, step, functionStrings);
     }
 
     @Override
     public String csvHeader() {
-        return String.format("subFunctionID, subFunction, %s", subFunctionMetrics.get(0).csvHeader());
+        final String extraColumn = (rowPrefix.isEmpty()) ? "" : "experiment, ";
+        return String.format("%ssubFunctionID, subFunction, %s", extraColumn, subFunctionMetrics.get(0).csvHeader());
     }
 
     @Override

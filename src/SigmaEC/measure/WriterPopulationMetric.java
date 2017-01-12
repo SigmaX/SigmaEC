@@ -17,16 +17,19 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class WriterPopulationMetric<T extends Individual> extends PopulationMetric<T>
-{
+public class WriterPopulationMetric<T extends Individual> extends PopulationMetric<T> {
     final public static String P_PREFIX = "prefix";
     final public static String P_FILE = "file";
+    final public static String P_ROW_PREFIX = "rowPrefix";
+    final public static String P_HEADER = "header";
     final public static String P_METRIC = "metric";
     public final static String P_MODULO = "modulo";
     
-    final private Writer writer;
+    private final boolean header;
+    private final Writer writer;
     private final int modulo;
-    final private PopulationMetric<T> wrappedMetric;
+    private final PopulationMetric<T> wrappedMetric;
+    private final Option<String> rowPrefix;
     
     public WriterPopulationMetric(final Parameters parameters, final String base) throws IllegalArgumentException {
         assert(parameters != null);
@@ -34,8 +37,8 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
         
         final Option<String> file = parameters.getOptionalStringParameter(Parameters.push(base, P_FILE));
         if (file.isDefined()) {
-            final Option<String> prefixOpt = parameters.getOptionalStringParameter(Parameters.push(base, P_PREFIX));
-            final String fileName = (prefixOpt.isDefined() ? prefixOpt.get() : "") + file.get();
+            final String prefix = parameters.getOptionalStringParameter(Parameters.push(base, P_PREFIX), "");
+            final String fileName = prefix + file.get();
             try {
                 writer = new FileWriter(fileName);
             }
@@ -52,11 +55,16 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
         if (wrappedMetric == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": wrappedMetric is null.");
         
-        try {
-            writer.write(csvHeader() + "\n");
-        } catch (final IOException ex) {
-            Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+        rowPrefix = parameters.getOptionalStringParameter(Parameters.push(base, P_ROW_PREFIX));
+        header = parameters.getOptionalBooleanParameter(Parameters.push(base, P_HEADER), true);
+        if (header) {
+            try {
+                writer.write(csvHeader() + "\n");
+            } catch (final IOException ex) {
+                Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        
         modulo = parameters.getOptionalIntParameter(Parameters.push(base, P_MODULO), 1);
         if (modulo <= 0)
             throw new IllegalStateException(String.format("%s: %s is %d, must be positive.", this.getClass().getSimpleName(), P_MODULO, modulo));
@@ -69,7 +77,8 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
         final Measurement measurement = wrappedMetric.measurePopulation(run, step, population);
         if (measurement != null && (step % modulo == 0)) {
             try {
-                writer.write(String.format("%s\n", measurement.toString()));
+                final String prefix = rowPrefix.isDefined() ? rowPrefix.get() + ", " : "";
+                writer.write(String.format("%s%s\n", prefix, measurement.toString()));
             } catch (final IOException ex) {
                 Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -80,7 +89,8 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
 
     @Override
     public final String csvHeader() {
-        return wrappedMetric.csvHeader();
+        return rowPrefix.isDefined() ? "experiment, " + wrappedMetric.csvHeader()
+                : wrappedMetric.csvHeader();
     }
 
     @Override
