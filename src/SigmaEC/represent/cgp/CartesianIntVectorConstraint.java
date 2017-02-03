@@ -31,16 +31,16 @@ public class CartesianIntVectorConstraint extends Constraint<IntVectorIndividual
     @Override
     public boolean isViolated(final IntVectorIndividual individual) {
         assert(individual != null);
-        if (individual.size() != cgpParameters.numLayers()*cgpParameters.numNodesPerLayer()*(cgpParameters.maxArity() + 1) + cgpParameters.numOutputs())
+        if (individual.size() != cgpParameters.getNumDimensions())
             return true;
         for (int layer = 0; layer < cgpParameters.numLayers(); layer++) {
             for (int node = 0; node < cgpParameters.numNodesPerLayer(); node++) {
-                final int functionID = individual.getElement((layer*cgpParameters.numNodesPerLayer() + node)*(cgpParameters.maxArity() + 1));
+                final int functionID = individual.getElement(cgpParameters.getFunctionGeneForNode(layer, node));
                 if (functionID < 0 || functionID >= cgpParameters.numPrimitives())
                     return true;
                 
                 for (int i = 0; i < cgpParameters.maxArity(); i++) {
-                    final int source = individual.getElement((layer*cgpParameters.numNodesPerLayer() + node)*(cgpParameters.maxArity() + 1) + 1 + i);
+                    final int source = individual.getElement(cgpParameters.getInputGeneForNode(layer, node, i));
                     if (source >= cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer())
                         return true;
                     if (layer >= cgpParameters.levelsBack() 
@@ -53,8 +53,7 @@ public class CartesianIntVectorConstraint extends Constraint<IntVectorIndividual
         }
         for (int i = cgpParameters.numLayers()*cgpParameters.numNodesPerLayer()*(cgpParameters.maxArity() + 1); i < individual.size(); i++) {
             final int outputSource = individual.getElement(i);
-            // XXX Shouldn't this enforce layersBack as well?
-            if (outputSource < 0 || outputSource > cgpParameters.numInputs() + cgpParameters.numLayers()*cgpParameters.numNodesPerLayer()*(cgpParameters.maxArity() + 1))
+            if (outputSource < 0 || outputSource > cgpParameters.numInputs() + cgpParameters.numLayers()*cgpParameters.numNodesPerLayer())
                 return true;
         }
         return false;

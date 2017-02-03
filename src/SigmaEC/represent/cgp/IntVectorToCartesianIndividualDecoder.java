@@ -30,14 +30,14 @@ public class IntVectorToCartesianIndividualDecoder extends Decoder<IntVectorIndi
     @Override
     public CartesianIndividual decode(final IntVectorIndividual individual) {
         assert(individual != null);
-        assert(individual.size() == cgpParameters.numLayers() * cgpParameters.numNodesPerLayer() * (cgpParameters.maxArity() + 1) + cgpParameters.numOutputs());
+        assert(individual.size() == cgpParameters.getNumDimensions());
         final CartesianIndividual.Builder builder = new CartesianIndividual.Builder(cgpParameters, getOutputSources(individual));
         for (int layer = 0; layer < cgpParameters.numLayers(); layer++) {
             for (int node = 0; node < cgpParameters.numNodesPerLayer(); node++) {
-                final BooleanFunction function = functions.get(individual.getElement((layer*cgpParameters.numNodesPerLayer() + node)*(cgpParameters.maxArity() + 1)));
+                final BooleanFunction function = functions.get(individual.getElement(cgpParameters.getFunctionGeneForNode(layer, node)));
                 final int[] inputSources = new int[cgpParameters.maxArity()];
                 for (int i = 0; i < cgpParameters.maxArity(); i++)
-                    inputSources[i] = individual.getElement((layer*cgpParameters.numNodesPerLayer() + node)*(cgpParameters.maxArity() + 1) + 1 + i);
+                    inputSources[i] = individual.getElement(cgpParameters.getInputGeneForNode(layer, node, i));
                 builder.setFunction(layer, node, function, inputSources);
             }
         }

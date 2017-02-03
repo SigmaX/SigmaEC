@@ -72,6 +72,49 @@ public class CGPParameters extends ContractObject {
         return numLayers*nodesPerLayer*(maxArity() + 1) + numOutputs();
     }
     
+    /** This helper function tells us which gene defines the function primitive 
+     * for a given layer and node in a Cartesian circuit.
+     */
+    public int getFunctionGeneForNode(final int layer, final int node) {
+        assert(layer >= 0);
+        assert(layer < numLayers());
+        assert(node >= 0);
+        assert(node < numNodesPerLayer());
+        return (layer*numNodesPerLayer() + node)*(maxArity() + 1);
+    }
+    
+    /** This helper function tells us which gene defines the ith input of the
+     *  element at a given layer and node in a Cartesian circuit.
+     */
+    public int getInputGeneForNode(final int layer, final int node, final int i) {
+        assert(layer >= 0);
+        assert(layer < numLayers());
+        assert(node >= 0);
+        assert(node < numNodesPerLayer());
+        assert(i >= 0);
+        assert(i < maxArity());
+        return (layer*numNodesPerLayer() + node)*(maxArity() + 1) + 1 + i;
+    }
+    
+    /** This helper function tell us which layer of a Cartesian circuit a given
+     * gene's circuit element belongs to. 
+     */
+    public int getLayerForGene(final int gene) {
+        assert(gene >= 0);
+        assert(gene < getNumDimensions() - numOutputs());
+        return (gene / (maxArity() + 1))/numNodesPerLayer();
+    }
+    
+    /** This helper function tell us which node of a Cartesian circuit layer a
+     * given gene's circuit element belongs to. 
+     */
+    public int getNodeForGene(final int gene) {
+        assert(gene >= 0);
+        assert(gene < getNumDimensions() - numOutputs());
+        return (gene / (maxArity() + 1)) - getLayerForGene(gene) * numNodesPerLayer();
+    }
+    
+    /** Helper function for determining constraints on CGP integer vector initialization. */
     public int[] getMinBounds() {
         final int[] mins = new int[getNumDimensions()];
         for (int layer = 0; layer < numLayers; layer++) {
@@ -91,6 +134,7 @@ public class CGPParameters extends ContractObject {
         return mins;
     }
     
+    /** Helper function for determining constraints on CGP integer vector initialization. */
     public int[] getMaxBounds() {
         final int[] maxes = new int[getNumDimensions()];
         for (int layer = 0; layer < numLayers; layer++) {

@@ -154,7 +154,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         return false;
     }
     
-    public boolean[] executeWithADFs(final boolean[] input) {
+    private boolean[] executeWithADFs(final boolean[] input) {
         final boolean[] outputVector = new boolean[cgpParameters.numOutputs()];
         // Execute the circute once for output.  Yes, this is grossly inefficient.
         for (int output = 0; output < outputVector.length; output++) {
@@ -170,7 +170,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
                     final boolean[] result = nodeFunction.execute(nodeInput);
                     assert(result.length == 1);
                     // Record the output of this node
-                    intermediateOutputs[cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer()] = result[0];
+                    intermediateOutputs[cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer() + n] = result[0];
                 }
             }
             outputVector[output] = intermediateOutputs[outputSources[output]];
@@ -178,7 +178,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         return outputVector;
     }
     
-    public boolean[] executeWithNoADFs(final boolean[] input) {
+    private boolean[] executeWithNoADFs(final boolean[] input) {
         assert(input != null);
         assert(input.length == cgpParameters.numInputs());
         final boolean[] intermediateOutputs = Arrays.copyOf(input, cgpParameters.numInputs() + cgpParameters.numLayers()*cgpParameters.numNodesPerLayer());
@@ -191,7 +191,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
                 final boolean[] result = node.function.execute(nodeInput);
                 assert(result.length == 1);
                 // Record the output of this node
-                intermediateOutputs[cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer()] = result[0];
+                intermediateOutputs[cgpParameters.numInputs() + layer*cgpParameters.numNodesPerLayer() + n] = result[0];
             }
         }
         // Compute the output layer
