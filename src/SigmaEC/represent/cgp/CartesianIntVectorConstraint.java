@@ -8,6 +8,9 @@ import java.util.Objects;
 /**
  * Verify whether an integer vector is a valid representation of a CGP individual.
  * 
+ * XXX I don't believe this provides any logic that isn't already offered by the
+ * bounds given by CGPParameters.getMinBounds() and CGPParameters.getMaxBounds().
+ * 
  * @author Eric O. Scott
  */
 public class CartesianIntVectorConstraint extends Constraint<IntVectorIndividual> {
@@ -58,7 +61,7 @@ public class CartesianIntVectorConstraint extends Constraint<IntVectorIndividual
         }
         return false;
     }
-
+    
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
