@@ -96,6 +96,17 @@ public class CGPParameters extends ContractObject {
         return (layer*numNodesPerLayer() + node)*(maxArity() + 1) + 1 + i;
     }
     
+    public boolean isOutputSource(final int gene) {
+        assert(gene >= 0);
+        assert(gene < getNumDimensions());
+        return gene >= (getNumDimensions() - numOutputs);
+    }
+    
+    public int getOutputForGene(final int gene) {
+        assert(isOutputSource(gene));
+        return gene - (getNumDimensions() - numOutputs);
+    }
+    
     /** This helper function tell us which layer of a Cartesian circuit a given
      * gene's circuit element belongs to. 
      */

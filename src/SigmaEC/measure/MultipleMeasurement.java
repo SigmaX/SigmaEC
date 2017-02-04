@@ -9,15 +9,19 @@ import java.util.Objects;
  *
  * @author Eric O. Scott
  */
-public class MultipleMeasurement extends Measurement {
-    private final List<Measurement> measurements;
+public class MultipleMeasurement<T extends Measurement> extends Measurement {
+    private final List<T> measurements;
     
-    public MultipleMeasurement(final List<? extends Measurement> measurements) {
+    public MultipleMeasurement(final List<T> measurements) {
         assert(measurements != null);
         assert(!measurements.isEmpty());
         assert(!Misc.containsNulls(measurements));
         this.measurements = new ArrayList<>(measurements); // Defensive copy
         assert(repOK());
+    }
+    
+    public List<T> getMeasurements() {
+        return measurements;
     }
     
     @Override
