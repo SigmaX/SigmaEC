@@ -46,12 +46,18 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
             throw new IllegalStateException(String.format("%s: parameter '%s' is set to %d, but must be >= 0.", this.getClass().getSimpleName(), Parameters.push(base, P_BITS), numBits));
         assert(repOK());
     }
+
+    @Override
+    public void ping(int step, Population<T> population) {
+        // Do nothing
+    }
     
     @Override
     public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
+        ping(step, population);
         final List<String> arrays = new ArrayList<String>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.

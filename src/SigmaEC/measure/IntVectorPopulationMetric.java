@@ -51,6 +51,7 @@ public class IntVectorPopulationMetric<T extends Individual> extends PopulationM
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
+        ping(step, population);
         final List<IntVectorMeasurement> measurements = new ArrayList<IntVectorMeasurement>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.
@@ -74,6 +75,11 @@ public class IntVectorPopulationMetric<T extends Individual> extends PopulationM
         final IntVectorIndividual decodedInd = decoder.decode(individual);
         assert(decodedInd.size() == numDimensions);
         return new IntVectorMeasurement(run, step, subpop, individual.getFitness(), individual.getID(), decodedInd.getGenomeArray());
+    }
+
+    @Override
+    public void ping(int step, Population<T> population) {
+        // Do nothing
     }
 
     @Override

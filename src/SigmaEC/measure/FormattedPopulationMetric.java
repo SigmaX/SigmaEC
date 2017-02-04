@@ -49,6 +49,7 @@ public class FormattedPopulationMetric<T extends Individual, P extends Individua
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
+        ping(step, population);
         final List<String> measurements = new ArrayList<String>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.
@@ -62,6 +63,11 @@ public class FormattedPopulationMetric<T extends Individual, P extends Individua
         }};
         assert(repOK());
         return new MultipleStringMeasurement(run, step, measurements);
+    }
+
+    @Override
+    public void ping(int step, Population<T> population) {
+        // Do nothing
     }
 
     @Override

@@ -45,12 +45,18 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
         numDimensions = parameters.getIntParameter(Parameters.push(base, P_DIMENSIONS));
         assert(repOK());
     }
+
+    @Override
+    public void ping(final int step, final Population<T> population) {
+        // Do nothing
+    }
     
     @Override
     public MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
+        ping(step, population);
         final List<DoubleVectorMeasurement> measurements = new ArrayList<DoubleVectorMeasurement>() {{
             for (int i = 0; i < population.numSuppopulations(); i++) {
                 if (fitnessComparator.isDefined()) { // Record only the best individual in each subpopulation.

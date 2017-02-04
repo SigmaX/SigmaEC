@@ -23,42 +23,33 @@ import java.util.Objects;
 public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T> {
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_EVALUATOR = "auxiliaryEvaluator";
-    public final static String P_MODULO = "modulo";
     
     private final FitnessComparator<T> fitnessComparator;
     private final Option<EvaluationOperator<T,P>> auxiliaryEvaluator;
-    private final int modulo;
     private final List<T> bestSoFar = new ArrayList<>();
+    private int lastBSFUpdate = -1;
     
     public FitnessStatisticsPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         auxiliaryEvaluator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationOperator.class);
-        final Option<Integer> moduloOpt = parameters.getOptionalIntParameter(Parameters.push(base, P_MODULO));
-        modulo = moduloOpt.isDefined() ? moduloOpt.get() : 1;
-        if (modulo <= 0)
-            throw new IllegalStateException(String.format("%s: %s is %d, must be positive.", this.getClass().getSimpleName(), P_MODULO, modulo));
         assert(repOK());
     }
     
-    public FitnessStatisticsPopulationMetric(final FitnessComparator<T> fitnessComparator, final Option<EvaluationOperator<T, P>> auxiliaryEvaluator, final int modulo) {
+    public FitnessStatisticsPopulationMetric(final FitnessComparator<T> fitnessComparator, final Option<EvaluationOperator<T, P>> auxiliaryEvaluator) {
         assert(fitnessComparator != null);
         assert(auxiliaryEvaluator != null);
-        assert(modulo > 0);
         this.fitnessComparator = fitnessComparator;
         this.auxiliaryEvaluator = auxiliaryEvaluator;
-        this.modulo = modulo;
         assert(repOK());
     }
     
-    /** Prints a row of the form "run, step, mean, std, best, worst, bsf" for each subpopulation. */
+
     @Override
-    public synchronized MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
-        assert(run >= 0);
-        assert(step >= 0);
-        assert(population != null);
-        
+    public void ping(final int step, final Population<T> population) {
+        if (step - lastBSFUpdate != 1)
+            throw new IllegalStateException(String.format("%s: the ping() method was called after an interval of %d steps.  It must be called every step in order to maintain a valid record of the best-so-far individual.", this.getClass().getSimpleName(), step - lastBSFUpdate));
         // Update best so far memory
         final List<T> bestsOfStep = getBestsOfStep(population);
         if (step == 0) {
@@ -71,19 +62,22 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
             bestSoFar.clear();
             bestSoFar.addAll(newBests);
         }
-        
-        // Don't measure anything else until the specified interval has elapsed
-        if (step % modulo != 0)
-            return null;
-        
+        lastBSFUpdate = step;
+    }
+    
+    /** Prints a row of the form "run, step, mean, std, best, worst, bsf" for each subpopulation. */
+    @Override
+    public synchronized MultipleMeasurement<FitnessStatisticsMeasurement> measurePopulation(final int run, final int step, final Population<T> population) {
+        assert(run >= 0);
+        assert(step >= 0);
+        assert(population != null);
         final List<FitnessStatisticsMeasurement> measurements = new ArrayList<FitnessStatisticsMeasurement>() {{
             for (int pop = 0; pop < population.numSuppopulations(); pop++) {
                 add(measureSubpopulation(run, step, pop, population));
             }  
         }};
-        
         assert(repOK());
-        return new MultipleMeasurement(measurements);
+        return new MultipleMeasurement<>(measurements);
     }
     
     private FitnessStatisticsMeasurement measureSubpopulation(final int run, final int step, final int subpop, final Population<T> population) {
@@ -163,20 +157,16 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
                 && !P_COMPARATOR.isEmpty()
                 && P_EVALUATOR != null
                 && !P_EVALUATOR.isEmpty()
-                && P_MODULO != null
-                && !P_MODULO.isEmpty()
                 && fitnessComparator != null
                 && auxiliaryEvaluator != null
-                && modulo > 0
                 && bestSoFar != null;
     }
     
     @Override
     public String toString() {
-        return String.format("[%s: %s=%s, %s=%s, %s=%d, bestSoFar=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%s, bestSoFar=%s]", this.getClass().getSimpleName(),
                 P_COMPARATOR, fitnessComparator,
                 P_EVALUATOR, auxiliaryEvaluator,
-                P_MODULO, modulo,
                 bestSoFar);
     }
     
@@ -187,8 +177,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         if (!(o instanceof FitnessStatisticsPopulationMetric))
             return false;
         final FitnessStatisticsPopulationMetric ref = (FitnessStatisticsPopulationMetric) o;
-        return modulo == ref.modulo
-                && fitnessComparator.equals(ref.fitnessComparator)
+        return fitnessComparator.equals(ref.fitnessComparator)
                 && bestSoFar.equals(ref.bestSoFar)
                 && auxiliaryEvaluator.equals(ref.auxiliaryEvaluator);
     }
@@ -198,7 +187,6 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         int hash = 5;
         hash = 53 * hash + Objects.hashCode(this.fitnessComparator);
         hash = 53 * hash + Objects.hashCode(this.auxiliaryEvaluator);
-        hash = 53 * hash + this.modulo;
         hash = 53 * hash + Objects.hashCode(this.bestSoFar);
         return hash;
     }

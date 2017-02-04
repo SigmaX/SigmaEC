@@ -28,10 +28,16 @@ public class MemoryPopulationMetric<T extends Individual> extends PopulationMetr
     @Override
     public synchronized Measurement measurePopulation(final int run, final int step, final Population<T> population) {
         assert(population != null);
+        ping(step, population);
         final Measurement measurement = wrappedMetric.measurePopulation(run, step, population);
         mostRecentMeasurement = measurement;
         assert(repOK());
         return measurement;
+    }
+
+    @Override
+    public void ping(int step, Population<T> population) {
+        // Do nothing
     }
 
     @Override

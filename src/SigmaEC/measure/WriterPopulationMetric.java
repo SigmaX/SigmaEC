@@ -73,18 +73,28 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     
     @Override
     public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
+        assert(run >= 0);
+        assert(step >= 0);
         assert(population != null);
-        final Measurement measurement = wrappedMetric.measurePopulation(run, step, population);
-        if (measurement != null && (step % modulo == 0)) {
+        if (step % modulo == 0) {
+            final Measurement measurement = wrappedMetric.measurePopulation(run, step, population);
             try {
                 final String prefix = rowPrefix.isDefined() ? rowPrefix.get() + ", " : "";
                 writer.write(String.format("%s%s\n", prefix, measurement.toString()));
             } catch (final IOException ex) {
                 Logger.getLogger(WriterPopulationMetric.class.getName()).log(Level.SEVERE, null, ex);
             }
+            assert(repOK());
+            return measurement;
         }
         assert(repOK());
-        return measurement;
+        ping(step, population);
+        return null;
+    }
+
+    @Override
+    public void ping(final int step, final Population<T> population) {
+        wrappedMetric.ping(step, population);
     }
 
     @Override

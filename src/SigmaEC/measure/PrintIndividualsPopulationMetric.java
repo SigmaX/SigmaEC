@@ -16,12 +16,21 @@ public class PrintIndividualsPopulationMetric<T extends Individual> extends Popu
     
     @Override
     public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
+        assert(run >= 0);
+        assert(step >= 0);
+        assert(population != null);
+        ping(step, population);
         final List<String> individualStrings = new ArrayList<>();
         for (int i = 0; i < population.numSuppopulations(); i++) {
             for (final T ind : population.getSubpopulation(i))
                 individualStrings.add(i + ", " + ind.toString());
         }
         return new MultipleStringMeasurement(run, step, individualStrings);
+    }
+
+    @Override
+    public void ping(int step, Population<T> population) {
+        // Do nothing
     }
 
     @Override

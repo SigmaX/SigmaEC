@@ -11,6 +11,7 @@ public class FitnessCorrelationPopulationMetric<T extends Individual> extends Po
 
     @Override
     public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
+        ping(step, population);
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -22,6 +23,14 @@ public class FitnessCorrelationPopulationMetric<T extends Individual> extends Po
 
     @Override
     public void close() { }
+
+    @Override
+    public String csvHeader() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void ping(int step, Population<T> population) { }
 
     @Override
     public final boolean repOK() {
@@ -42,10 +51,4 @@ public class FitnessCorrelationPopulationMetric<T extends Individual> extends Po
     public String toString() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-
-    @Override
-    public String csvHeader() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
 }
