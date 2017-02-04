@@ -109,25 +109,21 @@ public class CGPParametersTest {
     @Test
     public void testGetMinBounds() {
         System.out.println("getMinBounds");
-        CGPParameters instance = null;
-        int[] expResult = null;
-        int[] result = instance.getMinBounds();
+        final CGPParameters instance = new CGPParameters(getParams().build(), BASE);
+        final int[] expResult = new int[] { 0, 0, 0, 0, 0, 0, 0, 2, 2, 0, 2, 2, 0 };
+        final int[] result = instance.getMinBounds();
         assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.repOK());
     }
 
     /** Test of getMaxBounds method, of class CGPParameters. */
     @Test
     public void testGetMaxBounds() {
         System.out.println("getMaxBounds");
-        CGPParameters instance = null;
-        int[] expResult = null;
-        int[] result = instance.getMaxBounds();
+        final CGPParameters instance = new CGPParameters(getParams().build(), BASE);
+        final int[] expResult = new int[] { 4, 2, 2, 4, 2, 2, 4, 4, 4, 4, 4, 4, 6 };
+        final int[] result = instance.getMaxBounds();
         assertArrayEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.repOK());
     }
-
-    
 }
