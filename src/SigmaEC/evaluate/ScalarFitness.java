@@ -11,7 +11,6 @@ public class ScalarFitness extends Fitness {
     private final double fitness;
     
     public ScalarFitness(final double fitness) {
-        assert(Double.isFinite(fitness));
         this.fitness = fitness;
         assert(repOK());
     }
@@ -24,7 +23,7 @@ public class ScalarFitness extends Fitness {
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return Double.isFinite(fitness);
+        return true;
     }
 
     @Override
