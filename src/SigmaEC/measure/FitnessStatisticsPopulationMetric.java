@@ -142,6 +142,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     @Override
     public void reset() {
         bestSoFar.clear();
+        lastBSFUpdate = -1;
     }
 
     @Override

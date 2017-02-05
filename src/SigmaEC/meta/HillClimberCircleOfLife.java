@@ -44,7 +44,7 @@ public class HillClimberCircleOfLife<T extends Individual, P> extends CircleOfLi
         stoppingCondition.reset();
         int step = 0;
         while (!stoppingCondition.stopInd(individual, step)) {
-            T candidate = evaluator.evaluate(mutationOperator.operateInd(individual));
+            T candidate = evaluator.evaluate(mutationOperator.operateInd(individual, step));
             if (fitnessComparator.betterThan(candidate, individual))
                 individual = candidate;
             step++;

@@ -15,7 +15,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>, BitGene> {
+public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>> {
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
     
@@ -57,7 +57,7 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene>, Bit
      * @return The newly mutated individual.
      */
     @Override
-    public LinearGenomeIndividual<BitGene> mutate(final LinearGenomeIndividual<BitGene> ind) {
+    public LinearGenomeIndividual<BitGene> mutate(final LinearGenomeIndividual<BitGene> ind, final int step) {
         assert(ind != null);
         final List<BitGene> genome = ind.getGenome();
         final List<BitGene> newGenome = new ArrayList<BitGene>();

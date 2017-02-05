@@ -9,6 +9,7 @@ import SigmaEC.represent.Decoder;
 import SigmaEC.represent.linear.IntVectorIndividual;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
+import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -36,6 +37,9 @@ public class WeightedCGPMutationRate extends MutationRate {
     public static enum WeightingScheme { LINEAR, EXPONENTIAL };
     private final WeightingScheme weightingScheme;
     
+    private LinearGenomeIndividual lastIndividualAnalyzed = null;
+    private MultipleMeasurement<MultiFunctionFitnessStatisticsMeasurement> fitnesses = null;
+    
     public WeightedCGPMutationRate(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
@@ -59,9 +63,12 @@ public class WeightedCGPMutationRate extends MutationRate {
         assert(gene < ind.size());
         assert(ind instanceof IntVectorIndividual);
         
-        
-        // Compute the fitness of the circuit on each sub-function
-        final MultipleMeasurement<MultiFunctionFitnessStatisticsMeasurement> fitnesses = populationMetric.measurePopulation(0, step, new Population(new ArrayList() {{ add(ind); }}));
+        // Some cashing to make sure that we don't re-calculated fitness when we don't need to
+        if (ind != lastIndividualAnalyzed) {
+            lastIndividualAnalyzed = ind;
+            // Compute the fitness of the circuit on each sub-function
+            fitnesses = populationMetric.measurePopulation(0, step, new Population(new ArrayList() {{ add(ind); }}));
+        }
         
         // If this gene affects only the output source, rate is directly proportional to subFunction fitness
         if (cgpParameters.isOutputSource(gene)) {

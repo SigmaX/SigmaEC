@@ -2,6 +2,7 @@ package SigmaEC.represent.cgp;
 
 import SigmaEC.SRandom;
 import SigmaEC.operate.IntGeneMutator;
+import SigmaEC.operate.MutationRate;
 import SigmaEC.operate.Mutator;
 import SigmaEC.represent.linear.IntGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
@@ -14,7 +15,7 @@ import java.util.Random;
  *
  * @author Eric O. Scott
  */
-public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>, IntGene> {
+public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
     public final static String P_RANDOM = "random";
     public final static String P_CGP_PARAMETERS = "cgpParameters";
     public final static String P_MUTATION_RATE = "mutationRate";
@@ -27,15 +28,15 @@ public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>, 
         assert(base != null);
         cgpParameters = parameters.getInstanceFromParameter(Parameters.push(base, P_CGP_PARAMETERS), CGPParameters.class);
         final Random random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
-        final double mutationRate = parameters.getDoubleParameter(Parameters.push(base, P_MUTATION_RATE));
+        final MutationRate mutationRate = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATION_RATE), MutationRate.class);
         wrappedMutator = new IntGeneMutator(mutationRate, random, cgpParameters.getMinBounds(), cgpParameters.getMaxBounds(), new Option(new CartesianIntVectorConstraint(cgpParameters)), true);
         assert(repOK());
     }
     
     @Override
-    public LinearGenomeIndividual<IntGene> mutate(LinearGenomeIndividual<IntGene> ind) {
+    public LinearGenomeIndividual<IntGene> mutate(final LinearGenomeIndividual<IntGene> ind, final int step) {
         assert(ind != null);
-        return wrappedMutator.mutate(ind);
+        return wrappedMutator.mutate(ind, step);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

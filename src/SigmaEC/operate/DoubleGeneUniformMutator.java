@@ -18,7 +18,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleGeneUniformMutator extends Mutator<LinearGenomeIndividual<DoubleGene>, DoubleGene> {
+public class DoubleGeneUniformMutator extends Mutator<LinearGenomeIndividual<DoubleGene>> {
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
     public final static String P_DEFAULT_WIDTH = "defaultWidth";
@@ -73,7 +73,7 @@ public class DoubleGeneUniformMutator extends Mutator<LinearGenomeIndividual<Dou
      * @return The newly mutated individual.
      */
     @Override
-    public LinearGenomeIndividual<DoubleGene> mutate(final LinearGenomeIndividual<DoubleGene> ind) {
+    public LinearGenomeIndividual<DoubleGene> mutate(final LinearGenomeIndividual<DoubleGene> ind, final int step) {
         assert(ind != null);
         final List<DoubleGene> genome = ind.getGenome();
         final List<DoubleGene> newGenome = new ArrayList<DoubleGene>();
