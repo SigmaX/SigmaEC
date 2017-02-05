@@ -5,7 +5,6 @@ import SigmaEC.evaluate.EvaluationOperator;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.represent.linear.IntGene;
 import SigmaEC.represent.linear.IntVectorIndividual;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -18,7 +17,7 @@ import java.util.List;
  * 
  * @author Eric O. Scott
  */
-public class ACOCircleOfLife extends CircleOfLife {
+public class ACOCircleOfLife<F extends Fitness> extends CircleOfLife {
     public final static String P_NUM_NODES = "numNodes";
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
     public final static String P_RANDOM = "random";
@@ -29,10 +28,10 @@ public class ACOCircleOfLife extends CircleOfLife {
     
     private final int numNodes;
     private final int numAnts;
-    private final StoppingCondition<IntVectorIndividual> stoppingCondition;
-    private final Operator<IntVectorIndividual> evaluator;
-    private final Option<List<PopulationMetric<IntVectorIndividual>>> metrics;
-    private final FitnessComparator<IntVectorIndividual> fitnessComparator;
+    private final StoppingCondition<IntVectorIndividual<F>, F> stoppingCondition;
+    private final Operator<IntVectorIndividual<F>> evaluator;
+    private final Option<List<PopulationMetric<IntVectorIndividual<F>, F>>> metrics;
+    private final FitnessComparator<IntVectorIndividual<F>, F> fitnessComparator;
     private final SRandom random;
     
     public ACOCircleOfLife(final Parameters parameters, final String base) {
@@ -63,22 +62,22 @@ public class ACOCircleOfLife extends CircleOfLife {
                 pheromones[i][j] = 0;
         
         // Run initial generation of ants
-        final List<IntVectorIndividual>[] initialAnts = new List[1];
+        final List<IntVectorIndividual<F>>[] initialAnts = new List[1];
         initialAnts[0] = executeAnts(pheromones);
-        final Population<IntVectorIndividual> ants = new Population<>(initialAnts);
+        final Population<IntVectorIndividual<F>, F> ants = new Population<>(initialAnts);
         
         IntVectorIndividual bestSoFarInd = null;
         int i = 0;
         while (!stoppingCondition.stop(ants, i)) {
             // Take measurements
             if (metrics.isDefined())
-                for (PopulationMetric<IntVectorIndividual> metric : metrics.get())
+                for (PopulationMetric<IntVectorIndividual<F>, F> metric : metrics.get())
                     metric.measurePopulation(run, i, ants);
             
             updatePheromones(ants.getSubpopulation(0), pheromones);
             
             // Update our local best-so-far variable
-            final IntVectorIndividual bestOfGen = Statistics.best(ants.getSubpopulation(0), fitnessComparator);
+            final IntVectorIndividual<F> bestOfGen = Statistics.best(ants.getSubpopulation(0), fitnessComparator);
             if (fitnessComparator.betterThan(bestOfGen, bestSoFarInd)) 
                 bestSoFarInd = bestOfGen;
             
@@ -90,22 +89,22 @@ public class ACOCircleOfLife extends CircleOfLife {
         
         // Measure final population
         if (metrics.isDefined())
-            for (PopulationMetric<IntVectorIndividual> metric : metrics.get())
+            for (PopulationMetric<IntVectorIndividual<F>, F> metric : metrics.get())
                 metric.measurePopulation(run, i, ants);
         
         assert(repOK());
         return new EvolutionResult(ants, bestSoFarInd, bestSoFarInd.getFitness());
     }
     
-    final List<IntVectorIndividual> executeAnts(final double[][] pheromones) {
-        List<IntVectorIndividual> ants = new ArrayList<IntVectorIndividual>() {{
+    final List<IntVectorIndividual<F>> executeAnts(final double[][] pheromones) {
+        List<IntVectorIndividual<F>> ants = new ArrayList<IntVectorIndividual<F>>() {{
            for (int i = 0; i < numAnts; i++)
                add(forage(pheromones));
         }};
         return evaluator.operate(0, 0, ants); // Evaluate fitness
     }
     
-    private void updatePheromones(final List<IntVectorIndividual> ants, final double[][] pheromones) {
+    private void updatePheromones(final List<IntVectorIndividual<F>> ants, final double[][] pheromones) {
         assert(ants != null);
         assert(pheromones.length == numNodes);
         assert(pheromones[0].length == numNodes);
@@ -115,7 +114,7 @@ public class ACOCircleOfLife extends CircleOfLife {
             for (int i = 0; i < tour.length - 1; i++) {
                 final int start = tour[i];
                 final int end = tour[i+1];
-                pheromones[start][end] += 1/ant.getFitness();
+                pheromones[start][end] += 1/ant.getFitness().asScalar();
             }
         }
     }
@@ -159,14 +158,14 @@ public class ACOCircleOfLife extends CircleOfLife {
     /** Flush I/O buffers. */
     private void flushMetrics() {
         if (metrics.isDefined())
-            for (final PopulationMetric<IntVectorIndividual> metric: metrics.get())
+            for (final PopulationMetric<IntVectorIndividual<F>, F> metric: metrics.get())
                 metric.flush();
     }
     
     private void reset() {
         stoppingCondition.reset();
         if (metrics.isDefined())
-            for (final PopulationMetric<IntVectorIndividual> metric : metrics.get())
+            for (final PopulationMetric<IntVectorIndividual<F>, F> metric : metrics.get())
                     metric.reset();
     }
     

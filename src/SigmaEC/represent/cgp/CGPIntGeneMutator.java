@@ -15,7 +15,7 @@ import java.util.Random;
  *
  * @author Eric O. Scott
  */
-public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
+public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> {
     public final static String P_RANDOM = "random";
     public final static String P_CGP_PARAMETERS = "cgpParameters";
     public final static String P_MUTATION_RATE = "mutationRate";
@@ -34,7 +34,7 @@ public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> 
     }
     
     @Override
-    public LinearGenomeIndividual<IntGene> mutate(final LinearGenomeIndividual<IntGene> ind, final int step) {
+    public LinearGenomeIndividual<IntGene, ?> mutate(final LinearGenomeIndividual<IntGene, ?> ind, final int step) {
         assert(ind != null);
         return wrappedMutator.mutate(ind, step);
     }

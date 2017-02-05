@@ -6,10 +6,11 @@ import SigmaEC.evaluate.objective.function.ConcatenatedBooleanFunction;
 import SigmaEC.evaluate.objective.function.ConcatenatedTruthTableObjective;
 import SigmaEC.evaluate.objective.function.TruthTableObjective;
 import SigmaEC.measure.FitnessStatisticsPopulationMetric.FitnessStatisticsMeasurement;
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -23,21 +24,21 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> extends PopulationMetric<T> {
+public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual<F>, F extends Fitness> extends PopulationMetric<T, F> {
     final public static String P_ROW_PREFIX = "rowPrefix";
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_DECODER = "decoder";
     public final static String P_TARGET_FUNCTION = "targetFunction";
     public final static String P_PARTIAL_MATCHES = "partialMatches";
     
-    private final FitnessComparator<T> fitnessComparator;
+    private final FitnessComparator<T, F> fitnessComparator;
     private final Decoder<T, BooleanFunction> decoder;
     private final ConcatenatedBooleanFunction targetFunction;
     private final boolean partialMatches;
     private final String rowPrefix;
     
-    private final FitnessStatisticsPopulationMetric<T, BooleanFunction> targetFunctionMetric;
-    private final List<FitnessStatisticsPopulationMetric<T, BooleanFunction>> subFunctionMetrics;
+    private final FitnessStatisticsPopulationMetric<T, BooleanFunction, F> targetFunctionMetric;
+    private final List<FitnessStatisticsPopulationMetric<T, BooleanFunction, F>> subFunctionMetrics;
         
     public ConcatenatedBooleanObjectivePopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -46,26 +47,26 @@ public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> 
         decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         targetFunction = parameters.getInstanceFromParameter(Parameters.push(base, P_TARGET_FUNCTION), ConcatenatedBooleanFunction.class);
         partialMatches = parameters.getOptionalBooleanParameter(Parameters.push(base, P_PARTIAL_MATCHES), true);
-        targetFunctionMetric = new FitnessStatisticsPopulationMetric(fitnessComparator, new Option<>(new EvaluationOperator(decoder, new TruthTableObjective(targetFunction), 1, true)));
+        targetFunctionMetric = new FitnessStatisticsPopulationMetric(fitnessComparator, new Option<>(new EvaluationOperator(decoder, new TruthTableObjective(targetFunction), true)));
         subFunctionMetrics = setupSubfunctionMetrics();
         final Option<String> rowPrefixOpt = parameters.getOptionalStringParameter(Parameters.push(base, P_ROW_PREFIX));
         rowPrefix = rowPrefixOpt.isDefined() ? rowPrefixOpt.get() + ", " : "";
         assert(repOK());
     }
     
-    private List<FitnessStatisticsPopulationMetric<T, BooleanFunction>> setupSubfunctionMetrics() {
-        final List<FitnessStatisticsPopulationMetric<T, BooleanFunction>> metrics = new ArrayList<>();
+    private List<FitnessStatisticsPopulationMetric<T, BooleanFunction, F>> setupSubfunctionMetrics() {
+        final List<FitnessStatisticsPopulationMetric<T, BooleanFunction, F>> metrics = new ArrayList<>();
         for (int i = 0; i < targetFunction.getNumFunctions(); i++) {
             // Create an objective function that specifically evaluates only the ith subFunction
             final ConcatenatedTruthTableObjective ttObjective = new ConcatenatedTruthTableObjective(targetFunction, i, partialMatches);
-            final EvaluationOperator<T, BooleanFunction> evaluator = new EvaluationOperator(decoder, ttObjective, 1, true);
+            final EvaluationOperator<T, BooleanFunction, F> evaluator = new EvaluationOperator(decoder, ttObjective, true);
             metrics.add(new FitnessStatisticsPopulationMetric(fitnessComparator, new Option<>(evaluator)));
         }
         return metrics;
     }
 
     @Override
-    public MultipleMeasurement<MultiFunctionFitnessStatisticsMeasurement> measurePopulation(final int run, final int step, final Population<T> population) {
+    public MultipleMeasurement<MultiFunctionFitnessStatisticsMeasurement> measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
@@ -74,7 +75,7 @@ public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> 
         for (final FitnessStatisticsMeasurement f : targetFunctionMetric.measurePopulation(run, step, population).getMeasurements())
             measurements.add(new MultiFunctionFitnessStatisticsMeasurement(rowPrefix, -1, "All", f));
         for (int i = 0; i < subFunctionMetrics.size(); i++) {
-            final FitnessStatisticsPopulationMetric<T, BooleanFunction> metric = subFunctionMetrics.get(i);
+            final FitnessStatisticsPopulationMetric<T, BooleanFunction, F> metric = subFunctionMetrics.get(i);
             for (final FitnessStatisticsMeasurement f : metric.measurePopulation(run, step, population).getMeasurements())
                 measurements.add(new MultiFunctionFitnessStatisticsMeasurement(rowPrefix, i, targetFunction.getFunction(i).getClass().getSimpleName(), f));
         }
@@ -88,7 +89,7 @@ public class ConcatenatedBooleanObjectivePopulationMetric<T extends Individual> 
     }
 
     @Override
-    public void ping(final int step, final Population<T> population) {
+    public void ping(final int step, final Population<T, F> population) {
         targetFunctionMetric.ping(step, population);
         for (final PopulationMetric metric : subFunctionMetrics)
             metric.ping(step, population);

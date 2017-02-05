@@ -2,7 +2,6 @@ package SigmaEC.evaluate.problemclass;
 
 import SigmaEC.SRandom;
 import SigmaEC.evaluate.objective.discrete.TSPObjective;
-import SigmaEC.represent.linear.IntVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.Random;
@@ -12,7 +11,7 @@ import java.util.Random;
  *
  * @author Eric O. Scott
  */
-public class TSPProblemClass extends ProblemClass<TSPObjective, IntVectorIndividual> {
+public class TSPProblemClass extends ProblemClass<TSPObjective> {
     public final static String P_RANDOM = "random";
     public final static String P_NUM_NODES = "numNodes";
     public final static String P_SPATIAL_BOUND = "spatialBound";

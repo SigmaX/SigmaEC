@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -14,7 +15,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
+public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness>
 {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_OPTIMUM = "optimum";
@@ -62,12 +63,12 @@ public class ValleyObjective extends ObjectiveFunction<DoubleVectorIndividual>
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         final double[] genome = ind.getGenomeArray();
         double result = Vector.euclideanDistance(genome, optimum) + 10*Vector.pointToLineEuclideanDistance(genome, slopeVector, optimum);
         assert(repOK());
-        return result;
+        return new ScalarFitness(result);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">

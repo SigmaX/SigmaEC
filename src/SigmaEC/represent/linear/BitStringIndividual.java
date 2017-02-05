@@ -1,5 +1,6 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -11,12 +12,12 @@ import java.util.Random;
  *
  * @author Eric 'Siggy' Scott
  */
-public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
+public class BitStringIndividual<F extends Fitness> extends LinearGenomeIndividual<BitGene, F> {
     private final List<BitGene> genome;
     private final long id;
     private static long nextId = 0;
-    private final Option<Double> fitness;
-    private final Option<List<Individual>> parents;
+    private final Option<F> fitness;
+    private final Option<List<Individual<F>>> parents;
     
     // <editor-fold defaultstate="collapsed" desc="Producers and Consumers">
     @Override
@@ -26,7 +27,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     public int size() { return genome.size(); }
 
     @Override
-    public double getFitness() {
+    public F getFitness() {
         if (fitness.isDefined())
             return fitness.get();
         else
@@ -39,7 +40,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     }
     
     @Override
-    public BitStringIndividual setFitness(double fitness) {
+    public BitStringIndividual setFitness(F fitness) {
         return new Builder(this).setFitness(fitness).build();
     }
     
@@ -49,7 +50,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     }
     
     @Override
-    public LinearGenomeIndividual<BitGene> create(final List<BitGene> genome, final List<? extends Individual> parents) {
+    public LinearGenomeIndividual<BitGene, F> create(final List<BitGene> genome, final List<? extends Individual> parents) {
         assert(genome != null);
         return new Builder(genome).setParents(parents).build();
     }
@@ -71,14 +72,14 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     }
 
     @Override
-    public Option<List<Individual>> getParents() {
+    public Option<List<Individual<F>>> getParents() {
         if (!parents.isDefined())
             return Option.NONE;
-        return new Option<>((List<Individual>)new ArrayList<>(parents.get())); // Defensive copy
+        return new Option<>((List<Individual<F>>)new ArrayList(parents.get())); // Defensive copy
     }
 
     @Override
-    public Individual setParents(List<? extends Individual> parents) {
+    public Individual<F> setParents(List<? extends Individual<F>> parents) {
        return new Builder(this).setParents(parents).build();
     }
 
@@ -88,9 +89,9 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     }
     // </editor-fold>
     
-    public static class Builder {
+    public static class Builder<F extends Fitness> {
         private List<BitGene> genome;
-        private Option<Double> fitness = Option.NONE;
+        private Option<F> fitness = Option.NONE;
         private Option<List<Individual>> parents = Option.NONE;
         
         public BitStringIndividual build() {
@@ -117,7 +118,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
             parents = ref.parents;
         }
         
-        public Builder setFitness(final double fitness) {
+        public Builder setFitness(final F fitness) {
             this.fitness = new Option<>(fitness);
             return this;
         }
@@ -171,7 +172,7 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
     
     
     /** Private constructor for use with the Builder pattern. Does not make defensive copies! */
-    private BitStringIndividual(final List<BitGene> genome, final Option<Double> fitness, final Option<List<Individual>> parents) {
+    private BitStringIndividual(final List<BitGene> genome, final Option<F> fitness, final Option<List<Individual<F>>> parents) {
         assert(genome != null);
         assert(!Misc.containsNulls(genome));
         assert(fitness != null);
@@ -190,7 +191,6 @@ public class BitStringIndividual extends LinearGenomeIndividual<BitGene> {
         return id >= 0
                 && fitness != null
                 && !(parents.isDefined() && parents.get().isEmpty())
-                && !(fitness.isDefined() && Double.isNaN(fitness.get()))
                 && genome != null
                 && !Misc.containsNulls(genome);
     }

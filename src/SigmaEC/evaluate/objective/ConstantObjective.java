@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -10,7 +11,7 @@ import SigmaEC.util.Parameters;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class ConstantObjective<T extends Individual> extends ObjectiveFunction<T> {
+public class ConstantObjective<T extends Individual> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_VALUE = "fitnessValue";
 
@@ -42,9 +43,9 @@ public class ConstantObjective<T extends Individual> extends ObjectiveFunction<T
     }
     
     @Override
-    public double fitness(final T ind) {
+    public ScalarFitness fitness(final T ind) {
         assert(repOK());
-        return value;
+        return new ScalarFitness(value);
     }
 
     @Override

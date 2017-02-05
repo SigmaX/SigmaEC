@@ -1,9 +1,7 @@
 package SigmaEC.evaluate.objective.function;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
-import SigmaEC.evaluate.objective.function.BooleanFunction;
-import SigmaEC.evaluate.objective.function.ConcatenatedBooleanFunction;
-import SigmaEC.evaluate.objective.function.TruthTableObjective;
 import SigmaEC.util.Parameters;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +15,7 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFunction> {
+public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFunction, ScalarFitness> {
     public final static String P_TARGET_FUNCTION = "targetFunction";
     public final static String P_SUBFUNCTION = "subFunction";
     public final static String P_PARTIAL_MATCHES = "partialMatches";
@@ -79,7 +77,7 @@ public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFu
     }
     
     @Override
-    public double fitness(final BooleanFunction ind) {
+    public ScalarFitness fitness(final BooleanFunction ind) {
         assert(ind != null);
         assert(ind.numOutputs() == targetFunction.numOutputs());
         final List<boolean[]> inputs = TruthTableObjective.bitStringPermutations(ind.arity());
@@ -98,7 +96,7 @@ public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFu
                 matches++;
         }
         assert(repOK());
-        return (double) matches / inputs.size();
+        return new ScalarFitness((double) matches / inputs.size());
     }
 
     @Override

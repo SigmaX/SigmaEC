@@ -2,6 +2,7 @@ package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.problemclass.ProblemClass;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
 
@@ -11,11 +12,11 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DynamicInstanceObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class DynamicInstanceObjective<F extends Fitness> extends ObjectiveFunction<DoubleVectorIndividual, F> {
     private final static String P_CLASS = "problemclass";
     
     private final ProblemClass problemClass;
-    private ObjectiveFunction<DoubleVectorIndividual> currentObjective;
+    private ObjectiveFunction<DoubleVectorIndividual, F> currentObjective;
     
     public DynamicInstanceObjective(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -31,7 +32,7 @@ public class DynamicInstanceObjective extends ObjectiveFunction<DoubleVectorIndi
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public F fitness(final DoubleVectorIndividual ind) {
         return currentObjective.fitness(ind);
     }
 

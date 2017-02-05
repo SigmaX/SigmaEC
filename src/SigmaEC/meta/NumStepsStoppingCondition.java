@@ -7,7 +7,7 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric O. Scott
  */
-public class NumStepsStoppingCondition<T extends Individual> extends StoppingCondition<T> {
+public class NumStepsStoppingCondition<T extends Individual<F>, F extends Fitness> extends StoppingCondition<T, F> {
     public final static String P_NUM_STEPS = "numSteps";
     public final static String P_PROGRESS_BAR = "progressBar";
     private final static int NUM_PROGRESS_BAR_BLOCKS = 50;
@@ -28,7 +28,7 @@ public class NumStepsStoppingCondition<T extends Individual> extends StoppingCon
     }
     
     @Override
-    public boolean stop(final Population<T> population, int step) {
+    public boolean stop(final Population<T, F> population, int step) {
         assert(step >= 0);
         assert(repOK());
         if (progressBar && (step % stepsPerProgressBarBlock == 0)) {

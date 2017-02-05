@@ -1,5 +1,6 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.Individual;
 import java.util.List;
 
@@ -8,7 +9,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class LinearGenomeIndividual<G extends Gene> extends Individual
+public abstract class LinearGenomeIndividual<G extends Gene, F extends Fitness> extends Individual<F>
 {
     /**
      * Constructs a new LinearGenomeIndividual by using the subtype of this as
@@ -18,7 +19,7 @@ public abstract class LinearGenomeIndividual<G extends Gene> extends Individual
      * @param genome The genome to use in the new individual.
      * @param parents The parent(s) of the individual.
      */
-    public abstract LinearGenomeIndividual<G> create(final List<G> genome, final List<? extends Individual> parents);
+    public abstract LinearGenomeIndividual<G, F> create(final List<G> genome, final List<? extends Individual> parents);
     
     /** Return a defensive copy of the genome. */
     public abstract List<G> getGenome();

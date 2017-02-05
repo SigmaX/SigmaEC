@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.SRandom;
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
@@ -9,12 +10,12 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric O. Scott
  */
-public class AdditiveNoiseObjective<T> extends ObjectiveFunction<T> {
+public class AdditiveNoiseObjective<T> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_OBJECTIVE = "objective";
     public final static String P_STD = "std";
     public final static String P_RANDOM = "random";
     
-    private final ObjectiveFunction<? super T> objective;
+    private final ObjectiveFunction<? super T, ScalarFitness> objective;
     private final double std;
     private final SRandom random;
     
@@ -32,8 +33,8 @@ public class AdditiveNoiseObjective<T> extends ObjectiveFunction<T> {
     }
     
     @Override
-    public double fitness(final T ind) {
-        return objective.fitness(ind) + std*random.nextGaussian();
+    public ScalarFitness fitness(final T ind) {
+        return new ScalarFitness(objective.fitness(ind).asScalar() + std*random.nextGaussian());
     }
     
     @Override

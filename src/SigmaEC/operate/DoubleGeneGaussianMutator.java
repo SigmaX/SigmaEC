@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<DoubleGene>> {
+public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<DoubleGene, ?>> {
     public final static String P_GAUSSIAN_STD = "gaussianStd";
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
@@ -113,7 +113,7 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
      * @return The newly mutated individual.
      */
     @Override
-    public LinearGenomeIndividual<DoubleGene> mutate(final LinearGenomeIndividual<DoubleGene> ind, final int step) {
+    public LinearGenomeIndividual<DoubleGene, ?> mutate(final LinearGenomeIndividual<DoubleGene, ?> ind, final int step) {
         assert(ind != null);
         final List<DoubleGene> genome = ind.getGenome();
         final List<DoubleGene> newGenome = new ArrayList<DoubleGene>();
@@ -122,7 +122,7 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
             newGenome.add((roll < mutationRate) ? mutate(genome.get(i), i) : genome.get(i));
         }
         assert(repOK());
-        final List<Individual> parents = ind.hasParents() ?
+        final List<? extends Individual> parents = ind.hasParents() ?
                 ind.getParents().get() :
                 new ArrayList<Individual>() {{ add(ind); }};
         return ind.create(newGenome, parents);

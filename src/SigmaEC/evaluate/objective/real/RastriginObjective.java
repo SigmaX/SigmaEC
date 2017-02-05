@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
@@ -10,7 +11,7 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RastriginObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class RastriginObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness> {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;
@@ -27,12 +28,12 @@ public class RastriginObjective extends ObjectiveFunction<DoubleVectorIndividual
     }
 
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         double sum = 10*ind.size();
         for (final double x : ind.getGenomeArray())
             sum += x*x - 10*Math.cos(2*Math.PI*x);
-        return sum;
+        return new ScalarFitness(sum);
     }
 
     @Override

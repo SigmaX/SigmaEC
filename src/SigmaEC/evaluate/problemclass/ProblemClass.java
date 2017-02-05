@@ -8,7 +8,7 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class ProblemClass<T extends ObjectiveFunction<P>, P> {
+public abstract class ProblemClass<T extends ObjectiveFunction> {
     public abstract T getNewInstance();
     
     // Force implementation of standard methods

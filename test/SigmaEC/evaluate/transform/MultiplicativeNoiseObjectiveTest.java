@@ -1,13 +1,10 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.SRandom;
-import SigmaEC.evaluate.objective.real.SphereObjective;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.test.TestObjective;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -36,7 +33,7 @@ public class MultiplicativeNoiseObjectiveTest {
         final double fitness = 10.0;
         final TestIndividual ind = new TestIndividual(10.0);
         final MultiplicativeNoiseObjective<TestIndividual> instance = new MultiplicativeNoiseObjective(getParams().build(), BASE);
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(fitness, result, 0.000000001);
     }
 
@@ -52,7 +49,7 @@ public class MultiplicativeNoiseObjectiveTest {
                 .build(), BASE);
         final double[] resultSamples = new double[numSamples];
         for (int i = 0; i < numSamples; i++)
-            resultSamples[i] = instance.fitness(ind);
+            resultSamples[i] = instance.fitness(ind).asScalar();
         
         final double resultMean = Statistics.mean(resultSamples);
         final double resultStd = Statistics.std(resultSamples);
@@ -72,7 +69,7 @@ public class MultiplicativeNoiseObjectiveTest {
                 .build(), BASE);
         final double[] resultSamples = new double[numSamples];
         for (int i = 0; i < numSamples; i++)
-            resultSamples[i] = instance.fitness(ind);
+            resultSamples[i] = instance.fitness(ind).asScalar();
         
         final double resultMean = Statistics.mean(resultSamples);
         final double resultStd = Statistics.std(resultSamples);
@@ -94,7 +91,7 @@ public class MultiplicativeNoiseObjectiveTest {
                 .build(), BASE);
         final double[] resultSamples = new double[numSamples];
         for (int i = 0; i < numSamples; i++)
-            resultSamples[i] = instance.fitness(ind);
+            resultSamples[i] = instance.fitness(ind).asScalar();
         
         final double resultMean = Statistics.mean(resultSamples);
         final double resultStd = Statistics.std(resultSamples);
@@ -116,7 +113,7 @@ public class MultiplicativeNoiseObjectiveTest {
                 .build(), BASE);
         final double[] resultSamples = new double[numSamples];
         for (int i = 0; i < numSamples; i++)
-            resultSamples[i] = instance.fitness(ind);
+            resultSamples[i] = instance.fitness(ind).asScalar();
         
         final double resultMean = Statistics.mean(resultSamples);
         final double resultStd = Statistics.std(resultSamples);

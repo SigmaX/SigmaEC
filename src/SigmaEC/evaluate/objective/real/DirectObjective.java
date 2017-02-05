@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Parameters;
 
@@ -8,7 +9,7 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DirectObjective extends ObjectiveFunction<Double> {
+public class DirectObjective extends ObjectiveFunction<Double, ScalarFitness> {
     
     public DirectObjective(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -17,11 +18,11 @@ public class DirectObjective extends ObjectiveFunction<Double> {
     }
     
     @Override
-    public double fitness(final Double ind) {
+    public ScalarFitness fitness(final Double ind) {
         assert(ind != null);
         assert(!Double.isNaN(ind));
         assert(repOK());
-        return ind;
+        return new ScalarFitness(ind);
     }
 
     @Override

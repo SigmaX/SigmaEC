@@ -12,29 +12,29 @@ import java.util.Objects;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class CircleOfLife<T extends Individual> extends ContractObject {
-    public abstract EvolutionResult<T> evolve(int run);
+public abstract class CircleOfLife<T extends Individual<F>, F extends Fitness> extends ContractObject {
+    public abstract EvolutionResult<T, F> evolve(int run);
     
-    public static class EvolutionResult<T extends Individual> extends ContractObject {
-        final private Population<T> finalPopulation;
+    public static class EvolutionResult<T extends Individual<F>, F extends Fitness> extends ContractObject {
+        final private Population<T, F> finalPopulation;
         final private List<T> bestIndividuals;
-        final private List<Double> bestFitnesses;
+        final private List<F> bestFitnesses;
         
-        public Population<T> getFinalPopulation() { return finalPopulation; }
+        public Population<T, F> getFinalPopulation() { return finalPopulation; }
         public List<T> getBestIndividual() { return bestIndividuals; }
-        public List<Double> getBestFitness() { return bestFitnesses; }
+        public List<F> getBestFitness() { return bestFitnesses; }
         
-        public EvolutionResult(final Population<T> finalPopulation, final T bestIndividual, final double bestFitness) {
+        public EvolutionResult(final Population<T, F> finalPopulation, final T bestIndividual, final F bestFitness) {
             assert(finalPopulation != null);
             assert(bestIndividual != null);
-            assert(!Double.isNaN(bestFitness));
+            assert(bestFitness != null);
             this.finalPopulation = finalPopulation;
             this.bestIndividuals = new ArrayList<T>() {{ add(bestIndividual); }};
-            this.bestFitnesses = new ArrayList<Double>() {{ add(bestFitness); }};
+            this.bestFitnesses = new ArrayList<F>() {{ add(bestFitness); }};
             assert(repOK());
         }
         
-        public EvolutionResult(final Population<T> finalPopulation, final List<T> bestIndividuals, final List<Double> bestFitnesses) {
+        public EvolutionResult(final Population<T, F> finalPopulation, final List<T> bestIndividuals, final List<F> bestFitnesses) {
             assert(finalPopulation != null);
             assert(bestIndividuals != null);
             assert(!Misc.containsNulls(bestFitnesses));

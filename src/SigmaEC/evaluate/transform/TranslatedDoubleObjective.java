@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
@@ -10,12 +11,12 @@ import java.util.Arrays;
  *
  * @author Eric 'Siggy' Scott
  */
-public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class TranslatedDoubleObjective<F extends Fitness> extends ObjectiveFunction<DoubleVectorIndividual, F> {
     public final static String P_OFFSET = "offset";
     public final static String P_OBJECTIVE = "objective";
     
     private final double[] offset;
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual, F> objective;
     
     public TranslatedDoubleObjective(final Parameters parameters, final String base) throws IllegalStateException {
         assert(parameters != null);
@@ -30,7 +31,7 @@ public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorInd
         assert(repOK());
     }
     
-    public TranslatedDoubleObjective(final double[] offset, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException {
+    public TranslatedDoubleObjective(final double[] offset, final ObjectiveFunction<DoubleVectorIndividual, F> objective) throws IllegalArgumentException {
         if (objective == null)
             throw new NullPointerException(this.getClass().getSimpleName() + ": objective is null.");
         if (offset == null)
@@ -60,7 +61,7 @@ public class TranslatedDoubleObjective extends ObjectiveFunction<DoubleVectorInd
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public F fitness(final DoubleVectorIndividual ind) {
         return objective.fitness(translate(ind));
     }
 

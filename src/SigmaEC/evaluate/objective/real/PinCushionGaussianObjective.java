@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ConstantObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.evaluate.transform.AdditiveObjective;
@@ -14,13 +15,13 @@ import java.util.Arrays;
  *
  * @author Eric 'Siggy' Scott
  */
-public class PinCushionGaussianObjective  extends ObjectiveFunction<DoubleVectorIndividual> {
+public class PinCushionGaussianObjective  extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> {
     public final static String P_INTERVALS = "intervals";
     public final static String P_HEIGHT = "height";
     public final static String P_STD = "std";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective;
     private final double[] intervals;
     private final double height;
     private final double std;
@@ -38,10 +39,10 @@ public class PinCushionGaussianObjective  extends ObjectiveFunction<DoubleVector
         std = parameters.getDoubleParameter(Parameters.push(base, P_STD));
         
         
-        final ObjectiveFunction<DoubleVectorIndividual> gaussian, plane, reducedGaussian;
+        final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> gaussian, plane, reducedGaussian;
         gaussian = new GaussianObjective(numDimensions, height, std);
         plane = new ConstantObjective(numDimensions, -height);
-        reducedGaussian = new AdditiveObjective<>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual>>() {{
+        reducedGaussian = new AdditiveObjective<>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness>>() {{
             add(gaussian);
             add(plane);
         }});
@@ -52,7 +53,7 @@ public class PinCushionGaussianObjective  extends ObjectiveFunction<DoubleVector
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         return objective.fitness(ind);
     }
 

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Parameters;
 
@@ -10,10 +11,10 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class InvertedObjective<T> extends ObjectiveFunction<T>
+public class InvertedObjective<T> extends ObjectiveFunction<T, ScalarFitness>
 {
     public final static String P_OBJECTIVE = "objective";
-    final private ObjectiveFunction<? super T> objective;
+    final private ObjectiveFunction<? super T, ScalarFitness> objective;
     
     public InvertedObjective(final Parameters parameters, final String base) {
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
@@ -22,7 +23,7 @@ public class InvertedObjective<T> extends ObjectiveFunction<T>
         assert(repOK());
     }
 
-    public InvertedObjective(final ObjectiveFunction<T> objective) {
+    public InvertedObjective(final ObjectiveFunction<T, ScalarFitness> objective) {
         if (objective == null)
             throw new IllegalArgumentException(String.format("%s: objective is null.", this.getClass().getSimpleName()));
         this.objective = objective;
@@ -30,8 +31,8 @@ public class InvertedObjective<T> extends ObjectiveFunction<T>
     }
     
     @Override
-    public double fitness(T ind) {
-        return -objective.fitness(ind);
+    public ScalarFitness fitness(final T ind) {
+        return new ScalarFitness(-objective.fitness(ind).asScalar());
     }
     
     @Override

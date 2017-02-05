@@ -1,11 +1,11 @@
 package SigmaEC.represent.cgp;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.function.ConcatenatedBooleanFunction;
-import SigmaEC.evaluate.objective.function.NAND;
 import SigmaEC.measure.ConcatenatedBooleanObjectivePopulationMetric;
 import SigmaEC.represent.linear.IntVectorIndividual;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
-import SigmaEC.select.FitnessComparator;
+import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.util.Parameters;
 import java.util.Properties;
 import org.junit.Test;
@@ -56,9 +56,9 @@ public class WeightedCGPMutationRateTest {
                 .setParameter("metric", "SigmaEC.measure.ConcatenatedBooleanObjectivePopulationMetric")
                 .setParameter(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_DECODER), "%decoder")
                 .setParameter(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_TARGET_FUNCTION), "%objective")
-                .setParameter(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
-                .setParameter(Parameters.push(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_COMPARATOR), FitnessComparator.P_MINIMIZE), "false")
-                .setParameter(Parameters.push(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_COMPARATOR), FitnessComparator.P_EQUAL_IS_BETTER), "true");
+                .setParameter(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_COMPARATOR), "SigmaEC.select.ScalarFitnessComparator")
+                .setParameter(Parameters.push(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_COMPARATOR), ScalarFitnessComparator.P_MINIMIZE), "false")
+                .setParameter(Parameters.push(Parameters.push("metric", ConcatenatedBooleanObjectivePopulationMetric.P_COMPARATOR), ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true");
     }
     
     private final static LinearGenomeIndividual ind = new IntVectorIndividual.Builder(new int[] {
@@ -69,7 +69,7 @@ public class WeightedCGPMutationRateTest {
             0, 2, 3,
             0, 4, 4,
             5, 6
-        }).setFitness(0.625).build();
+        }).setFitness(new ScalarFitness(0.625)).build();
 
     /** Test of getRateForGene method, of class WeightedCGPMutationRate. */
     @Test

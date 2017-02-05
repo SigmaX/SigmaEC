@@ -5,7 +5,7 @@ import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
-import SigmaEC.select.FitnessComparator;
+import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -19,7 +19,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
+public class SimpleCircleOfLife<T extends Individual<F>, P, F extends Fitness> extends CircleOfLife<T, F> {
     public final static String P_INITIALIZER = "initializer";
     public final static String P_EVALUATOR = "evaluator";
     public final static String P_OPERATORS = "operators";
@@ -31,12 +31,12 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
     
     private final Initializer<T> initializer;
-    private final EvaluationOperator<T, P> evaluator;
+    private final EvaluationOperator<T, P, F> evaluator;
     private final List<Operator<T>> operators;
-    private final FitnessComparator<T> fitnessComparator;
-    private final Option<List<PopulationMetric<T>>> metrics;
-    private final ObjectiveFunction<P> objective;
-    private final StoppingCondition<T> stoppingCondition;
+    private final FitnessComparator<T, F> fitnessComparator;
+    private final Option<List<PopulationMetric<T, F>>> metrics;
+    private final ObjectiveFunction<P, F> objective;
+    private final StoppingCondition<T, F> stoppingCondition;
     private final boolean isDynamic;
     
     public SimpleCircleOfLife(final Parameters parameters, final String base) {
@@ -46,7 +46,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationOperator.class);
         operators = parameters.getInstancesFromParameter(Parameters.push(base, P_OPERATORS), Operator.class);
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
-        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), ScalarFitnessComparator.class);
         metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
         stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
         isDynamic = parameters.getOptionalBooleanParameter(Parameters.push(base, P_IS_DYNAMIC), true);
@@ -54,20 +54,20 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     }
     
     @Override
-    public EvolutionResult<T> evolve(final int run) {
+    public EvolutionResult<T, F> evolve(final int run) {
         assert(run >= 0);
         reset();
         T bestSoFarInd = null;
         int i = 0;
         
         // Initialize and evaluate the starting population
-        final Population<T> population = new Population<>(1, initializer);
+        final Population<T, F> population = new Population<>(1, initializer);
         population.setSubpopulation(0, evaluator.operate(run, i, population.getSubpopulation(0)));
         
         while (!stoppingCondition.stop(population, i)) {
             // Take measurements
             if (metrics.isDefined())
-                for (final PopulationMetric<T> metric : metrics.get())
+                for (final PopulationMetric<T, F> metric : metrics.get())
                     metric.measurePopulation(run, i, population);
             
             // Apply operators
@@ -91,7 +91,7 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         
         // Measure the final population
         if (metrics.isDefined())
-            for (PopulationMetric<T> metric : metrics.get())
+            for (PopulationMetric<T, F> metric : metrics.get())
                 metric.measurePopulation(run, i, population);
         
         assert(repOK());
@@ -101,14 +101,14 @@ public class SimpleCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     /** Flush I/O buffers. */
     private void flushMetrics() {
         if (metrics.isDefined())
-            for (final PopulationMetric<T> metric: metrics.get())
+            for (final PopulationMetric<T, F> metric: metrics.get())
                 metric.flush();
     }
     
     private void reset() {
         stoppingCondition.reset();
         if (metrics.isDefined())
-            for (final PopulationMetric<T> metric : metrics.get())
+            for (final PopulationMetric<T, F> metric : metrics.get())
                     metric.reset();
     }
 

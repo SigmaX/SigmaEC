@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NPointCrossoverMator<T extends LinearGenomeIndividual<G>, G extends Gene> extends Mator<T> {
+public class NPointCrossoverMator<T extends LinearGenomeIndividual<G, ?>, G extends Gene> extends Mator<T> {
     final public static String P_NUM_CUT_POINTS = "numCutPoints";
     final public static String P_ALLOW_CLONING = "allowCloning";
     final public static String P_RANDOM = "random";

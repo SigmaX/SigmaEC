@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.format.GenomeFormatter;
 import SigmaEC.util.Parameters;
@@ -17,7 +18,7 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class ExternalObjective<T extends Individual> extends ObjectiveFunction<T> {
+public class ExternalObjective<T extends Individual> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_DIMENSIONS = "dimensions";
     public final static String P_COMMAND = "command";
     public final static String P_FORMATTER = "formatter";
@@ -36,7 +37,7 @@ public class ExternalObjective<T extends Individual> extends ObjectiveFunction<T
     }
     
     @Override
-    public double fitness(final T ind) {
+    public ScalarFitness fitness(final T ind) {
         try {
             final Process p = Runtime.getRuntime().exec(command);
             final Writer carlSimInput = new BufferedWriter(new OutputStreamWriter(p.getOutputStream()));
@@ -45,7 +46,7 @@ public class ExternalObjective<T extends Individual> extends ObjectiveFunction<T
             p.waitFor();
             
             System.err.println(streamToString(p.getErrorStream()));
-            return Double.valueOf(streamToString(p.getInputStream()));
+            return new ScalarFitness(Double.valueOf(streamToString(p.getInputStream())));
         } catch (final Exception ex) {
             throw new IllegalStateException(ex);
         }

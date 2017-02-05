@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.SRandom;
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
@@ -11,13 +12,13 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T> {
+public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_OBJECTIVE = "objective";
     public final static String P_STD_FRACTION = "stdFraction";
     public final static String P_RANDOM = "random";
     public final static String P_GLOBAL_BEST_FITNESS = "globalBestFitness";
     
-    private final ObjectiveFunction<? super T> objective;
+    private final ObjectiveFunction<? super T, ScalarFitness> objective;
     private final double stdFraction;
     private final SRandom random;
     private final double globalBestFitness;
@@ -40,7 +41,7 @@ public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T> {
         assert(repOK());
     }
     
-    public MultiplicativeNoiseObjective(final ObjectiveFunction<? super T> objective, final double stdFraction, final SRandom random, final double globalBestFitness) {
+    public MultiplicativeNoiseObjective(final ObjectiveFunction<? super T, ScalarFitness> objective, final double stdFraction, final SRandom random, final double globalBestFitness) {
         this.objective = objective;
         if (objective == null)
             throw new IllegalArgumentException(String.format("%s: objective is null.", this.getClass().getSimpleName()));
@@ -61,9 +62,9 @@ public class MultiplicativeNoiseObjective<T> extends ObjectiveFunction<T> {
     }
     
     @Override
-    public double fitness(final T ind) {
-        final double f = objective.fitness(ind);
-        return f + stdFraction*Math.abs(f - globalBestFitness)*random.nextGaussian();
+    public ScalarFitness fitness(final T ind) {
+        final double f = objective.fitness(ind).asScalar();
+        return new ScalarFitness(f + stdFraction*Math.abs(f - globalBestFitness)*random.nextGaussian());
     }
     
     @Override

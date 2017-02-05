@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 
@@ -7,10 +8,10 @@ import SigmaEC.represent.Individual;
  *
  * @author Eric O. Scott
  */
-public class FitnessCorrelationPopulationMetric<T extends Individual> extends PopulationMetric<T> {
+public class FitnessCorrelationPopulationMetric<T extends Individual<F>, F extends Fitness> extends PopulationMetric<T, F> {
 
     @Override
-    public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public Measurement measurePopulation(final int run, final int step, final Population<T, F> population) {
         ping(step, population);
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
@@ -30,7 +31,7 @@ public class FitnessCorrelationPopulationMetric<T extends Individual> extends Po
     }
 
     @Override
-    public void ping(int step, Population<T> population) { }
+    public void ping(int step, Population<T, F> population) { }
 
     @Override
     public final boolean repOK() {

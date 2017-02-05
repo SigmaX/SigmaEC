@@ -2,10 +2,11 @@ package SigmaEC.meta.island;
 
 import SigmaEC.SRandom;
 import SigmaEC.experiment.SimpleExperiment;
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.select.Selector;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -21,7 +22,7 @@ import java.util.logging.Logger;
  * 
  * @author Eric O. Scott
  */
-public class RandomInjectionMigrationPolicy<T extends Individual> extends MigrationPolicy<T> {
+public class RandomInjectionMigrationPolicy<T extends Individual<F>, F extends Fitness> extends MigrationPolicy<T, F> {
     public final static String P_RANDOM = "random";
     public final static String P_INTERVAL = "interval";
     public final static String P_NUM_INJECTIONS = "numInjections";
@@ -36,7 +37,7 @@ public class RandomInjectionMigrationPolicy<T extends Individual> extends Migrat
     private final Initializer<T> initializer;
     private final Selector<T> replacementSelector;
     private final boolean alwaysReplace;
-    private final Option<FitnessComparator<T>> fitnessComparator;
+    private final Option<FitnessComparator<T, F>> fitnessComparator;
     
     public RandomInjectionMigrationPolicy(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -56,12 +57,12 @@ public class RandomInjectionMigrationPolicy<T extends Individual> extends Migrat
     }
     
     @Override
-    public void migrateAll(final int step, final Population<T> population, final Topology topology) {
+    public void migrateAll(final int step, final Population<T, F> population, final Topology topology) {
         migrateAll(step, population, topology, Option.NONE);
     }
             
     @Override
-    public void migrateAll(final int step, final Population<T> population, final Topology topology, final Option<List<IslandConfiguration>> islandConfigs) {
+    public void migrateAll(final int step, final Population<T, F> population, final Topology topology, final Option<List<IslandConfiguration>> islandConfigs) {
         assert(step >= 0);
         assert(population != null);
         assert(topology != null);
@@ -85,7 +86,7 @@ public class RandomInjectionMigrationPolicy<T extends Individual> extends Migrat
         assert(repOK());
     }
     
-    private void migrate(final int targetPopIndex, final Population<T> population, final Option<IslandConfiguration> targetIslandConfiguration) {
+    private void migrate(final int targetPopIndex, final Population<T, F> population, final Option<IslandConfiguration> targetIslandConfiguration) {
         assert(targetPopIndex >= 0);
         assert(targetPopIndex < population.numSuppopulations());
         

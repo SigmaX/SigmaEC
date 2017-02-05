@@ -6,12 +6,13 @@ import SigmaEC.evaluate.EvaluationOperator;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.meta.CircleOfLife;
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Operator;
 import SigmaEC.meta.Population;
 import SigmaEC.meta.StoppingCondition;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -32,7 +33,7 @@ import java.util.logging.Logger;
  * 
  * @author Eric O. Scott
  */
-public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
+public class IslandModelCircleOfLife<T extends Individual<F>, P, F extends Fitness> extends CircleOfLife<T, F> {
     public final static String P_RANDOM = "random";
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_TOPOLOGY = "topology";
@@ -48,14 +49,14 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     
     private final SRandom random;
     private final Topology topology;
-    private final MigrationPolicy<T> migrationPolicy;
-    private final EvaluationOperator<T, P> evaluator;
+    private final MigrationPolicy<T, F> migrationPolicy;
+    private final EvaluationOperator<T, P, F> evaluator;
     private final Initializer<T> initializer;
     private final List<Operator<T>> operators;
-    private final ObjectiveFunction<P> objective;
-    private final FitnessComparator<T> fitnessComparator;
-    private final Option<List<PopulationMetric<T>>> metrics;
-    private final StoppingCondition<T> stoppingCondition;
+    private final ObjectiveFunction<P, F> objective;
+    private final FitnessComparator<T, F> fitnessComparator;
+    private final Option<List<PopulationMetric<T, F>>> metrics;
+    private final StoppingCondition<T, F> stoppingCondition;
     private final boolean isDynamic;
     private final int numThreads;
     
@@ -78,14 +79,14 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     }
     
     @Override
-    public EvolutionResult<T> evolve(final int run) {
+    public EvolutionResult<T, F> evolve(final int run) {
         assert(run >= 0);
         reset();
         int step = 0;
         T bestSoFarInd = null;
         
         // Initialize subpopulations
-        final Population<T> population = new Population<>(topology.numIslands(), initializer);
+        final Population<T, F> population = new Population<>(topology.numIslands(), initializer);
         // Evaluate initial subpopulations
         for (int i = 0; i < population.numSuppopulations(); i++)
             population.setSubpopulation(i, evaluator.operate(run, step, population.getSubpopulation(i)));
@@ -94,7 +95,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         while (!(stoppingCondition.stop(population, step))) {
             // Take measurements
             if (metrics.isDefined())
-                for (PopulationMetric<T> metric : metrics.get())
+                for (PopulationMetric<T, F> metric : metrics.get())
                     metric.measurePopulation(run, step, population);
             
             // Execute each island in parallel
@@ -123,7 +124,7 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
         
         // Measure final population
         if (metrics.isDefined())
-            for (PopulationMetric<T> metric : metrics.get())
+            for (PopulationMetric<T, F> metric : metrics.get())
                 metric.measurePopulation(run, step, population);
         
         assert(repOK());
@@ -131,12 +132,12 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     }
     
     private class IslandStepper extends ContractObject implements Callable<Void> {
-        private final Population<T> population;
+        private final Population<T, F> population;
         private final int subpopulation;
         private final int run;
         private final int generation;
         
-        IslandStepper(final int run, final int generation, final Population<T> population, final int populationID) {
+        IslandStepper(final int run, final int generation, final Population<T, F> population, final int populationID) {
             assert(run >= 0);
             assert(generation >= 0);
             assert(population != null);
@@ -203,14 +204,14 @@ public class IslandModelCircleOfLife<T extends Individual, P> extends CircleOfLi
     /** Flush I/O buffers. */
     private void flushMetrics() {
         if (metrics.isDefined())
-            for (final PopulationMetric<T> metric: metrics.get())
+            for (final PopulationMetric<T, F> metric: metrics.get())
                 metric.flush();
     }
     
     private void reset() {
         stoppingCondition.reset();
         if (metrics.isDefined())
-            for (final PopulationMetric<T> metric : metrics.get())
+            for (final PopulationMetric<T, F> metric : metrics.get())
                     metric.reset();
     }
     

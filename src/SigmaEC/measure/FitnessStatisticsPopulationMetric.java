@@ -1,9 +1,10 @@
 package SigmaEC.measure;
 
 import SigmaEC.evaluate.EvaluationOperator;
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -20,12 +21,12 @@ import java.util.Objects;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends PopulationMetric<T> {
+public class FitnessStatisticsPopulationMetric<T extends Individual<F>, P, F extends Fitness> extends PopulationMetric<T, F> {
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_EVALUATOR = "auxiliaryEvaluator";
     
-    private final FitnessComparator<T> fitnessComparator;
-    private final Option<EvaluationOperator<T,P>> auxiliaryEvaluator;
+    private final FitnessComparator<T, F> fitnessComparator;
+    private final Option<EvaluationOperator<T, P, F>> auxiliaryEvaluator;
     private final List<T> bestSoFar = new ArrayList<>();
     private int lastBSFUpdate = -1;
     
@@ -37,7 +38,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         assert(repOK());
     }
     
-    public FitnessStatisticsPopulationMetric(final FitnessComparator<T> fitnessComparator, final Option<EvaluationOperator<T, P>> auxiliaryEvaluator) {
+    public FitnessStatisticsPopulationMetric(final FitnessComparator<T, F> fitnessComparator, final Option<EvaluationOperator<T, P, F>> auxiliaryEvaluator) {
         assert(fitnessComparator != null);
         assert(auxiliaryEvaluator != null);
         this.fitnessComparator = fitnessComparator;
@@ -47,7 +48,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     
 
     @Override
-    public void ping(final int step, final Population<T> population) {
+    public void ping(final int step, final Population<T, F> population) {
         if (step - lastBSFUpdate > 1)
             throw new IllegalStateException(String.format("%s: the ping() method was called after an interval of %d steps.  It must be called every step in order to maintain a valid record of the best-so-far individual.", this.getClass().getSimpleName(), step - lastBSFUpdate));
         // Update best so far memory
@@ -67,7 +68,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     
     /** Prints a row of the form "run, step, mean, std, best, worst, bsf" for each subpopulation. */
     @Override
-    public synchronized MultipleMeasurement<FitnessStatisticsMeasurement> measurePopulation(final int run, final int step, final Population<T> population) {
+    public synchronized MultipleMeasurement<FitnessStatisticsMeasurement> measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
@@ -80,7 +81,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         return new MultipleMeasurement<>(measurements);
     }
     
-    private FitnessStatisticsMeasurement measureSubpopulation(final int run, final int step, final int subpop, final Population<T> population) {
+    private FitnessStatisticsMeasurement measureSubpopulation(final int run, final int step, final int subpop, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(subpop >= 0);
@@ -93,7 +94,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
                 population.getSubpopulation(subpop);
         final double[] fitnesses = new double[evaluatedSubpop.size()];
         for (int i = 0; i < fitnesses.length; i++)
-            fitnesses[i] = evaluatedSubpop.get(i).getFitness();
+            fitnesses[i] = evaluatedSubpop.get(i).getFitness().asScalar();
 
         final double mean = Statistics.mean(fitnesses);
         final double std = Statistics.std(fitnesses, mean);
@@ -102,7 +103,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         final T worst = Statistics.worst(evaluatedSubpop, fitnessComparator);
 
         // Record the auxilliary fitness of the true best individual
-        final double bestFitness = auxiliaryEvaluator.isDefined() ? 
+        final F bestFitness = auxiliaryEvaluator.isDefined() ? 
                 auxiliaryEvaluator.get().evaluate(bestSoFar.get(subpop)).getFitness()
                 : bestSoFar.get(subpop).getFitness();
         // But record the ID of the original best individual
@@ -111,7 +112,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     }
     
     
-    private List<T> getBestsOfStep(final Population<T> population) {
+    private List<T> getBestsOfStep(final Population<T, F> population) {
         return new ArrayList<T>() {{
            for (int i = 0; i < population.numSuppopulations(); i++)
                add(population.getBest(i, fitnessComparator));
@@ -193,18 +194,18 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
     }
     //</editor-fold>
     
-    public static class FitnessStatisticsMeasurement extends Measurement {
+    public static class FitnessStatisticsMeasurement<F extends Fitness> extends Measurement {
         private final int run;
         private final int step;
         private final int subpopulation;
         private final double mean;
         private final double std;
-        private final double best;
-        private final double worst;
-        private final double bestSoFar;
+        private final F best;
+        private final F worst;
+        private final F bestSoFar;
         private final long bsfIndividualID;
         
-        public FitnessStatisticsMeasurement(final int run_, final int step_, final int subpopulation_, final double mean_, final double std_, final double best_, final double worst_, final double bsf_, final long bsfIndividualID_) {
+        public FitnessStatisticsMeasurement(final int run_, final int step_, final int subpopulation_, final double mean_, final double std_, final F best_, final F worst_, final F bsf_, final long bsfIndividualID_) {
             run = run_;
             step = step_;
             subpopulation = subpopulation_;
@@ -221,15 +222,15 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
         @Override public int getStep() { return step; }
         public double getMean() { return mean; }
         public double getStd() { return std; }
-        public double getBest() { return best; }
-        public double getWorst() { return worst; }
-        public double getBestSoFar() { return bestSoFar; }
+        public F getBest() { return best; }
+        public F getWorst() { return worst; }
+        public F getBestSoFar() { return bestSoFar; }
         public long getBestSoFarID() { return bsfIndividualID; }
 
         // <editor-fold defaultstate="collapsed" desc="Standard Methods">
         @Override
         public String toString() {
-            return String.format("%d, %d, %d, %f, %f, %f, %f, %f, %d",
+            return String.format("%d, %d, %d, %f, %f, %s, %s, %s, %d",
                     run, step, subpopulation, mean, std, best, worst, bestSoFar, bsfIndividualID);
         }
 
@@ -253,24 +254,24 @@ public class FitnessStatisticsPopulationMetric<T extends Individual, P> extends 
                     && subpopulation == ref.subpopulation
                     && Misc.doubleEquals(mean, ref.mean)
                     && Misc.doubleEquals(std, ref.std)
-                    && Misc.doubleEquals(best, ref.best)
-                    && Misc.doubleEquals(worst, ref.worst)
-                    && Misc.doubleEquals(bestSoFar, ref.bestSoFar)
+                    && best.equals(ref.best)
+                    && worst.equals(ref.worst)
+                    && bestSoFar.equals(ref.bestSoFar)
                     && bsfIndividualID == ref.bsfIndividualID;
         }
 
         @Override
         public int hashCode() {
-            int hash = 3;
-            hash = 23 * hash + this.run;
-            hash = 23 * hash + this.step;
-            hash = 23 * hash + this.subpopulation;
-            hash = 23 * hash + (int) (Double.doubleToLongBits(this.mean) ^ (Double.doubleToLongBits(this.mean) >>> 32));
-            hash = 23 * hash + (int) (Double.doubleToLongBits(this.std) ^ (Double.doubleToLongBits(this.std) >>> 32));
-            hash = 23 * hash + (int) (Double.doubleToLongBits(this.best) ^ (Double.doubleToLongBits(this.best) >>> 32));
-            hash = 23 * hash + (int) (Double.doubleToLongBits(this.worst) ^ (Double.doubleToLongBits(this.worst) >>> 32));
-            hash = 23 * hash + (int) (Double.doubleToLongBits(this.bestSoFar) ^ (Double.doubleToLongBits(this.bestSoFar) >>> 32));
-            hash = 23 * hash + (int) (this.bsfIndividualID ^ (this.bsfIndividualID >>> 32));
+            int hash = 5;
+            hash = 97 * hash + this.run;
+            hash = 97 * hash + this.step;
+            hash = 97 * hash + this.subpopulation;
+            hash = 97 * hash + (int) (Double.doubleToLongBits(this.mean) ^ (Double.doubleToLongBits(this.mean) >>> 32));
+            hash = 97 * hash + (int) (Double.doubleToLongBits(this.std) ^ (Double.doubleToLongBits(this.std) >>> 32));
+            hash = 97 * hash + Objects.hashCode(this.best);
+            hash = 97 * hash + Objects.hashCode(this.worst);
+            hash = 97 * hash + Objects.hashCode(this.bestSoFar);
+            hash = 97 * hash + (int) (this.bsfIndividualID ^ (this.bsfIndividualID >>> 32));
             return hash;
         }
         // </editor-fold>

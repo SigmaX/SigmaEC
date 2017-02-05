@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
@@ -14,7 +15,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ShekelObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class ShekelObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness> {
     final private static IDoublePoint[] optima = new IDoublePoint[] {
         new IDoublePoint(-32, -32),
         new IDoublePoint(-32, -16),
@@ -60,14 +61,14 @@ public class ShekelObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     public int getNumDimensions() { return 2; }
 
     @Override
-    public double fitness(final DoubleVectorIndividual ind)
+    public ScalarFitness fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == 2);
         double sum = 0.002;
         for (int i = 0; i < optima.length; i++)
             sum += 1/(i + Math.pow(ind.getElement(0) - optima[i].x, 2) + Math.pow(ind.getElement(1) - optima[i].y, 2));
         assert(repOK());
-        return sum;
+        return new ScalarFitness(sum);
     }
 
     @Override

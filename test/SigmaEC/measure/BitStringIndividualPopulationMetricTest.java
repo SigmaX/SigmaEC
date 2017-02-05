@@ -1,8 +1,9 @@
 package SigmaEC.measure;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.linear.BitStringIndividual;
-import SigmaEC.select.FitnessComparator;
+import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.test.TestInitializer;
 import SigmaEC.util.Parameters;
 import java.util.Properties;
@@ -26,18 +27,18 @@ public class BitStringIndividualPopulationMetricTest {
         parameters = new Parameters.Builder(new Properties())
                 .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BEST_ONLY), "true")
                 .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BITS), "5")
-                .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_FITNESS_COMPARATOR), "SigmaEC.select.FitnessComparator");
+                .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_FITNESS_COMPARATOR), "SigmaEC.select.ScalarFitnessComparator");
     }
 
     // <editor-fold defaultstate="collapsed" desc="Constructor">
     @Test
     public void testConstructor1() {
         System.out.println("constructor");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         assertTrue(sut.bestOnly());
         assertEquals(5, sut.numBits());
         assertTrue(sut.getFitnessComparator().isDefined());
-        final FitnessComparator comparator = new FitnessComparator(parameters.build(), Parameters.push(BASE, BitStringIndividualPopulationMetric.P_FITNESS_COMPARATOR));
+        final ScalarFitnessComparator comparator = new ScalarFitnessComparator(parameters.build(), Parameters.push(BASE, BitStringIndividualPopulationMetric.P_FITNESS_COMPARATOR));
         assertEquals(comparator, sut.getFitnessComparator().get());
         assertTrue(sut.repOK());
     }
@@ -45,7 +46,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testConstructor2() {
         System.out.println("constructor");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BEST_ONLY), "false")
                 .build(), BASE);
         assertFalse(sut.bestOnly());
@@ -57,7 +58,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test (expected = IllegalStateException.class)
     public void testConstructor3() {
         System.out.println("constructor");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .clearParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BEST_ONLY))
                 .build(), BASE);
     }
@@ -65,7 +66,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test (expected = IllegalStateException.class)
     public void testConstructor4() {
         System.out.println("constructor");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .clearParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BITS))
                 .build(), BASE);
     }
@@ -73,7 +74,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test (expected = IllegalStateException.class)
     public void testConstructor5() {
         System.out.println("constructor");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .clearParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_FITNESS_COMPARATOR))
                 .clearParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BEST_ONLY))
                 .build(), BASE);
@@ -82,7 +83,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test (expected = IllegalStateException.class)
     public void testConstructor6() {
         System.out.println("constructor");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .clearParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_FITNESS_COMPARATOR))
                 .build(), BASE);
     }
@@ -90,7 +91,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test (expected = IllegalStateException.class)
     public void testConstructor7() {
         System.out.println("constructor");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BITS), "-1")
                 .build(), BASE);
     }
@@ -100,8 +101,8 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testMeasurePopulation1() {
         System.out.println("measurePopulation");
-        final Population<BitStringIndividual> population = new Population<>(2, new TestInitializer(0));
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final Population<BitStringIndividual<ScalarFitness>, ScalarFitness> population = new Population<>(2, new TestInitializer(0));
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         final int run = 3;
         final int generation = 8;
         
@@ -119,8 +120,8 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testMeasurePopulation2() {
         System.out.println("measurePopulation");
-        final Population<BitStringIndividual> population = new Population<>(2, new TestInitializer(0));
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final Population<BitStringIndividual<ScalarFitness>, ScalarFitness> population = new Population<>(2, new TestInitializer(0));
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BEST_ONLY), "false")
                 .build(), BASE);
         final int run = 3;
@@ -164,7 +165,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testCsvHeader1() {
         System.out.println("csvHeader");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         String expResult = "run, generation, subpopulation, individualID, fitness, V0, V1, V2, V3, V4";
         String result = sut.csvHeader();
         assertEquals(expResult, result);
@@ -175,7 +176,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testCsvHeader2() {
         System.out.println("csvHeader");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BITS), "1")
                 .build(), BASE);
         String expResult = "run, generation, subpopulation, individualID, fitness, V0";
@@ -188,7 +189,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testReset() {
         System.out.println("reset");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         sut.reset();
         assertTrue(sut.repOK());
     }
@@ -197,7 +198,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testFlush() {
         System.out.println("flush");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         sut.flush();
         assertTrue(sut.repOK());
     }
@@ -206,7 +207,7 @@ public class BitStringIndividualPopulationMetricTest {
     @Test
     public void testClose() {
         System.out.println("close");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         sut.close();
         assertTrue(sut.repOK());
     }
@@ -216,15 +217,15 @@ public class BitStringIndividualPopulationMetricTest {
     public void testEquals() {
         System.out.println("equals");
         
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut1 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut2 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut1 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut2 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         parameters = parameters.setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BITS), "6");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut3 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut4 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut3 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut4 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         parameters = parameters.setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BEST_ONLY), "false");
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut5 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut5 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         parameters = parameters.clearParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_FITNESS_COMPARATOR));
-        final BitStringIndividualPopulationMetric<BitStringIndividual> sut6 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
+        final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut6 = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
         
         assertEquals(sut1, sut1);
         assertEquals(sut2, sut2);

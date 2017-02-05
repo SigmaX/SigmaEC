@@ -1,6 +1,7 @@
 package SigmaEC.measure;
 
 import SigmaEC.ContractObject;
+import SigmaEC.meta.Fitness;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 
@@ -13,7 +14,7 @@ import SigmaEC.represent.Individual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public abstract class PopulationMetric<T extends Individual> extends ContractObject
+public abstract class PopulationMetric<T extends Individual<F>, F extends Fitness> extends ContractObject
 {
     /** Gathers some information about a population, and possibly also does
      * something with that information (such as write it to a file).
@@ -26,7 +27,7 @@ public abstract class PopulationMetric<T extends Individual> extends ContractObj
      * @param step The generation the sample is coming from
      * @return A Measurement is returned.
      */
-    public abstract Measurement measurePopulation(int run, int step, Population<T> population);
+    public abstract Measurement measurePopulation(int run, int step, Population<T, F> population);
     
     /** Notifies this PopulationMetric that the population has advanced to the next step.
      * This must be called at every step (or else an exception is thrown), and
@@ -36,7 +37,7 @@ public abstract class PopulationMetric<T extends Individual> extends ContractObj
      * @param step The current step the EA is on
      * @param population The population at the current step
      */
-    public abstract void ping(int step, Population<T> population);
+    public abstract void ping(int step, Population<T, F> population);
     
     /** Returns a comma-separated list of attribute names that this metric takes measurements of. */
     public abstract String csvHeader();

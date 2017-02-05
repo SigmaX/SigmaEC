@@ -1,5 +1,6 @@
 package SigmaEC.test;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Option;
 import java.util.Arrays;
@@ -10,12 +11,12 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TestVectorIndividual extends Individual
+public class TestVectorIndividual extends Individual<ScalarFitness>
 {
     private final long id;
     private static long nextId = 0;
     private final double[] vector;
-    private final Option<Double> fitness;
+    private final Option<ScalarFitness> fitness;
     
     public TestVectorIndividual(final double[] vector)
     {
@@ -24,11 +25,11 @@ public class TestVectorIndividual extends Individual
         fitness = Option.NONE;
     }
     
-    private TestVectorIndividual(final TestVectorIndividual ref, final double fitness) {
+    private TestVectorIndividual(final TestVectorIndividual ref, final ScalarFitness fitness) {
         assert(ref != null);
         vector = Arrays.copyOf(ref.vector, ref.vector.length);
         id = ref.id;
-        this.fitness = new Option<Double>(fitness);
+        this.fitness = new Option<>(fitness);
     }
 
     public double[] getVector() {
@@ -57,7 +58,7 @@ public class TestVectorIndividual extends Individual
     public long getID() { return id; }
 
     @Override
-    public double getFitness() {
+    public ScalarFitness getFitness() {
         if (fitness.isDefined())
             return fitness.get();
         else
@@ -65,7 +66,7 @@ public class TestVectorIndividual extends Individual
     }
 
     @Override
-    public TestVectorIndividual setFitness(double fitness) {
+    public TestVectorIndividual setFitness(final ScalarFitness fitness) {
         return new TestVectorIndividual(this, fitness);
     }
 
@@ -75,12 +76,12 @@ public class TestVectorIndividual extends Individual
     }
 
     @Override
-    public Option<List<Individual>> getParents() {
+    public Option<List<Individual<ScalarFitness>>> getParents() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Individual setParents(List<? extends Individual> parents) {
+    public Individual<ScalarFitness> setParents(List<? extends Individual<ScalarFitness>> parents) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

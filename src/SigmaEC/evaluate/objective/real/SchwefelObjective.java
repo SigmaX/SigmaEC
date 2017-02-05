@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
@@ -8,7 +9,7 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric 'Siggy' Scott
  */
-public class SchwefelObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class SchwefelObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness> {
     private final static String P_NUM_DIMENSIONS = "numDimensions";
 
     private final int numDimensions;
@@ -23,12 +24,12 @@ public class SchwefelObjective extends ObjectiveFunction<DoubleVectorIndividual>
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
         double sum = 418.9829*numDimensions;
         for (final double x : ind.getGenomeArray())
             sum -= x * Math.sin(Math.sqrt(Math.abs(x)));
-        return sum;
+        return new ScalarFitness(sum);
     }
 
     @Override

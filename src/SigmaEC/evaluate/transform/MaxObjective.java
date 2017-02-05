@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -12,9 +13,9 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T, ScalarFitness> {
     private final static String P_OBJECTIVES = "objectives";
-    private final List<ObjectiveFunction<T>> objectives;
+    private final List<ObjectiveFunction<T, ScalarFitness>> objectives;
 
     @Override
     public int getNumDimensions() {
@@ -36,7 +37,7 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
         assert(repOK());
     }
     
-    public MaxObjective(final List<ObjectiveFunction<T>> objectives) {
+    public MaxObjective(final List<ObjectiveFunction<T, ScalarFitness>> objectives) {
         if (objectives == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null.");
         if (objectives.isEmpty())
@@ -50,12 +51,12 @@ public class MaxObjective<T extends DoubleVectorIndividual> extends ObjectiveFun
     }
     
     @Override
-    public double fitness(final T ind) {
+    public ScalarFitness fitness(final T ind) {
         double max = Double.NEGATIVE_INFINITY;
-        for (ObjectiveFunction<? super T> obj : objectives)
-            max = Math.max(max, obj.fitness(ind));
+        for (ObjectiveFunction<? super T, ScalarFitness> obj : objectives)
+            max = Math.max(max, obj.fitness(ind).asScalar());
         assert(repOK());
-        return max;
+        return new ScalarFitness(max);
     }
 
     @Override

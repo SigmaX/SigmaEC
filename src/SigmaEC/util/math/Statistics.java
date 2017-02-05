@@ -1,8 +1,10 @@
 package SigmaEC.util.math;
 
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.distance.DistanceMeasure;
-import SigmaEC.select.FitnessComparator;
+import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.util.Misc;
 import java.util.List;
 
@@ -64,8 +66,8 @@ public final class Statistics
         return maxIndex;
     }
     
-    /** Return the best individual according to some FitnessComparator. */
-    public static <T extends Individual> T best(final List<T> values, final FitnessComparator<T> comparator) {
+    /** Return the best individual according to some ScalarFitnessComparator. */
+    public static <T extends Individual, F extends Fitness> T best(final List<T> values, final FitnessComparator<T, F> comparator) {
         assert(values != null);
         assert(comparator != null);
         if (values.isEmpty()) return null;
@@ -77,8 +79,8 @@ public final class Statistics
         return best;
     }
     
-    /** Return the index of the best individual according to some FitnessComparator. */
-    public static <T extends Individual> int bestIndex(final List<T> values, final FitnessComparator<T> comparator) {
+    /** Return the index of the best individual according to some ScalarFitnessComparator. */
+    public static <T extends Individual<F>, F extends Fitness> int bestIndex(final List<T> values, final FitnessComparator<T, F> comparator) {
         assert(values != null);
         assert(comparator != null);
         if (values.isEmpty()) return -1;
@@ -94,8 +96,8 @@ public final class Statistics
         return bestIndex;
     }
     
-    /** Return the worst individual according to some FitnessComparator. */
-    public static <T extends Individual> T worst(final List<T> values, final FitnessComparator<T> comparator) {
+    /** Return the worst individual according to some ScalarFitnessComparator. */
+    public static <T extends Individual<F>, F extends Fitness> T worst(final List<T> values, final FitnessComparator<T, F> comparator) {
         assert(values != null);
         assert(comparator != null);
         if (values.isEmpty()) return null;

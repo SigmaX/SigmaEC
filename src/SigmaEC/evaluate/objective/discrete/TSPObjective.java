@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.discrete;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.IntVectorIndividual;
 import SigmaEC.util.Misc;
@@ -10,7 +11,7 @@ import java.util.Arrays;
  *
  * @author Eric O. Scott
  */
-public class TSPObjective extends ObjectiveFunction<IntVectorIndividual> {
+public class TSPObjective extends ObjectiveFunction<IntVectorIndividual, ScalarFitness> {
     public final static String P_NODE_X_COORDINATES = "nodeXCoordinates";
     public final static String P_NODE_Y_COORDINATES = "nodeYCoordinates";
     private final double[] nodeXCoordinates;
@@ -39,7 +40,7 @@ public class TSPObjective extends ObjectiveFunction<IntVectorIndividual> {
     }
     
     @Override
-    public double fitness(final IntVectorIndividual ind) {
+    public ScalarFitness fitness(final IntVectorIndividual ind) {
         assert(ind != null);
         assert(ind.size() == getNodeCount());
         final int[] tour = ind.getGenomeArray();
@@ -53,7 +54,7 @@ public class TSPObjective extends ObjectiveFunction<IntVectorIndividual> {
         final double x_delta = Math.abs(nodeXCoordinates[tour[0]] - nodeXCoordinates[tour[getNodeCount() - 1]]);
         final double y_delta = Math.abs(nodeYCoordinates[tour[0]] - nodeYCoordinates[tour[getNodeCount() - 1]]);
         length += Math.sqrt(x_delta * x_delta + y_delta * y_delta);
-        return length;
+        return new ScalarFitness(length);
     }
 
     @Override

@@ -1,11 +1,12 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.CloneDecoder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.format.GenomeFormatter;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
@@ -18,14 +19,14 @@ import java.util.logging.Logger;
  *
  * @author Eric O. Scott
  */
-public class FormattedPopulationMetric<T extends Individual, P extends Individual> extends PopulationMetric<T> {
+public class FormattedPopulationMetric<T extends Individual<F>, P extends Individual, F extends Fitness> extends PopulationMetric<T, F> {
     public final static String P_DECODER = "decoder";
     public final static String P_BEST_ONLY = "bestOnly";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     public final static String P_FORMATTER = "formatter";
     
     private final Decoder<T, P> decoder;
-    private final Option<FitnessComparator<T>> fitnessComparator;
+    private final Option<FitnessComparator<T, F>> fitnessComparator;
     private final GenomeFormatter<P> formatter;
     
     public FormattedPopulationMetric(final Parameters parameters, final String base) {
@@ -34,7 +35,7 @@ public class FormattedPopulationMetric<T extends Individual, P extends Individua
         
         decoder = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_DECODER), new CloneDecoder(parameters, base), Decoder.class);
         final boolean bestOnly = parameters.getBooleanParameter(Parameters.push(base, P_BEST_ONLY));
-        final Option<FitnessComparator<T>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
+        final Option<FitnessComparator<T, F>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
         if (!bestOnly && fitnessComparatorOpt.isDefined())
             Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING, String.format("ignoring '%s' because '%s' is false.", P_FITNESS_COMPARATOR, P_BEST_ONLY));
         if (bestOnly && !fitnessComparatorOpt.isDefined())
@@ -45,7 +46,7 @@ public class FormattedPopulationMetric<T extends Individual, P extends Individua
     }
 
     @Override
-    public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
@@ -66,7 +67,7 @@ public class FormattedPopulationMetric<T extends Individual, P extends Individua
     }
 
     @Override
-    public void ping(int step, Population<T> population) {
+    public void ping(int step, Population<T, F> population) {
         // Do nothing
     }
 

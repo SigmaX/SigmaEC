@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.meta.Operator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
@@ -14,10 +15,10 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class MeasurementOperator<T extends Individual> extends Operator<T> {
+public class MeasurementOperator<T extends Individual<F>, F extends Fitness> extends Operator<T> {
     public final static String P_METRIC = "metric";
     
-    private final PopulationMetric<T> metric;
+    private final PopulationMetric<T, F> metric;
 
     public MeasurementOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -28,7 +29,7 @@ public class MeasurementOperator<T extends Individual> extends Operator<T> {
     
     @Override
     public List<T> operate(final int run, final int generation, final List<T> subpopulation) {
-        final Population<T> pop = new Population<T>(new List[] { subpopulation });
+        final Population<T, F> pop = new Population<T, F>(new List[] { subpopulation });
         metric.measurePopulation(run, generation, pop);
         assert(repOK());
         return subpopulation;

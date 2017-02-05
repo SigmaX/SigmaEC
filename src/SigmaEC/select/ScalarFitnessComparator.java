@@ -1,19 +1,18 @@
 package SigmaEC.select;
 
-import SigmaEC.ContractObject;
+import SigmaEC.evaluate.ScalarFitness;
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
-import java.util.Comparator;
 
 /**
- * A Comparator that encodes whether we are minimizing or maximizing.
- * Typically you want one Comparator object per EA, to be used everywhere
- * fitnesses need to be compared.
+ * A Comparator that operates over scalar fitness values.
  * 
  * @author Eric 'Siggy' Scott
  */
-public class FitnessComparator<T extends Individual> extends ContractObject implements Comparator<T> {
+public class ScalarFitnessComparator<T extends Individual<F>, F extends Fitness> extends FitnessComparator<T, F> {
     final public static String P_MINIMIZE = "minimize";
     final public static boolean DEFAULT_MINIMIZE = false;
     final public static String P_DELTA = "delta";
@@ -29,7 +28,7 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
     public double getDoubleEqualityDelta() { return delta; }
     public boolean equalIsBetter() { return equalIsBetter; }
     
-    public FitnessComparator(final Parameters parameters, final String base) {
+    public ScalarFitnessComparator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         minimize = parameters.getOptionalBooleanParameter(Parameters.push(base, P_MINIMIZE), DEFAULT_MINIMIZE);
@@ -40,7 +39,7 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         assert(repOK());
     }
     
-    public FitnessComparator(final FitnessComparator ref, final boolean minimize) {
+    public ScalarFitnessComparator(final ScalarFitnessComparator ref, final boolean minimize) {
         assert(ref != null);
         this.minimize = minimize;
         delta = ref.delta;
@@ -48,8 +47,8 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         assert(repOK());
     }
     
-    public FitnessComparator<T> invert() {
-        return new FitnessComparator<>(this, !minimize);
+    public ScalarFitnessComparator<T, F> invert() {
+        return new ScalarFitnessComparator<>(this, !minimize);
     }
     
     @Override
@@ -57,18 +56,19 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
         assert(ind != null);
         if (ind1 == null)
             return 1; // Always better than null
-        final double t = ind.getFitness();
-        final double t1 = ind1.getFitness();
-        if (Double.isNaN(t1))
+        final F t = ind.getFitness();
+        final F t1 = ind1.getFitness();
+        if (Double.isNaN(t1.asScalar()))
             return 1; // Always better than NaN.
-        if (Misc.doubleEquals(t, t1, delta))
+        if (Misc.doubleEquals(t.asScalar(), t1.asScalar(), delta))
             return 0;
-        if (t < t1)
+        if (t.asScalar() < t1.asScalar())
             return (minimize ? 1 : -1);
         else
             return (minimize ? -1 : 1);
     }
     
+    @Override
     public boolean betterThan(final T ind, final T ind1) {
         assert(ind != null);
         if (ind1 == null)
@@ -92,9 +92,9 @@ public class FitnessComparator<T extends Individual> extends ContractObject impl
     
     @Override
     public boolean equals(final Object o) {
-        if (!(o instanceof FitnessComparator))
+        if (!(o instanceof ScalarFitnessComparator))
             return false;
-        final FitnessComparator ref = (FitnessComparator)o;
+        final ScalarFitnessComparator ref = (ScalarFitnessComparator)o;
         return minimize == ref.minimize
                 && equalIsBetter == ref.equalIsBetter
                 && Misc.doubleEquals(delta, ref.delta, 0.0000000000001);

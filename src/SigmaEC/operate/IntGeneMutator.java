@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  *
  * @author Eric O. Scott
  */
-public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
+public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> {
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
     public final static String P_CONSTRAINT = "constraint";
@@ -36,7 +36,7 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
     private final Random random;
     private final int[] maxes;
     private final int[] mins;
-    private final Option<Constraint<LinearGenomeIndividual<IntGene>>> constraint;
+    private final Option<Constraint<LinearGenomeIndividual<IntGene, ?>>> constraint;
     private final boolean stopOnConstraintViolation;
     
     public IntGeneMutator(final Parameters parameters, final String base) {
@@ -79,7 +79,7 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
         assert(repOK());
     }
 
-    public IntGeneMutator(final MutationRate mutationRate, final Random random, final int[] mins, final int[] maxes, final Option<Constraint<LinearGenomeIndividual<IntGene>>> constraint, final boolean stopOnConstraintViolation) {
+    public IntGeneMutator(final MutationRate mutationRate, final Random random, final int[] mins, final int[] maxes, final Option<Constraint<LinearGenomeIndividual<IntGene, ?>>> constraint, final boolean stopOnConstraintViolation) {
         assert(mutationRate != null);
         assert(random != null);
         assert(mins != null);
@@ -115,7 +115,7 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
      * @return The newly mutated individual.
      */
     @Override
-    public LinearGenomeIndividual<IntGene> mutate(final LinearGenomeIndividual<IntGene> ind, final int step) {
+    public LinearGenomeIndividual<IntGene, ?> mutate(final LinearGenomeIndividual<IntGene, ?> ind, final int step) {
         assert(ind != null);
         final List<IntGene> genome = ind.getGenome();
         final List<IntGene> newGenome = new ArrayList<IntGene>();
@@ -123,16 +123,16 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
             double roll = random.nextDouble();
             newGenome.add((roll < mutationRate.getRateForGene(i, step, ind)) ? mutate(genome.get(i), i, ind) : genome.get(i));
         }
-        final List<Individual> parents = ind.hasParents() ?
+        final List<? extends Individual> parents = ind.hasParents() ?
                 ind.getParents().get() :
                 new ArrayList<Individual>() {{ add(ind); }};
-        final LinearGenomeIndividual<IntGene> result = ind.create(newGenome, parents);
+        final LinearGenomeIndividual<IntGene, ?> result = ind.create(newGenome, parents);
         assert(repOK());
         assert(!(constraint.isDefined() && constraint.get().isViolated(result)));
         return result;
     }
     
-    private IntGene mutate(final IntGene gene, int i, final LinearGenomeIndividual<IntGene> ind) {
+    private IntGene mutate(final IntGene gene, int i, final LinearGenomeIndividual<IntGene, ?> ind) {
         assert(gene != null);
         assert(i >= 0);
         assert(i < maxes.length);
@@ -154,7 +154,7 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene>> {
         return gene; // Give up
     }
     
-    private LinearGenomeIndividual<IntGene> buildIndividualWithGene(final LinearGenomeIndividual<IntGene> ind, IntGene gene, final int i) {
+    private LinearGenomeIndividual<IntGene, ?> buildIndividualWithGene(final LinearGenomeIndividual<IntGene, ?> ind, IntGene gene, final int i) {
         assert(ind != null);
         assert(gene != null);
         assert(i >= 0);

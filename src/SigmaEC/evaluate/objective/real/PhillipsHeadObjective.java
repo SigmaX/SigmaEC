@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -13,7 +14,7 @@ import SigmaEC.util.Parameters;
  * @author Jeff Bassett
  * @author Eric 'Siggy' Scott
  */
-public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness> {
     private final static String P_NUM_DIMENSIONS = "numDimensions";
     private final static String P_SHORT_AXIS = "shortAxis";
     private final static String P_LONG_AXIS = "longAxis";
@@ -65,7 +66,7 @@ public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndivid
      * where s = shortAxisFactor and l = longAxisFactor.
      */
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == numDimensions);
 
         double result = 0;
@@ -86,7 +87,7 @@ public class PhillipsHeadObjective extends ObjectiveFunction<DoubleVectorIndivid
         }
 
         assert(repOK());
-        return result;
+        return new ScalarFitness(result);
     }
 
     @Override

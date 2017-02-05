@@ -13,12 +13,12 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObjective, DoubleVectorIndividual> {
+public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObjective> {
     public final static String P_TYPE = "transformationType";
     public final static String V_RANDOM = "randomOffset";
     public final static String P_PROTOTYPE = "prototype";
     
-    private final ObjectiveFunction<DoubleVectorIndividual> prototype;
+    private final ObjectiveFunction<DoubleVectorIndividual, ?> prototype;
     private final Strategy.TransformationStrategy strategy;
     
     public TransformedProblemClass(final Parameters parameters, final String base) {
@@ -34,7 +34,7 @@ public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObject
         assert(repOK());
     }
     
-    public TransformedProblemClass(final ObjectiveFunction<DoubleVectorIndividual> prototype, final Strategy.TransformationStrategy strategy) {
+    public TransformedProblemClass(final ObjectiveFunction<DoubleVectorIndividual, ?> prototype, final Strategy.TransformationStrategy strategy) {
         if (prototype == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": prototype was null.");
         this.prototype = prototype;
@@ -82,7 +82,7 @@ public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObject
     
     public static class Strategy {
         public static abstract class TransformationStrategy {
-            public abstract TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual> objective);
+            public abstract TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual, ?> objective);
             public abstract boolean repOK();
             @Override public abstract boolean equals(final Object o);
             @Override public abstract int hashCode();
@@ -105,7 +105,7 @@ public class TransformedProblemClass extends ProblemClass<TranslatedDoubleObject
                 assert(repOK());
             }
             
-            @Override public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual> objective) {
+            @Override public TranslatedDoubleObjective getNewInstance(final ObjectiveFunction<DoubleVectorIndividual, ?> objective) {
                 assert(objective != null);
                 assert(random != null);
                 final double[] offset = new double[objective.getNumDimensions()];

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
@@ -11,7 +12,7 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness> {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;
@@ -31,13 +32,13 @@ public class RosenbrockObjective extends ObjectiveFunction<DoubleVectorIndividua
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind)
+    public ScalarFitness fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;
         for(int i = 0; i < ind.size() - 1; i++)
             sum+= 100*Math.pow((ind.getElement(i+1) - Math.pow(ind.getElement(i), 2)), 2) + Math.pow((1 - ind.getElement(i)), 2);
-        return sum;
+        return new ScalarFitness(sum);
     }
 
     @Override

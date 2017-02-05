@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.discrete;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.BitGene;
 import SigmaEC.represent.linear.BitStringIndividual;
@@ -9,7 +10,7 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric O. Scott
  */
-public class LeadingOnesObjective extends ObjectiveFunction<BitStringIndividual>{
+public class LeadingOnesObjective extends ObjectiveFunction<BitStringIndividual<ScalarFitness>, ScalarFitness>{
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;
@@ -22,7 +23,7 @@ public class LeadingOnesObjective extends ObjectiveFunction<BitStringIndividual>
     }
     
     @Override
-    public double fitness(final BitStringIndividual ind) {
+    public ScalarFitness fitness(final BitStringIndividual<ScalarFitness> ind) {
         assert(ind != null);
         assert(ind.size() == numDimensions);
         int fitness = 0;
@@ -32,7 +33,7 @@ public class LeadingOnesObjective extends ObjectiveFunction<BitStringIndividual>
             else
                 break;
         }
-        return (double)fitness;
+        return new ScalarFitness(fitness);
     }
 
     @Override

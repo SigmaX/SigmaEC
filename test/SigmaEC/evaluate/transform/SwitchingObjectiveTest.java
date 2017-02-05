@@ -34,7 +34,7 @@ public class SwitchingObjectiveTest {
         final SwitchingObjective instance = new SwitchingObjective(builder.build(), BASE);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -46,7 +46,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(9);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -58,7 +58,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(10);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -70,7 +70,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(19);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -82,7 +82,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(20);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -94,7 +94,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(40);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
     // </editor-fold>
@@ -109,7 +109,7 @@ public class SwitchingObjectiveTest {
                 .build(), BASE);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -123,7 +123,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(9);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -137,7 +137,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(10);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -151,7 +151,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(19);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -165,7 +165,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(20);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -179,7 +179,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(29);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -193,7 +193,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(30);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -207,7 +207,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(39);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 10.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -221,7 +221,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(40);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -235,7 +235,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(49);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 20.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 
@@ -249,7 +249,7 @@ public class SwitchingObjectiveTest {
         instance.setStep(50);
         final Individual ind = new TestIndividual(0.0);
         double expResult = 30.0;
-        double result = instance.fitness(ind);
+        double result = instance.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0);
     }
 

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -12,9 +13,9 @@ import java.util.Objects;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class AdditiveObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+public class AdditiveObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_OBJECTIVES = "objectives";
-    private final List<ObjectiveFunction<T>> objectives;
+    private final List<ObjectiveFunction<T, ScalarFitness>> objectives;
     private final int numDimensions;
 
     @Override
@@ -36,7 +37,7 @@ public class AdditiveObjective<T extends DoubleVectorIndividual> extends Objecti
         assert(repOK());
     }
     
-    public AdditiveObjective(final List<ObjectiveFunction<T>> objectives) {
+    public AdditiveObjective(final List<ObjectiveFunction<T, ScalarFitness>> objectives) {
         this.objectives = objectives;
         if (objectives == null || objectives.isEmpty())
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objectives is null or empty.");
@@ -49,12 +50,12 @@ public class AdditiveObjective<T extends DoubleVectorIndividual> extends Objecti
     }
     
     @Override
-    public double fitness(final T ind) {
+    public ScalarFitness fitness(final T ind) {
         double sum = 0;
-        for (ObjectiveFunction<? super T> obj : objectives)
-            sum += obj.fitness(ind);
+        for (ObjectiveFunction<? super T, ScalarFitness> obj : objectives)
+            sum += obj.fitness(ind).asScalar();
         assert(repOK());
-        return sum;
+        return new ScalarFitness(sum);
     }
 
     @Override

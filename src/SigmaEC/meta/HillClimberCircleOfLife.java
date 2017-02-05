@@ -4,7 +4,7 @@ import SigmaEC.evaluate.EvaluationOperator;
 import SigmaEC.operate.MutatingOperator;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
-import SigmaEC.select.FitnessComparator;
+import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -13,7 +13,7 @@ import java.util.Objects;
  *
  * @author Eric O. Scott
  */
-public class HillClimberCircleOfLife<T extends Individual, P> extends CircleOfLife<T>  {
+public class HillClimberCircleOfLife<T extends Individual<F>, P, F extends Fitness> extends CircleOfLife<T, F>  {
     public final static String P_MUTATION_OPERATOR = "mutationOperator";
     public final static String P_EVALUATOR = "evaluator";
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
@@ -21,10 +21,10 @@ public class HillClimberCircleOfLife<T extends Individual, P> extends CircleOfLi
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     
     private final MutatingOperator<T> mutationOperator;
-    private final EvaluationOperator<T, ?> evaluator;
+    private final EvaluationOperator<T, P, F> evaluator;
     private final Initializer<T> initializer;
-    private final StoppingCondition<T> stoppingCondition;
-    private final FitnessComparator<T> fitnessComparator;
+    private final StoppingCondition<T, F> stoppingCondition;
+    private final FitnessComparator<T, F> fitnessComparator;
     
     public HillClimberCircleOfLife(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -33,12 +33,12 @@ public class HillClimberCircleOfLife<T extends Individual, P> extends CircleOfLi
         stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
         evaluator = parameters.getInstanceFromParameter(Parameters.push(base, P_EVALUATOR), EvaluationOperator.class); 
         initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
-        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), ScalarFitnessComparator.class);
         assert(repOK());
     }
 
     @Override
-    public EvolutionResult<T> evolve(final int run) {
+    public EvolutionResult<T, F> evolve(final int run) {
         assert(run >= 0);
         T individual = evaluator.evaluate(initializer.generateIndividual());
         stoppingCondition.reset();

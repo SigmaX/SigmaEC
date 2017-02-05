@@ -36,7 +36,7 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
     private final Option<int[]> maxes;
     private final Option<int[]> mins;
     private final Random random;
-    private final Option<Constraint<LinearGenomeIndividual<IntGene>>> constraint;
+    private final Option<Constraint<LinearGenomeIndividual<IntGene, ?>>> constraint;
     private final boolean stopOnConstraintViolation;
 
     public IntVectorInitializer(final Parameters parameters, final String base) {
@@ -67,7 +67,7 @@ public class IntVectorInitializer extends Initializer<IntVectorIndividual> {
         assert(repOK());
     }
     
-    public IntVectorInitializer(final int populationSize, final int numDimensions, final int[] mins, final int[] maxes, final Random random, final Option<Constraint<LinearGenomeIndividual<IntGene>>> constraint, final boolean stopOnConstraintViolation) {
+    public IntVectorInitializer(final int populationSize, final int numDimensions, final int[] mins, final int[] maxes, final Random random, final Option<Constraint<LinearGenomeIndividual<IntGene, ?>>> constraint, final boolean stopOnConstraintViolation) {
         assert(populationSize > 0);
         assert(numDimensions > 0);
         assert(mins != null);

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
@@ -20,7 +21,7 @@ public class BoundedDoubleObjectiveTest
     private BoundedDoubleObjective SUT;
     private final int numDimensions = 3;
     private final double singleBound = 5;
-    private final ObjectiveFunction<DoubleVectorIndividual> objective = new TestVectorObjective();
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective = new TestVectorObjective();
     private final IDoublePoint[] bounds = new IDoublePoint[] {
         new IDoublePoint(-3, 3),
         new IDoublePoint(-8, 4),
@@ -115,7 +116,7 @@ public class BoundedDoubleObjectiveTest
         final TestVectorIndividual gInd3 = new TestVectorIndividual(new double[] {3.0, 4.0, 17.0});
         final TestVectorIndividual gInd4 = new TestVectorIndividual(new double[] {-2.6, 3.1, 8.8});
             
-            // Points *outside* the bounds
+        // Points *outside* the bounds
         final TestVectorIndividual bInd1 = new TestVectorIndividual(new double[] {0, 0, 0});
         final TestVectorIndividual bInd2 = new TestVectorIndividual(new double[] {-3.1, 0, 3.3});
         final TestVectorIndividual bInd3 = new TestVectorIndividual(new double[] {3.1, 0, 5.0});
@@ -123,15 +124,15 @@ public class BoundedDoubleObjectiveTest
         
         final Decoder<TestVectorIndividual, DoubleVectorIndividual> d = new TestVectorDecoder();
         
-        assertEquals(5.0, SUT.fitness(d.decode(gInd1)), 0);
-        assertEquals(-7.7, SUT.fitness(d.decode(gInd2)), 0);
-        assertEquals(24.0, SUT.fitness(d.decode(gInd3)), 0);
-        assertEquals(9.3, SUT.fitness(d.decode(gInd4)), 0);
+        assertEquals(5.0, SUT.fitness(d.decode(gInd1)).asScalar(), 0);
+        assertEquals(-7.7, SUT.fitness(d.decode(gInd2)).asScalar(), 0);
+        assertEquals(24.0, SUT.fitness(d.decode(gInd3)).asScalar(), 0);
+        assertEquals(9.3, SUT.fitness(d.decode(gInd4)).asScalar(), 0);
         
-        assertEquals(-1.0, SUT.fitness(d.decode(bInd1)), 0);
-        assertEquals(-1.0, SUT.fitness(d.decode(bInd2)), 0);
-        assertEquals(-1.0, SUT.fitness(d.decode(bInd3)), 0);
-        assertEquals(-1.0, SUT.fitness(d.decode(bInd4)), 0);
+        assertEquals(-1.0, SUT.fitness(d.decode(bInd1)).asScalar(), 0);
+        assertEquals(-1.0, SUT.fitness(d.decode(bInd2)).asScalar(), 0);
+        assertEquals(-1.0, SUT.fitness(d.decode(bInd3)).asScalar(), 0);
+        assertEquals(-1.0, SUT.fitness(d.decode(bInd4)).asScalar(), 0);
         
         assertTrue(SUT.repOK());
     }

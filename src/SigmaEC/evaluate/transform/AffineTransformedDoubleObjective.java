@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -19,19 +20,19 @@ import java.util.Arrays;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> {
     public final static String P_ANGLES = "angles";
     public final static String P_SCALE = "scale";
     public final static String P_OBJECTIVE = "objective";
     
     private final double[][] transformationMatrix;
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective;
     private final int numDimensions;
     
     public AffineTransformedDoubleObjective(final Parameters parameters, final String base) {
         this(parameters.getDoubleArrayParameter(Parameters.push(base, P_ANGLES)),
                 parameters.getDoubleParameter(Parameters.push(base, P_SCALE)),
-                (ObjectiveFunction<DoubleVectorIndividual>) parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class));
+                (ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness>) parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class));
         assert(repOK());
     }
     
@@ -40,7 +41,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
      * @param scale The value by which the function will be scaled.
      * @param objective The original objective function.
      */
-    public AffineTransformedDoubleObjective(final double[] angles, final double scale, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException {
+    public AffineTransformedDoubleObjective(final double[] angles, final double scale, final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective) throws IllegalArgumentException {
         this(getTransformationMatrix(angles, scale, objective.getNumDimensions()), objective);
     }
     
@@ -49,7 +50,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
      * augmented matrix.
      * @param objective The original objective function.
      */
-    public AffineTransformedDoubleObjective(final double[][] transformationMatrix, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException {
+    public AffineTransformedDoubleObjective(final double[][] transformationMatrix, final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective) throws IllegalArgumentException {
         if (objective == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": objective is null.");
         if (transformationMatrix == null)
@@ -115,7 +116,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
         return numDimensions;
     }
     
-    public ObjectiveFunction<DoubleVectorIndividual> getWrappedObjective() {
+    public ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> getWrappedObjective() {
         return objective;
     }
     
@@ -136,7 +137,7 @@ public class AffineTransformedDoubleObjective extends ObjectiveFunction<DoubleVe
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         return objective.fitness(transform(ind));
     }
 

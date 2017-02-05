@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.evaluate.transform.MaxObjective;
 import SigmaEC.evaluate.transform.TranslatedDoubleObjective;
@@ -11,13 +12,13 @@ import java.util.ArrayList;
  *
  * @author Eric 'Siggy' Scott
  */
-public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_BASIN_STD = "basinStd";
     
     private final int numDimensions;
     private final double basinStd;
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective;
     
     public SimpleDeceptiveObjective(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -37,15 +38,15 @@ public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndi
         assert(repOK());
     }
 
-    private static ObjectiveFunction<DoubleVectorIndividual> initObjective(final int numDimensions, final double basinStd) throws IllegalArgumentException {
+    private static ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> initObjective(final int numDimensions, final double basinStd) throws IllegalArgumentException {
         final double optimumHeight = 1.0;
-        final ObjectiveFunction<DoubleVectorIndividual> basin, optimum, offsetOptimum;
+        final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> basin, optimum, offsetOptimum;
         basin = new GaussianObjective(numDimensions, optimumHeight/3, basinStd);
         optimum = new GaussianObjective(numDimensions, optimumHeight, basinStd/10.0);
         final double[] offset = new double[numDimensions];
         offset[0] = 2*basinStd;
         offsetOptimum = new TranslatedDoubleObjective(offset, optimum);
-        return new MaxObjective<DoubleVectorIndividual>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual>>() {{
+        return new MaxObjective<>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness>>() {{
             add(basin);
             add(offsetOptimum);
         }});
@@ -65,7 +66,7 @@ public class SimpleDeceptiveObjective extends ObjectiveFunction<DoubleVectorIndi
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         return objective.fitness(ind);
     }
 

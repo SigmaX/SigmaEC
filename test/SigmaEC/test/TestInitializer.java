@@ -1,5 +1,6 @@
 package SigmaEC.test;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Initializer;
 import SigmaEC.represent.linear.BitStringIndividual;
 import SigmaEC.util.Parameters;
@@ -39,18 +40,18 @@ public class TestInitializer extends Initializer<BitStringIndividual> {
         final List<BitStringIndividual> population = new ArrayList<>();
         switch (populationID) {
             case 0: // 12 random bitstrings of length 5
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, true, true, false, false }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, false, true, true }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, true, true, true, true }).setFitness(1.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { true, true, false, true, false }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, false, false }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { true, true, false, true, true }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { true, true, true, false, false }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, true, true, false, false }).setFitness(0.9).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, false, false }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { true, false, true, true, false }).setFitness(0.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, true, false }).setFitness(-1.0).build());
-                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, false, true }).setFitness(0.0).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, true, true, false, false }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, false, true, true }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, true, true, true, true }).setFitness(new ScalarFitness(1.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { true, true, false, true, false }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, false, false }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { true, true, false, true, true }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { true, true, true, false, false }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, true, true, false, false }).setFitness(new ScalarFitness(0.9)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, false, false }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { true, false, true, true, false }).setFitness(new ScalarFitness(0.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, true, false }).setFitness(new ScalarFitness(-1.0)).build());
+                population.add(new BitStringIndividual.Builder(new boolean[] { false, false, true, false, true }).setFitness(new ScalarFitness(0.0)).build());
                 break;
             case 1: // A single individual
                 population.add(new BitStringIndividual.Builder(new boolean[] { true, false, true, false, false }).build());

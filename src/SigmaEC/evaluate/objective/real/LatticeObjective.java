@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
@@ -17,7 +18,7 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LatticeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T>
+public class LatticeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T, ScalarFitness>
 {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_RIDGE_WIDTH = "ridgeWidth";
@@ -30,7 +31,7 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
     private final double meshWidth;
     private final double highFitness;
     private final IDoublePoint[] bounds;
-    private final ObjectiveFunction<T> objective;
+    private final ObjectiveFunction<T, ScalarFitness> objective;
     private final boolean useGradient;
 
     //<editor-fold defaultstate="collapsed" desc="Accessors">
@@ -92,9 +93,9 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
         assert(repOK());
     }
     
-    private ObjectiveFunction<T> constructLattice()
+    private ObjectiveFunction<T, ScalarFitness> constructLattice()
     {
-        final List<ObjectiveFunction<T>> subObjectives = new ArrayList<ObjectiveFunction<T>>();
+        final List<ObjectiveFunction<T, ScalarFitness>> subObjectives = new ArrayList<ObjectiveFunction<T, ScalarFitness>>();
         final Option<Double> gradientXIntercept = (useGradient ? new Option<Double>(meshWidth/2.0) : Option.NONE);
         
         double[] verticalSlopeVector = new double[numDimensions];
@@ -103,7 +104,7 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
         {
             double[] intercept = new double[numDimensions];
             intercept[1] = x;
-            ObjectiveFunction<T> verticalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, verticalSlopeVector, gradientXIntercept);
+            ObjectiveFunction<T, ScalarFitness> verticalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, verticalSlopeVector, gradientXIntercept);
             subObjectives.add(verticalLine);
         }
         
@@ -113,7 +114,7 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
         {
             double[] intercept = new double[numDimensions];
             intercept[0] = y;
-            ObjectiveFunction<T> horizontalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, horizontalSlopeVector, gradientXIntercept);
+            ObjectiveFunction<T, ScalarFitness> horizontalLine = new LinearRidgeObjective(numDimensions, ridgeWidth, highFitness, intercept, horizontalSlopeVector, gradientXIntercept);
             subObjectives.add(horizontalLine);
         }
         
@@ -122,7 +123,7 @@ public class LatticeObjective<T extends DoubleVectorIndividual> extends Objectiv
     }
     
     @Override
-    public double fitness(T ind)
+    public ScalarFitness fitness(T ind)
     {
         assert(ind != null);
         return objective.fitness(ind);

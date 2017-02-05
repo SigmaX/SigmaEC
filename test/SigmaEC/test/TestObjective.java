@@ -1,5 +1,6 @@
 package SigmaEC.test;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Parameters;
 
@@ -9,12 +10,12 @@ import SigmaEC.util.Parameters;
  * 
  * @author Eric 'Siggy' Scott
  */ 
-public class TestObjective extends ObjectiveFunction<TestIndividual> {
+public class TestObjective extends ObjectiveFunction<TestIndividual, ScalarFitness> {
     
     public TestObjective(final Parameters parameters, final String base) { }
     
     @Override
-    public double fitness(final TestIndividual ind) { return ind.getTrait(); }
+    public ScalarFitness fitness(final TestIndividual ind) { return new ScalarFitness(ind.getTrait()); }
 
     @Override
     public boolean repOK() { return true; }

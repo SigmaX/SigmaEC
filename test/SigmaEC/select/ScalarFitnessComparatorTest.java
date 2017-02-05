@@ -1,5 +1,6 @@
 package SigmaEC.select;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.util.Parameters;
@@ -9,15 +10,15 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Unit tests for FitnessComparator.
+ * Unit tests for ScalarFitnessComparator.
  * 
  * @author Eric O. Scott
  */
-public class FitnessComparatorTest {
+public class ScalarFitnessComparatorTest {
     private final static String BASE = "base";
     private Parameters.Builder parameters;
     
-    public FitnessComparatorTest() { }
+    public ScalarFitnessComparatorTest() { }
     
     @Before
     public void setUp() {
@@ -28,45 +29,45 @@ public class FitnessComparatorTest {
     @Test
     public void testConstructor1() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters.build(), BASE);
-        assertEquals(FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
-        assertEquals(FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
-        assertEquals(FitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters.build(), BASE);
+        assertEquals(ScalarFitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
+        assertEquals(ScalarFitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
+        assertEquals(ScalarFitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
         assertTrue(sut.repOK());
     }
 
     @Test
     public void testConstructor2() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), Boolean.toString(!FitnessComparator.DEFAULT_EQUAL_IS_BETTER))
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), Boolean.toString(!ScalarFitnessComparator.DEFAULT_EQUAL_IS_BETTER))
                 .build(), BASE);
-        assertEquals(!FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
-        assertEquals(FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
-        assertEquals(FitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
+        assertEquals(!ScalarFitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
+        assertEquals(ScalarFitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
+        assertEquals(ScalarFitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
         assertTrue(sut.repOK());
     }
 
     @Test
     public void testConstructor3() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), Boolean.toString(!FitnessComparator.DEFAULT_MINIMIZE))
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), Boolean.toString(!ScalarFitnessComparator.DEFAULT_MINIMIZE))
                 .build(), BASE);
-        assertEquals(FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
-        assertEquals(!FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
-        assertEquals(FitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
+        assertEquals(ScalarFitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
+        assertEquals(!ScalarFitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
+        assertEquals(ScalarFitnessComparator.DEFAULT_DELTA, sut.getDoubleEqualityDelta(), 0.0000000000001);
         assertTrue(sut.repOK());
     }
 
     @Test
     public void testConstructor4() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.1")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.1")
                 .build(), BASE);
-        assertEquals(FitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
-        assertEquals(FitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
+        assertEquals(ScalarFitnessComparator.DEFAULT_EQUAL_IS_BETTER, sut.equalIsBetter());
+        assertEquals(ScalarFitnessComparator.DEFAULT_MINIMIZE, sut.minimize());
         assertEquals(0.1, sut.getDoubleEqualityDelta(), 0.0000000000001);
         assertTrue(sut.repOK());
     }
@@ -74,64 +75,64 @@ public class FitnessComparatorTest {
     @Test(expected = IllegalStateException.class)
     public void testConstructor5() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "-0.1")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "-0.1")
                 .build(), BASE);
     }
     
     @Test(expected = IllegalStateException.class)
     public void testConstructor6() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "NaN")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "NaN")
                 .build(), BASE);
     }
     
     @Test(expected = IllegalStateException.class)
     public void testConstructor7() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "-Infinity")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "-Infinity")
                 .build(), BASE);
     }
     
     @Test(expected = IllegalStateException.class)
     public void testConstructor8() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "Infinity")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "Infinity")
                 .build(), BASE);
     }
     
     @Test(expected = IllegalStateException.class)
     public void testConstructor9() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "Hello")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "Hello")
                 .build(), BASE);
     }
     
     @Test(expected = IllegalStateException.class)
     public void testConstructor10() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "Hello")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "Hello")
                 .build(), BASE);
     }
     
     @Test(expected = IllegalStateException.class)
     public void testConstructor11() {
         System.out.println("constructor");
-        final FitnessComparator sut = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "Hello")
+        final ScalarFitnessComparator sut = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "Hello")
                 .build(), BASE);
     }
     
     @Test
     public void testCopyConstructor1() {
         System.out.println("copy constructor");
-        final FitnessComparator ref = new FitnessComparator(parameters.build(), BASE);
-        final FitnessComparator copy = new FitnessComparator(ref, ref.minimize());
+        final ScalarFitnessComparator ref = new ScalarFitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator copy = new ScalarFitnessComparator(ref, ref.minimize());
         assertEquals(ref, copy);
         assertTrue(ref.repOK());
         assertTrue(copy.repOK());
@@ -140,8 +141,8 @@ public class FitnessComparatorTest {
     @Test
     public void testCopyConstructor2() {
         System.out.println("copy constructor");
-        final FitnessComparator ref = new FitnessComparator(parameters.build(), BASE);
-        final FitnessComparator copy = new FitnessComparator(ref, !ref.minimize());
+        final ScalarFitnessComparator ref = new ScalarFitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator copy = new ScalarFitnessComparator(ref, !ref.minimize());
         assertNotEquals(ref, copy);
         assertEquals(!ref.minimize(), copy.minimize());
         assertTrue(ref.repOK());
@@ -150,13 +151,13 @@ public class FitnessComparatorTest {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Compare">
-    /** Test of compare method, of class FitnessComparator. */
+    /** Test of compare method, of class ScalarFitnessComparator. */
     @Test
     public void testCompare1() {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(2.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = -1;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -168,7 +169,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = -1;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -180,7 +181,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -192,7 +193,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(2.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -204,7 +205,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -216,7 +217,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = -1;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -228,7 +229,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = -1;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -240,7 +241,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.POSITIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -252,21 +253,21 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
         assertTrue(instance.repOK());
     }
     
-    /** Test of compare method, of class FitnessComparator. */
+    /** Test of compare method, of class ScalarFitnessComparator. */
     @Test
     public void testCompare10() {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(2.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
@@ -279,8 +280,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
@@ -293,8 +294,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = -1;
         int result = instance.compare(ind, ind1);
@@ -307,8 +308,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(2.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = -1;
         int result = instance.compare(ind, ind1);
@@ -321,8 +322,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -335,8 +336,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
@@ -349,8 +350,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
@@ -363,8 +364,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.POSITIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -377,8 +378,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -391,9 +392,9 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -406,9 +407,9 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.POSITIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -421,9 +422,9 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -436,8 +437,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -450,8 +451,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.POSITIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -464,8 +465,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 0;
         int result = instance.compare(ind, ind1);
@@ -478,8 +479,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NaN);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
@@ -492,8 +493,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NaN);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
@@ -506,9 +507,9 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NaN);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         int expResult = 1;
         int result = instance.compare(ind, ind1);
@@ -521,7 +522,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(0.9999999999999999);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         final int expResult = 0;
         final int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -533,7 +534,7 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(0.9999999999999999);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         final int expResult = 0;
         final int result = instance.compare(ind, ind1);
         assertEquals(expResult, result);
@@ -545,8 +546,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.1);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         final int expResult = 0;
         final int result = instance.compare(ind, ind1);
@@ -559,8 +560,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.49);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         final int expResult = 0;
         final int result = instance.compare(ind, ind1);
@@ -573,8 +574,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.5);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         final int expResult = -1;
         final int result = instance.compare(ind, ind1);
@@ -587,8 +588,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1);
         final TestIndividual ind1 = new TestIndividual(0.5);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         final int expResult = 1;
         final int result = instance.compare(ind, ind1);
@@ -601,8 +602,8 @@ public class FitnessComparatorTest {
         System.out.println("compare");
         final TestIndividual ind = new TestIndividual(1);
         final TestIndividual ind1 = new TestIndividual(0.51);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         final int expResult = 0;
         final int result = instance.compare(ind, ind1);
@@ -613,13 +614,13 @@ public class FitnessComparatorTest {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BetterThan">
-    /** Test of betterThan method, of class FitnessComparator. */
+    /** Test of betterThan method, of class ScalarFitnessComparator. */
     @Test
     public void testBetterThan1() {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(2.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
         assertTrue(instance.betterThan(ind1, ind));
@@ -631,8 +632,8 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(2.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertTrue(result);
@@ -645,9 +646,9 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(2.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertTrue(result);
@@ -660,7 +661,7 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
         assertFalse(instance.betterThan(ind1, ind));
@@ -672,8 +673,8 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertTrue(result);
@@ -685,7 +686,7 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
         assertTrue(instance.betterThan(ind1, ind));
@@ -697,7 +698,7 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertTrue(result);
         assertFalse(instance.betterThan(ind1, ind));
@@ -709,7 +710,7 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(Double.POSITIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
         assertFalse(instance.betterThan(ind1, ind));
@@ -721,8 +722,8 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(Double.POSITIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.POSITIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertTrue(result);
@@ -735,7 +736,7 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters.build(), BASE);
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters.build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
         assertFalse(instance.betterThan(ind1, ind));
@@ -747,8 +748,8 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(Double.NEGATIVE_INFINITY);
         final TestIndividual ind1 = new TestIndividual(Double.NEGATIVE_INFINITY);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertTrue(result);
@@ -761,9 +762,9 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.3);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertTrue(result);
@@ -776,8 +777,8 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.3);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
@@ -790,9 +791,9 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.5);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
@@ -805,8 +806,8 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(1.0);
         final TestIndividual ind1 = new TestIndividual(1.5);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
@@ -819,9 +820,9 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(0.5);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
@@ -834,8 +835,8 @@ public class FitnessComparatorTest {
         System.out.println("betterThan");
         final TestIndividual ind = new TestIndividual(0.5);
         final TestIndividual ind1 = new TestIndividual(1.0);
-        final FitnessComparator<TestIndividual> instance = new FitnessComparator<>(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.5")
+        final ScalarFitnessComparator<TestIndividual, ScalarFitness> instance = new ScalarFitnessComparator<>(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.5")
                 .build(), BASE);
         boolean result = instance.betterThan(ind, ind1);
         assertFalse(result);
@@ -844,15 +845,15 @@ public class FitnessComparatorTest {
     }
     // </editor-fold>
     
-    /** Test of invert method, of class FitnessComparator. */
+    /** Test of invert method, of class ScalarFitnessComparator. */
     @Test
     public void testInvert() {
         System.out.println("invert");
-        final FitnessComparator instance = new FitnessComparator(parameters.build(), BASE);
-        final FitnessComparator expResult = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator instance = new ScalarFitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator expResult = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
-        final FitnessComparator inverted = instance.invert();
+        final ScalarFitnessComparator inverted = instance.invert();
         assertEquals(expResult, inverted);
         assertTrue(instance.repOK());
         assertTrue(inverted.repOK());
@@ -873,24 +874,24 @@ public class FitnessComparatorTest {
         assertEquals(instance.betterThan(ind2, ind3), !inverted.betterThan(ind2, ind3));
     }
 
-    /** Test of equals method, of class FitnessComparator. */
+    /** Test of equals method, of class ScalarFitnessComparator. */
     @Test
     public void testEquals() {
         System.out.println("equals");
-        final FitnessComparator a = new FitnessComparator(parameters.build(), BASE);
-        final FitnessComparator b = new FitnessComparator(parameters.build(), BASE);
-        final FitnessComparator c = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_MINIMIZE), "true")
+        final ScalarFitnessComparator a = new ScalarFitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator b = new ScalarFitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator c = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_MINIMIZE), "true")
                 .build(), BASE);
-        final FitnessComparator d = new FitnessComparator(parameters.build(), BASE);
-        final FitnessComparator e = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_EQUAL_IS_BETTER), "true")
+        final ScalarFitnessComparator d = new ScalarFitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator e = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_EQUAL_IS_BETTER), "true")
                 .build(), BASE);
-        final FitnessComparator f = new FitnessComparator(parameters.build(), BASE);
-        final FitnessComparator g = new FitnessComparator(parameters
-                .setParameter(Parameters.push(BASE, FitnessComparator.P_DELTA), "0.1")
+        final ScalarFitnessComparator f = new ScalarFitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator g = new ScalarFitnessComparator(parameters
+                .setParameter(Parameters.push(BASE, ScalarFitnessComparator.P_DELTA), "0.1")
                 .build(), BASE);
-        final FitnessComparator h = new FitnessComparator(parameters.build(), BASE);
+        final ScalarFitnessComparator h = new ScalarFitnessComparator(parameters.build(), BASE);
         
         assertEquals(a, a);
         assertEquals(b, b);

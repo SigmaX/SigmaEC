@@ -38,7 +38,7 @@ public class FitnessProportionateSelectionProbability<T extends Individual, P> e
         // Get fitnesses
         final double[] fitnesses = new double[population.size()];
         for (int i = 0; i < population.size(); i++)
-            fitnesses[i] = population.get(i).getFitness();
+            fitnesses[i] = population.get(i).getFitness().asScalar();
         
         final double[] p = new double[population.size()];
         double sum = 0;

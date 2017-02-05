@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -13,9 +14,9 @@ import java.util.Objects;
  * @author Eric 'Siggy' Scott
  * @author Jeff Bassett
  */
-public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_OBJECTIVES = "objectives";
-    private final List<ObjectiveFunction<T>> objectives;
+    private final List<ObjectiveFunction<T, ScalarFitness>> objectives;
     private final int numDimensions;
 
     @Override
@@ -38,12 +39,12 @@ public class MultiplicativeObjective<T extends DoubleVectorIndividual> extends O
     }
     
     @Override
-    public double fitness(final T ind) {
+    public ScalarFitness fitness(final T ind) {
         double product = 1.0;
-        for (ObjectiveFunction<? super T> obj : objectives)
-            product *= obj.fitness(ind);
+        for (ObjectiveFunction<? super T, ScalarFitness> obj : objectives)
+            product *= obj.fitness(ind).asScalar();
         assert(repOK());
-        return product;
+        return new ScalarFitness(product);
     }
 
 

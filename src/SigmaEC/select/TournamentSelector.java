@@ -1,5 +1,7 @@
 package SigmaEC.select;
 
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
@@ -11,13 +13,13 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TournamentSelector<T extends Individual, P> extends Selector<T> {
+public class TournamentSelector<T extends Individual<F>, P, F extends Fitness> extends Selector<T> {
     public final static String P_TOURNAMENT_SIZE = "tournamentSize";
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_RANDOM = "random";
     
     private final int tournamentSize;
-    private final FitnessComparator<T> fitnessComparator;
+    private final FitnessComparator<T, F> fitnessComparator;
     private final Random random;
     private final RandomSelector<T> contestantSelector;
     
@@ -37,7 +39,7 @@ public class TournamentSelector<T extends Individual, P> extends Selector<T> {
         assert(!population.isEmpty());
         
         final List<T> contestants = contestantSelector.selectMultipleIndividuals(population, tournamentSize);
-        final TruncationSelector<T, P> finalSelector = new TruncationSelector(fitnessComparator);
+        final TruncationSelector<T, P, F> finalSelector = new TruncationSelector(fitnessComparator);
         final T selectedIndividual = finalSelector.selectIndividual(contestants);
         
         assert(selectedIndividual != null);

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleGene;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
@@ -9,7 +10,7 @@ import SigmaEC.util.Parameters;
  *
  * @author Eric O. Scott
  */
-public class AckleyObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class AckleyObjective extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> {
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     
     private final int numDimensions;
@@ -23,7 +24,7 @@ public class AckleyObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual<ScalarFitness> ind) {
         assert(ind != null);
         assert(ind.size() == numDimensions);
         double sumA = 0;
@@ -33,7 +34,7 @@ public class AckleyObjective extends ObjectiveFunction<DoubleVectorIndividual> {
             sumB += Math.cos(2.0*Math.PI*x.value);
         }
         assert(repOK());
-        return -20*Math.exp(-0.2*Math.sqrt(sumA/ind.size())) - Math.exp(sumB/ind.size()) + 20 + Math.E;
+        return new ScalarFitness(-20*Math.exp(-0.2*Math.sqrt(sumA/ind.size())) - Math.exp(sumB/ind.size()) + 20 + Math.E);
     }
 
     @Override

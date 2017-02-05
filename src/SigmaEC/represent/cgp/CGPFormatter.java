@@ -116,7 +116,7 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
         return colors;
     }
     
-    private String getColorForNode(final String[] colors, final CartesianIndividual individual, final int layer, final int column) {
+    private String getColorForNode(final String[] colors, final CartesianIndividual<?> individual, final int layer, final int column) {
         assert(individual != null);
         assert(layer >= 0);
         assert(layer < individual.cgpParameters().numLayers());
@@ -134,7 +134,7 @@ public class CGPFormatter extends GenomeFormatter<CartesianIndividual> {
         return !onHighlightedPath ? getNonHighlightedColor() : colors[lowestPath + 1];
     }
     
-    private String getColorForInput(final String[] colors, final CartesianIndividual individual, final int input) {
+    private String getColorForInput(final String[] colors, final CartesianIndividual<?> individual, final int input) {
         assert(individual != null);
         assert(input >= 0);
         assert(input < individual.cgpParameters().numInputs());

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ConstantObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
@@ -21,7 +22,7 @@ public class AffineTransformedDoubleObjectiveTest {
     final private static double MIN_FITNESS = Double.NEGATIVE_INFINITY;
     final private static double SPIKE_WIDTH = 0.01;
     final private static String BASE = "base";
-    private ObjectiveFunction<DoubleVectorIndividual> wrappedObjective;
+    private ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> wrappedObjective;
     private AffineTransformedDoubleObjective sut;
     
     public AffineTransformedDoubleObjectiveTest() {
@@ -33,8 +34,8 @@ public class AffineTransformedDoubleObjectiveTest {
         sut = new AffineTransformedDoubleObjective(new double[] { 0.0, 0.0, 0.0 }, 1.0, wrappedObjective);
     }
     
-    private static ObjectiveFunction<DoubleVectorIndividual> spikeObjective(final double[] position, final double width) {
-        ObjectiveFunction<DoubleVectorIndividual> obj = new ConstantObjective<>(new Parameters.Builder(new Properties())
+    private static ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> spikeObjective(final double[] position, final double width) {
+        ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> obj = new ConstantObjective<>(new Parameters.Builder(new Properties())
                 .setParameter(Parameters.push(BASE, ConstantObjective.P_NUM_DIMENSIONS), String.valueOf(position.length))
                 .setParameter(Parameters.push(BASE, ConstantObjective.P_VALUE), String.valueOf(MAX_FITNESS)).build(), BASE);
         obj = new BoundedDoubleObjective(position.length, width, obj, MIN_FITNESS);
@@ -94,42 +95,42 @@ public class AffineTransformedDoubleObjectiveTest {
     public void testTransform() {
         System.out.println("transform");
         final AffineTransformedDoubleObjective sut2 = new AffineTransformedDoubleObjective(new double[] { 0.0, Math.PI/4, 0.0 }, 1.0, wrappedObjective);
-        assertEquals(MAX_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { -Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()), 0.000001);
+        assertEquals(MAX_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { -Math.sqrt(2.0)/2, 0.0, Math.sqrt(2.0)/2 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut2.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()).asScalar(), 0.000001);
         
         final AffineTransformedDoubleObjective sut3 = new AffineTransformedDoubleObjective(new double[] { 0.0, 0.0, Math.PI/3 }, 1.0, wrappedObjective);
-        assertEquals(MAX_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, Math.sqrt(3)/2, 0.5 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, -Math.sqrt(3)/2, 0.5 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()), 0.000001);
+        assertEquals(MAX_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, Math.sqrt(3)/2, 0.5 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, -Math.sqrt(3)/2, 0.5 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut3.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()).asScalar(), 0.000001);
         
         final AffineTransformedDoubleObjective sut4 = new AffineTransformedDoubleObjective(new double[] { Math.PI/2, Math.PI/2, Math.PI/2 }, 1.0, wrappedObjective);
-        assertEquals(MAX_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 0.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()), 0.000001);
+        assertEquals(MAX_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 0.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut4.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()).asScalar(), 0.000001);
     }
 
     /** Test of fitness method, of class AffineTransformedDoubleObjective. */
     @Test
     public void testFitness() {
         System.out.println("fitness");
-        assertEquals(MAX_FITNESS, wrappedObjective.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, wrappedObjective.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 2.0 }).build()), 0.000001);
+        assertEquals(MAX_FITNESS, wrappedObjective.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, wrappedObjective.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 2.0 }).build()).asScalar(), 0.000001);
         
-        assertEquals(MAX_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 2.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()), 0.000001);
-        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()), 0.000001);
+        assertEquals(MAX_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 1.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 0.0, 2.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 0.0, 1.0, 0.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 1.0, 0.0, 2.0 }).build()).asScalar(), 0.000001);
+        assertEquals(MIN_FITNESS, sut.fitness(new DoubleVectorIndividual.Builder(new double[] { 2.0, 2.0, 2.0 }).build()).asScalar(), 0.000001);
         
         assertTrue(sut.repOK());
     }

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -13,7 +14,7 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T> {
+public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_WIDTH = "width";
     public final static String P_HIGH_FITNESS = "highFitness";
     public final static String P_INTERCEPT_VECTOR = "interceptVector";
@@ -122,16 +123,16 @@ public class LinearRidgeObjective<T extends DoubleVectorIndividual> extends Obje
      * within distance this.width from the line, else returns 0.0.
      */
     @Override
-    public double fitness(T ind)
+    public ScalarFitness fitness(T ind)
     {
         assert(ind != null);
         final double distance = Vector.pointToLineEuclideanDistance(ind.getGenomeArray(), slopeVector, interceptVector);
         if (distance < width)
-            return highFitness;
+            return new ScalarFitness(highFitness);
         else if (gradientXIntercept.isDefined())
-            return Math.max(0.0, -highFitness/gradientXIntercept.get() * distance + highFitness);
+            return new ScalarFitness(Math.max(0.0, -highFitness/gradientXIntercept.get() * distance + highFitness));
         else
-            return 0;
+            return new ScalarFitness(0);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">

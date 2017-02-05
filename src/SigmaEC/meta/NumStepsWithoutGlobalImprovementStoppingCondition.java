@@ -1,19 +1,19 @@
 package SigmaEC.meta;
 
 import SigmaEC.represent.Individual;
-import SigmaEC.select.FitnessComparator;
+import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.util.Parameters;
 
 /**
  *
  * @author Eric O. Scott
  */
-public class NumStepsWithoutGlobalImprovementStoppingCondition<T extends Individual> extends StoppingCondition<T> {
+public class NumStepsWithoutGlobalImprovementStoppingCondition<T extends Individual<F>, F extends Fitness> extends StoppingCondition<T, F> {
     public final static String P_NUM_STEPS_WITHOUT_IMPROVEMENT = "numStepsWithoutImprovement";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     
     private final int numStepsAllowedWithoutImprovement;
-    private final FitnessComparator<T> fitnessComparator;
+    private final FitnessComparator<T, F> fitnessComparator;
     
     private T bestSoFar;
     private int stepsPassedSinceLastImprovement;
@@ -24,7 +24,7 @@ public class NumStepsWithoutGlobalImprovementStoppingCondition<T extends Individ
         numStepsAllowedWithoutImprovement = parameters.getIntParameter(Parameters.push(base, P_NUM_STEPS_WITHOUT_IMPROVEMENT));
         if (numStepsAllowedWithoutImprovement < 0)
             throw new IllegalStateException(String.format("%s: %s is negative, must be >= 0.", this.getClass().getSimpleName(), P_NUM_STEPS_WITHOUT_IMPROVEMENT));
-        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), ScalarFitnessComparator.class);
         reset();
         assert(repOK());
     }
@@ -36,7 +36,7 @@ public class NumStepsWithoutGlobalImprovementStoppingCondition<T extends Individ
     }
     
     @Override
-    public boolean stop(final Population<T> population, int step) {
+    public boolean stop(final Population<T, F> population, int step) {
         assert(step >= 0);
         final T bestOfGen = population.getBest(fitnessComparator);
         return stopInd(bestOfGen, step);

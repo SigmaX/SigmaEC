@@ -1,5 +1,6 @@
 package SigmaEC.select;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.util.Parameters;
@@ -19,7 +20,7 @@ public class TruncationSelectorTest {
     private final static String BASE = "base";
     
     private Parameters.Builder params;
-    private TruncationSelector<TestIndividual, Double> SUT;
+    private TruncationSelector<TestIndividual, Double, ScalarFitness> SUT;
     
     private final List<TestIndividual> population = new ArrayList<TestIndividual>(10);
     // The four highest fitness values in the population
@@ -54,8 +55,8 @@ public class TruncationSelectorTest {
     
     private static Parameters.Builder getParams() {
         return new Parameters.Builder(new Properties())
-                .setParameter(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
-                .setParameter(Parameters.push(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), FitnessComparator.P_MINIMIZE), "false");
+                .setParameter(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), "SigmaEC.select.ScalarFitnessComparator")
+                .setParameter(Parameters.push(Parameters.push(BASE, TruncationSelector.P_COMPARATOR), ScalarFitnessComparator.P_MINIMIZE), "false");
     }
 
     /** Test of selectIndividual method, of class TruncationSelector. */

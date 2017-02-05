@@ -1,5 +1,6 @@
 package SigmaEC.select;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.util.Parameters;
@@ -48,20 +49,20 @@ public class TournamentSelectorTest {
                 add(FIFTH);
         }};
     }
-    private static TournamentSelector<TestIndividual, Double> getInstance(final int tournamentSize) {
+    private static TournamentSelector<TestIndividual, Double, ScalarFitness> getInstance(final int tournamentSize) {
         final Parameters params = new Parameters.Builder(new Properties())
                 .setParameter(Parameters.push(BASE, TournamentSelector.P_RANDOM), "SigmaEC.SRandom")
                 .setParameter(Parameters.push(BASE, TournamentSelector.P_TOURNAMENT_SIZE), String.valueOf(tournamentSize))
-                .setParameter(Parameters.push(BASE, TournamentSelector.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
+                .setParameter(Parameters.push(BASE, TournamentSelector.P_COMPARATOR), "SigmaEC.select.ScalarFitnessComparator")
                 .build();
-        return new TournamentSelector<TestIndividual, Double>(params, BASE);
+        return new TournamentSelector<>(params, BASE);
     }
     
     // The expected behavior of tournament selection shouldmatch a ranking distribution -- so we compare against a RankingSelectionProbability.
     private static RankingSelectionProbability<TestIndividual, Double> getRanker(final int power) {
         final Parameters params = new Parameters.Builder(new Properties())
                 .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_POWER), String.valueOf(power))
-                .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_COMPARATOR), "SigmaEC.select.FitnessComparator")
+                .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_COMPARATOR), "SigmaEC.select.ScalarFitnessComparator")
                 .build();
         return new RankingSelectionProbability<TestIndividual, Double>(params, BASE);
     }
@@ -94,7 +95,7 @@ public class TournamentSelectorTest {
     @Test
     public void testSelectMultipleIndividualIndices() {
         System.out.println("selectMultipleIndividualIndices");
-        final TournamentSelector<TestIndividual, Double> instance = getInstance(2);
+        final TournamentSelector<TestIndividual, Double, ScalarFitness> instance = getInstance(2);
         final int n = population.size();
         final Map<Integer, Integer> counts = new HashMap<Integer, Integer>() {{
            for (int i = 0; i < n; i++)

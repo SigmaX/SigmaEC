@@ -1,11 +1,12 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.CloneDecoder;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -23,20 +24,20 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class DoubleVectorPopulationMetric<T extends Individual> extends PopulationMetric<T> {
+public class DoubleVectorPopulationMetric<T extends Individual<F>, F extends Fitness> extends PopulationMetric<T, F> {
     public final static String P_DECODER = "decoder";
     public final static String P_BEST_ONLY = "bestOnly";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     public final static String P_DIMENSIONS = "numDimensions";
     
     private final Decoder<T, DoubleVectorIndividual> decoder;
-    private final Option<FitnessComparator<T>> fitnessComparator;
+    private final Option<FitnessComparator<T, F>> fitnessComparator;
     private final int numDimensions;
     
     public DoubleVectorPopulationMetric(final Parameters parameters, final String base) {
         decoder = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_DECODER), new CloneDecoder(parameters, base), Decoder.class);
         final boolean bestOnly = parameters.getBooleanParameter(Parameters.push(base, P_BEST_ONLY));
-        final Option<FitnessComparator<T>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
+        final Option<FitnessComparator<T, F>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
         if (!bestOnly && fitnessComparatorOpt.isDefined())
             Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING, String.format("ignoring '%s' because '%s' is false.", P_FITNESS_COMPARATOR, P_BEST_ONLY));
         if (bestOnly && !fitnessComparatorOpt.isDefined())
@@ -47,12 +48,12 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
     }
 
     @Override
-    public void ping(final int step, final Population<T> population) {
+    public void ping(final int step, final Population<T, F> population) {
         // Do nothing
     }
     
     @Override
-    public MultipleMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public MultipleMeasurement measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
@@ -145,18 +146,19 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
     }
     //</editor-fold>
     
-    public static class DoubleVectorMeasurement extends Measurement {
+    public static class DoubleVectorMeasurement<F extends Fitness> extends Measurement {
         private final int run;
         private final int step;
         private final int subpopulation;
-        private final double fitness;
+        private final F fitness;
         private final long indID;
         private final double[] values;
 
-        public DoubleVectorMeasurement(final int run, final int step, final int subpopulation, final double fitness, final long indID, final double[] values) {
+        public DoubleVectorMeasurement(final int run, final int step, final int subpopulation, final F fitness, final long indID, final double[] values) {
             assert(run >= 0);
             assert(step >= 0);
             assert(subpopulation >= 0);
+            assert(fitness != null);
             assert(indID >= 0);
             assert(values != null);
             this.run = run;
@@ -191,6 +193,7 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
             return run >= 0
                     && step >= 0
                     && subpopulation >= 0
+                    && fitness != null
                     && indID >= 0
                     && values != null;
         }
@@ -204,19 +207,19 @@ public class DoubleVectorPopulationMetric<T extends Individual> extends Populati
                     && step == ref.step
                     && subpopulation == ref.subpopulation
                     && indID == ref.indID
-                    && Misc.doubleEquals(fitness, ref.fitness)
+                    && fitness.equals(ref.fitness)
                     && Misc.doubleArrayEquals(values, ref.values);
         }
 
         @Override
         public int hashCode() {
-            int hash = 7;
-            hash = 79 * hash + this.run;
-            hash = 79 * hash + this.step;
-            hash = 79 * hash + this.subpopulation;
-            hash = 79 * hash + (int) (Double.doubleToLongBits(this.fitness) ^ (Double.doubleToLongBits(this.fitness) >>> 32));
-            hash = 79 * hash + (int) (this.indID ^ (this.indID >>> 32));
-            hash = 79 * hash + Arrays.hashCode(this.values);
+            int hash = 3;
+            hash = 37 * hash + this.run;
+            hash = 37 * hash + this.step;
+            hash = 37 * hash + this.subpopulation;
+            hash = 37 * hash + Objects.hashCode(this.fitness);
+            hash = 37 * hash + (int) (this.indID ^ (this.indID >>> 32));
+            hash = 37 * hash + Arrays.hashCode(this.values);
             return hash;
         }
         // </editor-fold>

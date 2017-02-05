@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.function;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
@@ -14,7 +15,7 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class TruthTableObjective extends ObjectiveFunction<BooleanFunction> {
+public class TruthTableObjective extends ObjectiveFunction<BooleanFunction, ScalarFitness> {
     public final static String P_TARGET_FUNCTION = "targetFunction";
     public final static String P_START_INPUT = "startInput";
     public final static String P_START_OUTPUT = "startOutput";
@@ -45,7 +46,7 @@ public class TruthTableObjective extends ObjectiveFunction<BooleanFunction> {
     }
     
     @Override
-    public double fitness(final BooleanFunction ind) {
+    public ScalarFitness fitness(final BooleanFunction ind) {
         assert(ind != null);
         assert(startInput < ind.arity());
         assert(ind.arity() - startInput >= targetFunction.arity());
@@ -66,7 +67,7 @@ public class TruthTableObjective extends ObjectiveFunction<BooleanFunction> {
                 matches++;
         }
         assert(repOK());
-        return (double) matches / inputs.size();
+        return new ScalarFitness((double) matches / inputs.size());
     }
     
     public static int countMatchingElements(final boolean[] a, final boolean[] b) {

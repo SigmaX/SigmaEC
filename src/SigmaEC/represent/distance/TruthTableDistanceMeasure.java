@@ -26,7 +26,7 @@ public class TruthTableDistanceMeasure extends DistanceMeasure<BooleanFunction> 
             target = b;
         final BooleanFunction reference = (target == a) ? b : a;
         final TruthTableObjective objective = new TruthTableObjective(target);
-        return objective.fitness(reference);
+        return objective.fitness(reference).asScalar();
     }
     
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

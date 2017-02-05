@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Option;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class WriterPopulationMetric<T extends Individual> extends PopulationMetric<T> {
+public class WriterPopulationMetric<T extends Individual<F>, F extends Fitness> extends PopulationMetric<T, F> {
     final public static String P_PREFIX = "prefix";
     final public static String P_FILE = "file";
     final public static String P_ROW_PREFIX = "rowPrefix";
@@ -28,7 +29,7 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     private final boolean header;
     private final Writer writer;
     private final int modulo;
-    private final PopulationMetric<T> wrappedMetric;
+    private final PopulationMetric<T, F> wrappedMetric;
     private final Option<String> rowPrefix;
     
     public WriterPopulationMetric(final Parameters parameters, final String base) throws IllegalArgumentException {
@@ -72,7 +73,7 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     }
     
     @Override
-    public Measurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public Measurement measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
@@ -93,7 +94,7 @@ public class WriterPopulationMetric<T extends Individual> extends PopulationMetr
     }
 
     @Override
-    public void ping(final int step, final Population<T> population) {
+    public void ping(final int step, final Population<T, F> population) {
         wrappedMetric.ping(step, population);
     }
 

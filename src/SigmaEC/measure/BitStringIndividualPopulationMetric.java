@@ -1,9 +1,10 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.linear.BitGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
@@ -17,25 +18,25 @@ import java.util.logging.Logger;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividual<BitGene>> extends PopulationMetric<T> {
+public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividual<BitGene, F>, F extends Fitness> extends PopulationMetric<T, F> {
     public final static String P_BEST_ONLY = "bestOnly";
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     public final static String P_BITS = "numBits";
     
-    private final Option<FitnessComparator<T>> fitnessComparator;
+    private final Option<FitnessComparator<T, F>> fitnessComparator;
     private final int numBits;
     
     public int numBits() { return numBits; }
     
     public boolean bestOnly() { return fitnessComparator.isDefined(); }
     
-    public Option<FitnessComparator<T>> getFitnessComparator() { return fitnessComparator; }
+    public Option<FitnessComparator<T, F>> getFitnessComparator() { return fitnessComparator; }
     
     public BitStringIndividualPopulationMetric(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         final boolean bestOnly = parameters.getBooleanParameter(Parameters.push(base, P_BEST_ONLY));
-        final Option<FitnessComparator<T>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
+        final Option<FitnessComparator<T, F>> fitnessComparatorOpt = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_FITNESS_COMPARATOR), FitnessComparator.class);
         if (!bestOnly && fitnessComparatorOpt.isDefined())
             Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING, String.format("ignoring '%s' because '%s' is false.", Parameters.push(base, P_FITNESS_COMPARATOR), Parameters.push(base, P_BEST_ONLY)));
         if (bestOnly && !fitnessComparatorOpt.isDefined())
@@ -48,12 +49,12 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
     }
 
     @Override
-    public void ping(int step, Population<T> population) {
+    public void ping(int step, Population<T, F> population) {
         // Do nothing
     }
     
     @Override
-    public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
@@ -80,7 +81,7 @@ public class BitStringIndividualPopulationMetric<T extends LinearGenomeIndividua
         assert(ind != null);
         assert(ind.size() == numBits);
         final StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%d, %d, %d, %d, %f", run, step, subPop, ind.getID(), ind.getFitness()));
+        sb.append(String.format("%d, %d, %d, %d, %s", run, step, subPop, ind.getID(), ind.getFitness()));
         for(final BitGene g : ind.getGenome())
             sb.append(", ").append(g.value ? 1 : 0);
         return sb.toString();

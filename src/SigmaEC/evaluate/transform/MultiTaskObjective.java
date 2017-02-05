@@ -1,5 +1,7 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
+import SigmaEC.evaluate.VectorFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
@@ -11,10 +13,10 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class MultiTaskObjective<P> extends ObjectiveFunction<P> {
+public class MultiTaskObjective<P> extends ObjectiveFunction<P, VectorFitness> {
     public final static String P_OBJECTIVES = "objectives";
     
-    private final List<ObjectiveFunction<P>> objectives;
+    private final List<ObjectiveFunction<P, ScalarFitness>> objectives;
     
     public MultiTaskObjective(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -25,7 +27,7 @@ public class MultiTaskObjective<P> extends ObjectiveFunction<P> {
         assert(repOK());
     }
     
-    public MultiTaskObjective(final List<ObjectiveFunction<P>> objectives) {
+    public MultiTaskObjective(final List<ObjectiveFunction<P, ScalarFitness>> objectives) {
         assert(objectives != null);
         assert(!objectives.isEmpty());
         assert(!Misc.containsNulls(objectives));
@@ -35,14 +37,18 @@ public class MultiTaskObjective<P> extends ObjectiveFunction<P> {
     }
     
     @Override
-    public double fitness(final P ind) {
+    public VectorFitness fitness(final P ind) {
         double sum = 0.0;
-        for (final ObjectiveFunction<P> o : objectives)
-            sum += o.fitness(ind);
-        return sum/objectives.size();
+        final double[] fitnesses = new double[objectives.size()];
+        for (int i = 0; i < objectives.size(); i++) {
+            final ObjectiveFunction<P, ScalarFitness> o = objectives.get(i);
+            fitnesses[i] = o.fitness(ind).asScalar();
+            sum += fitnesses[i];
+        }
+        return new VectorFitness(sum/objectives.size(), fitnesses);
     }
     
-    private boolean allSameDimensions(final List<ObjectiveFunction<P>> objectives) {
+    private boolean allSameDimensions(final List<ObjectiveFunction<P, ScalarFitness>> objectives) {
         final int dimensions = objectives.get(0).getNumDimensions();
         for (int i = 1; i < objectives.size(); i++)
             if (objectives.get(i).getNumDimensions() != dimensions)

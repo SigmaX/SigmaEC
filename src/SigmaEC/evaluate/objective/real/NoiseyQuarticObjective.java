@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
@@ -12,7 +13,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness> {
     private final static String P_NUM_DIMENSIONS = "numDimensions";
     private final static String P_RANDOM = "random";
     
@@ -35,14 +36,14 @@ public class NoiseyQuarticObjective extends ObjectiveFunction<DoubleVectorIndivi
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind)
+    public ScalarFitness fitness(final DoubleVectorIndividual ind)
     {
         assert(ind.size() == numDimensions);
         double sum = 0;
         for (int i = 0; i < ind.size(); i++)
             sum += i*Math.pow(ind.getElement(i), 4) + 500.0*random.nextGaussian();
         assert(repOK());
-        return sum;
+        return new ScalarFitness(sum);
     }
 
     @Override

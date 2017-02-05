@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Misc;
@@ -12,7 +13,7 @@ import java.util.Arrays;
  * 
  * @author Eric O. Scott
  */
-public class PlaneObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class PlaneObjective extends ObjectiveFunction<DoubleVectorIndividual, ScalarFitness> {
     public final static String P_POINT = "point";
     public final static String P_NORMAL = "normalVector";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
@@ -38,7 +39,7 @@ public class PlaneObjective extends ObjectiveFunction<DoubleVectorIndividual> {
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         assert(ind != null);
         final double[] genome = ind.getGenomeArray();
         final double z0 = point[point.length - 1];
@@ -48,7 +49,7 @@ public class PlaneObjective extends ObjectiveFunction<DoubleVectorIndividual> {
             sum += normalVector[i] * (genome[i] - point[i]);
         final double result = -1/c*sum + z0;
         assert(repOK());
-        return result;
+        return new ScalarFitness(result);
     }
 
     @Override

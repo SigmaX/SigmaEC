@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.SRandom;
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.evaluate.objective.real.SphereObjective;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
@@ -19,7 +20,7 @@ public class ScalarMultipliedObjectiveTest {
     
     private final Parameters.Builder builder;
     private final int numDimensions = 3;
-    private final ObjectiveFunction<DoubleVectorIndividual> objective = new SphereObjective(numDimensions);
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective = new SphereObjective(numDimensions);
     
     public ScalarMultipliedObjectiveTest() {
         builder = new Parameters.Builder(new Properties())
@@ -62,8 +63,8 @@ public class ScalarMultipliedObjectiveTest {
         
         for (int i = 0; i < 50; i++) {
             final DoubleVectorIndividual ind = initializer.generateIndividual();
-            double expResult = multiplier*objective.fitness(ind);
-            double result = instance.fitness(ind);
+            double expResult = multiplier*objective.fitness(ind).asScalar();
+            double result = instance.fitness(ind).asScalar();
             assertEquals(expResult, result, 0.000001);
         }
     }

@@ -1,5 +1,6 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -11,11 +12,11 @@ import java.util.Random;
  *
  * @author Eric O. Scott
  */
-public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
+public class IntVectorIndividual<F extends Fitness> extends LinearGenomeIndividual<IntGene, F> {
     private final List<IntGene> genome;
     private final long id;
     private static long nextId;
-    private final Option<Double> fitness;
+    private final Option<F> fitness;
     private final Option<List<Individual>> parents;
     
      // <editor-fold defaultstate="collapsed" desc="Producers and Consumers">
@@ -31,10 +32,10 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     public int size() { return genome.size(); }
     
     @Override
-    public Option<List<Individual>> getParents() {
+    public Option<List<Individual<F>>> getParents() {
         if (!parents.isDefined())
             return Option.NONE;
-        return new Option<>((List<Individual>)new ArrayList<>(parents.get())); // Defensive copy
+        return new Option<>((List<Individual<F>>)new ArrayList(parents.get())); // Defensive copy
     }
 
     @Override
@@ -56,7 +57,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     }
 
     @Override
-    public double getFitness() {
+    public F getFitness() {
         if (fitness.isDefined())
             return fitness.get();
         else
@@ -69,22 +70,22 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     }
 
     @Override
-    public Individual setParents(List<? extends Individual> parents) {
+    public Individual<F> setParents(List<? extends Individual<F>> parents) {
         return new Builder(this).setParents(parents).build();
     }
 
     @Override
-    public IntVectorIndividual setFitness(double fitness) {
+    public IntVectorIndividual<F> setFitness(final F fitness) {
         return new Builder(this).setFitness(fitness).build();
     }
     
     @Override
-    public IntVectorIndividual clearFitness() {
+    public IntVectorIndividual<F> clearFitness() {
         return new Builder(this).clearFitness().build();
     }
     
     @Override
-    public IntVectorIndividual create(final List<IntGene> genome, final List<? extends Individual> parents) {
+    public IntVectorIndividual<F> create(final List<IntGene> genome, final List<? extends Individual> parents) {
         assert(genome != null);
         if (parents.isEmpty())
             return new Builder(genome).build();
@@ -97,9 +98,9 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     }
     // </editor-fold>
     
-    public static class Builder {
+    public static class Builder<F extends Fitness> {
         private final List<IntGene> genome;
-        private Option<Double> fitness = Option.NONE;
+        private Option<F> fitness = Option.NONE;
         private Option<List<Individual>> parents = Option.NONE;
         
         public IntVectorIndividual build() {
@@ -125,7 +126,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
             fitness = ref.fitness;
         }
         
-        public Builder setFitness(final double fitness) {
+        public Builder setFitness(final F fitness) {
             this.fitness = new Option<>(fitness);
             return this;
         }
@@ -188,7 +189,7 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
     }
     
     /** Private constructor for use with the Builder pattern. Does not make defensive copies! */
-    private IntVectorIndividual(final List<IntGene> genome, final Option<Double> fitness, final Option<List<Individual>> parents) {
+    private IntVectorIndividual(final List<IntGene> genome, final Option<F> fitness, final Option<List<Individual>> parents) {
         assert(genome != null);
         assert(!Misc.containsNulls(genome));
         this.genome = new ArrayList<>(genome);
@@ -205,7 +206,6 @@ public class IntVectorIndividual extends LinearGenomeIndividual<IntGene> {
                 && genome != null
                 && fitness != null
                 && !(parents.isDefined() && parents.get().isEmpty())
-                && !(fitness.isDefined() && Double.isNaN(fitness.get()))
                 && !Misc.containsNulls(genome);
     }
     

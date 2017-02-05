@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
@@ -14,12 +15,12 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class SwitchingObjective<T extends Individual> extends ObjectiveFunction<T>{
+public class SwitchingObjective<T extends Individual, F extends Fitness> extends ObjectiveFunction<T, F>{
     public final static String P_OBJECTIVES = "objectives";
     public final static String P_INTERVAL = "interval";
     public final static String P_REPEAT = "repeat";
     
-    private final List<ObjectiveFunction<T>> objectives;
+    private final List<ObjectiveFunction<T, F>> objectives;
     private final int interval;
     private final boolean repeat;
     
@@ -39,12 +40,12 @@ public class SwitchingObjective<T extends Individual> extends ObjectiveFunction<
     }
     
     @Override
-    public double fitness(final T ind) {
+    public F fitness(final T ind) {
         assert(ind != null);
         return currentObjective().fitness(ind);
     }
     
-    private ObjectiveFunction<T> currentObjective() {
+    private ObjectiveFunction<T, F> currentObjective() {
         final int stepsIntoCycle = repeat ?
                 currentStep % (interval*objectives.size()) :
                 Math.min(currentStep, interval*objectives.size() - 1);

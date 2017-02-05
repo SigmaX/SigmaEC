@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 
@@ -9,12 +10,12 @@ import SigmaEC.represent.Individual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class MemoryPopulationMetric<T extends Individual> extends PopulationMetric<T> {
-    final private PopulationMetric<T> wrappedMetric;
+public class MemoryPopulationMetric<T extends Individual<F>, F extends Fitness> extends PopulationMetric<T, F> {
+    final private PopulationMetric<T, F> wrappedMetric;
     
     private Measurement mostRecentMeasurement;
     
-    public MemoryPopulationMetric(final PopulationMetric<T> wrappedMetric) throws IllegalArgumentException
+    public MemoryPopulationMetric(final PopulationMetric<T, F> wrappedMetric) throws IllegalArgumentException
     {
         if (wrappedMetric == null)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": wrappedMetric is null.");
@@ -26,7 +27,7 @@ public class MemoryPopulationMetric<T extends Individual> extends PopulationMetr
     public Measurement getMostRecentMeasurement() { return mostRecentMeasurement; }
     
     @Override
-    public synchronized Measurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public synchronized Measurement measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(population != null);
         ping(step, population);
         final Measurement measurement = wrappedMetric.measurePopulation(run, step, population);
@@ -36,7 +37,7 @@ public class MemoryPopulationMetric<T extends Individual> extends PopulationMetr
     }
 
     @Override
-    public void ping(int step, Population<T> population) {
+    public void ping(int step, Population<T, F> population) {
         // Do nothing
     }
 

@@ -1,11 +1,12 @@
 package SigmaEC.test;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
-import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple individual with 1 continuous fitness.  Intended for use with unit
@@ -13,17 +14,17 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TestIndividual extends LinearGenomeIndividual<TestGene>
+public class TestIndividual extends LinearGenomeIndividual<TestGene, ScalarFitness>
 {
     final private long id;
     private static long nextId = 0;
     
     final private List<TestGene> genome;
-    final private double fitness;
-    public double getTrait() { return fitness; }
+    final private ScalarFitness fitness;
+    public double getTrait() { return fitness.asScalar(); }
 
-    public TestIndividual(double trait) { this.fitness = trait; this.genome = null; this.id = nextId++; }
-    public TestIndividual(double trait, List<TestGene> genome) { this.fitness = trait; this.genome = genome; this.id = nextId++; }
+    public TestIndividual(double trait) { this.fitness = new ScalarFitness(trait); this.genome = null; this.id = nextId++; }
+    public TestIndividual(double trait, List<TestGene> genome) { this.fitness = new ScalarFitness(trait); this.genome = genome; this.id = nextId++; }
     
     @Override
     public boolean repOK() { return true; }
@@ -43,21 +44,21 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
         if (!(o instanceof TestIndividual))
             return false;
         final TestIndividual ref = (TestIndividual)o;
-        return Misc.doubleEquals(fitness, ref.fitness)
+        return fitness.equals(ref.fitness)
                 && (genome == null ? ref.genome == null : genome.equals(ref.genome));
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 83 * hash + (this.genome != null ? this.genome.hashCode() : 0);
-        hash = 83 * hash + (int) (Double.doubleToLongBits(this.fitness) ^ (Double.doubleToLongBits(this.fitness) >>> 32));
+        hash = 19 * hash + Objects.hashCode(this.genome);
+        hash = 19 * hash + Objects.hashCode(this.fitness);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: id=%d, trait=%f, genome=%s]", this.getID(), this.getClass().getSimpleName(), genome.toString());
+        return String.format("[%s: id=%d, trait=%f, genome=%s]", this.getClass().getSimpleName(), this.getID(), this.getClass().getSimpleName(), genome.toString());
     }
 
     @Override
@@ -69,12 +70,12 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
     }
 
     @Override
-    public double getFitness() {
+    public ScalarFitness getFitness() {
         return fitness;
     }
 
     @Override
-    public Individual setFitness(double fitness) {
+    public Individual setFitness(ScalarFitness fitness) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -84,12 +85,12 @@ public class TestIndividual extends LinearGenomeIndividual<TestGene>
     }
 
     @Override
-    public Option<List<Individual>> getParents() {
+    public Option<List<Individual<ScalarFitness>>> getParents() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Individual setParents(List<? extends Individual> parents) {
+    public Individual<ScalarFitness> setParents(List<? extends Individual<ScalarFitness>> parents) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

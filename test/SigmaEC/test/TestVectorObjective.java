@@ -1,5 +1,6 @@
 package SigmaEC.test;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 
@@ -8,15 +9,15 @@ import SigmaEC.represent.linear.DoubleVectorIndividual;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TestVectorObjective extends ObjectiveFunction<DoubleVectorIndividual>
+public class TestVectorObjective extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness>
 {
     @Override
-    public double fitness(DoubleVectorIndividual ind)
+    public ScalarFitness fitness(DoubleVectorIndividual ind)
     {
         double sum = 0;
         for(double d : ind.getGenomeArray())
             sum += d;
-        return sum;
+        return new ScalarFitness(sum);
     }
 
     @Override

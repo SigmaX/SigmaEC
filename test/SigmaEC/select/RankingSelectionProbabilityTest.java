@@ -29,7 +29,7 @@ public class RankingSelectionProbabilityTest {
     public void setUp() {
         paramBuilder = new Parameters.Builder(new Properties())
                 .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_POWER), "1")
-                .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_COMPARATOR), "SigmaEC.select.FitnessComparator");
+                .setParameter(Parameters.push(BASE, RankingSelectionProbability.P_COMPARATOR), "SigmaEC.select.ScalarFitnessComparator");
         population = new ArrayList<TestIndividual>() {{
                 add(new TestIndividual(3.0));
                 add(new TestIndividual(1.0));

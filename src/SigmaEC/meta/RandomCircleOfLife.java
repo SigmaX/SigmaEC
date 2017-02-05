@@ -2,13 +2,13 @@ package SigmaEC.meta;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
+import SigmaEC.meta.CircleOfLife.EvolutionResult;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
-import SigmaEC.select.FitnessComparator;
+import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -17,7 +17,7 @@ import java.util.Random;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T> {
+public class RandomCircleOfLife<T extends Individual<F>, P, F extends Fitness> extends CircleOfLife<T, F> {
     final public static String P_INITIALIZER = "initializer";
     final public static String P_COMPARATOR = "fitnessComparator";
     final public static String P_OBJECTIVE = "objective";
@@ -27,16 +27,16 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     public final static String P_STOPPING_CONDITION = "stoppingCondition";
         
     final private Initializer<T> initializer;
-    final private FitnessComparator<T> fitnessComparator;
-    final private ObjectiveFunction<P> objective;
-    final private Option<List<PopulationMetric<T>>> metrics;
+    final private FitnessComparator<T, F> fitnessComparator;
+    final private ObjectiveFunction<P, F> objective;
+    final private Option<List<PopulationMetric<T, F>>> metrics;
     final private Random random;
-    private final StoppingCondition<T> stoppingCondition;
+    private final StoppingCondition<T, F> stoppingCondition;
     private final boolean isDynamic;
     
     public RandomCircleOfLife(final Parameters parameters, final String base) {
         this.initializer = parameters.getInstanceFromParameter(Parameters.push(base, P_INITIALIZER), Initializer.class);
-        this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
+        this.fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), ScalarFitnessComparator.class);
         this.objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         this.metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
@@ -49,10 +49,10 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
     }
     
     @Override
-    public EvolutionResult<T> evolve(int run) {
+    public EvolutionResult<T, F> evolve(int run) {
         assert(run >= 0);
         reset();
-        final Population<T> population = new Population<>(1, initializer);
+        final Population<T, F> population = new Population<>(1, initializer);
         
         T bestSoFarInd = null;
         int i = 0;
@@ -63,7 +63,7 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
             
             // Take measurements
             if (metrics.isDefined())
-                for (PopulationMetric<T> metric : metrics.get())
+                for (PopulationMetric<T, F> metric : metrics.get())
                     metric.measurePopulation(run, i, population);
             
             population.setSubpopulation(0, initializer.generatePopulation());
@@ -79,24 +79,24 @@ public class RandomCircleOfLife<T extends Individual, P> extends CircleOfLife<T>
         
         // Measure final population
         if (metrics.isDefined())
-            for (PopulationMetric<T> metric : metrics.get())
+            for (PopulationMetric<T, F> metric : metrics.get())
                 metric.measurePopulation(run, i, population);
         
         assert(repOK());
-        return new EvolutionResult<>(population, bestSoFarInd, bestSoFarInd.getFitness());
+        return new EvolutionResult<T, F>(population, bestSoFarInd, bestSoFarInd.getFitness());
     }
     
     /** Flush I/O buffers. */
     private void flushMetrics() {
         if (metrics.isDefined())
-            for (PopulationMetric<T> metric : metrics.get())
+            for (PopulationMetric<T, F> metric : metrics.get())
                 metric.flush();
     }
     
     private void reset() {
         stoppingCondition.reset();
         if (metrics.isDefined())
-            for (final PopulationMetric<T> metric : metrics.get())
+            for (final PopulationMetric<T, F> metric : metrics.get())
                     metric.reset();
     }
 

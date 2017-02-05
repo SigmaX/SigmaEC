@@ -1,7 +1,9 @@
 package SigmaEC.experiment;
 
 import SigmaEC.SRandom;
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
 import SigmaEC.util.Misc;
@@ -30,7 +32,7 @@ public class TestSuiteViewerExperiment extends Experiment {
     final public static String P_RANDOM = "random";
     final public static String P_GENERATIONS = "generations";
     
-    final private List<ObjectiveFunction> objectives;
+    final private List<ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness>> objectives;
     final private String prefix;
     final private IDoublePoint[] bounds;
     final private double granularity;
@@ -91,7 +93,7 @@ public class TestSuiteViewerExperiment extends Experiment {
         return null;
     }
     
-    private static boolean allObjectivesLessThanThreeDimensions(final List<ObjectiveFunction> objectives) {
+    private static <T extends Individual> boolean allObjectivesLessThanThreeDimensions(final List<ObjectiveFunction<T, ScalarFitness>> objectives) {
         assert(objectives != null);
         for (final ObjectiveFunction obj : objectives)
             if (obj.getNumDimensions() > 2)
@@ -99,7 +101,7 @@ public class TestSuiteViewerExperiment extends Experiment {
         return true;
     }
     
-    private void viewObjective(final ObjectiveFunction<DoubleVectorIndividual> objective, final Writer output) throws IOException {
+    private void viewObjective(final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective, final Writer output) throws IOException {
         assert(objective != null);
         if (objective.getNumDimensions() == 1)
             viewObjective1D(objective, output);
@@ -109,7 +111,7 @@ public class TestSuiteViewerExperiment extends Experiment {
             throw new IllegalStateException(String.format("%s: encountered an objective function with %d dimensions, but can only sample the landscape of 1- or 2-dimensional objectives.", this.getClass().getSimpleName(), objective.getNumDimensions()));
     }
     
-    private void viewObjective1D(final ObjectiveFunction<DoubleVectorIndividual> objective, final Writer output) throws IOException {
+    private void viewObjective1D(final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective, final Writer output) throws IOException {
         assert(objective != null);
         assert(objective.getNumDimensions() == 1);
         assert(output != null);
@@ -117,7 +119,7 @@ public class TestSuiteViewerExperiment extends Experiment {
         for (double x = bounds[0].x; x <= bounds[0].y; x += granularity) {
             output.write(String.valueOf(x));
             final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { x }).build();
-            final double fitness = objective.fitness(ind);
+            final double fitness = objective.fitness(ind).asScalar();
             output.write(", ");
             output.write(String.valueOf(fitness));
             output.write("\n");
@@ -125,7 +127,7 @@ public class TestSuiteViewerExperiment extends Experiment {
         output.flush();
     }
     
-    private void viewObjective2D(final ObjectiveFunction<DoubleVectorIndividual> objective, final Writer output) throws IOException {
+    private void viewObjective2D(final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective, final Writer output) throws IOException {
         assert(objective != null);
         assert(objective.getNumDimensions() == 2);
         assert(output != null);
@@ -144,7 +146,7 @@ public class TestSuiteViewerExperiment extends Experiment {
                 point[1] = y;
                 // The remaining dimensions are left set to zero
                 final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(point).build();
-                final double fitness = objective.fitness(ind);
+                final double fitness = objective.fitness(ind).asScalar();
                 output.write(", " + fitness);
             }
             output.write("\n");

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.objective.real;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ConstantObjective;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.evaluate.transform.InvertedObjective;
@@ -18,12 +19,12 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PinCushionSphereObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class PinCushionSphereObjective extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> {
     public final static String P_INTERVALS = "intervals";
     public final static String P_WIDTH = "width";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective;
     private final double[] intervals;
     private final double width;
     
@@ -41,11 +42,11 @@ public class PinCushionSphereObjective extends ObjectiveFunction<DoubleVectorInd
          * contained inside the hypercube of width w. */
         final double min = - Math.pow(width/2, 2);
         
-        final ObjectiveFunction<DoubleVectorIndividual> sphere, invertedSphere, plane, invertedSphereOnPlane;
+        final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> sphere, invertedSphere, plane, invertedSphereOnPlane;
         sphere = new SphereObjective(numDimensions);
-        invertedSphere = new InvertedObjective<DoubleVectorIndividual>(sphere);
-        plane = new ConstantObjective<DoubleVectorIndividual>(numDimensions, min);
-        invertedSphereOnPlane = new MaxObjective<DoubleVectorIndividual>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual>>() {{
+        invertedSphere = new InvertedObjective<>(sphere);
+        plane = new ConstantObjective<>(numDimensions, min);
+        invertedSphereOnPlane = new MaxObjective<>(new ArrayList<ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness>>() {{
             add(invertedSphere);
             add(plane);
         }});
@@ -55,7 +56,7 @@ public class PinCushionSphereObjective extends ObjectiveFunction<DoubleVectorInd
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual<ScalarFitness> ind) {
         return objective.fitness(ind);
     }
 

@@ -1,6 +1,7 @@
 package SigmaEC.util;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.Individual;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -253,10 +254,10 @@ public final class Misc
         return newArray;
     }
     
-    public static <T extends Individual> boolean allElementsHaveDimension(final List<ObjectiveFunction<T>> objectives, final int dimensions) {
+    public static <T extends Individual, F extends Fitness> boolean allElementsHaveDimension(final List<ObjectiveFunction<T, F>> objectives, final int dimensions) {
         assert(objectives != null);
         assert(objectives.size() > 0);
-        for (ObjectiveFunction<T> objective : objectives) {
+        for (ObjectiveFunction<T, ?> objective : objectives) {
             if (objective.getNumDimensions() != dimensions)
                 return false;
         }

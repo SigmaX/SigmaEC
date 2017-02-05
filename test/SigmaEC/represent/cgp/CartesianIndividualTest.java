@@ -1,5 +1,6 @@
 package SigmaEC.represent.cgp;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.function.BooleanFunction;
 import SigmaEC.evaluate.objective.function.NAND;
 import SigmaEC.util.Parameters;
@@ -121,8 +122,8 @@ public class CartesianIndividualTest {
     public void testGetFitness() {
         System.out.println("getFitness");
         final double expResult = 1.0;
-        final CartesianIndividual instance = getInd().build().setFitness(expResult);
-        assertEquals(expResult, instance.getFitness(), 0.0);
+        final CartesianIndividual instance = getInd().build().setFitness(new ScalarFitness(expResult));
+        assertEquals(expResult, instance.getFitness().asScalar(), 0.0);
         assertTrue(instance.repOK());
     }
 
@@ -139,7 +140,7 @@ public class CartesianIndividualTest {
     @Test
     public void testIsEvaluated1() {
         System.out.println("isEvaluated");
-        final CartesianIndividual instance = getInd().build().setFitness(1.0);
+        final CartesianIndividual instance = getInd().build().setFitness(new ScalarFitness(1.0));
         assertTrue(instance.isEvaluated());
         assertTrue(instance.repOK());
     }
@@ -148,7 +149,7 @@ public class CartesianIndividualTest {
     @Test
     public void testClearFitness() {
         System.out.println("clearFitness");
-        CartesianIndividual instance = getInd().build().setFitness(1.0);
+        CartesianIndividual instance = getInd().build().setFitness(new ScalarFitness(1.0));
         assertTrue(instance.isEvaluated());
         instance = instance.clearFitness();
         assertFalse(instance.isEvaluated());

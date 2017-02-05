@@ -4,6 +4,7 @@ import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import SigmaEC.evaluate.objective.function.BooleanFunction;
 import SigmaEC.evaluate.objective.function.InputSelector;
+import SigmaEC.meta.Fitness;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import java.util.ArrayList;
@@ -17,13 +18,13 @@ import java.util.Set;
  *
  * @author Eric 'Siggy' Scott
  */
-public class CartesianIndividual extends Individual implements BooleanFunction {
+public class CartesianIndividual<F extends Fitness> extends Individual<F> implements BooleanFunction {
     private static long id = 0;
     
     private final CGPParameters cgpParameters;
     private final Node[][] nodes;
     private final int[] outputSources;
-    private final Option<Double> fitness;
+    private final Option<F> fitness;
     private final Option<List<Set<Integer>>> inputExecutionPaths;
 
     // <editor-fold defaultstate="collapsed" desc="Accessors and Producers">
@@ -81,7 +82,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
     }
 
     @Override
-    public double getFitness() {
+    public F getFitness() {
         if (fitness.isDefined())
             return fitness.get();
         else
@@ -94,7 +95,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
     }
 
     @Override
-    public CartesianIndividual setFitness(double fitness) {
+    public CartesianIndividual setFitness(F fitness) {
         return new Builder(this).setFitness(fitness).build();
     }
     
@@ -109,12 +110,12 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
     }
 
     @Override
-    public Option<List<Individual>> getParents() {
+    public Option<List<Individual<F>>> getParents() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public Individual setParents(List<? extends Individual> parents) {
+    public Individual<F> setParents(List<? extends Individual<F>> parents) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -273,11 +274,11 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
         return (id - cgpParameters.numInputs()) % cgpParameters.numNodesPerLayer();
     }
     
-    public static class Builder {
+    public static class Builder<F extends Fitness> {
         private final CGPParameters cgpParameters;
         private Node[][] nodes;
         private int[] outputSources;
-        private Option<Double> fitness = Option.NONE;
+        private Option<F> fitness = Option.NONE;
         private Option<List<Set<Integer>>> inputExecutionPaths = Option.NONE;
         
         public Builder(final CGPParameters cgpParameters, final int[] outputSources) {
@@ -303,7 +304,7 @@ public class CartesianIndividual extends Individual implements BooleanFunction {
             return new CartesianIndividual(this);
         }
         
-        public Builder setFitness(final double fitness) {
+        public Builder setFitness(final F fitness) {
             this.fitness = new Option<>(fitness);
             return this;
         }

@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.IDoublePoint;
@@ -14,18 +15,18 @@ import java.util.Arrays;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class BoundedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual>
+public class BoundedDoubleObjective extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness>
 {
     private final IDoublePoint[] bounds;
     private final double outsideValue;
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective;
     
     @Override
     public int getNumDimensions() {
         return bounds.length;
     }
     
-    public BoundedDoubleObjective(final int dimensions, final IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorIndividual> objective, final double outsideValue) throws IllegalArgumentException {
+    public BoundedDoubleObjective(final int dimensions, final IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective, final double outsideValue) throws IllegalArgumentException {
         if (dimensions <= 0)
             throw new IllegalArgumentException(this.getClass().getSimpleName() + ": dimensions is < 1.");
         if (bounds == null)
@@ -48,19 +49,19 @@ public class BoundedDoubleObjective extends ObjectiveFunction<DoubleVectorIndivi
     
     /** Creates an objective bounded by a hyper-cube bound in each dimension by
      * -bound and bound, i.e. with a width of 2*bound. */
-    public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException {
+    public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective) throws IllegalArgumentException {
         this(dimensions, scalarBoundToArray(dimensions, bound), objective);
         assert(repOK());
     }
     
     /** Creates an objective bounded by a hyper-cube bound in each dimension by
      * -bound and bound, i.e. with a width of 2*bound. */
-    public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorIndividual> objective, final double outsideValue) throws IllegalArgumentException {
+    public BoundedDoubleObjective(final int dimensions, final double bound, final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective, final double outsideValue) throws IllegalArgumentException {
         this(dimensions, scalarBoundToArray(dimensions, bound), objective, outsideValue);
         assert(repOK());
     }
     
-    public BoundedDoubleObjective(int dimensions, IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorIndividual> objective) throws IllegalArgumentException {
+    public BoundedDoubleObjective(int dimensions, IDoublePoint[] bounds, final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective) throws IllegalArgumentException {
         this(dimensions, bounds, objective, -1);
         assert(repOK());
     }
@@ -86,10 +87,10 @@ public class BoundedDoubleObjective extends ObjectiveFunction<DoubleVectorIndivi
     }
     
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual ind) {
         assert(ind.size() == bounds.length);
         if (!withinBounds(ind))
-            return outsideValue;
+            return new ScalarFitness(outsideValue);
         return objective.fitness(ind);
     }
 

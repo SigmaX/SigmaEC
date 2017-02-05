@@ -1,5 +1,7 @@
 package SigmaEC.select;
 
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
@@ -13,9 +15,9 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class TruncationSelector<T extends Individual, P> extends Selector<T> {
+public class TruncationSelector<T extends Individual<F>, P, F extends Fitness> extends Selector<T> {
     public final static String P_COMPARATOR = "fitnessComparator";
-    private final FitnessComparator<T> fitnessComparator;
+    private final FitnessComparator<T, F> fitnessComparator;
     
     public TruncationSelector(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -24,7 +26,7 @@ public class TruncationSelector<T extends Individual, P> extends Selector<T> {
         assert(repOK());
     }
     
-    public TruncationSelector(final FitnessComparator<T> fitnessComparator) {
+    public TruncationSelector(final FitnessComparator<T, F> fitnessComparator) {
         assert(fitnessComparator != null);
         this.fitnessComparator = fitnessComparator;
         assert(repOK());

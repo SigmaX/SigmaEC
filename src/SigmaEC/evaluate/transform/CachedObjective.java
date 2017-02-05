@@ -1,6 +1,7 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.meta.Fitness;
 import SigmaEC.util.Parameters;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,13 +14,13 @@ import java.util.Map;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class CachedObjective<P> extends ObjectiveFunction<P> {
+public class CachedObjective<P, F extends Fitness> extends ObjectiveFunction<P, F> {
     final public static String P_FLUSH = "flush";
     final public static String P_OBJECTIVE = "objective";
     
     final private boolean flush;
-    final private ObjectiveFunction<P> objective;
-    final private Map<P, Double> memory = new HashMap<P, Double>();
+    final private ObjectiveFunction<P, F> objective;
+    final private Map<P, F> memory = new HashMap<P, F>();
     
     public CachedObjective(final Parameters params, final String base) {
         assert(params != null);
@@ -35,12 +36,12 @@ public class CachedObjective<P> extends ObjectiveFunction<P> {
     }
     
     @Override
-    public double fitness(final P ind) {
+    public F fitness(final P ind) {
         assert(ind != null);
         if (memory.containsKey(ind))
             return memory.get(ind);
         else {
-            double fitness = objective.fitness(ind);
+            final F fitness = objective.fitness(ind);
             memory.put(ind, fitness);
             return fitness;
         }

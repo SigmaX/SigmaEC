@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
@@ -11,12 +12,12 @@ import java.util.Objects;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class ScalarMultipliedObjective<T extends Individual> extends ObjectiveFunction<T> {
+public class ScalarMultipliedObjective<T extends Individual> extends ObjectiveFunction<T, ScalarFitness> {
     public final static String P_OBJECTIVE = "objective";
     public final static String P_MULTIPLIER = "multiplier";
     public final static String P_OFFSET = "offset";
     
-    private final ObjectiveFunction<T> objective;
+    private final ObjectiveFunction<T, ScalarFitness> objective;
     private final double multiplier;
     private final double offset;
 
@@ -39,10 +40,10 @@ public class ScalarMultipliedObjective<T extends Individual> extends ObjectiveFu
     }
     
     @Override
-    public double fitness(final T ind) {
-        double product = multiplier * objective.fitness(ind) + offset;
+    public ScalarFitness fitness(final T ind) {
+        double product = multiplier * objective.fitness(ind).asScalar() + offset;
         assert(repOK());
-        return product;
+        return new ScalarFitness(product);
     }
 
 

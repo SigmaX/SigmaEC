@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.util.Parameters;
@@ -19,11 +20,11 @@ import java.util.Arrays;
  * @author Jeffrey K Basssett
  * @author Eric 'Siggy' Scott
  */
-public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividual> {
+public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> {
     public final static String P_OBJECTIVE = "objective";
     public final static String P_INTERVALS = "intervals";
     public final static String P_MIN = "min";
-    private final ObjectiveFunction<DoubleVectorIndividual> objective;
+    private final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective;
     private final double[] intervals; // The distances between the peaks on each axis
     private final double sigma;     // The standard deviation of the peaks
     private final double k;         // A constant
@@ -54,7 +55,7 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         assert(repOK());
     }
     
-    public PinCushionObjective(final double[] intervals, final double min, final ObjectiveFunction<DoubleVectorIndividual> objective) {
+    public PinCushionObjective(final double[] intervals, final double min, final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective) {
         if (intervals == null)
             throw new NullPointerException(String.format("%s: intervals array cannot be null.", this.getClass().getSimpleName()));
         if (Misc.containsNaNs(intervals) || !Misc.allFinite(intervals))
@@ -76,7 +77,7 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
     }
 
     @Override
-    public double fitness(final DoubleVectorIndividual ind) {
+    public ScalarFitness fitness(final DoubleVectorIndividual<ScalarFitness> ind) {
         int n = ind.size();
         double[] center = new double[n];
         double[] relative = new double[n];
@@ -89,14 +90,14 @@ public class PinCushionObjective extends ObjectiveFunction<DoubleVectorIndividua
         }
 
         // Find height of the peak relative to the min
-        double value = objective.fitness(new DoubleVectorIndividual.Builder(center).build()) - min;
+        double value = objective.fitness(new DoubleVectorIndividual.Builder(center).build()).asScalar() - min;
         
         // Calculate the value one axis at a time
         for (int i = 0; i < n; i++)
             value = value * Math.exp(-this.k * relative[i] * relative[i]);
         value += min;
         
-        return value;
+        return new ScalarFitness(value);
     }
     
     @Override

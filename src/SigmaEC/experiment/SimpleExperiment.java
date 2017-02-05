@@ -2,6 +2,7 @@ package SigmaEC.experiment;
 
 import SigmaEC.meta.CircleOfLife;
 import SigmaEC.meta.CircleOfLife.EvolutionResult;
+import SigmaEC.meta.Fitness;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
@@ -13,13 +14,13 @@ import java.util.logging.Logger;
  *
  * @author Eric 'Siggy' Scott
  */
-public class SimpleExperiment<T extends Individual> extends Experiment<List<EvolutionResult>> {
+public class SimpleExperiment<T extends Individual<F>, F extends Fitness> extends Experiment<List<EvolutionResult<T, F>>> {
     private final static String P_CIRCLE_OF_LIFE = "circleOfLife";
     private final static String P_NUM_RUNS = "numRuns";
         
-    private final CircleOfLife<T> circleOfLife;
+    private final CircleOfLife<T, F> circleOfLife;
     private final int numRuns;
-    private final List<EvolutionResult<T>> results;
+    private final List<EvolutionResult<T, F>> results;
     
     public SimpleExperiment(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -27,7 +28,7 @@ public class SimpleExperiment<T extends Individual> extends Experiment<List<Evol
         
         this.circleOfLife = parameters.getInstanceFromParameter(Parameters.push(base, P_CIRCLE_OF_LIFE), CircleOfLife.class);
         this.numRuns = parameters.getIntParameter(Parameters.push(base, P_NUM_RUNS));
-        this.results = new ArrayList<EvolutionResult<T>>(numRuns);
+        this.results = new ArrayList<EvolutionResult<T, F>>(numRuns);
         assert(repOK());
     }
     
@@ -44,8 +45,8 @@ public class SimpleExperiment<T extends Individual> extends Experiment<List<Evol
     }
 
     @Override
-    public List<EvolutionResult> getResult() {
-        return new ArrayList<EvolutionResult>(results);
+    public List<EvolutionResult<T, F>> getResult() {
+        return new ArrayList<EvolutionResult<T, F>>(results);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

@@ -1,5 +1,7 @@
 package SigmaEC.select;
 
+import SigmaEC.meta.Fitness;
+import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Operator;
 import SigmaEC.represent.Individual;
 import SigmaEC.util.Misc;
@@ -15,10 +17,10 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class RemoveWorstSelectionOperator<T extends Individual> extends Operator<T> {
+public class RemoveWorstSelectionOperator<T extends Individual<F>, F extends Fitness> extends Operator<T> {
     public final static String P_FITNESS_COMPARATOR = "fitnessComparator";
     
-    private final FitnessComparator<T> fitnessComparator;
+    private final FitnessComparator<T, F> fitnessComparator;
     
     public RemoveWorstSelectionOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -31,14 +33,14 @@ public class RemoveWorstSelectionOperator<T extends Individual> extends Operator
     public List<T> operate(final int run, final int generation, final List<T> parentPopulation) {
         assert(parentPopulation != null);
         assert(!parentPopulation.isEmpty());
-        final double worst = Statistics.worst(parentPopulation, fitnessComparator).getFitness();
-        final double best = Statistics.best(parentPopulation, fitnessComparator).getFitness();
-        if (Misc.doubleEquals(worst, best))
+        final F worst = Statistics.worst(parentPopulation, fitnessComparator).getFitness();
+        final F best = Statistics.best(parentPopulation, fitnessComparator).getFitness();
+        if (worst.equals(best))
             return parentPopulation;
         // Return a population containing everything except the worst individuals
         final List<T> newPopulation = new ArrayList<T>() {{
             for (final T ind : parentPopulation)
-                if (!Misc.doubleEquals(worst, ind.getFitness()))
+                if (!worst.equals(ind.getFitness()))
                     add(ind);
         }};
         assert(repOK());

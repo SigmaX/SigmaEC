@@ -9,7 +9,6 @@ import SigmaEC.represent.Decoder;
 import SigmaEC.represent.linear.IntVectorIndividual;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
-import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -74,7 +73,7 @@ public class WeightedCGPMutationRate extends MutationRate {
         if (cgpParameters.isOutputSource(gene)) {
             for (final MultiFunctionFitnessStatisticsMeasurement m : fitnesses.getMeasurements())
                 if (m.getSubFunctionID() == cgpParameters.getOutputForGene(gene))
-                    return min + (max - min)*m.getFitnessStatistics().getBest();
+                    return min + (max - min)*m.getFitnessStatistics().getBest().asScalar();
             throw new IllegalStateException();
         }
         
@@ -91,9 +90,9 @@ public class WeightedCGPMutationRate extends MutationRate {
                 double sumFitnessCompliments = 0.0;
                 for (final MultiFunctionFitnessStatisticsMeasurement m : fitnesses.getMeasurements())
                     if (paths.contains(m.getSubFunctionID())) {
-                        assert(m.getFitnessStatistics().getBest() >= 0);
-                        assert(m.getFitnessStatistics().getBest() <= 1.0);
-                        sumFitnessCompliments += 1 - m.getFitnessStatistics().getBest();
+                        assert(m.getFitnessStatistics().getBest().asScalar() >= 0);
+                        assert(m.getFitnessStatistics().getBest().asScalar() <= 1.0);
+                        sumFitnessCompliments += 1 - m.getFitnessStatistics().getBest().asScalar();
                     }
                 assert(repOK());
                 return min + (max - min)/paths.size()*sumFitnessCompliments;
@@ -102,9 +101,9 @@ public class WeightedCGPMutationRate extends MutationRate {
                 double sumFitness = 0.0;
                 for (final MultiFunctionFitnessStatisticsMeasurement m : fitnesses.getMeasurements())
                     if (paths.contains(m.getSubFunctionID())) {
-                        assert(m.getFitnessStatistics().getBest() >= 0);
-                        assert(m.getFitnessStatistics().getBest() <= 1.0);
-                        sumFitness += m.getFitnessStatistics().getBest();
+                        assert(m.getFitnessStatistics().getBest().asScalar() >= 0);
+                        assert(m.getFitnessStatistics().getBest().asScalar() <= 1.0);
+                        sumFitness += m.getFitnessStatistics().getBest().asScalar();
                     }
                 assert(repOK());
                 return min + (max - min)*Math.exp(c/paths.size()*sumFitness);

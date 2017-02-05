@@ -1,5 +1,6 @@
 package SigmaEC.evaluate.transform;
 
+import SigmaEC.evaluate.ScalarFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.evaluate.objective.real.RosenbrockObjective;
 import SigmaEC.evaluate.objective.real.SphereObjective;
@@ -119,7 +120,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 0, 0 }).build();
         double expResult = 50.0;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
     
@@ -131,7 +132,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -10, -10 }).build();
         double expResult = 50.0;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
     
@@ -143,7 +144,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 10, -10 }).build();
         double expResult = 250.0;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
     
@@ -155,7 +156,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -5, 0 }).build();
         double expResult = 25.0;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
     
@@ -169,7 +170,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 0, 0, 0}).build();
         double expResult = 75.0;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
     
@@ -183,7 +184,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -10, -10, 10 }).build();
         double expResult = 675;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
     
@@ -197,7 +198,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { 10, -10, -5 }).build();
         double expResult = 250.0;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
     
@@ -211,7 +212,7 @@ public class TranslatedDoubleObjectiveTest {
         
         final DoubleVectorIndividual ind = new DoubleVectorIndividual.Builder(new double[] { -5, 0, 0 }).build();
         double expResult = 150;
-        double result = sut.fitness(ind);
+        double result = sut.fitness(ind).asScalar();
         assertEquals(expResult, result, 0.0000001);
     }
 
@@ -223,7 +224,7 @@ public class TranslatedDoubleObjectiveTest {
         final Mockery context = new Mockery() {{
             setImposteriser(ClassImposteriser.INSTANCE);
         }};
-        final ObjectiveFunction<DoubleVectorIndividual> objective = context.mock(ObjectiveFunction.class);
+        final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective = context.mock(ObjectiveFunction.class);
         context.checking(new Expectations() {{
             allowing (objective).getNumDimensions(); will(returnValue(2));
             oneOf (objective).setStep(i);

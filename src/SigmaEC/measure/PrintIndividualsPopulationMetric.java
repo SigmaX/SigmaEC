@@ -1,5 +1,6 @@
 package SigmaEC.measure;
 
+import SigmaEC.meta.Fitness;
 import SigmaEC.meta.Population;
 import SigmaEC.represent.Individual;
 import java.util.ArrayList;
@@ -10,12 +11,12 @@ import java.util.List;
  * 
  * @author Eric 'Siggy' Scott
  */
-public class PrintIndividualsPopulationMetric<T extends Individual> extends PopulationMetric<T>
+public class PrintIndividualsPopulationMetric<T extends Individual<F>, F extends Fitness> extends PopulationMetric<T, F>
 {
     public PrintIndividualsPopulationMetric() {}
     
     @Override
-    public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T> population) {
+    public MultipleStringMeasurement measurePopulation(final int run, final int step, final Population<T, F> population) {
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
@@ -29,7 +30,7 @@ public class PrintIndividualsPopulationMetric<T extends Individual> extends Popu
     }
 
     @Override
-    public void ping(int step, Population<T> population) {
+    public void ping(int step, Population<T, F> population) {
         // Do nothing
     }
 

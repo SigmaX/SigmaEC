@@ -3,7 +3,6 @@ package SigmaEC.meta;
 import SigmaEC.ContractObject;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.Initializer;
-import SigmaEC.select.FitnessComparator;
 import SigmaEC.util.Misc;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +12,7 @@ import java.util.List;
  *
  * @author Eric O. Scott
  */
-public class Population<T extends Individual> extends ContractObject {
+public class Population<T extends Individual<F>, F extends Fitness> extends ContractObject {
     private final List<T>[] subpopulations;
     
     public Population(final int numSubPopulations, final Initializer<T> initializer) {
@@ -60,9 +59,9 @@ public class Population<T extends Individual> extends ContractObject {
     /** 
      * @return The best individual across all subpopulations.
      * 
-     * @param comparator A FitnessComparator that defines what it means for one individual to be "better" than another.
+     * @param comparator A ScalarFitnessComparator that defines what it means for one individual to be "better" than another.
      */
-    public T getBest(final FitnessComparator<T> comparator) {
+    public T getBest(final FitnessComparator<T, F> comparator) {
         assert(comparator != null);
         T best = subpopulations[0].get(0);
         for (final List<T> subpopulation : subpopulations) {
@@ -79,9 +78,9 @@ public class Population<T extends Individual> extends ContractObject {
      * @return The best individual from a particular subpopulation.
      * 
      * @param subpopulation The subpopulation to consider.
-     * @param comparator A FitnessComparator that defines what it means for one individual to be "better" than another.
+     * @param comparator A ScalarFitnessComparator that defines what it means for one individual to be "better" than another.
      */
-    public T getBest(final int subpopulation, final FitnessComparator<T> comparator) {
+    public T getBest(final int subpopulation, final FitnessComparator<T, F> comparator) {
         assert(subpopulation >= 0);
         assert(subpopulation < subpopulations.length);
         assert(comparator != null);
@@ -97,9 +96,9 @@ public class Population<T extends Individual> extends ContractObject {
     /** 
      * @return The worst individual across all subpopulations.
      * 
-     * @param comparator A FitnessComparator that defines what it means for one individual to be "better" than another.
+     * @param comparator A ScalarFitnessComparator that defines what it means for one individual to be "better" than another.
      */
-    public T getWorst(final FitnessComparator<T> comparator) {
+    public T getWorst(final FitnessComparator<T, F> comparator) {
         assert(comparator != null);
         return getBest(comparator.invert());
     }
@@ -108,9 +107,9 @@ public class Population<T extends Individual> extends ContractObject {
      * @return The worst individual from a particular subpopulation.
      * 
      * @param subpopulation The subpopulation to consider.
-     * @param comparator A FitnessComparator that defines what it means for one individual to be "better" than another.
+     * @param comparator A ScalarFitnessComparator that defines what it means for one individual to be "better" than another.
      */
-    public T getWorst(final int subpopulation, final FitnessComparator<T> comparator) {
+    public T getWorst(final int subpopulation, final FitnessComparator<T, F> comparator) {
         assert(subpopulation >= 0);
         assert(subpopulation < subpopulations.length);
         assert(comparator != null);
