@@ -51,6 +51,8 @@ public class FitnessStatisticsPopulationMetric<T extends Individual<F>, P, F ext
     public void ping(final int step, final Population<T, F> population) {
         if (step - lastBSFUpdate > 1)
             throw new IllegalStateException(String.format("%s: the ping() method was called after an interval of %d steps.  It must be called every step in order to maintain a valid record of the best-so-far individual.", this.getClass().getSimpleName(), step - lastBSFUpdate));
+        if (step == lastBSFUpdate)
+            return;
         // Update best so far memory
         final List<T> bestsOfStep = getBestsOfStep(population);
         if (step == 0 && lastBSFUpdate == -1) {
@@ -72,6 +74,7 @@ public class FitnessStatisticsPopulationMetric<T extends Individual<F>, P, F ext
         assert(run >= 0);
         assert(step >= 0);
         assert(population != null);
+        ping(step, population);
         final List<FitnessStatisticsMeasurement> measurements = new ArrayList<FitnessStatisticsMeasurement>() {{
             for (int pop = 0; pop < population.numSuppopulations(); pop++) {
                 add(measureSubpopulation(run, step, pop, population));

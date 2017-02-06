@@ -13,9 +13,7 @@ import java.util.Objects;
  */
 public class ConcatenatedBooleanFunction extends ContractObject implements BooleanFunction {
     public final static String P_FUNCTIONS = "functions";
-    public final static String P_SHARED_INPUTS = "sharedInputs";
     
-    private final boolean sharedInputs;
     private final List<BooleanFunction> functions;
     private final int arity;
     private final int numOutputs;
@@ -23,12 +21,11 @@ public class ConcatenatedBooleanFunction extends ContractObject implements Boole
     public ConcatenatedBooleanFunction(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
-        sharedInputs = parameters.getOptionalBooleanParameter(Parameters.push(base, P_SHARED_INPUTS), true);
         functions = parameters.getInstancesFromParameter(Parameters.push(base, P_FUNCTIONS), BooleanFunction.class);
         int arity = 0;
         int numOutputs = 0;
         for (final BooleanFunction f : functions) {
-            arity = sharedInputs ? Math.max(arity, f.arity()) : arity + f.arity();
+            arity = Math.max(arity, f.arity());
             numOutputs += f.numOutputs();
         }
         this.arity = arity;
@@ -43,12 +40,8 @@ public class ConcatenatedBooleanFunction extends ContractObject implements Boole
         return functions.get(i);
     }
     
-    public int getNumFunctions() {
+    public int numFunctions() {
         return functions.size();
-    }
-    
-    public boolean isSharedInputs() {
-        return sharedInputs;
     }
     
     @Override
@@ -66,15 +59,10 @@ public class ConcatenatedBooleanFunction extends ContractObject implements Boole
         assert(input != null);
         assert(input.length == arity);
         boolean[] output = new boolean[0];
-        int funInputStart = 0;
         for (final BooleanFunction f : functions) {
-            final int funInputEnd = funInputStart + f.arity();
-            assert(funInputEnd <= input.length);
-            final boolean[] funInput = Arrays.copyOfRange(input, funInputStart, funInputEnd);
+            final boolean[] funInput = Arrays.copyOfRange(input, 0, f.arity());
             final boolean[] funOutput = f.execute(funInput);
             output = Misc.prepend(output, funOutput);
-            if (!sharedInputs)
-                funInputStart += f.arity();
         }
         assert(output.length == numOutputs);
         return output;
@@ -85,23 +73,11 @@ public class ConcatenatedBooleanFunction extends ContractObject implements Boole
     public final boolean repOK() {
         return P_FUNCTIONS != null
                 && !P_FUNCTIONS.isEmpty()
-                && P_SHARED_INPUTS != null
-                && !P_SHARED_INPUTS.isEmpty()
                 && functions != null
                 && !functions.isEmpty()
                 && !Misc.containsNulls(functions)
                 && numOutputs == totalOutputs(functions)
-                && !(!sharedInputs && (arity != totalArity(functions)))
-                && !(sharedInputs && (arity != maxArity(functions)));
-    }
-    
-    private final int totalArity(final List<BooleanFunction> functions) {
-        assert(functions != null);
-        assert(!Misc.containsNulls(functions));
-        int arity = 0;
-        for (final BooleanFunction f : functions)
-            arity += f.arity();
-        return arity;
+                && arity == maxArity(functions);
     }
     
     private final int maxArity(final List<BooleanFunction> functions) {
@@ -131,14 +107,12 @@ public class ConcatenatedBooleanFunction extends ContractObject implements Boole
         final ConcatenatedBooleanFunction ref = (ConcatenatedBooleanFunction)o;
         return arity == ref.arity
                 && numOutputs == ref.numOutputs
-                && sharedInputs == ref.sharedInputs
                 && functions.equals(ref.functions);
     }
 
     @Override
     public int hashCode() {
         int hash = 3;
-        hash = 89 * hash + (this.sharedInputs ? 1 : 0);
         hash = 89 * hash + Objects.hashCode(this.functions);
         hash = 89 * hash + this.arity;
         hash = 89 * hash + this.numOutputs;
@@ -147,8 +121,7 @@ public class ConcatenatedBooleanFunction extends ContractObject implements Boole
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%B, %s=%s]", this.getClass().getSimpleName(),
-                P_SHARED_INPUTS, sharedInputs,
+        return String.format("[%s: %s=%s]", this.getClass().getSimpleName(),
                 P_FUNCTIONS, functions);
     }
     // </editor-fold>

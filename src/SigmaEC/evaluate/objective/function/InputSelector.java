@@ -48,7 +48,7 @@ public class InputSelector extends ContractObject implements BooleanFunction {
         assert(output < objective.numOutputs());
         assert(repOK());
         int startForThisChannel = 0;
-        for (int i = 0; i < objective.getNumFunctions(); i++) {
+        for (int i = 0; i < objective.numFunctions(); i++) {
             if (output >= startForThisChannel && output < startForThisChannel + objective.getFunction(i).arity())
                 return i;
             startForThisChannel += objective.getFunction(i).arity();
@@ -84,7 +84,7 @@ public class InputSelector extends ContractObject implements BooleanFunction {
                 && !P_OBJECTIVE.isEmpty()
                 && numChannels > 0
                 && objective != null
-                && numChannels == objective.getNumFunctions()
+                && numChannels == objective.numFunctions()
                 && channel != null
                 && !(channel.isDefined() && channel.get() < 1)
                 && !(channel.isDefined() && channel.get() > numChannels);

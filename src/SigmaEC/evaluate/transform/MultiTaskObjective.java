@@ -45,7 +45,14 @@ public class MultiTaskObjective<P> extends ObjectiveFunction<P, VectorFitness> {
             fitnesses[i] = o.fitness(ind).asScalar();
             sum += fitnesses[i];
         }
-        return new VectorFitness(sum/objectives.size(), fitnesses);
+        return new VectorFitness(sum/objectives.size(), fitnesses, getObjectveNames());
+    }
+    
+    private String[] getObjectveNames() {
+        final String[] names = new String[objectives.size()];
+        for (int i = 0; i < objectives.size(); i++)
+            names[i] = objectives.get(i).getClass().getSimpleName();
+        return names;
     }
     
     private boolean allSameDimensions(final List<ObjectiveFunction<P, ScalarFitness>> objectives) {

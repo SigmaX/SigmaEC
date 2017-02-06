@@ -11,7 +11,7 @@ import java.util.Comparator;
  * 
  * @author Eric O. Scott
  */
-public abstract class FitnessComparator<T extends Individual, F extends Fitness> extends ContractObject implements Comparator<T> {
+public abstract class FitnessComparator<T extends Individual<F>, F extends Fitness> extends ContractObject implements Comparator<T> {
     public abstract boolean betterThan(final T ind, final T ind1);
     public abstract FitnessComparator<T, F> invert();
 }

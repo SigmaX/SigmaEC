@@ -4,7 +4,6 @@ import SigmaEC.meta.Fitness;
 import SigmaEC.meta.FitnessComparator;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.distance.DistanceMeasure;
-import SigmaEC.select.ScalarFitnessComparator;
 import SigmaEC.util.Misc;
 import java.util.List;
 
@@ -66,8 +65,8 @@ public final class Statistics
         return maxIndex;
     }
     
-    /** Return the best individual according to some ScalarFitnessComparator. */
-    public static <T extends Individual, F extends Fitness> T best(final List<T> values, final FitnessComparator<T, F> comparator) {
+    /** Return the best individual according to some FitnessComparator. */
+    public static <T extends Individual<F>, F extends Fitness> T best(final List<T> values, final FitnessComparator<T, F> comparator) {
         assert(values != null);
         assert(comparator != null);
         if (values.isEmpty()) return null;

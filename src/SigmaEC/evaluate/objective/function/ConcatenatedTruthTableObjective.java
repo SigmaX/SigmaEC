@@ -1,8 +1,10 @@
 package SigmaEC.evaluate.objective.function;
 
-import SigmaEC.evaluate.ScalarFitness;
+import SigmaEC.evaluate.VectorFitness;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
+import SigmaEC.util.math.Vector;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -15,88 +17,121 @@ import java.util.Objects;
  * 
  * @author Eric O. Scott
  */
-public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFunction, ScalarFitness> {
+public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFunction, VectorFitness> {
     public final static String P_TARGET_FUNCTION = "targetFunction";
-    public final static String P_SUBFUNCTION = "subFunction";
     public final static String P_PARTIAL_MATCHES = "partialMatches";
     
     private final ConcatenatedBooleanFunction targetFunction;
-    private final BooleanFunction subFunction;
-    private final int subFunctionID;
-    private final int subFunctionOutputOffset;
-    private final int subFunctionInputOffset;
     private final boolean partialMatches;
     
     public ConcatenatedTruthTableObjective(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         targetFunction = parameters.getInstanceFromParameter(Parameters.push(base, P_TARGET_FUNCTION), BooleanFunction.class);
-        subFunctionID = parameters.getOptionalIntParameter(Parameters.push(base, P_SUBFUNCTION), 0);
-        if (subFunctionID < 0 || subFunctionID >= targetFunction.getNumFunctions())
-            throw new IllegalStateException(String.format("%s: parameter '%s' must be non-negative and less than the number of functions (viz., %d).", this.getClass().getSimpleName(), Parameters.push(base, P_SUBFUNCTION), targetFunction.getNumFunctions()));
-        subFunction = targetFunction.getFunction(subFunctionID);
-        subFunctionOutputOffset = getOutputOffset(targetFunction, subFunctionID);
-        subFunctionInputOffset = getInputOffset(targetFunction, subFunctionID);
         partialMatches = parameters.getOptionalBooleanParameter(Parameters.push(base, P_PARTIAL_MATCHES), true);
         assert(repOK());
     }
     
-    public ConcatenatedTruthTableObjective(final ConcatenatedBooleanFunction targetFunction, final int subFunctionID, final boolean partialMatches) {
+    public ConcatenatedTruthTableObjective(final ConcatenatedBooleanFunction targetFunction, final boolean partialMatches) {
         assert(targetFunction != null);
-        assert(subFunctionID >= 0);
-        assert(subFunctionID < targetFunction.getNumFunctions());
         this.targetFunction = targetFunction;
-        this.subFunctionID = subFunctionID;
         this.partialMatches = partialMatches;
-        subFunction = targetFunction.getFunction(subFunctionID);
-        subFunctionOutputOffset = getOutputOffset(targetFunction, subFunctionID);
-        subFunctionInputOffset = getInputOffset(targetFunction, subFunctionID);
         assert(repOK());
     }
     
-    private static int getOutputOffset(final ConcatenatedBooleanFunction targetFunction, final int subFunctionID) {
+    @Override
+    public VectorFitness fitness(final BooleanFunction ind) {
+        assert(ind != null);
+        assert(ind.numOutputs() == targetFunction.numOutputs());
+        assert(ind.arity() == targetFunction.arity());
+        
+        double matches = 0;
+        double[] subFunctionMatches = new double[targetFunction.numFunctions()];
+        
+        // Iterate over every row in the truth table
+        final List<boolean[]> inputs = TruthTableObjective.bitStringPermutations(ind.arity());
+        for (final boolean[] input : inputs) {
+            final boolean[] circuitOutput = ind.execute(input);
+            final boolean[] expectedOutput = targetFunction.execute(input);
+            matches += match(circuitOutput, expectedOutput);
+            subFunctionMatches = Vector.vectorSum(subFunctionMatches, subFunctionMatch(ind, input, circuitOutput, expectedOutput));
+        }
+        
+        final double averageFitness = (double) matches / inputs.size();
+        final double[] subFunctionFitnesses = matchesToFitness(subFunctionMatches, inputs.size());
+        assert(repOK());
+        return new VectorFitness(averageFitness, subFunctionFitnesses, getSubFunctionNames());
+    }
+    
+    private double match(final boolean[] circuitOutput, final boolean[] expectedOutput) {
+        assert(circuitOutput != null);
+        assert(expectedOutput != null);
+        assert(circuitOutput.length > 0);
+        assert(circuitOutput.length == targetFunction.numOutputs());
+        assert(circuitOutput.length == expectedOutput.length);
+        
+        if (partialMatches)
+            return (double) TruthTableObjective.countMatchingElements(circuitOutput, expectedOutput)/circuitOutput.length;
+        else if (Arrays.equals(circuitOutput, expectedOutput))
+            return 1;
+        return 0;
+    }
+    
+    private double[] subFunctionMatch(final BooleanFunction ind, final boolean[] input, final boolean[] circuitOutput, final boolean[] expectedOutput) {
+        assert(ind != null);
+        assert(ind.numOutputs() == targetFunction.numOutputs());
+        assert(ind.arity() == targetFunction.arity());
+        assert(circuitOutput != null);
+        assert(circuitOutput.length == targetFunction.numOutputs());
+        assert(input != null);
+        assert(input.length > 0);
+        
+        final double[] matches = new double[targetFunction.numFunctions()];
+        
+        for (int i = 0; i < targetFunction.numFunctions(); i++) {
+            final BooleanFunction subFunction = targetFunction.getFunction(i);
+            final int subOutputStart = getOutputOffset(i);
+            
+            final boolean[] expectedSubOutput = Arrays.copyOfRange(expectedOutput, subOutputStart, subOutputStart + subFunction.numOutputs());
+            assert(Arrays.equals(expectedSubOutput, targetFunction.getFunction(i).execute(input)));
+            final boolean[] subCircuitOutput = Arrays.copyOfRange(circuitOutput, subOutputStart, subOutputStart + subFunction.numOutputs());
+            final double m;
+            if (partialMatches)
+                m = (double) TruthTableObjective.countMatchingElements(subCircuitOutput, expectedSubOutput)/subCircuitOutput.length;
+            else if (Arrays.equals(subCircuitOutput, expectedSubOutput))
+                m = 1;
+            else
+                m = 0;
+            matches[i] = m;
+        }
+        return matches;
+    }
+    
+    private int getOutputOffset(final int subFunctionID) {
         assert(targetFunction != null);
         assert(subFunctionID >= 0);
-        assert(subFunctionID < targetFunction.getNumFunctions());
+        assert(subFunctionID < targetFunction.numFunctions());
         int subFunctionOutputOffset = 0;
         for (int i = 0; i < subFunctionID; i++)
             subFunctionOutputOffset += targetFunction.getFunction(i).numOutputs();
         return subFunctionOutputOffset;
     }
     
-    private static int getInputOffset(final ConcatenatedBooleanFunction targetFunction, final int subFunctionID) {
-        assert(targetFunction != null);
-        assert(subFunctionID >= 0);
-        assert(subFunctionID < targetFunction.getNumFunctions());
-        if (targetFunction.isSharedInputs())
-            return 0;
-        int subFunctionInputOffset = 0;
-        for (int i = 0; i < subFunctionID; i++)
-            subFunctionInputOffset += targetFunction.getFunction(i).arity();
-        return subFunctionInputOffset;
+    private double[] matchesToFitness(final double[] subFunctionMatches, final int numInputs) {
+        assert(subFunctionMatches != null);
+        assert(!Misc.containsNaNs(subFunctionMatches));
+        assert(numInputs > 0);
+        final double[] subFunctionFitnesses = new double[targetFunction.numFunctions()];
+        for (int i = 0; i < subFunctionMatches.length; i++)
+            subFunctionFitnesses[i] = (double) subFunctionMatches[i] / numInputs;
+        return subFunctionFitnesses;
     }
     
-    @Override
-    public ScalarFitness fitness(final BooleanFunction ind) {
-        assert(ind != null);
-        assert(ind.numOutputs() == targetFunction.numOutputs());
-        final List<boolean[]> inputs = TruthTableObjective.bitStringPermutations(ind.arity());
-        double matches = 0;
-        for (final boolean[] input : inputs) {
-            // Execute the individual on all of the input variables, and only look at the outputs that correspond to the subFunction we care about.
-            final boolean[] indResult = Arrays.copyOfRange(ind.execute(input), subFunctionOutputOffset, subFunctionOutputOffset + subFunction.numOutputs());
-            
-            // Now look specifically at the inputs that are supposed to control the outputs for the subFunction.
-            final boolean[] subFunInput = Arrays.copyOfRange(input, subFunctionInputOffset, subFunctionInputOffset + subFunction.arity());
-            final boolean[] subFunResult = subFunction.execute(subFunInput); // See what outputs they are supposed to produce.
-            
-            if (partialMatches)
-                matches += (double) TruthTableObjective.countMatchingElements(indResult, subFunResult)/subFunction.numOutputs();
-            else if (Arrays.equals(indResult, subFunResult))
-                matches++;
-        }
-        assert(repOK());
-        return new ScalarFitness((double) matches / inputs.size());
+    private String[] getSubFunctionNames() {
+        final String[] names = new String[targetFunction.numFunctions()];
+        for (int i = 0; i < targetFunction.numFunctions(); i++)
+            names[i] = targetFunction.getFunction(i).getClass().getSimpleName();
+        return names;
     }
 
     @Override
@@ -114,20 +149,9 @@ public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFu
     public final boolean repOK() {
         return P_PARTIAL_MATCHES != null
                 && !P_PARTIAL_MATCHES.isEmpty()
-                && P_SUBFUNCTION != null
-                && !P_SUBFUNCTION.isEmpty()
                 && P_TARGET_FUNCTION != null
                 && !P_TARGET_FUNCTION.isEmpty()
-                && targetFunction != null
-                && subFunction != null
-                && subFunctionID >= 0
-                && subFunctionID < targetFunction.getNumFunctions()
-                && subFunctionOutputOffset >= 0
-                && subFunctionOutputOffset < targetFunction.numOutputs()
-                && subFunctionOutputOffset == getOutputOffset(targetFunction, subFunctionID)
-                && subFunctionInputOffset >= 0
-                && subFunctionInputOffset < targetFunction.arity()
-                && subFunctionInputOffset == getInputOffset(targetFunction, subFunctionID);
+                && targetFunction != null;
     }
 
     @Override
@@ -138,7 +162,6 @@ public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFu
             return false;
         final ConcatenatedTruthTableObjective ref = (ConcatenatedTruthTableObjective)o;
         return partialMatches == ref.partialMatches
-                && subFunctionID == ref.subFunctionID
                 && targetFunction.equals(ref.targetFunction);
     }
 
@@ -146,16 +169,14 @@ public class ConcatenatedTruthTableObjective extends ObjectiveFunction<BooleanFu
     public int hashCode() {
         int hash = 7;
         hash = 67 * hash + Objects.hashCode(this.targetFunction);
-        hash = 67 * hash + this.subFunctionID;
         hash = 67 * hash + (this.partialMatches ? 1 : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%B, %s=%d, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%B, %s=%s]", this.getClass().getSimpleName(),
                 P_PARTIAL_MATCHES, partialMatches,
-                P_SUBFUNCTION, subFunctionID,
                 P_TARGET_FUNCTION, targetFunction);
     }
     // </editor-fold>

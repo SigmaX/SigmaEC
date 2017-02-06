@@ -1,16 +1,12 @@
 package SigmaEC.represent.cgp;
 
-import SigmaEC.measure.ConcatenatedBooleanObjectivePopulationMetric;
-import SigmaEC.measure.ConcatenatedBooleanObjectivePopulationMetric.MultiFunctionFitnessStatisticsMeasurement;
-import SigmaEC.measure.MultipleMeasurement;
-import SigmaEC.meta.Population;
+import SigmaEC.evaluate.VectorFitness;
 import SigmaEC.operate.MutationRate;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.linear.IntVectorIndividual;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
-import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Set;
 
@@ -24,7 +20,6 @@ public class WeightedCGPMutationRate extends MutationRate {
     public final static String P_C = "c";
     public final static String P_DECODER = "decoder";
     public final static String P_CGP_PARAMETERS = "cgpParameters";
-    public final static String P_POPULATION_METRIC = "populationMetric";
     public final static String P_SCHEME = "weightingScheme";
     
     private final double min;
@@ -32,12 +27,11 @@ public class WeightedCGPMutationRate extends MutationRate {
     private final double c;
     private final Decoder<IntVectorIndividual, CartesianIndividual> decoder;
     private final CGPParameters cgpParameters;
-    private final ConcatenatedBooleanObjectivePopulationMetric populationMetric;
     public static enum WeightingScheme { LINEAR, EXPONENTIAL };
     private final WeightingScheme weightingScheme;
     
-    private LinearGenomeIndividual lastIndividualAnalyzed = null;
-    private MultipleMeasurement<MultiFunctionFitnessStatisticsMeasurement> fitnesses = null;
+    private Set<Integer> executionPathsForMostRecentInd;
+    private LinearGenomeIndividual mostRecentInd = null;
     
     public WeightedCGPMutationRate(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -50,7 +44,6 @@ public class WeightedCGPMutationRate extends MutationRate {
         c = parameters.getDoubleParameter(Parameters.push(base, P_C));
         decoder = parameters.getInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         cgpParameters = parameters.getInstanceFromParameter(Parameters.push(base, P_CGP_PARAMETERS), CGPParameters.class);
-        populationMetric = parameters.getInstanceFromParameter(Parameters.push(base, P_POPULATION_METRIC), ConcatenatedBooleanObjectivePopulationMetric.class);
         weightingScheme = WeightingScheme.valueOf(parameters.getOptionalStringParameter(Parameters.push(base, P_SCHEME), WeightingScheme.LINEAR.toString()));
         assert(repOK());
     }
@@ -62,23 +55,27 @@ public class WeightedCGPMutationRate extends MutationRate {
         assert(gene < ind.size());
         assert(ind instanceof IntVectorIndividual);
         
-        // Some cashing to make sure that we don't re-calculated fitness when we don't need to
-        if (ind != lastIndividualAnalyzed) {
-            lastIndividualAnalyzed = ind;
-            // Compute the fitness of the circuit on each sub-function
-            fitnesses = populationMetric.measurePopulation(0, step, new Population(new ArrayList() {{ add(ind); }}));
-        }
+        // The individual's Fitness must be a VectorFitness that encodes the circuit's performance on each subtask
+        final VectorFitness fitnesses = (VectorFitness) ind.getFitness();
         
         // If this gene affects only the output source, rate is directly proportional to subFunction fitness
         if (cgpParameters.isOutputSource(gene)) {
-            for (final MultiFunctionFitnessStatisticsMeasurement m : fitnesses.getMeasurements())
-                if (m.getSubFunctionID() == cgpParameters.getOutputForGene(gene))
-                    return min + (max - min)*m.getFitnessStatistics().getBest().asScalar();
-            throw new IllegalStateException();
+            final int funID = cgpParameters.getOutputForGene(gene);
+            return min + (max - min)*fitnesses.getFitness(funID);
         }
         
         // Determine which subFunctions this gene affects the solution for
-        final Set<Integer> paths = getExecutionPathsForGene(gene, ind);
+        final Set<Integer> paths;
+        
+        if (ind == mostRecentInd) { // Some cashing to make sure that we don't re-decode the phenotype when we don't need to
+            mostRecentInd = ind;
+            paths = executionPathsForMostRecentInd;
+        }
+        else {
+            paths = getExecutionPathsForGene(gene, ind);
+            executionPathsForMostRecentInd = paths;
+            mostRecentInd = ind;
+        }
         if (paths.isEmpty()) {
             assert(repOK());
             return max;
@@ -88,23 +85,15 @@ public class WeightedCGPMutationRate extends MutationRate {
             default:
             case LINEAR:
                 double sumFitnessCompliments = 0.0;
-                for (final MultiFunctionFitnessStatisticsMeasurement m : fitnesses.getMeasurements())
-                    if (paths.contains(m.getSubFunctionID())) {
-                        assert(m.getFitnessStatistics().getBest().asScalar() >= 0);
-                        assert(m.getFitnessStatistics().getBest().asScalar() <= 1.0);
-                        sumFitnessCompliments += 1 - m.getFitnessStatistics().getBest().asScalar();
-                    }
+                for (final int funID : paths)
+                    sumFitnessCompliments += 1 - fitnesses.getFitness(funID);
                 assert(repOK());
                 return min + (max - min)/paths.size()*sumFitnessCompliments;
                 
             case EXPONENTIAL:
                 double sumFitness = 0.0;
-                for (final MultiFunctionFitnessStatisticsMeasurement m : fitnesses.getMeasurements())
-                    if (paths.contains(m.getSubFunctionID())) {
-                        assert(m.getFitnessStatistics().getBest().asScalar() >= 0);
-                        assert(m.getFitnessStatistics().getBest().asScalar() <= 1.0);
-                        sumFitness += m.getFitnessStatistics().getBest().asScalar();
-                    }
+                for (final int funID : paths)
+                    sumFitness += fitnesses.getFitness(funID);
                 assert(repOK());
                 return min + (max - min)*Math.exp(c/paths.size()*sumFitness);
         }
@@ -130,8 +119,6 @@ public class WeightedCGPMutationRate extends MutationRate {
                 && !P_CGP_PARAMETERS.isEmpty()
                 && P_DECODER != null
                 && !P_DECODER.isEmpty()
-                && P_POPULATION_METRIC != null
-                && !P_POPULATION_METRIC.isEmpty()
                 && Double.isFinite(min)
                 && min >= 0.0
                 && min <= 1.0
@@ -141,7 +128,6 @@ public class WeightedCGPMutationRate extends MutationRate {
                 && Double.isFinite(c)
                 && decoder != null
                 && cgpParameters != null
-                && populationMetric != null
                 && weightingScheme != null;
     }
 
@@ -157,8 +143,7 @@ public class WeightedCGPMutationRate extends MutationRate {
                 && Misc.doubleEquals(c, ref.c)
                 && weightingScheme.equals(ref.weightingScheme)
                 && cgpParameters.equals(ref.cgpParameters)
-                && decoder.equals(ref.decoder)
-                && populationMetric.equals(ref.populationMetric);
+                && decoder.equals(ref.decoder);
     }
 
     @Override
@@ -169,21 +154,19 @@ public class WeightedCGPMutationRate extends MutationRate {
         hash = 67 * hash + (int) (Double.doubleToLongBits(this.c) ^ (Double.doubleToLongBits(this.c) >>> 32));
         hash = 67 * hash + Objects.hashCode(this.decoder);
         hash = 67 * hash + Objects.hashCode(this.cgpParameters);
-        hash = 67 * hash + Objects.hashCode(this.populationMetric);
         hash = 67 * hash + Objects.hashCode(this.weightingScheme);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%f, %s=%f, %s=%f, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%f, %s=%f, %s=%f, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_MIN, min,
                 P_MAX, max,
                 P_C, c,
                 P_SCHEME, weightingScheme,
                 P_CGP_PARAMETERS, cgpParameters,
-                P_DECODER, decoder,
-                P_POPULATION_METRIC, populationMetric);
+                P_DECODER, decoder);
     }
     // </editor-fold>
 }

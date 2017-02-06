@@ -58,6 +58,21 @@ public final class Vector
         return difference;
     }
     
+    /** Sum of to vectors.
+     * 
+     * @return v1 + v2
+     */
+    public static double[] vectorSum(double[] v1, double[] v2)
+    {
+        assert(v1 != null);
+        assert(v2 != null);
+        assert(v1.length == v2.length);
+        double[] difference = new double[v1.length];
+        for (int i = 0; i < v1.length; i++)
+            difference[i] = v1[i] + v2[i];
+        return difference;
+    }
+    
     public static double[] vectorNegate(double[] v1) {
         assert(v1 != null);
         final double[] neg = new double[v1.length];
