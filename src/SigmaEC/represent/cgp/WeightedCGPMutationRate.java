@@ -30,8 +30,8 @@ public class WeightedCGPMutationRate extends MutationRate {
     public static enum WeightingScheme { LINEAR, EXPONENTIAL };
     private final WeightingScheme weightingScheme;
     
-    private Set<Integer> executionPathsForMostRecentInd;
-    private LinearGenomeIndividual mostRecentInd = null;
+    private LinearGenomeIndividual mostRecentGenotype = null;
+    private CartesianIndividual mostRecentPhenotype = null;
     
     public WeightedCGPMutationRate(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -65,17 +65,8 @@ public class WeightedCGPMutationRate extends MutationRate {
         }
         
         // Determine which subFunctions this gene affects the solution for
-        final Set<Integer> paths;
+        final Set<Integer> paths = getExecutionPathsForGene(gene, ind);
         
-        if (ind == mostRecentInd) { // Some cashing to make sure that we don't re-decode the phenotype when we don't need to
-            mostRecentInd = ind;
-            paths = executionPathsForMostRecentInd;
-        }
-        else {
-            paths = getExecutionPathsForGene(gene, ind);
-            executionPathsForMostRecentInd = paths;
-            mostRecentInd = ind;
-        }
         if (paths.isEmpty()) {
             assert(repOK());
             return max;
@@ -100,7 +91,19 @@ public class WeightedCGPMutationRate extends MutationRate {
     }
     
     private Set<Integer> getExecutionPathsForGene(final int gene, final LinearGenomeIndividual ind) {
-        final CartesianIndividual dInd = decoder.decode((IntVectorIndividual) ind).computeExecutionPaths();
+        assert(gene >= 0);
+        assert(gene < ind.getGenome().size());
+        assert(ind != null);
+        final CartesianIndividual dInd;
+        // Some cashing to make sure that we don't re-decode the phenotype when we don't need to
+        if (ind == mostRecentGenotype) { 
+            dInd = mostRecentPhenotype;
+        }
+        else {
+            dInd = decoder.decode((IntVectorIndividual) ind).computeExecutionPaths();
+            mostRecentPhenotype = dInd;
+            mostRecentGenotype = ind;
+        }
         final int layer = cgpParameters.getLayerForGene(gene);
         final int node = cgpParameters.getNodeForGene(gene);
         return dInd.getExecutionPaths(layer, node);
