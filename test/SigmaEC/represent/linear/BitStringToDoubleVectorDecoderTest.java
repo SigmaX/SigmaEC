@@ -203,11 +203,11 @@ public class BitStringToDoubleVectorDecoderTest {
         assertFalse(sut5.equals(sut1));
         assertFalse(sut5.equals(sut2));
         assertFalse(sut5.equals(sut3));
-        assertFalse(sut5.equals(sut4));
+        assertTrue(sut5.equals(sut4));
         assertFalse(sut1.equals(sut5));
         assertFalse(sut2.equals(sut5));
         assertFalse(sut3.equals(sut5));
-        assertFalse(sut4.equals(sut5));
+        assertTrue(sut4.equals(sut5));
         
         assertTrue(sut1.repOK());
         assertTrue(sut2.repOK());
@@ -221,7 +221,7 @@ public class BitStringToDoubleVectorDecoderTest {
     public void testToString() {
         System.out.println("toString");
         final BitStringToDoubleVectorDecoder sut = new BitStringToDoubleVectorDecoder(new Parameters(properties), BASE);
-        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, min=%f, max=%f]", 5, 4, 0.0, 15.0);
+        final String expResult = String.format("[BitStringToDoubleVectorDecoder: numDimensions=%d, numBitsPerDimension=%d, grayCode=%B, min=%f, max=%f]", 5, 4, false, 0.0, 15.0);
         final String result = sut.toString();
         assertEquals(expResult, result);
         assertTrue(sut.repOK());

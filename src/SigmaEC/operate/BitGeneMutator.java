@@ -4,10 +4,10 @@ import SigmaEC.SRandom;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.BitGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
-import SigmaEC.util.Misc;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -19,18 +19,14 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene, ?>> 
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
     
-    private final double mutationRate;
+    private final MutationRate mutationRate;
     private final Random random;
     
     public BitGeneMutator(final Parameters parameters, final String base) {
         assert(parameters != null);
         assert(base != null);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
-        mutationRate = parameters.getDoubleParameter(Parameters.push(base, P_MUTATION_RATE));
-        if (Double.isInfinite(mutationRate) || Double.isNaN(mutationRate))
-            throw new IllegalStateException(String.format("%s: %s is %f, must be finite.", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
-        if (mutationRate < 0 || mutationRate > 1.0)
-            throw new IllegalStateException(String.format("%s: %s is %f, must be in the range [0, 1.0].", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
+        mutationRate = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATION_RATE), MutationRate.class);
         assert(repOK());
     }
     
@@ -61,9 +57,9 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene, ?>> 
         assert(ind != null);
         final List<BitGene> genome = ind.getGenome();
         final List<BitGene> newGenome = new ArrayList<BitGene>();
-        for (final BitGene g : genome) {
+        for (int i = 0; i < genome.size(); i++) {
             double roll = random.nextDouble();
-            newGenome.add((roll < mutationRate) ? mutate(g) : g);
+            newGenome.add((roll < mutationRate.getRateForGene(i, step, ind)) ? mutate(genome.get(i)) : genome.get(i));
         }
         final List<? extends Individual> parents = ind.hasParents() ?
                 ind.getParents().get() :
@@ -76,15 +72,12 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene, ?>> 
     @Override
     final public boolean repOK() {
         return random != null
-                && !Double.isInfinite(mutationRate)
-                && !Double.isNaN(mutationRate)
-                && mutationRate >= 0
-                && mutationRate <= 1.0;
+                && mutationRate != null;
     }
     
     @Override
     final public String toString() {
-        return String.format("[%s: %s=%f, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_MUTATION_RATE, mutationRate,
                 P_RANDOM, random);
     }
@@ -95,14 +88,14 @@ public class BitGeneMutator extends Mutator<LinearGenomeIndividual<BitGene, ?>> 
             return false;
         final BitGeneMutator ref = (BitGeneMutator)o;
         return random.equals(ref.random)
-                && Misc.doubleEquals(mutationRate, ref.mutationRate);
+                && mutationRate.equals(ref.mutationRate);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 17 * hash + (int) (Double.doubleToLongBits(this.mutationRate) ^ (Double.doubleToLongBits(this.mutationRate) >>> 32));
-        hash = 17 * hash + (this.random != null ? this.random.hashCode() : 0);
+        hash = 73 * hash + Objects.hashCode(this.mutationRate);
+        hash = 73 * hash + Objects.hashCode(this.random);
         return hash;
     }
     //</editor-fold>

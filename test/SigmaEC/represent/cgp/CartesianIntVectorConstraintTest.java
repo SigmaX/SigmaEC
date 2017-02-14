@@ -121,29 +121,14 @@ public class CartesianIntVectorConstraintTest {
 
     @Test
     public void testIsViolated8() {
-        System.out.println("isViolated (output sourced from beyond levelsBack)");
+        System.out.println("isViolated (permit output to be sourced from beyond levelsBack)");
         final IntVectorIndividual individual = new IntVectorIndividual.Builder(new int[] { 0, 1, 0,   0, 1, 1,
                                                                                            0, 2, 3,   1, 2, 2,
                                                                                            0}).build();
         final CartesianIntVectorConstraint instance = new CartesianIntVectorConstraint(getParams().build(), BASE);
-        final boolean expResult = true;
+        final boolean expResult = false;
         final boolean result = instance.isViolated(individual);
         assertEquals(expResult, result);
         assertTrue(instance.repOK());
-    }
-
-    /**
-     * Test of equals method, of class CartesianIntVectorConstraint.
-     */
-    @Test
-    public void testEquals() {
-        System.out.println("equals");
-        Object o = null;
-        CartesianIntVectorConstraint instance = null;
-        boolean expResult = false;
-        boolean result = instance.equals(o);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 }

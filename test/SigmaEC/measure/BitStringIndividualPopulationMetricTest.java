@@ -166,7 +166,7 @@ public class BitStringIndividualPopulationMetricTest {
     public void testCsvHeader1() {
         System.out.println("csvHeader");
         final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters.build(), BASE);
-        String expResult = "run, generation, subpopulation, individualID, fitness, V0, V1, V2, V3, V4";
+        String expResult = "run, step, subpopulation, individualID, fitness, V0, V1, V2, V3, V4";
         String result = sut.csvHeader();
         assertEquals(expResult, result);
         assertTrue(sut.repOK());
@@ -179,7 +179,7 @@ public class BitStringIndividualPopulationMetricTest {
         final BitStringIndividualPopulationMetric<BitStringIndividual<ScalarFitness>, ScalarFitness> sut = new BitStringIndividualPopulationMetric<>(parameters
                 .setParameter(Parameters.push(BASE, BitStringIndividualPopulationMetric.P_BITS), "1")
                 .build(), BASE);
-        String expResult = "run, generation, subpopulation, individualID, fitness, V0";
+        String expResult = "run, step, subpopulation, individualID, fitness, V0";
         String result = sut.csvHeader();
         assertEquals(expResult, result);
         assertTrue(sut.repOK());

@@ -218,7 +218,7 @@ public class TranslatedDoubleObjectiveTest {
 
     @Test
     public void testSetGeneration() {
-        System.out.println("setGeneration");
+        System.out.println("setStep");
         final int i = 0;
         // Mocking the wrapped objective to confirm that its setStep method is called.
         final Mockery context = new Mockery() {{

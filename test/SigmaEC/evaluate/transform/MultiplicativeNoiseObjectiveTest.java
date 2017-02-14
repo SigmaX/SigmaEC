@@ -1,11 +1,18 @@
 package SigmaEC.evaluate.transform;
 
 import SigmaEC.SRandom;
+import SigmaEC.evaluate.ScalarFitness;
+import SigmaEC.evaluate.objective.ObjectiveFunction;
+import SigmaEC.represent.linear.DoubleVectorIndividual;
 import SigmaEC.test.TestIndividual;
 import SigmaEC.test.TestObjective;
 import SigmaEC.util.Parameters;
 import SigmaEC.util.math.Statistics;
 import java.util.Properties;
+import org.jmock.Expectations;
+import static org.jmock.Expectations.returnValue;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -124,39 +131,48 @@ public class MultiplicativeNoiseObjectiveTest {
     @Test
     public void testGetNumDimensions() {
         System.out.println("getNumDimensions");
-        MultiplicativeNoiseObjective instance = null;
-        int expResult = 0;
+        // Mocking the wrapped objective so we can specify its numDimensions as an indirect input to the SUT
+        final Mockery context = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+        final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective = context.mock(ObjectiveFunction.class);
+        context.checking(new Expectations() {{
+            allowing (objective).getNumDimensions(); will(returnValue(2));
+        }});
+        
+        final MultiplicativeNoiseObjective<TestIndividual> instance = new MultiplicativeNoiseObjective(getParams()
+                .clearParameter(Parameters.push(BASE, MultiplicativeNoiseObjective.P_OBJECTIVE))
+                .registerInstance(Parameters.push(BASE, MultiplicativeNoiseObjective.P_OBJECTIVE), objective)
+                .build(), BASE);
+        
+        int expResult = 2;
         int result = instance.getNumDimensions();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertTrue(instance.repOK());
     }
 
-    /**
-     * Test of setStep method, of class MultiplicativeNoiseObjective.
-     */
+    /** Test of setStep method, of class MultiplicativeNoiseObjective. */
     @Test
     public void testSetStep() {
         System.out.println("setStep");
-        int i = 0;
-        MultiplicativeNoiseObjective instance = null;
-        instance.setStep(i);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of equals method, of class MultiplicativeNoiseObjective.
-     */
-    @Test
-    public void testEquals() {
-        System.out.println("equals");
-        Object o = null;
-        MultiplicativeNoiseObjective instance = null;
-        boolean expResult = false;
-        boolean result = instance.equals(o);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        final int step = 17;
+        // Mocking the wrapped objective so we can check that its setStep method is called as an indirect output of the SUT
+        final Mockery context = new Mockery() {{
+            setImposteriser(ClassImposteriser.INSTANCE);
+        }};
+        final ObjectiveFunction<DoubleVectorIndividual<ScalarFitness>, ScalarFitness> objective = context.mock(ObjectiveFunction.class);
+        context.checking(new Expectations() {{
+            allowing (objective).getNumDimensions(); will(returnValue(2));
+            oneOf (objective).setStep(17);
+        }});
+        
+        final MultiplicativeNoiseObjective<TestIndividual> instance = new MultiplicativeNoiseObjective(getParams()
+                .clearParameter(Parameters.push(BASE, MultiplicativeNoiseObjective.P_OBJECTIVE))
+                .registerInstance(Parameters.push(BASE, MultiplicativeNoiseObjective.P_OBJECTIVE), objective)
+                .build(), BASE);
+        
+        instance.setStep(step);
+        context.assertIsSatisfied();
+        assertTrue(instance.repOK());
     }
 }

@@ -29,7 +29,7 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     public final static String P_NUM_DIMENSIONS = "dimensions";
     public final static int HARDBOUND_ATTEMPTS = 10000;
     
-    private final double mutationRate;
+    private final MutationRate mutationRate;
     private final Random random;
     private final double gaussianStd;
     private final Option<double[]> maxValues;
@@ -38,11 +38,7 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     public DoubleGeneGaussianMutator(final Parameters parameters, final String base) {
         this.gaussianStd = parameters.getDoubleParameter(Parameters.push(base, P_GAUSSIAN_STD));
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
-        mutationRate = parameters.getDoubleParameter(Parameters.push(base, P_MUTATION_RATE));
-        if (Double.isInfinite(mutationRate) || Double.isNaN(mutationRate))
-            throw new IllegalStateException(String.format("%s: %s is %f, must be finite.", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
-        if (mutationRate < 0 || mutationRate > 1.0)
-            throw new IllegalStateException(String.format("%s: %s is %f, must be in the range [0, 1.0].", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate));
+        mutationRate = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATION_RATE), MutationRate.class);
         if (Double.isInfinite(gaussianStd) || Double.isNaN(gaussianStd))
             throw new IllegalStateException(String.format("%s: %s is infinite, must be finite.", this.getClass().getSimpleName(), P_GAUSSIAN_STD));
         if (gaussianStd <= 0)
@@ -116,10 +112,10 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     public LinearGenomeIndividual<DoubleGene, ?> mutate(final LinearGenomeIndividual<DoubleGene, ?> ind, final int step) {
         assert(ind != null);
         final List<DoubleGene> genome = ind.getGenome();
-        final List<DoubleGene> newGenome = new ArrayList<DoubleGene>();
+        final List<DoubleGene> newGenome = new ArrayList<>();
         for (int i = 0; i < genome.size(); i++) {
             double roll = random.nextDouble();
-            newGenome.add((roll < mutationRate) ? mutate(genome.get(i), i) : genome.get(i));
+            newGenome.add((roll < mutationRate.getRateForGene(i, step, ind)) ? mutate(genome.get(i), i) : genome.get(i));
         }
         assert(repOK());
         final List<? extends Individual> parents = ind.hasParents() ?
@@ -138,10 +134,7 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
                 && P_RANDOM != null
                 && !P_RANDOM.isEmpty()
                 && random != null
-                && !Double.isInfinite(mutationRate)
-                && !Double.isNaN(mutationRate)
-                && mutationRate >= 0.0
-                && mutationRate <= 1.0
+                && mutationRate != null
                 && !Double.isNaN(gaussianStd)
                 && !Double.isInfinite(gaussianStd)
                 && gaussianStd > 0;
@@ -149,7 +142,7 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     
     @Override
     final public String toString() {
-        return String.format("[%s: %s=%f, %s=%f, %s=%s]", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate, P_GAUSSIAN_STD, gaussianStd, P_RANDOM, random);
+        return String.format("[%s: %s=%s, %s=%f, %s=%s]", this.getClass().getSimpleName(), P_MUTATION_RATE, mutationRate, P_GAUSSIAN_STD, gaussianStd, P_RANDOM, random);
     }
     
     @Override
@@ -161,14 +154,14 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
         
         DoubleGeneGaussianMutator ref = (DoubleGeneGaussianMutator) o;
         return Misc.doubleEquals(gaussianStd, ref.gaussianStd)
-                && Misc.doubleEquals(mutationRate, ref.mutationRate)
+                && mutationRate.equals(ref.mutationRate)
                 && random.equals(ref.random);
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 23 * hash + (int) (Double.doubleToLongBits(this.mutationRate) ^ (Double.doubleToLongBits(this.mutationRate) >>> 32));
+        hash = 23 * hash + (this.mutationRate != null ? this.mutationRate.hashCode() : 0);
         hash = 23 * hash + (this.random != null ? this.random.hashCode() : 0);
         hash = 23 * hash + (int) (Double.doubleToLongBits(this.gaussianStd) ^ (Double.doubleToLongBits(this.gaussianStd) >>> 32));
         return hash;

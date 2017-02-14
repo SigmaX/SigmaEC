@@ -180,7 +180,7 @@ public class DoubleVectorPopulationMetric<T extends Individual<F>, F extends Fit
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append(String.format("%d, %d, %d, %d, %f", run, step, subpopulation, indID, fitness));
+            sb.append(String.format("%d, %d, %d, %d, %s", run, step, subpopulation, indID, fitness));
             for (final double d : values)
                 sb.append(", ").append(d);
             assert(repOK());

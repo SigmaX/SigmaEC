@@ -158,7 +158,7 @@ public class BitStringToDoubleVectorDecoder extends Decoder<BitStringIndividual,
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%d, %s=%d, %s=%s, %s=%f, %s=%f]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%d, %s=%d, %s=%B, %s=%f, %s=%f]", this.getClass().getSimpleName(),
                 P_NUM_DIMENSIONS, numDimensions,
                 P_NUM_BITS_PER_DIMENSION, numBitsPerDimension,
                 P_GRAY_CODE, gray,
