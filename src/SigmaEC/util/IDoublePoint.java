@@ -9,5 +9,7 @@ public class IDoublePoint
     public final double x,y;
     public IDoublePoint(double x, double y) { this.x = x; this.y = y; }
     @Override
-    public String toString() { return String.format("[IDoublePoint: x=%s, y=%s]", x, y); }
+    public String toString() { return String.format("[%s: x=%s, y=%s]", this.getClass().getSimpleName(), x, y); }
+    
+    public double[] toDoubleArray() { return new double[] { x, y }; }
 }

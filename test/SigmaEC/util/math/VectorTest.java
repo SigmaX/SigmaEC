@@ -144,4 +144,158 @@ public class VectorTest {
         double result = Vector.pointToLineEuclideanDistance(point, slopeVector, interceptVector);
         assertEquals(expResult, result, 0.0);
     }
+    
+    @Test
+    public void testCrossProduct1() {
+        System.out.println("crossProduct");
+        final double[] a = new double[] { 1, 1 };
+        final double[] b = new double[] { 2, 2 };
+        final double expResult = 0;
+        final double result = Vector.crossProduct(a, b);
+        assertEquals(expResult, result, 0.0);
+    }
+    
+    @Test
+    public void testCrossProduct2() {
+        System.out.println("crossProduct");
+        final double[] a = new double[] { 1, 1 };
+        final double[] b = new double[] { -2, -2 };
+        final double expResult = 0;
+        final double result = Vector.crossProduct(a, b);
+        assertEquals(expResult, result, 0.0);
+    }
+    
+    @Test
+    public void testCrossProduct3() {
+        System.out.println("crossProduct");
+        final double[] a = new double[] { 1, 1 };
+        final double[] b = new double[] { 1, -1 };
+        final double expResult = -Math.pow(Math.sqrt(2), 2);
+        final double result = Vector.crossProduct(a, b);
+        assertEquals(expResult, result, 0.0000001);
+    }
+    
+    @Test
+    public void testCrossProduct4() {
+        System.out.println("crossProduct");
+        final double[] a = new double[] { 0.1, 0.2 };
+        final double[] b = new double[] { 0.3, 0.4 };
+        final double expResult = 0.1*0.4 - 0.3*0.2;
+        final double result = Vector.crossProduct(a, b);
+        assertEquals(expResult, result, 0.0000001);
+    }
+    
+    @Test
+    public void testCrossProduct5() {
+        System.out.println("crossProduct");
+        final double[] a = new double[] { 0.0, 0.0 };
+        final double[] b = new double[] { 0.3, 0.4 };
+        final double expResult = 0;
+        final double result = Vector.crossProduct(a, b);
+        assertEquals(expResult, result, 0.0000001);
+    }
+    
+    @Test
+    public void testOnSameSide1() {
+        System.out.println("onSameSide");
+        final double[] l1 = new double[] { 0, 0, 0, 1 };
+        final double[] l2 = new double[] { -1, 3, -0.01, -15 };
+        assertTrue(Vector.onSameSide(l1, l2));
+    }
+    
+    @Test
+    public void testOnSameSide2() {
+        System.out.println("onSameSide");
+        final double[] l1 = new double[] { 0, 0, 0, 1 };
+        final double[] l2 = new double[] { 1, 3, 0.01, -15 };
+        assertTrue(Vector.onSameSide(l1, l2));
+    }
+    
+    @Test
+    public void testOnSameSide3() {
+        System.out.println("onSameSide");
+        final double[] l1 = new double[] { 0, 0, 0, 1 };
+        final double[] l2 = new double[] { 1, 3, -0.01, -15 };
+        assertFalse(Vector.onSameSide(l1, l2));
+    }
+    
+    @Test
+    public void testOnSameSide4() {
+        System.out.println("onSameSide");
+        final double[] l1 = new double[] { 0, 0, 0, 1 };
+        final double[] l2 = new double[] { -1, 3, 0.01, -15 };
+        assertFalse(Vector.onSameSide(l1, l2));
+    }
+    
+    @Test
+    public void testOnSameSide5() {
+        System.out.println("onSameSide");
+        final double[] l1 = new double[] { 1, 1, 4, 4 };
+        final double[] l2 = new double[] { -1, 3, 0.01, -15 };
+        assertFalse(Vector.onSameSide(l1, l2));
+    }
+    
+    @Test
+    public void testOnSameSide6() {
+        System.out.println("onSameSide");
+        final double[] l1 = new double[] { 1, 1, 4, 4 };
+        final double[] l2 = new double[] { -1, 3, 0.01, 15 };
+        assertTrue(Vector.onSameSide(l1, l2));
+    }
+    
+    @Test
+    public void testOnSameSide7() {
+        System.out.println("onSameSide");
+        final double[] l1 = new double[] { 1, 1, 4, 4 };
+        final double[] l2 = new double[] { -1, -3, 0.01, -15 };
+        assertTrue(Vector.onSameSide(l1, l2));
+    }
+    
+    @Test
+    public void testCrosses1() {
+        System.out.println("crosses");
+        final double[] l1 = new double[] { 0, 0, 0, 1 };
+        final double[] l2 = new double[] { -1, 0, 1, 0 };
+        assertTrue(Vector.crosses(l1, l2));
+    }
+    
+    @Test
+    public void testCrosses2() {
+        System.out.println("crosses");
+        final double[] l1 = new double[] { 0, 0, 0, 1 };
+        final double[] l2 = new double[] { 1, 0, 1, 0 };
+        assertFalse(Vector.crosses(l1, l2));
+    }
+    
+    @Test
+    public void testCrosses3() {
+        System.out.println("crosses");
+        final double[] l1 = new double[] { 0, 0, 0, 1 };
+        final double[] l2 = new double[] { -1, -1, 1, -1 };
+        assertFalse(Vector.crosses(l1, l2));
+    }
+    
+    @Test
+    public void testCrosses4() {
+        System.out.println("crosses");
+        final double[] l1 = new double[] { 1, 1, 3, 3 };
+        final double[] l2 = new double[] { 1, 3, 3, 1 };
+        assertTrue(Vector.crosses(l1, l2));
+    }
+    
+    @Test
+    public void testCrosses5() {
+        System.out.println("crosses");
+        final double[] l1 = new double[] { 1, 1, 3, 3 };
+        final double[] l2 = new double[] { 4, 6, 6, 4 };
+        assertFalse(Vector.crosses(l1, l2));
+    }
+    
+    @Test
+    public void testCrosses6() {
+        System.out.println("crosses");
+        final double[] l1 = new double[] { 1, 1, 3, 3 };
+        final double[] l2 = new double[] { 4, 3, 6, 1 };
+        assertFalse(Vector.crosses(l1, l2));
+    }
 }
