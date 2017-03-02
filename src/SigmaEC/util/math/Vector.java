@@ -8,16 +8,13 @@ import SigmaEC.util.Misc;
  * 
  * @author Eric 'Siggy' Scott
  */
-public final class Vector
-{
-    public Vector() throws AssertionError
-    {
+public final class Vector {
+    public Vector() throws AssertionError {
         throw new AssertionError("Vector: Attempted to instantiate static utility class.");
     }
     
     /** n-dimensional Euclidean distance. */
-    public static double euclideanDistance(double[] v1, double[] v2)
-    {
+    public static double euclideanDistance(final double[] v1, final double[] v2) {
         assert(v1 != null);
         assert(v2 != null);
         assert(v1.length == v2.length);
@@ -25,13 +22,23 @@ public final class Vector
     }
     
     /** Euclidean length of a vector. */
-    public static double euclideanNorm(double[] v)
-    {
+    public static double euclideanNorm(final double[] v) {
         assert(v != null);
         double sum = 0;
         for (int i = 0; i < v.length; i++)
             sum += Math.pow(v[i], 2);
         return Math.sqrt(sum);
+    }
+    
+    public static double[] normalize(final double[] v) {
+        assert(v != null);
+        assert(!Misc.containsNaNs(v));
+        final double norm = euclideanNorm(v);
+        final double[] normalizedV = new double[v.length];
+        for (int i = 0; i < v.length; i++)
+            normalizedV[i] = v[i]/norm;
+        assert(Misc.doubleEquals(1.0, euclideanNorm(normalizedV)));
+        return normalizedV;
     }
     
     /** Dot product. */
@@ -170,12 +177,52 @@ public final class Vector
         assert(!Misc.containsNaNs(line1));
         assert(!Misc.containsNaNs(line2));
         assert(crosses(line1, line2));
+        
+        if (isVerticle(line1)) {
+            if (!isVerticle(line2))
+                return intersectionPointWithVerticleLine(line1, line2);
+            else {
+                // Both lines are verticle and cross, so they intersect as infinitely many points.
+                // Return an arbitrary point along one of the segments.
+                return new IDoublePoint(line1[0], line1[1]);
+            }
+        }
+        else if (isVerticle(line2))
+                return intersectionPointWithVerticleLine(line2, line1);
+        
+        // Neither line is verticle.
         // Solving algebraically for the intersection of two lines each defined
         // by two points yields the following equations.
         final double theirSlope = (line1[3] - line1[1])/(line1[2] - line1[0]);
         final double ourSlope = (line2[3] - line2[1])/(line2[2] - line2[0]);
         final double xResult = (1.0/(theirSlope - ourSlope)) * (theirSlope*line1[0] - ourSlope*line2[0] + line2[1] - line1[1]);
         final double yResult = theirSlope*(xResult - line1[0]) + line1[1];
+        assert(Double.isFinite(xResult));
+        assert(Double.isFinite(yResult));
+        assert(Misc.doubleEquals(0, pointToLineEuclideanDistance(new double[] { xResult, yResult }, normalize(new double[] { line1[2] - line1[0], line1[3] - line1[1] }), new double[] { line1[0], line1[1] })));
+        assert(Misc.doubleEquals(0, pointToLineEuclideanDistance(new double[] { xResult, yResult }, normalize(new double[] { line2[2] - line2[0], line2[3] - line2[1] }), new double[] { line2[0], line2[1] })));
         return new IDoublePoint(xResult, yResult);
+    }
+    
+    private static IDoublePoint intersectionPointWithVerticleLine(final double[] verticalLine, final double[] otherLine) {
+        assert(verticalLine != null);
+        assert(otherLine != null);
+        assert(verticalLine.length == 4);
+        assert(otherLine.length == 4);
+        assert(!Misc.containsNaNs(verticalLine));
+        assert(!Misc.containsNaNs(otherLine));
+        assert(isVerticle(verticalLine));
+        assert(crosses(verticalLine, otherLine));
+        final double xResult = verticalLine[0];
+        final double slope = (otherLine[3] - otherLine[1])/(otherLine[2] - otherLine[0]);
+        final double yResult = slope*(xResult - otherLine[0]) + otherLine[1];
+        return new IDoublePoint(xResult, yResult);
+    }
+    
+    private static boolean isVerticle(final double[] line) {
+        assert(line != null);
+        assert(line.length == 4);
+        assert(!Misc.containsNaNs(line));
+        return line[0] == line[2];
     }
 }
