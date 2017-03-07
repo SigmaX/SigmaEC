@@ -88,6 +88,8 @@ public class DoubleVectorIndividual<F extends Fitness> extends LinearGenomeIndiv
     @Override
     public DoubleVectorIndividual create(final List<DoubleGene> genome, final List<? extends Individual> parents) {
         assert(genome != null);
+        if (parents.isEmpty())
+            return new Builder(genome).build();
         return new Builder(genome).setParents(parents).build();
     }
 
@@ -133,6 +135,7 @@ public class DoubleVectorIndividual<F extends Fitness> extends LinearGenomeIndiv
         
         public Builder setParents(final List<? extends Individual> parents) {
             assert(parents != null);
+            assert(!parents.isEmpty());
             assert(!Misc.containsNulls(parents));
             this.parents = new Option<>((List<Individual<F>>)new ArrayList(parents));
             return this;

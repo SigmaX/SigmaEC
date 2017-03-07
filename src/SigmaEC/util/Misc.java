@@ -3,14 +3,10 @@ package SigmaEC.util;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.meta.Fitness;
 import SigmaEC.represent.Individual;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -276,6 +272,16 @@ public final class Misc
         final int[] array = new int[times];
         for (int i = 0; i < array.length; i++)
             array[i] = val;
+        return array;
+    }
+        
+    public static double[] repeatValues(final double[] vals, final int times) {
+        assert(vals != null);
+        assert(times >= 0);
+        final double[] array = new double[times*vals.length];
+        for (int i = 0; i < times; i++)
+            for (int j = 0; j < vals.length; j++)
+                array[i*vals.length + j] = vals[j];
         return array;
     }
     

@@ -1,5 +1,6 @@
 package SigmaEC.represent.linear;
 
+import SigmaEC.operate.constraint.Constraint;
 import SigmaEC.represent.Initializer;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
@@ -23,6 +24,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     public final static String P_MAX_VALUES = "maxValues";
     public final static String P_MIN_VALUES = "minValues";
     public final static String P_RANDOM = "random";
+    public final static String P_CONSTRAINT = "constraint";
+    public final static int HARDBOUND_ATTEMPTS = 10000;
     
     private final Option<Integer> populationSize;
     private final int numDimensions;
@@ -31,6 +34,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     private final Option<double[]> maxValues;
     private final Option<double[]> minValues;
     private final Random random;
+    private final Option<Constraint<DoubleVectorIndividual>> constraint;
     
     public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -39,6 +43,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         if (!populationSize.isDefined())
             Logger.getLogger(this.getClass().toString()).log(Level.INFO, String.format("Parameter '%s' is not defined.  This initializer will only be able to generate single individuals.", Parameters.push(base, P_POPULATION_SIZE)));
         numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
+        constraint = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_CONSTRAINT), Constraint.class);
         
         defaultMaxValue = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE));
         maxValues = parameters.getOptionalDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
@@ -61,6 +66,31 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         assert(repOK());
     }
+    
+    public DoubleVectorInitializer(final Option<Integer> populationSize, final int numDimensions, final Option<Double> defaultMaxValue, final Option<Double> defaultMinValue, final Option<double[]> maxValues, final Option<double[]> minValues, final Random random, final Option<Constraint<DoubleVectorIndividual>> constraint) {
+        assert(populationSize != null);
+        assert(numDimensions > 0);
+        assert(defaultMaxValue != null);
+        assert(defaultMinValue != null);
+        assert(maxValues != null);
+        assert(minValues != null);
+        assert(!(populationSize.isDefined() && populationSize.get() <= 0));
+        assert(!(defaultMaxValue.isDefined() ^ defaultMinValue.isDefined()));
+        assert(!(maxValues.isDefined() ^ minValues.isDefined()));
+        assert(defaultMaxValue.isDefined() ^ maxValues.isDefined());
+        assert(!(maxValues.isDefined() && maxValues.get().length != numDimensions));
+        assert(!(minValues.isDefined() && minValues.get().length != maxValues.get().length));
+        assert(random != null);
+        assert(constraint != null);
+        this.populationSize = populationSize;
+        this.numDimensions = numDimensions;
+        this.defaultMaxValue = defaultMaxValue;
+        this.defaultMinValue = defaultMinValue;
+        this.maxValues = maxValues;
+        this.minValues = minValues;
+        this.random = random;
+        this.constraint = constraint;
+    }
 
     @Override
     public List<DoubleVectorIndividual> generatePopulation() {
@@ -76,11 +106,19 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
 
     @Override
     public DoubleVectorIndividual generateIndividual() {
-        final DoubleVectorIndividual newInd = defaultMaxValue.isDefined() ?
-                new DoubleVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
-                : new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get());
         assert(repOK());
-        return newInd;
+        for (int i = 0; i < HARDBOUND_ATTEMPTS; i++) {
+            final DoubleVectorIndividual newInd = defaultMaxValue.isDefined() ?
+                    new DoubleVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
+                    : new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get());
+            if (!constraint.isDefined() || !constraint.get().isViolated(newInd)) {
+                if (i > 0)
+                    Logger.getLogger(this.getClass().getSimpleName()).log(Level.INFO, String.format("Individual generated after %d attempts.", i));
+                return newInd;
+            }
+        }
+        throw new IllegalStateException(String.format("%s: maximum number of attempts reached (%d) while trying to generate and individual that did not violate the specified constraints.", this.getClass().getSimpleName(), HARDBOUND_ATTEMPTS));
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
