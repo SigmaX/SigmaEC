@@ -350,4 +350,14 @@ public final class Misc
         }
         return result;
     }
+    
+    public static String arrayToCSV(final double[] a) {
+        assert(a != null);
+        assert(a.length > 0);
+        final StringBuilder sb = new StringBuilder();
+        sb.append(a[0]);
+        for (int i = 1; i < a.length; i++)
+            sb.append(",").append(a[i]);
+        return sb.toString();
+    }
 }

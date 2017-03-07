@@ -45,11 +45,18 @@ public class Parameters extends ContractObject {
     
     public static class Builder {
         final Properties properties;
-        final Map<String, Object> instanceRegistry = new HashMap<String, Object>();
+        final Map<String, Object> instanceRegistry;
         
         public Builder(final Properties properties) {
             assert(properties != null);
             this.properties = (Properties) properties.clone();
+            instanceRegistry = new HashMap<String, Object>();
+        }
+        
+        public Builder(final Parameters parameters) {
+            assert(parameters !=  null);
+            this.properties = (Properties) parameters.properties.clone();
+            this.instanceRegistry = new HashMap<>(parameters.instanceRegistry);
         }
         
         /** Add a parameter-instance pair to this Parameters database's registry
