@@ -183,26 +183,6 @@ public final class Misc
         return true;
     }
     
-    public static Writer openFile(final String path) {
-        assert(path != null);
-        try {
-            File file = new File(path);
-
-            // if file doesnt exists, then create it
-            if (!file.exists()) {
-                    file.createNewFile();
-            }
-
-            FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            BufferedWriter bw = new BufferedWriter(fw);
-            return bw;
-        }
-        catch(final IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-    
     public static String inputStreamToString(final InputStream is) throws IOException {
         assert(is != null);
         final char[] buffer = new char[200];

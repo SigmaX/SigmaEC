@@ -406,6 +406,59 @@ public class Parameters extends ContractObject {
     }
     // </editor-fold>
     
+    // <editor-fold defaultstate="collapsed" desc="Boolean Array">
+    
+    public boolean[] getBooleanArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        final String[] booleanStrings = getStringParameter(parameterName).split(LIST_DELIMITER);
+        final boolean[] array = new boolean[booleanStrings.length];
+        for (int i = 0; i < booleanStrings.length; i++)
+            array[i] = Boolean.parseBoolean(booleanStrings[i].trim());
+        return array;
+    }
+    
+    public Option<boolean[]> getOptionalBooleanArrayParameter(final String parameterName) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        if (properties.containsKey(parameterName))
+            return new Option<>(getBooleanArrayParameter(parameterName));
+        else
+            return Option.NONE;
+    }
+    
+    public boolean[] getOptionalBooleanArrayParameter(final String parameterName, final boolean[] deflt) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(deflt != null);
+        final Option<boolean[]> opt = getOptionalBooleanArrayParameter(parameterName);
+        return opt.isDefined() ? opt.get() : deflt;
+    }
+    
+    public boolean[] getOptionalBooleanArrayParameter(final String parameterName, final String defaultParameter) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        final Option<boolean[]> opt = getOptionalBooleanArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getBooleanArrayParameter(defaultParameter);
+    }
+    
+    public boolean[] getOptionalBooleanArrayParameter(final String parameterName, final String defaultParameter, final boolean[] defaultValue) {
+        assert(parameterName != null);
+        assert(!parameterName.isEmpty());
+        assert(defaultParameter != null);
+        assert(!defaultParameter.isEmpty());
+        assert(defaultValue != null);
+        final Option<boolean[]> opt = getOptionalBooleanArrayParameter(parameterName);
+        if (opt.isDefined())
+            return opt.get();
+        return getOptionalBooleanArrayParameter(defaultParameter, defaultValue);
+    }
+    // </editor-fold>
+    
     // <editor-fold defaultstate="collapsed" desc="Double">
     public double getDoubleParameter(final String parameterName) {
         assert(parameterName != null);
@@ -871,7 +924,6 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(deflt != null);
-        assert(!deflt.isEmpty());
         assert(!Misc.containsNulls(deflt));
         final Option<List<T>> opt = getOptionalInstancesFromParameter(parameterName, expectedSuperClass);
         return opt.isDefined() ? opt.get() : deflt;
@@ -881,7 +933,6 @@ public class Parameters extends ContractObject {
         assert(parameterName != null);
         assert(!parameterName.isEmpty());
         assert(deflt != null);
-        assert(!deflt.isEmpty());
         assert(!Misc.containsNulls(deflt));
         final Option<List<T>> opt = getOptionalNewInstancesFromParameter(parameterName, expectedSuperClass);
         return opt.isDefined() ? opt.get() : deflt;
