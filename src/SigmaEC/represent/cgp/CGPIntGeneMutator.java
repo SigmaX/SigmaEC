@@ -6,13 +6,14 @@ import SigmaEC.operate.MutationRate;
 import SigmaEC.operate.Mutator;
 import SigmaEC.represent.linear.IntGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
-import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.Objects;
 import java.util.Random;
 
 /**
- *
+ * An IntGeneMutator that is aware of the minimum and maximum values each
+ * gene is allowed in a CGP representation.
+ * 
  * @author Eric O. Scott
  */
 public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> {
@@ -29,7 +30,7 @@ public class CGPIntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?
         cgpParameters = parameters.getInstanceFromParameter(Parameters.push(base, P_CGP_PARAMETERS), CGPParameters.class);
         final Random random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         final MutationRate mutationRate = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATION_RATE), MutationRate.class);
-        wrappedMutator = new IntGeneMutator(mutationRate, random, cgpParameters.getMinBounds(), cgpParameters.getMaxBounds(), new Option(new CartesianIntVectorConstraint(cgpParameters)), true);
+        wrappedMutator = new IntGeneMutator(mutationRate, random, cgpParameters.getMinBounds(), cgpParameters.getMaxBounds());
         assert(repOK());
     }
     

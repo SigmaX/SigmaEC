@@ -1,7 +1,6 @@
 package SigmaEC.operate;
 
 import SigmaEC.SRandom;
-import SigmaEC.operate.constraint.Constraint;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.IntGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
@@ -13,8 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -23,21 +20,16 @@ import java.util.logging.Logger;
 public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> {
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
-    public final static String P_CONSTRAINT = "constraint";
     public final static String P_DEFAULT_MIN = "defaultMin";
     public final static String P_DEFAULT_MAX = "defaultMax";
     public final static String P_MAXES = "maxes";
     public final static String P_MINS = "mins";
     public final static String P_NUM_DIMENSIONS = "dimensions";
-    public final static String P_STOP_ON_CONSTRAINT_VIOLATION = "stopOnConstraintViolation";
-    public final static int HARDBOUND_ATTEMPTS = 10000;
 
     private final MutationRate mutationRate;
     private final Random random;
     private final int[] maxes;
     private final int[] mins;
-    private final Option<Constraint<LinearGenomeIndividual<IntGene, ?>>> constraint;
-    private final boolean stopOnConstraintViolation;
     
     public IntGeneMutator(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -45,8 +37,6 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
         if (random == null)
             throw new IllegalStateException(String.format("%s: %s is null.", this.getClass().getSimpleName(), P_RANDOM));
-        constraint = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_CONSTRAINT), Constraint.class);
-        stopOnConstraintViolation = parameters.getOptionalBooleanParameter(Parameters.push(base, P_STOP_ON_CONSTRAINT_VIOLATION), false);
         mutationRate = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATION_RATE), MutationRate.class);
         
         final Option<Integer> numDimensions = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
@@ -79,20 +69,17 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
         assert(repOK());
     }
 
-    public IntGeneMutator(final MutationRate mutationRate, final Random random, final int[] mins, final int[] maxes, final Option<Constraint<LinearGenomeIndividual<IntGene, ?>>> constraint, final boolean stopOnConstraintViolation) {
+    public IntGeneMutator(final MutationRate mutationRate, final Random random, final int[] mins, final int[] maxes) {
         assert(mutationRate != null);
         assert(random != null);
         assert(mins != null);
         assert(maxes != null);
         assert(mins.length == maxes.length);
         assert(Misc.arrayLessThanOrEqualTo(mins, maxes));
-        assert(constraint != null);
         this.mutationRate = mutationRate;
         this.random = random;
         this.mins = Arrays.copyOf(mins, mins.length);
         this.maxes = Arrays.copyOf(maxes, maxes.length);
-        this.constraint = constraint;
-        this.stopOnConstraintViolation = stopOnConstraintViolation;
         assert(repOK());
     }
     
@@ -118,7 +105,7 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
     public LinearGenomeIndividual<IntGene, ?> mutate(final LinearGenomeIndividual<IntGene, ?> ind, final int step) {
         assert(ind != null);
         final List<IntGene> genome = ind.getGenome();
-        final List<IntGene> newGenome = new ArrayList<IntGene>();
+        final List<IntGene> newGenome = new ArrayList<>();
         for (int i = 0; i < genome.size(); i++) {
             double roll = random.nextDouble();
             newGenome.add((roll < mutationRate.getRateForGene(i, step, ind)) ? mutate(genome.get(i), i, ind) : genome.get(i));
@@ -128,7 +115,6 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
                 new ArrayList<Individual>() {{ add(ind); }};
         final LinearGenomeIndividual<IntGene, ?> result = ind.create(newGenome, parents);
         assert(repOK());
-        assert(!(constraint.isDefined() && constraint.get().isViolated(result)));
         return result;
     }
     
@@ -139,37 +125,13 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
         assert(i < mins.length);
         if (maxes[i] - mins[i] == 0)
             return gene;
-        if (!constraint.isDefined())
-            return new IntGene(random.nextInt(maxes[i] - mins[i]) + mins[i]);
-        for (int attempt = 0; attempt < HARDBOUND_ATTEMPTS; attempt++) {
-            final IntGene newGene = new IntGene(random.nextInt(maxes[i] - mins[i]) + mins[i]);
-            if (!constraint.get().isViolated(buildIndividualWithGene(ind, newGene, i)))
-                return newGene;
-            else if (stopOnConstraintViolation)
-                throw new IllegalStateException(String.format("%s: unexpected constraint violation.", this.getClass().getSimpleName()));
-        }
-        Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING,
-                String.format("After attempting %d integer reset mutations the range [%d, %d] for the %dth gene, no valid gene value was found satisfying the specified constraints.",
-                HARDBOUND_ATTEMPTS, mins[i], maxes[i], i));
-        return gene; // Give up
-    }
-    
-    private LinearGenomeIndividual<IntGene, ?> buildIndividualWithGene(final LinearGenomeIndividual<IntGene, ?> ind, IntGene gene, final int i) {
-        assert(ind != null);
-        assert(gene != null);
-        assert(i >= 0);
-        assert(i < ind.size());
-        final List<IntGene> newGenome = ind.getGenome();
-        newGenome.set(i, gene);
-        return ind.create(newGenome, new ArrayList());
+        return new IntGene(random.nextInt(maxes[i] - mins[i]) + mins[i]);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
     public final boolean repOK() {
-        return P_CONSTRAINT != null
-                && !P_CONSTRAINT.isEmpty()
-                && P_DEFAULT_MAX != null
+        return P_DEFAULT_MAX != null
                 && !P_DEFAULT_MAX.isEmpty()
                 && P_DEFAULT_MIN != null
                 && !P_DEFAULT_MIN.isEmpty()
@@ -188,9 +150,7 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
                 && maxes != null
                 && mins != null
                 && maxes.length == mins.length
-                && Misc.arrayLessThanOrEqualTo(mins, maxes)
-                && constraint != null
-                && !(stopOnConstraintViolation && !constraint.isDefined());
+                && Misc.arrayLessThanOrEqualTo(mins, maxes);
     }
     
     @Override
@@ -200,12 +160,10 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
         if (!(o instanceof IntGeneMutator))
             return false;
         final IntGeneMutator ref = (IntGeneMutator)o;
-        return stopOnConstraintViolation == ref.stopOnConstraintViolation
-                && mutationRate.equals(ref.mutationRate)
+        return mutationRate.equals(ref.mutationRate)
                 && random.equals(ref.random)
                 && Arrays.equals(maxes, ref.maxes)
-                && Arrays.equals(mins, ref.mins)
-                && constraint.equals(ref.constraint);
+                && Arrays.equals(mins, ref.mins);
     }
 
     @Override
@@ -215,20 +173,16 @@ public class IntGeneMutator extends Mutator<LinearGenomeIndividual<IntGene, ?>> 
         hash = 89 * hash + Objects.hashCode(this.random);
         hash = 89 * hash + Arrays.hashCode(this.maxes);
         hash = 89 * hash + Arrays.hashCode(this.mins);
-        hash = 89 * hash + Objects.hashCode(this.constraint);
-        hash = 89 * hash + (this.stopOnConstraintViolation ? 1 : 0);
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%B, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
-                P_STOP_ON_CONSTRAINT_VIOLATION, stopOnConstraintViolation,
+        return String.format("[%s: %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
                 P_MUTATION_RATE, mutationRate,
                 P_RANDOM, random,
                 P_MAXES, Arrays.toString(maxes),
-                P_MINS, Arrays.toString(mins),
-                P_CONSTRAINT, constraint);
+                P_MINS, Arrays.toString(mins));
     }
     // </editor-fold>
 }

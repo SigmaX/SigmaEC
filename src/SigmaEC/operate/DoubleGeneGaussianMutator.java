@@ -1,7 +1,6 @@
 package SigmaEC.operate;
 
 import SigmaEC.SRandom;
-import SigmaEC.operate.constraint.Constraint;
 import SigmaEC.represent.Individual;
 import SigmaEC.represent.linear.DoubleGene;
 import SigmaEC.represent.linear.LinearGenomeIndividual;
@@ -24,13 +23,11 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     public final static String P_GAUSSIAN_STD = "gaussianStd";
     public final static String P_RANDOM = "random";
     public final static String P_MUTATION_RATE = "mutationRate";
-    public final static String P_CONSTRAINT = "constraint";
     public final static String P_DEFAULT_MAX_VALUE = "defaultMaxValue";
     public final static String P_DEFAULT_MIN_VALUE = "defaultMinValue";
     public final static String P_MAX_VALUES = "maxValues";
     public final static String P_MIN_VALUES = "minValues";
     public final static String P_NUM_DIMENSIONS = "dimensions";
-    public final static String P_STOP_ON_CONSTRAINT_VIOLATION = "stopOnConstraintViolation";
     public final static int HARDBOUND_ATTEMPTS = 10000;
     
     private final MutationRate mutationRate;
@@ -38,14 +35,10 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     private final double gaussianStd;
     private final Option<double[]> maxValues;
     private final Option<double[]> minValues;
-    private final Option<Constraint<LinearGenomeIndividual<DoubleGene, ?>>> constraint;
-    private final boolean stopOnConstraintViolation;
     
     public DoubleGeneGaussianMutator(final Parameters parameters, final String base) {
         this.gaussianStd = parameters.getDoubleParameter(Parameters.push(base, P_GAUSSIAN_STD));
         this.random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), SRandom.class);
-        constraint = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_CONSTRAINT), Constraint.class);
-        stopOnConstraintViolation = parameters.getOptionalBooleanParameter(Parameters.push(base, P_STOP_ON_CONSTRAINT_VIOLATION), true);
         mutationRate = parameters.getInstanceFromParameter(Parameters.push(base, P_MUTATION_RATE), MutationRate.class);
         if (Double.isInfinite(gaussianStd) || Double.isNaN(gaussianStd))
             throw new IllegalStateException(String.format("%s: %s is infinite, must be finite.", this.getClass().getSimpleName(), P_GAUSSIAN_STD));
@@ -124,11 +117,11 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     }
     
     private DoubleGene mutate(final LinearGenomeIndividual<DoubleGene, ?> ind, final DoubleGene gene, final int i) {
-        if (!usingHardBounds() && !constraint.isDefined())
+        if (!usingHardBounds())
             return new DoubleGene(gene.value + Misc.gaussianSample(random)*gaussianStd);
         for (int attempt = 0; attempt < HARDBOUND_ATTEMPTS; attempt++) {
             final double newValue = gene.value + Misc.gaussianSample(random)*gaussianStd;
-            if (withinBoundsForGene(newValue, i) && !constraintIsViolated(ind, newValue, i)) {
+            if (withinBoundsForGene(newValue, i)) {
                 if (attempt > 0)
                     Logger.getLogger(this.getClass().getSimpleName()).log(Level.INFO, String.format("Valid individual generated after %d mutation attempts.", attempt));
                 return new DoubleGene(newValue);
@@ -136,8 +129,6 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
         }
         Logger.getLogger(this.getClass().getSimpleName()).log(Level.WARNING,
                 String.format("Failed to find a valid gene value after attempting %d Gaussian mutations on a single gene.", HARDBOUND_ATTEMPTS));
-        if (stopOnConstraintViolation)
-            throw new IllegalStateException(String.format("%s: unexpected constraint violation.", this.getClass().getSimpleName()));
         return gene; // Give up
     }
     
@@ -145,23 +136,6 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
         assert(i >= 0);
         return !usingHardBounds() || 
                 (value <= maxValues.get()[i] && value >= minValues.get()[i]);
-    }
-    
-    private boolean constraintIsViolated(final LinearGenomeIndividual<DoubleGene, ?> ind, final double gene, final int i) {
-        assert(ind != null);
-        assert(i >= 0);
-        return constraint.isDefined()
-                && constraint.get().isViolated(buildIndividualWithGene(ind, new DoubleGene(gene), i));
-    }
-    
-    private LinearGenomeIndividual<DoubleGene, ?> buildIndividualWithGene(final LinearGenomeIndividual<DoubleGene, ?> ind, final DoubleGene gene, final int i) {
-        assert(ind != null);
-        assert(gene != null);
-        assert(i >= 0);
-        assert(i < ind.size());
-        final List<DoubleGene> newGenome = ind.getGenome();
-        newGenome.set(i, gene);
-        return ind.create(newGenome, new ArrayList());
     }
     
     //<editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -173,10 +147,6 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
                 && !P_GAUSSIAN_STD.isEmpty()
                 && P_RANDOM != null
                 && !P_RANDOM.isEmpty()
-                && P_CONSTRAINT != null
-                && !P_CONSTRAINT.isEmpty()
-                && P_STOP_ON_CONSTRAINT_VIOLATION != null
-                && !P_STOP_ON_CONSTRAINT_VIOLATION.isEmpty()
                 && random != null
                 && mutationRate != null
                 && !Double.isNaN(gaussianStd)
@@ -186,11 +156,9 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
     
     @Override
     final public String toString() {
-        return String.format("[%s: %s=%s, %s=%f, %s=%B, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%f, %s=%s]", this.getClass().getSimpleName(),
                 P_MUTATION_RATE, mutationRate,
                 P_GAUSSIAN_STD, gaussianStd,
-                P_STOP_ON_CONSTRAINT_VIOLATION, stopOnConstraintViolation,
-                P_CONSTRAINT, constraint,
                 P_RANDOM, random);
     }
     
@@ -203,8 +171,6 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
         
         DoubleGeneGaussianMutator ref = (DoubleGeneGaussianMutator) o;
         return Misc.doubleEquals(gaussianStd, ref.gaussianStd)
-                && stopOnConstraintViolation == ref.stopOnConstraintViolation
-                && constraint.equals(ref.constraint)
                 && mutationRate.equals(ref.mutationRate)
                 && random.equals(ref.random);
     }
@@ -215,8 +181,6 @@ public class DoubleGeneGaussianMutator extends Mutator<LinearGenomeIndividual<Do
         hash = 47 * hash + Objects.hashCode(this.mutationRate);
         hash = 47 * hash + Objects.hashCode(this.random);
         hash = 47 * hash + (int) (Double.doubleToLongBits(this.gaussianStd) ^ (Double.doubleToLongBits(this.gaussianStd) >>> 32));
-        hash = 47 * hash + Objects.hashCode(this.constraint);
-        hash = 47 * hash + (this.stopOnConstraintViolation ? 1 : 0);
         return hash;
     }
 
