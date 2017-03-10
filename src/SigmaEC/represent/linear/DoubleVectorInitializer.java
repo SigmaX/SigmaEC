@@ -25,7 +25,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     public final static String P_MIN_VALUES = "minValues";
     public final static String P_RANDOM = "random";
     public final static String P_CONSTRAINT = "constraint";
-    public final static int HARDBOUND_ATTEMPTS = 10000;
+    public final static String P_MAX_ATTEMPTS = "maxAttempts";
+    public final static int DEFAULT_CONSTRAINT_ATTEMPTS = 10000;
     
     private final Option<Integer> populationSize;
     private final int numDimensions;
@@ -35,6 +36,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     private final Option<double[]> minValues;
     private final Random random;
     private final Option<Constraint<DoubleVectorIndividual>> constraint;
+    private final int maxAttempts;
     
     public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -44,6 +46,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
             Logger.getLogger(this.getClass().toString()).log(Level.INFO, String.format("Parameter '%s' is not defined.  This initializer will only be able to generate single individuals.", Parameters.push(base, P_POPULATION_SIZE)));
         numDimensions = parameters.getIntParameter(Parameters.push(base, P_NUM_DIMENSIONS));
         constraint = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_CONSTRAINT), Constraint.class);
+        maxAttempts = parameters.getOptionalIntParameter(Parameters.push(base, P_MAX_ATTEMPTS), DEFAULT_CONSTRAINT_ATTEMPTS);
         
         defaultMaxValue = parameters.getOptionalDoubleParameter(Parameters.push(base, P_DEFAULT_MAX_VALUE));
         maxValues = parameters.getOptionalDoubleArrayParameter(Parameters.push(base, P_MAX_VALUES));
@@ -67,7 +70,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         assert(repOK());
     }
     
-    public DoubleVectorInitializer(final Option<Integer> populationSize, final int numDimensions, final Option<Double> defaultMaxValue, final Option<Double> defaultMinValue, final Option<double[]> maxValues, final Option<double[]> minValues, final Random random, final Option<Constraint<DoubleVectorIndividual>> constraint) {
+    public DoubleVectorInitializer(final Option<Integer> populationSize, final int numDimensions, final Option<Double> defaultMaxValue, final Option<Double> defaultMinValue, final Option<double[]> maxValues, final Option<double[]> minValues, final Random random, final Option<Constraint<DoubleVectorIndividual>> constraint, final int maxAttempts) {
         assert(populationSize != null);
         assert(numDimensions > 0);
         assert(defaultMaxValue != null);
@@ -90,6 +93,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         this.minValues = minValues;
         this.random = random;
         this.constraint = constraint;
+        this.maxAttempts = maxAttempts;
     }
 
     @Override
@@ -107,7 +111,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     @Override
     public DoubleVectorIndividual generateIndividual() {
         assert(repOK());
-        for (int i = 0; i < HARDBOUND_ATTEMPTS; i++) {
+        for (int i = 0; i < DEFAULT_CONSTRAINT_ATTEMPTS; i++) {
             final DoubleVectorIndividual newInd = defaultMaxValue.isDefined() ?
                     new DoubleVectorIndividual(random, numDimensions, defaultMinValue.get(), defaultMaxValue.get())
                     : new DoubleVectorIndividual(random, numDimensions, minValues.get(), maxValues.get());
@@ -117,7 +121,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 return newInd;
             }
         }
-        throw new IllegalStateException(String.format("%s: maximum number of attempts reached (%d) while trying to generate and individual that did not violate the specified constraints.", this.getClass().getSimpleName(), HARDBOUND_ATTEMPTS));
+        throw new IllegalStateException(String.format("%s: maximum number of attempts reached (%d) while trying to generate and individual that did not violate the specified constraints.", this.getClass().getSimpleName(), DEFAULT_CONSTRAINT_ATTEMPTS));
 
     }
 
@@ -138,6 +142,10 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 && !P_POPULATION_SIZE.isEmpty()
                 && P_RANDOM != null
                 && !P_RANDOM.isEmpty()
+                && P_MAX_ATTEMPTS != null
+                && !P_MAX_ATTEMPTS.isEmpty()
+                && P_CONSTRAINT != null
+                && !P_CONSTRAINT.isEmpty()
                 && populationSize != null
                 && !(populationSize.isDefined() && populationSize.get() <= 0)
                 && numDimensions > 0
@@ -146,7 +154,9 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
                 && !(minValues.isDefined() && minValues.get().length != numDimensions)
                 && random != null
                 && !(maxValues.isDefined() && Misc.containsNaNs(maxValues.get()))
-                && !(maxValues.isDefined() && Misc.containsNaNs(minValues.get()));
+                && !(maxValues.isDefined() && Misc.containsNaNs(minValues.get()))
+                && constraint != null
+                && maxAttempts > 0;
     }
 
     @Override
@@ -155,6 +165,8 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
             return false;
         final DoubleVectorInitializer ref = (DoubleVectorInitializer) o;
         return numDimensions == ref.numDimensions
+                && maxAttempts == ref.maxAttempts
+                && constraint.equals(ref.constraint)
                 && populationSize.equals(ref.populationSize)
                 && random.equals(ref.random)
                 && maxValues.equals(ref.maxValues)
@@ -168,6 +180,7 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
         int hash = 7;
         hash = 61 * hash + Objects.hashCode(this.populationSize);
         hash = 61 * hash + this.numDimensions;
+        hash = 61 * hash + this.maxAttempts;
         hash = 61 * hash + Objects.hashCode(this.defaultMaxValue);
         hash = 61 * hash + Objects.hashCode(this.defaultMinValue);
         hash = 61 * hash + Objects.hashCode(this.maxValues);
@@ -178,14 +191,16 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%s, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%s, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%s, %s=%d]", this.getClass().getSimpleName(),
                 P_POPULATION_SIZE, populationSize,
                 P_NUM_DIMENSIONS, numDimensions,
                 P_RANDOM, random,
                 P_DEFAULT_MIN_VALUE, defaultMinValue,
                 P_DEFAULT_MAX_VALUE, defaultMaxValue,
                 P_MIN_VALUES, minValues,
-                P_MAX_VALUES, maxValues);
+                P_MAX_VALUES, maxValues,
+                P_CONSTRAINT, constraint,
+                P_MAX_ATTEMPTS, maxAttempts);
     }
     // </editor-fold>
 }

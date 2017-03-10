@@ -79,10 +79,11 @@ public class MutatingOperator<T extends Individual> extends Operator<T> {
         assert(ind != null);
         if (!constraint.isDefined())
             return mutator.mutate(ind, step);
+        assert(!constraint.get().isViolated(ind));
         int attempt = 0;
         while (attempt < maxAttempts) {
             final T child = mutator.mutate(ind, step);
-            if (!constraint.get().isViolated(ind)) {
+            if (!constraint.get().isViolated(child)) {
                 if (attempt > 0)
                     Logger.getLogger(this.getClass().getSimpleName()).log(Level.INFO, String.format("Valid individual generated after %d mutation attempts.", attempt));
                 assert(repOK());

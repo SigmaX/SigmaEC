@@ -65,7 +65,7 @@ public class MatingOperator<T extends Individual> extends Operator<T> {
             List<T> parents = new ArrayList<T>();
             for (int i = 0; i < mator.getNumParents(); i++)
                 parents.add(parentSelector.selectIndividual(population));
-            offspring.addAll(mator.mate(parents));
+            offspring.addAll(mate(parents));
         }
         assert(population.size() == offspring.size());
         assert(repOK());
@@ -77,6 +77,7 @@ public class MatingOperator<T extends Individual> extends Operator<T> {
         assert(!parents.isEmpty());
         if (!constraint.isDefined())
             return mator.mate(parents);
+        assert(!constraintIsViolatedForAny(parents));
         int attempt = 0;
         while (attempt < maxAttempts) {
             final List<T> children = mator.mate(parents);
