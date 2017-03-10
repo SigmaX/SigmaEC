@@ -1,5 +1,6 @@
 package SigmaEC.util.math;
 
+import SigmaEC.util.IDoublePoint;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -297,5 +298,38 @@ public class VectorTest {
         final double[] l1 = new double[] { 1, 1, 3, 3 };
         final double[] l2 = new double[] { 4, 3, 6, 1 };
         assertFalse(Vector.crosses(l1, l2));
+    }
+    
+    @Test
+    public void testIntersectionPoint1() {
+        System.out.println("intersectionPoint");
+        final double[] l1 = new double[] { 531.6527306280872, 569.3825598835131, -848.4874249201367, 657.2071068127435 };
+        final double[] l2 = new double[] { 320.0, 900.0, 325.0, 550.0 };
+        
+        final IDoublePoint expected = new IDoublePoint(324.5348227553791, 582.5624071234661);
+        final IDoublePoint result = Vector.intersectionPoint(l1, l2);
+        assertArrayEquals(expected.toDoubleArray(), result.toDoubleArray(), 0.00001);
+    }
+    
+    @Test
+    public void testIntersectionPoint2() {
+        System.out.println("intersectionPoint");
+        final double[] l1 = new double[] { 481.7347766384812, 246.40258078872384, 788.2595909096212, -1102.1308960801462 };
+        final double[] l2 = new double[] { 0, 0, 1050.0, 0 };
+        
+        final IDoublePoint expected = new IDoublePoint(537.7426597260862, 0);
+        final IDoublePoint result = Vector.intersectionPoint(l1, l2);
+        assertArrayEquals(expected.toDoubleArray(), result.toDoubleArray(), 0.00001);
+    }
+    
+    @Test
+    public void testIntersectionPoint3() {
+        System.out.println("intersectionPoint");
+        final double[] l1 = new double[] { 483.4618695334367, 384.31794839372157, 483.4618600645852, 1767.2496169876547 };
+        final double[] l2 = new double[] { 1050.0, 900.0, 0, 900.0 };
+        
+        final IDoublePoint expected = new IDoublePoint(483.46186600259205, 900);
+        final IDoublePoint result = Vector.intersectionPoint(l1, l2);
+        assertArrayEquals(expected.toDoubleArray(), result.toDoubleArray(), 0.00001);
     }
 }

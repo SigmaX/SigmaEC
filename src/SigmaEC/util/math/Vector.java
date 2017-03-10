@@ -199,8 +199,8 @@ public final class Vector {
         final double yResult = theirSlope*(xResult - line1[0]) + line1[1];
         assert(Double.isFinite(xResult));
         assert(Double.isFinite(yResult));
-        assert(Misc.doubleEquals(0, pointToLineEuclideanDistance(new double[] { xResult, yResult }, normalize(new double[] { line1[2] - line1[0], line1[3] - line1[1] }), new double[] { line1[0], line1[1] })));
-        assert(Misc.doubleEquals(0, pointToLineEuclideanDistance(new double[] { xResult, yResult }, normalize(new double[] { line2[2] - line2[0], line2[3] - line2[1] }), new double[] { line2[0], line2[1] })));
+        assert(Misc.doubleEquals(0, pointToLineEuclideanDistance(new double[] { xResult, yResult }, normalize(new double[] { line1[2] - line1[0], line1[3] - line1[1] }), new double[] { line1[0], line1[1] }), 0.0001));
+        assert(Misc.doubleEquals(0, pointToLineEuclideanDistance(new double[] { xResult, yResult }, normalize(new double[] { line2[2] - line2[0], line2[3] - line2[1] }), new double[] { line2[0], line2[1] }), 0.0001));
         return new IDoublePoint(xResult, yResult);
     }
     
@@ -223,6 +223,6 @@ public final class Vector {
         assert(line != null);
         assert(line.length == 4);
         assert(!Misc.containsNaNs(line));
-        return line[0] == line[2];
+        return Misc.doubleEquals(line[0], line[2]);
     }
 }
