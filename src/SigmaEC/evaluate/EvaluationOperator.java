@@ -3,13 +3,23 @@ package SigmaEC.evaluate;
 import SigmaEC.meta.Operator;
 import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.meta.Fitness;
+import SigmaEC.operate.constraint.Constraint;
 import SigmaEC.represent.Decoder;
 import SigmaEC.represent.Individual;
+import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -19,10 +29,14 @@ public class EvaluationOperator<T extends Individual<F>, P, F extends Fitness> e
     public final static String P_DECODER = "decoder";
     public final static String P_OBJECTIVE = "objective";
     public final static String P_REEVALUATE = "reevaluate";
+    public final static String P_NUM_THREADS = "numThreads";
+    public final static String P_CONSTRAINT = "constraint";
     
     private final Option<Decoder<T, P>> decoder;
     private final ObjectiveFunction<P, F> objective;
     private final boolean reevaluate;
+    private final int numThreads;
+    private final Option<Constraint<T>> constraint;
     
     public EvaluationOperator(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -30,15 +44,8 @@ public class EvaluationOperator<T extends Individual<F>, P, F extends Fitness> e
         decoder = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_DECODER), Decoder.class);
         objective = parameters.getInstanceFromParameter(Parameters.push(base, P_OBJECTIVE), ObjectiveFunction.class);
         reevaluate = parameters.getOptionalBooleanParameter(Parameters.push(base, P_REEVALUATE), false);
-        assert(repOK());
-    }
-    
-    public EvaluationOperator(final Decoder<T, P> decoder, final ObjectiveFunction<P, F> objective, final boolean reevaluate) {
-        assert(decoder != null);
-        assert(objective != null);
-        this.decoder = new Option<>(decoder);
-        this.objective = objective;
-        this.reevaluate = reevaluate;
+        numThreads = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_THREADS), Runtime.getRuntime().availableProcessors());
+        constraint = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_CONSTRAINT), Constraint.class);
         assert(repOK());
     }
     
@@ -52,8 +59,43 @@ public class EvaluationOperator<T extends Individual<F>, P, F extends Fitness> e
      */
     @Override
     public List<T> operate(final int run, final int generation, final List<T> parentPopulation) {
+        assert(run >= 0);
+        assert(generation >= 0);
+        assert(parentPopulation != null);
+        assert(!Misc.containsNulls(parentPopulation));
+        if (numThreads == 1)
+            return evaluateSequentially(parentPopulation);
+        
+        final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        final Collection<Callable<T>> tasks = new ArrayList<Callable<T>>(parentPopulation.size()) {{
+            for (final T ind : parentPopulation) {
+                if (constraint.isDefined() && constraint.get().isViolated(ind))
+                    throw new IllegalStateException(String.format("%s: unexpected constraint violation detected.", this.getClass().getSimpleName()));
+                add(new EvalThread(ind));
+            }
+        }};
+        try {
+            final List<Future<T>> results = executor.invokeAll(tasks);
+            final List<T> childPopulation = new ArrayList<>(parentPopulation.size());
+            for (final Future<T> f : results)
+                childPopulation.add(f.get());
+            return childPopulation;
+        } catch (final InterruptedException | ExecutionException ex) {
+            Logger.getLogger(EvaluationOperator.class.getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException(ex);
+        }
+        finally {
+            executor.shutdown();
+        }
+    }
+    
+    private List<T> evaluateSequentially(final List<T> parentPopulation) {
+        assert(parentPopulation != null);
+        assert(!Misc.containsNulls(parentPopulation));
         return new ArrayList<T>(parentPopulation.size()) {{
                 for (final T ind : parentPopulation) {
+                    if (constraint.isDefined() && constraint.get().isViolated(ind))
+                        throw new IllegalStateException(String.format("%s: unexpected constraint violation detected.", this.getClass().getSimpleName()));
                     if (!reevaluate && ind.isEvaluated())
                         // Keep existing fitness value
                         add((T) ind.clearParents());
@@ -63,6 +105,26 @@ public class EvaluationOperator<T extends Individual<F>, P, F extends Fitness> e
                     }
                 }
         }};
+    }
+    
+    private class EvalThread implements Callable<T> {
+        private final T ind;
+        
+        EvalThread(final T ind) {
+            assert(ind != null);
+            this.ind = ind;
+            assert(repOK());
+        }
+        
+        @Override
+        public T call() throws Exception {
+            assert(repOK());
+            return evaluate(ind);
+        }
+        
+        public final boolean repOK() {
+            return ind != null;
+        }
     }
     
     public T evaluate(final T ind) {
