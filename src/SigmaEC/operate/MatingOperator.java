@@ -82,7 +82,7 @@ public class MatingOperator<T extends Individual> extends Operator<T> {
         while (attempt < maxAttempts) {
             final List<T> children = mator.mate(parents);
             if (!constraintIsViolatedForAny(children)) {
-                if (attempt > 0)
+                if (attempt > 100)
                     Logger.getLogger(this.getClass().getSimpleName()).log(Level.INFO, String.format("Valid individuals generated after %d mating attempts.", attempt));
                 assert(repOK());
                 return children;

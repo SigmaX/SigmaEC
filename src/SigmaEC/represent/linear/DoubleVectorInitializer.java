@@ -1,7 +1,6 @@
 package SigmaEC.represent.linear;
 
 import SigmaEC.operate.constraint.Constraint;
-import SigmaEC.represent.Initializer;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
@@ -16,7 +15,7 @@ import java.util.logging.Logger;
  *
  * @author Eric 'Siggy' Scott
  */
-public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual> {
+public class DoubleVectorInitializer extends InitializerWithBounds<DoubleVectorIndividual, double[]> {
     public final static String P_POPULATION_SIZE = "populationSize";
     public final static String P_NUM_DIMENSIONS = "numDimensions";
     public final static String P_DEFAULT_MAX_VALUE = "defaultMaxValue";
@@ -37,6 +36,20 @@ public class DoubleVectorInitializer extends Initializer<DoubleVectorIndividual>
     private final Random random;
     private final Option<Constraint<DoubleVectorIndividual>> constraint;
     private final int maxAttempts;
+    
+    @Override
+    public double[] getMinBounds() {
+        if (!minValues.isDefined())
+            throw new IllegalStateException(this.getClass().getSimpleName() + "No minimum bounds defined.");
+        return minValues.get();
+    }
+    
+    @Override
+    public double[] getMaxBounds() { 
+        if (!maxValues.isDefined())
+            throw new IllegalStateException(this.getClass().getSimpleName() + "No maximum bounds defined.");
+        return maxValues.get();
+    }
     
     public DoubleVectorInitializer(final Parameters parameters, final String base) {
         assert(parameters != null);

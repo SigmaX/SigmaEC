@@ -92,14 +92,6 @@ public final class Misc
         return true;
     }
     
-    /** Irwin-Hall approximation of a standard Gaussian distribution. */
-    public static double gaussianSample(final Random random) {
-        double sum = 0;
-        for (int i = 0; i < 12; i++)
-            sum += random.nextDouble();
-        return sum - 6;
-    }
-    
     public static boolean doubleEquals(final double a, final double b) {
         return doubleEquals(a, b, 0.000001);
     }

@@ -84,7 +84,7 @@ public class MutatingOperator<T extends Individual> extends Operator<T> {
         while (attempt < maxAttempts) {
             final T child = mutator.mutate(ind, step);
             if (!constraint.get().isViolated(child)) {
-                if (attempt > 0)
+                if (attempt > 100)
                     Logger.getLogger(this.getClass().getSimpleName()).log(Level.INFO, String.format("Valid individual generated after %d mutation attempts.", attempt));
                 assert(repOK());
                 return child;

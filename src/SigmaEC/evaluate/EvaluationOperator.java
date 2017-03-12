@@ -52,15 +52,15 @@ public class EvaluationOperator<T extends Individual<F>, P, F extends Fitness> e
     /** Evaluate the fitness of all the individuals in a population.
      * 
      * @param run Ignored.
-     * @param generation Ignored.
+     * @param step Ignored.
      * @param parentPopulation The population to be evaluated.
      * @return A population of new individuals with their fitness value (re)set
      *   and their parents attribute cleared.
      */
     @Override
-    public List<T> operate(final int run, final int generation, final List<T> parentPopulation) {
+    public List<T> operate(final int run, final int step, final List<T> parentPopulation) {
         assert(run >= 0);
-        assert(generation >= 0);
+        assert(step >= 0);
         assert(parentPopulation != null);
         assert(!Misc.containsNulls(parentPopulation));
         if (numThreads == 1)

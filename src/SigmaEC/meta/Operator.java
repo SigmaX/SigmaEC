@@ -14,5 +14,5 @@ import java.util.List;
  * @author Eric 'Siggy' Scott
  */
 public abstract class Operator<T extends Individual> extends ContractObject {  
-    public abstract List<T> operate(final int run, final int generation, final List<T> parentPopulation);
+    public abstract List<T> operate(final int run, final int step, final List<T> parentPopulation);
 }
