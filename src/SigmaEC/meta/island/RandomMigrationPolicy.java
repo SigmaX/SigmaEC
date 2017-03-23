@@ -10,6 +10,10 @@ import SigmaEC.select.Selector;
 import SigmaEC.util.Misc;
 import SigmaEC.util.Option;
 import SigmaEC.util.Parameters;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -30,6 +34,8 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
     public final static String P_REPLACEMENT_SELECTOR = "replacementSelector";
     public final static String P_ALWAYS_REPLACE = "alwaysReplace";
     public final static String P_COMPARATOR = "fitnessComparator";
+    public final static String P_PREFIX = "prefix";
+    public final static String P_LOG_FILE = "logFile";
     
     private final SRandom random;
     private final int interval;
@@ -37,6 +43,7 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
     private final Selector<T> replacementSelector;
     private final boolean alwaysReplace;
     private final Option<FitnessComparator<T, F>> fitnessComparator;
+    private final Writer writer;
     
     public RandomMigrationPolicy(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -51,6 +58,19 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
             throw new IllegalStateException(String.format("%s: parameter '%s' is %B, but '%s' is not defined.  A Comparator is required because individuals will only be replaced if the incoming individual has higher fitness.", this.getClass().getSimpleName(), Parameters.push(base, P_ALWAYS_REPLACE), alwaysReplace, Parameters.push(base, P_COMPARATOR)));
         if (alwaysReplace && fitnessComparator.isDefined())
             Logger.getLogger(SimpleExperiment.class.getName()).log(Level.INFO, String.format("Parameter '%s' is %B, so '%s' is being ignored.", Parameters.push(base, P_ALWAYS_REPLACE), alwaysReplace, Parameters.push(base, P_COMPARATOR)));
+        final Option<String> file = parameters.getOptionalStringParameter(Parameters.push(base, P_LOG_FILE));
+        if (file.isDefined()) {
+            final String prefix = parameters.getOptionalStringParameter(Parameters.push(base, P_PREFIX), "");
+            final String fileName = prefix + file.get();
+            try {
+                writer = new FileWriter(fileName);
+            }
+            catch (final IOException e) {
+                throw new IllegalArgumentException(this.getClass().getSimpleName() + ": could not open file " + fileName, e);
+            }
+        }
+        else
+            writer = new OutputStreamWriter(System.out);
         assert(repOK());
     }
     
@@ -80,14 +100,14 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
             assert(target >= 0);
             assert(target < population.numSuppopulations());
             if (islandConfigs.isDefined())
-                migrate(source, target, population, new Option(islandConfigs.get().get(target)));
+                migrate(step, source, target, population, new Option(islandConfigs.get().get(target)));
             else
-                migrate(source, target, population, Option.NONE);
+                migrate(step, source, target, population, Option.NONE);
         }
         assert(repOK());
     }
     
-    private void migrate(final int sourcePopIndex, final int targetPopIndex, final Population<T, F> population, final Option<IslandConfiguration> targetIsland) {
+    private void migrate(final int step, final int sourcePopIndex, final int targetPopIndex, final Population<T, F> population, final Option<IslandConfiguration> targetIsland) {
         assert(sourcePopIndex >= 0);
         assert(sourcePopIndex < population.numSuppopulations());
         assert(targetPopIndex >= 0);
@@ -96,14 +116,27 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
         
         final List<T> sourcePop = population.getSubpopulation(sourcePopIndex);
         final List<T> targetPop = population.getSubpopulation(targetPopIndex);
+        final T oldSourceInd = sourceSelector.selectIndividual(sourcePop);
         final T sourceInd = targetIsland.isDefined() ?
-                (T) targetIsland.get().getEvaluator().evaluate(sourceSelector.selectIndividual(sourcePop))
-                : sourceSelector.selectIndividual(sourcePop);
+                (T) targetIsland.get().getEvaluator().evaluate(oldSourceInd) // Evaluate the source individual in the context of the new island's fitness function
+                : oldSourceInd;
         final int targetIndex = replacementSelector.selectIndividualIndex(targetPop);
         final T targetInd = targetPop.get(targetIndex);
-        if (alwaysReplace || fitnessComparator.get().betterThan(sourceInd, targetInd))
+        final String logString;
+        if (alwaysReplace || fitnessComparator.get().betterThan(sourceInd, targetInd)) {
             synchronized (this) { // XXX Ew.  Move this synchronization logic inside the Population class.
                 targetPop.set(targetIndex, sourceInd);
+            }
+            logString = String.format("%d, %d, %f, %d, %f, invaded\n", step, sourcePopIndex, oldSourceInd.getFitness().asScalar(), targetPopIndex, sourceInd.getFitness().asScalar());
+        }
+        else
+            logString = String.format("%d, %d, %f, %d, %f, repelled\n", step, sourcePopIndex, oldSourceInd.getFitness().asScalar(), targetPopIndex, sourceInd.getFitness().asScalar());
+        
+        try {
+                writer.write(logString);
+                writer.flush();
+            } catch (IOException ex) {
+                Logger.getLogger(RandomMigrationPolicy.class.getName()).log(Level.SEVERE, null, ex);
             }
     }
 
