@@ -2,12 +2,9 @@ package SigmaEC.meta.island;
 
 import SigmaEC.ContractObject;
 import SigmaEC.SRandom;
-import SigmaEC.evaluate.EvaluationOperator;
-import SigmaEC.evaluate.objective.ObjectiveFunction;
 import SigmaEC.measure.PopulationMetric;
 import SigmaEC.meta.CircleOfLife;
 import SigmaEC.meta.Fitness;
-import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Operator;
 import SigmaEC.meta.Population;
 import SigmaEC.meta.StoppingCondition;
@@ -41,21 +38,9 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
     public final static String P_MIGRATION = "migrationPolicy";
     public final static String P_INITIALIZER = "initializer";
     public final static String P_METRICS = "metrics";
-    
-    // Default configuration parameters for all islands
-    public final static String P_DEFAULT_COMPARATOR = "defaultFitnessComparator";
-    public final static String P_DEFAULT_OBJECTIVE = "defaultObjective";
-    public final static String P_DEFAULT_EVALUATOR = "defaultEvaluator";
-    public final static String P_DEFAULT_OPERATORS = "defaultOperators";
-    public final static String P_DEFAULT_IS_DYNAMIC = "defaultIsDynamic";
+    public final static String P_ISLAND_GENERATOR = "islandGenerator";
     
     // IslandConfiguration-specific parameter names
-    public final static String P_ISLAND = "island";
-    public final static String P_COMPARATOR = "fitnessComparator";
-    public final static String P_OBJECTIVE = "objective";
-    public final static String P_EVALUATOR = "evaluator";
-    public final static String P_OPERATORS = "operators";
-    public final static String P_IS_DYNAMIC = "isDynamic";
     
     private final SRandom random;
     private final Topology topology;
@@ -65,7 +50,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
     private final Option<List<PopulationMetric<T, F>>> metrics;
     private final int numThreads;
     
-    private final List<HeterogeneousIslandConfiguration> islands;
+    private final List<IslandConfiguration<T, P, F>> islands;
     
     public List<IslandConfiguration> getIslands() {
         final ArrayList<IslandConfiguration> result = new ArrayList<>();
@@ -86,10 +71,11 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
         stoppingCondition = parameters.getInstanceFromParameter(Parameters.push(base, P_STOPPING_CONDITION), StoppingCondition.class);
         numThreads = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_THREADS), topology.numIslands());
         metrics = parameters.getOptionalInstancesFromParameter(Parameters.push(base, P_METRICS), PopulationMetric.class);
-        islands = new ArrayList<HeterogeneousIslandConfiguration>(topology.numIslands()) {{
-                for (int i = 0; i < topology.numIslands(); i++)
-                    add(new HeterogeneousIslandConfiguration(i, parameters, base));
-        }};
+        final IslandGenerator<T, P, F> islandGenerator = parameters.getInstanceFromParameter(Parameters.push(base, P_ISLAND_GENERATOR), IslandGenerator.class);
+        islands = islandGenerator.getIslands();
+        if (islands.size() != topology.numIslands())
+            throw new IllegalStateException(String.format("%s: '%s' produced %d island configurations, but '%s' requires %d islands.", this.getClass().getSimpleName(),
+                    Parameters.push(base, P_ISLAND_GENERATOR), islands.size(), Parameters.push(base, P_TOPOLOGY), topology.numIslands()));
         assert(repOK());
     }
     
@@ -116,7 +102,7 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
 
                 // Execute each island in parallel
                 final Collection<Callable<Void>> tasks = new ArrayList<>(topology.numIslands());
-                for (final HeterogeneousIslandConfiguration isl : islands)
+                for (final IslandConfiguration isl : islands)
                     tasks.add(new HeterogeneousIslandModelCircleOfLife.IslandStepper(run, step, isl, population));
                 try {
                     final List<Future<Void>> results = executor.invokeAll(tasks);
@@ -198,11 +184,11 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
     
     private class IslandStepper extends ContractObject implements Callable<Void> {
         private final Population<T, F> population;
-        private final HeterogeneousIslandConfiguration island;
+        private final IslandConfiguration<T, P, F> island;
         private final int run;
         private final int step;
         
-        public IslandStepper(final int run, final int step, final HeterogeneousIslandConfiguration island, final Population<T, F> population) {
+        public IslandStepper(final int run, final int step, final IslandConfiguration<T, P, F> island, final Population<T, F> population) {
             assert(island != null);
             assert(population != null);
             this.island = island;
@@ -214,7 +200,17 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
 
         @Override
         public Void call() throws Exception {
-            island.step(run, step, population);
+            assert(population != null);
+            assert(population.numSuppopulations() == topology.numIslands());
+
+            // Apply operators
+            for (final Operator<T> gen : island.getOperators()) {
+                final List<T> newSubpop = gen.operate(run, step, population.getSubpopulation(island.getIslandID()));
+                    population.setSubpopulation(island.getIslandID(), newSubpop);
+            }
+
+            if (island.isDynamic())
+                island.getObjective().setStep(step);
             assert(repOK());
             return null;
         }
@@ -257,115 +253,6 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
         }
         // </editor-fold>
     }
-    
-    private class HeterogeneousIslandConfiguration extends IslandConfiguration {
-        private final int islandID;
-        private final EvaluationOperator<T, P, F> evaluator;
-        private final List<Operator<T>> operators;
-        private final ObjectiveFunction<P, F> objective;
-        private final FitnessComparator<T, F> fitnessComparator;
-        private final boolean isDynamic;
-        
-        @Override
-        public EvaluationOperator<T, P, F> getEvaluator() {
-            return evaluator;
-        }
-        
-        @Override
-        public FitnessComparator<T, F> getFitnessComparator() {
-            return fitnessComparator;
-        }
-        
-        public HeterogeneousIslandConfiguration(final int islandID, final Parameters parameters, final String base) {
-            assert(islandID >= 0);
-            assert(islandID < topology.numIslands());
-            assert(parameters != null);
-            assert(base != null);
-            this.islandID = islandID;
-            final String localBase = Parameters.push(Parameters.push(base, P_ISLAND), String.valueOf(islandID));
-            evaluator = parameters.getOptionalNewInstanceFromParameter(Parameters.push(localBase, P_EVALUATOR), Parameters.push(base, P_DEFAULT_EVALUATOR), EvaluationOperator.class);
-            objective = parameters.getOptionalNewInstanceFromParameter(Parameters.push(localBase, P_OBJECTIVE), Parameters.push(base, P_DEFAULT_OBJECTIVE), ObjectiveFunction.class);
-            isDynamic = parameters.getOptionalBooleanParameter(Parameters.push(localBase, P_IS_DYNAMIC), Parameters.push(base, P_DEFAULT_IS_DYNAMIC));
-            fitnessComparator = parameters.getOptionalNewInstanceFromParameter(Parameters.push(localBase, P_COMPARATOR), Parameters.push(base, P_DEFAULT_COMPARATOR), FitnessComparator.class);
-            operators = parameters.getOptionalNewInstancesFromParameter(Parameters.push(localBase, P_OPERATORS), Parameters.push(base, P_DEFAULT_OPERATORS), Operator.class);
-            assert(repOK());
-        }
-
-        public void step(final int run, final int step, final Population<T, F> population) {
-            assert(population != null);
-            assert(population.numSuppopulations() == topology.numIslands());
-            /*
-            // Evaluate any new individuals that have been inserted into this island's subpopulation
-            final List<T> subPop = population.getSubpopulation(islandID);
-            for (int i = 0; i < subPop.size(); i++) {
-                final T ind = subPop.get(i);
-                if (!ind.isEvaluated())
-                    subPop.set(i, evaluator.evaluate(ind));
-            }*/
-            
-            // Apply operators
-            for (final Operator<T> gen : operators) {
-                final List<T> newSubpop = gen.operate(run, step, population.getSubpopulation(islandID));
-                    population.setSubpopulation(islandID, newSubpop);
-            }
-            
-            if (isDynamic)
-                objective.setStep(step);
-            assert(repOK());
-        }
-        
-        // <editor-fold defaultstate="collapsed" desc="Standard Methods">
-        @Override
-        public final boolean repOK() {
-            return islandID >= 0
-                    && islandID < topology.numIslands()
-                    && evaluator != null
-                    && operators != null
-                    && !operators.isEmpty()
-                    && !Misc.containsNulls(operators)
-                    && objective != null
-                    && fitnessComparator != null;
-        }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o)
-                return true;
-            if (!(o instanceof HeterogeneousIslandModelCircleOfLife.HeterogeneousIslandConfiguration))
-                return false;
-            final HeterogeneousIslandConfiguration ref = (HeterogeneousIslandConfiguration)o;
-            return islandID == ref.islandID
-                    && isDynamic == ref.isDynamic
-                    && fitnessComparator.equals(ref.fitnessComparator)
-                    && evaluator.equals(ref.evaluator)
-                    && operators.equals(ref.operators)
-                    && objective.equals(ref.objective);
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 41 * hash + this.islandID;
-            hash = 41 * hash + Objects.hashCode(this.evaluator);
-            hash = 41 * hash + Objects.hashCode(this.operators);
-            hash = 41 * hash + Objects.hashCode(this.objective);
-            hash = 41 * hash + Objects.hashCode(this.fitnessComparator);
-            hash = 41 * hash + (this.isDynamic ? 1 : 0);
-            return hash;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("[%s: islandID=%d, %s=%B, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
-                    islandID,
-                    P_IS_DYNAMIC, isDynamic,
-                    P_COMPARATOR, fitnessComparator,
-                    P_EVALUATOR, evaluator,
-                    P_OPERATORS, operators,
-                    P_OBJECTIVE, objective);
-        }
-        // </editor-fold>
-    }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
     @Override
@@ -384,26 +271,8 @@ public class HeterogeneousIslandModelCircleOfLife<T extends Individual<F>, P, F 
                 && !P_INITIALIZER.isEmpty()
                 && P_METRICS != null
                 && !P_METRICS.isEmpty()
-                && P_DEFAULT_COMPARATOR != null
-                && !P_DEFAULT_COMPARATOR.isEmpty()
-                && P_DEFAULT_EVALUATOR != null
-                && !P_DEFAULT_EVALUATOR.isEmpty()
-                && P_DEFAULT_IS_DYNAMIC != null
-                && !P_DEFAULT_IS_DYNAMIC.isEmpty()
-                && P_DEFAULT_OBJECTIVE != null
-                && !P_DEFAULT_OBJECTIVE.isEmpty()
-                && P_DEFAULT_OPERATORS != null
-                && !P_DEFAULT_OPERATORS.isEmpty()
-                && P_COMPARATOR != null
-                && !P_COMPARATOR.isEmpty()
-                && P_OBJECTIVE != null
-                && !P_OBJECTIVE.isEmpty()
-                && P_EVALUATOR != null
-                && !P_EVALUATOR.isEmpty()
-                && P_OPERATORS != null
-                && !P_OPERATORS.isEmpty()
-                && P_IS_DYNAMIC != null
-                && !P_IS_DYNAMIC.isEmpty()
+                && P_ISLAND_GENERATOR != null
+                && !P_ISLAND_GENERATOR.isEmpty()
                 && random != null
                 && topology != null
                 && topology.numIslands() > 1
