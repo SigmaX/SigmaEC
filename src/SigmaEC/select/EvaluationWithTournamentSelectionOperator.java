@@ -27,7 +27,7 @@ import java.util.Random;
  * A typical EA using will never need to know the fitness of these
  * individuals.  Thus, there is no reason to evaluate them.
  * 
- * This class implements this observation through an intelligent
+ * This class implements this observation through an optimized
  * evaluation-and-selection operator that only evaluates individuals that have
  * been chosen to compete in a tournament.
  * 
@@ -55,6 +55,40 @@ public class EvaluationWithTournamentSelectionOperator<T extends Individual<F>, 
         fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         random = parameters.getInstanceFromParameter(Parameters.push(base, P_RANDOM), Random.class);
         assert(repOK());
+    }
+    
+    private EvaluationWithTournamentSelectionOperator(final Builder builder) {
+        assert(builder != null);
+        evaluator = builder.evaluator;
+        random = builder.random;
+        fitnessComparator = builder.fitnessComparator;
+        tournamentSize = builder.tournamentSize;
+        survivorPopSize = builder.survivorPopSize;
+        assert(repOK());
+    }
+    
+    public static class Builder<T extends Individual<F>, P, F extends Fitness> {
+        final EvaluationOperator<T, P, F> evaluator;
+        final Random random;
+        final FitnessComparator<T, F> fitnessComparator;
+        final int tournamentSize;
+        Option<Integer> survivorPopSize = Option.NONE;
+        
+        public Builder(final EvaluationOperator<T, P, F> evaluator, final Random random, final FitnessComparator<T, F> fitnessComparator, final int tournamentSize) {
+            this.evaluator = evaluator;
+            this.random = random;
+            this.fitnessComparator = fitnessComparator;
+            this.tournamentSize = tournamentSize;
+        }
+        
+        public EvaluationWithTournamentSelectionOperator build() {
+            return new EvaluationWithTournamentSelectionOperator(this);
+        }
+        
+        public Builder setSurvivorPopSize(final int survivorPopSize) {
+            this.survivorPopSize = new Option<>(survivorPopSize);
+            return this;
+        }
     }
     
     public List<T> operate(final int run, final int step, final List<T> parentPopulation) {

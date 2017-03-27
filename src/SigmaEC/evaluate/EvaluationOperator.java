@@ -22,7 +22,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * An operator that transforms unevaluated individuals into evaluated individuals.
+ * 
  * @author Eric O. Scott
  */
 public class EvaluationOperator<T extends Individual<F>, P, F extends Fitness> extends Operator<T> {
@@ -47,6 +48,55 @@ public class EvaluationOperator<T extends Individual<F>, P, F extends Fitness> e
         numThreads = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_THREADS), Runtime.getRuntime().availableProcessors());
         constraint = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_CONSTRAINT), Constraint.class);
         assert(repOK());
+    }
+    
+    private EvaluationOperator(final Builder<T, P, F> builder) {
+        assert(builder != null);
+        decoder = builder.decoder;
+        objective = builder.objective;
+        reevaluate = builder.reevaluate;
+        numThreads = builder.numThreads;
+        constraint = builder.constraint;
+        assert(repOK());
+    }
+    
+    public static class Builder<T extends Individual<F>, P, F extends Fitness> {
+        final ObjectiveFunction<P, F> objective;
+        Option<Decoder<T, P>> decoder = Option.NONE;
+        boolean reevaluate = false;
+        int numThreads = Runtime.getRuntime().availableProcessors();
+        Option<Constraint<T>> constraint = Option.NONE;
+        
+        public Builder(final ObjectiveFunction<P, F> objective) {
+            this.objective = objective;
+        }
+        
+        public EvaluationOperator build() {
+            return new EvaluationOperator(this);
+        }
+        
+        public Builder setDecoder(final Decoder<T, P> decoder) {
+            assert(decoder != null);
+            this.decoder = new Option<>(decoder);
+            return this;
+        }
+        
+        public Builder setReevaluate(final boolean reevaluate) {
+            this.reevaluate = reevaluate;
+            return this;
+        }
+        
+        public Builder setNumThreads(final int numThreads) {
+            assert(numThreads > 0);
+            this.numThreads = numThreads;
+            return this;
+        }
+        
+        public Builder setConstraint(final Constraint<T> constraint) {
+            assert(constraint != null);
+            this.constraint = new Option<>(constraint);
+            return this;
+        }
     }
     
     /** Evaluate the fitness of all the individuals in a population.
