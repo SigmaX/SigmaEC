@@ -97,9 +97,7 @@ public class RandomInjectionMigrationPolicy<T extends Individual<F>, F extends F
         final int targetIndex = replacementSelector.selectIndividualIndex(targetPop);
         final T targetInd = targetPop.get(targetIndex);
         if (alwaysReplace || fitnessComparator.get().betterThan(sourceInd, targetInd))
-            synchronized (this) { // XXX Ew.  Move this synchronization logic inside the Population class.
-                targetPop.set(targetIndex, sourceInd);
-            }
+            population.set(targetPopIndex, targetIndex, sourceInd);
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">

@@ -36,14 +36,11 @@ public class Population<T extends Individual<F>, F extends Fitness> extends Cont
         assert(repOK());
     }
     
-    /** @return A reference to the ith subpopulation.  This does *not*
-     *  create a defensive copy, so modifying the list that is returned will
-     *  modify the population.
-     */
+    /** @return A defensive copy of the ith subpopulation. */
     public List<T> getSubpopulation(final int i) {
         assert(i >= 0);
         assert(i < subpopulations.length);
-        return subpopulations[i];
+        return new ArrayList<>(subpopulations[i]);
     }
     
     public synchronized void setSubpopulation(final int i, final List<T> population) {
@@ -54,6 +51,14 @@ public class Population<T extends Individual<F>, F extends Fitness> extends Cont
         assert(!Misc.containsNulls(population));
         subpopulations[i] = population;
         assert(repOK());
+    }
+    
+    public synchronized void set(final int subpop, final int i, final T ind) {
+        assert(subpop >= 0);
+        assert(subpop < subpopulations.length);
+        assert(i >= 0);
+        assert(i < subpopulations[subpop].size());
+        subpopulations[subpop].set(i, ind);
     }
     
     /** 

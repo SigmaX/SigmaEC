@@ -1,7 +1,6 @@
 package SigmaEC.meta.island;
 
 import SigmaEC.SRandom;
-import SigmaEC.experiment.SimpleExperiment;
 import SigmaEC.meta.Fitness;
 import SigmaEC.meta.FitnessComparator;
 import SigmaEC.meta.Population;
@@ -14,9 +13,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,14 +40,16 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
     public final static String P_COMPARATOR = "fitnessComparator";
     public final static String P_PREFIX = "prefix";
     public final static String P_LOG_FILE = "logFile";
+    public final static String P_NUM_THREADS = "numThreads";
     
     private final SRandom random;
     private final int interval;
     private final Selector<T> sourceSelector;
     private final Selector<T> replacementSelector;
     private final boolean alwaysReplace;
-    private final Option<FitnessComparator<T, F>> fitnessComparator;
+    private final FitnessComparator<T, F> fitnessComparator;
     private final Writer writer;
+    private final int numThreads;
     
     public RandomMigrationPolicy(final Parameters parameters, final String base) {
         assert(parameters != null);
@@ -52,12 +58,9 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
         interval = parameters.getIntParameter(Parameters.push(base, P_INTERVAL));
         sourceSelector = parameters.getInstanceFromParameter(Parameters.push(base, P_SOURCE_SELECTOR), Selector.class);
         replacementSelector = parameters.getInstanceFromParameter(Parameters.push(base, P_REPLACEMENT_SELECTOR), Selector.class);
+        numThreads = parameters.getOptionalIntParameter(Parameters.push(base, P_NUM_THREADS), Runtime.getRuntime().availableProcessors());
         alwaysReplace = parameters.getBooleanParameter(Parameters.push(base, P_ALWAYS_REPLACE));
-        fitnessComparator = parameters.getOptionalInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
-        if (!alwaysReplace && !fitnessComparator.isDefined())
-            throw new IllegalStateException(String.format("%s: parameter '%s' is %B, but '%s' is not defined.  A Comparator is required because individuals will only be replaced if the incoming individual has higher fitness.", this.getClass().getSimpleName(), Parameters.push(base, P_ALWAYS_REPLACE), alwaysReplace, Parameters.push(base, P_COMPARATOR)));
-        if (alwaysReplace && fitnessComparator.isDefined())
-            Logger.getLogger(SimpleExperiment.class.getName()).log(Level.INFO, String.format("Parameter '%s' is %B, so '%s' is being ignored.", Parameters.push(base, P_ALWAYS_REPLACE), alwaysReplace, Parameters.push(base, P_COMPARATOR)));
+        fitnessComparator = parameters.getInstanceFromParameter(Parameters.push(base, P_COMPARATOR), FitnessComparator.class);
         final Option<String> file = parameters.getOptionalStringParameter(Parameters.push(base, P_LOG_FILE));
         if (file.isDefined()) {
             final String prefix = parameters.getOptionalStringParameter(Parameters.push(base, P_PREFIX), "");
@@ -91,53 +94,95 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
         if ((step % interval) != 0)
             return;
         
-        // For each island
-        for (int source = 0; source < topology.numIslands(); source++) {
-            final Set<Integer> neighbors = topology.getNeighbors(source);
-            // Randomly choose a destination from its neighbors
-            final int targetIndex = random.nextInt(neighbors.size());
-            final int target = Misc.getIthSetElement(neighbors, targetIndex);
-            assert(target >= 0);
-            assert(target < population.numSuppopulations());
-            if (islandConfigs.isDefined())
-                migrate(step, source, target, population, new Option(islandConfigs.get().get(target)));
-            else
-                migrate(step, source, target, population, Option.NONE);
+        final ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+        final Collection<Callable<Void>> tasks = new ArrayList<Callable<Void>>(topology.numIslands()) {{
+            // For each island
+            for (int source = 0; source < topology.numIslands(); source++) {
+                final Set<Integer> neighbors = topology.getNeighbors(source);
+                // Randomly choose a destination from its neighbors
+                final int targetIndex = random.nextInt(neighbors.size());
+                final int target = Misc.getIthSetElement(neighbors, targetIndex);
+                assert(target >= 0);
+                assert(target < population.numSuppopulations());
+                if (islandConfigs.isDefined())
+                    add(new MigrationThread(step, source, target, population, new Option(islandConfigs.get().get(target))));
+                else
+                    add(new MigrationThread(step, source, target, population, Option.NONE));
+            }
+        }};
+        try {
+            executor.invokeAll(tasks);
+        } catch (final InterruptedException ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, null, ex);
+            throw new IllegalStateException(ex);
+        }
+        finally {
+            executor.shutdown();
         }
         assert(repOK());
     }
     
-    private void migrate(final int step, final int sourcePopIndex, final int targetPopIndex, final Population<T, F> population, final Option<IslandConfiguration> targetIsland) {
-        assert(sourcePopIndex >= 0);
-        assert(sourcePopIndex < population.numSuppopulations());
-        assert(targetPopIndex >= 0);
-        assert(targetPopIndex < population.numSuppopulations());
-        assert(sourcePopIndex != targetPopIndex);
-        
-        final List<T> sourcePop = population.getSubpopulation(sourcePopIndex);
-        final List<T> targetPop = population.getSubpopulation(targetPopIndex);
-        final T oldSourceInd = sourceSelector.selectIndividual(sourcePop);
-        final T sourceInd = targetIsland.isDefined() ?
-                (T) targetIsland.get().getEvaluator().evaluate(oldSourceInd) // Evaluate the source individual in the context of the new island's fitness function
-                : oldSourceInd;
-        final int targetIndex = replacementSelector.selectIndividualIndex(targetPop);
-        final T targetInd = targetPop.get(targetIndex);
-        final String logString;
-        if (alwaysReplace || fitnessComparator.get().betterThan(sourceInd, targetInd)) {
-            synchronized (this) { // XXX Ew.  Move this synchronization logic inside the Population class.
-                targetPop.set(targetIndex, sourceInd);
-            }
-            logString = String.format("%d, %d, %f, %d, %f, invaded\n", step, sourcePopIndex, oldSourceInd.getFitness().asScalar(), targetPopIndex, sourceInd.getFitness().asScalar());
+    private class MigrationThread implements Callable<Void> {
+        private final int step;
+        private final int source;
+        private final int target;
+        private final Population<T, F> population;
+        private final Option<IslandConfiguration> targetIsland;
+    
+        public MigrationThread(final int step, final int sourcePopIndex, final int targetPopIndex, final Population<T, F> population, final Option<IslandConfiguration> targetIsland) {
+            assert(step >= 0);
+            assert(population != null);
+            assert(targetIsland != null);
+            assert(sourcePopIndex >= 0);
+            assert(sourcePopIndex < population.numSuppopulations());
+            assert(targetPopIndex >= 0);
+            assert(targetPopIndex < population.numSuppopulations());
+            assert(sourcePopIndex != targetPopIndex);
+            this.step = step;
+            this.source = sourcePopIndex;
+            this.target = targetPopIndex;
+            this.population = population;
+            this.targetIsland = targetIsland;
         }
-        else
-            logString = String.format("%d, %d, %f, %d, %f, repelled\n", step, sourcePopIndex, oldSourceInd.getFitness().asScalar(), targetPopIndex, sourceInd.getFitness().asScalar());
         
-        try {
-                writer.write(logString);
-                writer.flush();
-            } catch (IOException ex) {
+        @Override
+        public Void call() {
+            final List<T> sourcePop = population.getSubpopulation(source);
+            final List<T> targetPop = population.getSubpopulation(target);
+            // Select an individual from the source population
+            final T oldSourceInd = sourceSelector.selectIndividual(sourcePop);
+            
+            // If the islands are heterogeneous, evaluate its fitness in the context of the new island
+            final T sourceInd = targetIsland.isDefined() ?
+                    (T) targetIsland.get().getEvaluator().evaluate(oldSourceInd) // Evaluate the source individual in the context of the new island's fitness function
+                    : oldSourceInd;
+            
+            // Select an individual from the target population
+            final int targetIndex = replacementSelector.selectIndividualIndex(targetPop);
+            final T targetInd = targetPop.get(targetIndex);
+            
+            // See how the source individual's fitness comparest to the target deme's bsf
+            final double bsfImprovement = sourceInd.getFitness().asScalar() - population.getBest(target, fitnessComparator).getFitness().asScalar();
+            final StringBuilder logBuilder = new StringBuilder(String.format("%d, %d, %f, %d, %f, %f", step, source, oldSourceInd.getFitness().asScalar(), target, sourceInd.getFitness().asScalar(), bsfImprovement));
+            
+            // Have the source and target individuals compete
+            if (alwaysReplace || fitnessComparator.betterThan(sourceInd, targetInd)) {
+                population.set(target, targetIndex, sourceInd); // This method is threadsafe
+                logBuilder.append("invaded\n");
+            }
+            else
+                logBuilder.append("repelled\n");
+
+            try {
+                synchronized (writer) {
+                    writer.write(logBuilder.toString());
+                    writer.flush();
+                }
+            } catch (final IOException ex) {
                 Logger.getLogger(RandomMigrationPolicy.class.getName()).log(Level.SEVERE, null, ex);
             }
+            return null;
+        }
     }
 
     // <editor-fold defaultstate="collapsed" desc="Standard Methods">
@@ -155,12 +200,17 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
                 && !P_REPLACEMENT_SELECTOR.isEmpty()
                 && P_SOURCE_SELECTOR != null
                 && !P_SOURCE_SELECTOR.isEmpty()
+                && P_NUM_THREADS != null
+                && !P_NUM_THREADS.isEmpty()
+                && P_LOG_FILE != null
+                && !P_LOG_FILE.isEmpty()
                 && random != null
                 && interval > 0
                 && sourceSelector != null
                 && replacementSelector != null
                 && fitnessComparator != null
-                && (alwaysReplace || fitnessComparator.isDefined());
+                && numThreads > 0
+                && writer != null;
     }
 
     @Override
@@ -171,7 +221,9 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
             return false;
         final RandomMigrationPolicy ref = (RandomMigrationPolicy)o;
         return interval == ref.interval
+                && numThreads == ref.numThreads
                 && alwaysReplace == ref.alwaysReplace
+                && writer.equals(ref.writer)
                 && random.equals(ref.random)
                 && sourceSelector.equals(ref.sourceSelector)
                 && replacementSelector.equals(ref.replacementSelector)
@@ -180,20 +232,24 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 89 * hash + Objects.hashCode(this.random);
-        hash = 89 * hash + this.interval;
-        hash = 89 * hash + Objects.hashCode(this.sourceSelector);
-        hash = 89 * hash + Objects.hashCode(this.replacementSelector);
-        hash = 89 * hash + (this.alwaysReplace ? 1 : 0);
-        hash = 89 * hash + Objects.hashCode(this.fitnessComparator);
+        int hash = 5;
+        hash = 23 * hash + Objects.hashCode(this.random);
+        hash = 23 * hash + this.interval;
+        hash = 23 * hash + Objects.hashCode(this.sourceSelector);
+        hash = 23 * hash + Objects.hashCode(this.replacementSelector);
+        hash = 23 * hash + (this.alwaysReplace ? 1 : 0);
+        hash = 23 * hash + Objects.hashCode(this.fitnessComparator);
+        hash = 23 * hash + Objects.hashCode(this.writer);
+        hash = 23 * hash + this.numThreads;
         return hash;
     }
 
     @Override
     public String toString() {
-        return String.format("[%s: %s=%B, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+        return String.format("[%s: %s=%d, %s=%B, %s=%s, %s=%d, %s=%s, %s=%s, %s=%s, %s=%s]", this.getClass().getSimpleName(),
+                P_NUM_THREADS, numThreads,
                 P_ALWAYS_REPLACE, alwaysReplace,
+                P_LOG_FILE, writer,
                 P_INTERVAL, interval,
                 P_COMPARATOR, fitnessComparator,
                 P_RANDOM, random,
