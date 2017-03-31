@@ -161,9 +161,9 @@ public class RandomMigrationPolicy<T extends Individual<F>, F extends Fitness> e
             final int targetIndex = replacementSelector.selectIndividualIndex(targetPop);
             final T targetInd = targetPop.get(targetIndex);
             
-            // See how the source individual's fitness comparest to the target deme's bsf
-            final double bsfImprovement = sourceInd.getFitness().asScalar() - population.getBest(target, fitnessComparator).getFitness().asScalar();
-            final StringBuilder logBuilder = new StringBuilder(String.format("%d, %d, %f, %d, %f, %f", step, source, oldSourceInd.getFitness().asScalar(), target, sourceInd.getFitness().asScalar(), bsfImprovement));
+            // See how the source individual's fitness comparest to the target deme's best individual
+            final double improvementOverBest = sourceInd.getFitness().asScalar() - population.getBest(target, fitnessComparator).getFitness().asScalar();
+            final StringBuilder logBuilder = new StringBuilder(String.format("%d, %d, %f, %d, %f, %f, ", step, source, oldSourceInd.getFitness().asScalar(), target, sourceInd.getFitness().asScalar(), improvementOverBest));
             
             // Have the source and target individuals compete
             if (alwaysReplace || fitnessComparator.betterThan(sourceInd, targetInd)) {
