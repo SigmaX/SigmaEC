@@ -27,8 +27,12 @@ public class Parameters_InstanceTheoryTest {
     // <editor-fold defaultstate="collapsed" desc="Domain Model">
     private final static String PARAMETER_NAME_A = Parameters.push("test", "objective");
     private final static String SUB_PARAMETER_NAME_A = Parameters.push(PARAMETER_NAME_A, "numDimensions");
+    private final static String PARAMETER_NAME_REF_A = Parameters.push("other", "objective");
+    private final static String SUB_PARAMETER_NAME_REF_A = Parameters.push(PARAMETER_NAME_REF_A, "numDimensions");
     private final static String PARAMETER_NAME_B = Parameters.push("default", "objective");
     private final static String SUB_PARAMETER_NAME_B = Parameters.push(PARAMETER_NAME_B, "numDimensions");
+    private final static String PARAMETER_NAME_REF_B = Parameters.push("other2", "objective");
+    private final static String SUB_PARAMETER_NAME_REF_B = Parameters.push(PARAMETER_NAME_REF_B, "numDimensions");
     
     private final static SphereObjective INSTANCE_A = new SphereObjective(new Parameters.Builder(new Properties())
             .setParameter("obj.numDimensions", "10")
@@ -57,8 +61,20 @@ public class Parameters_InstanceTheoryTest {
     public static Parameters.Builder PARAMETERS_A_2 = new Parameters.Builder(new Properties())
             .setParameter(PARAMETER_NAME_A, "SigmaEC.evaluate.objective.real.SphereObjective")
             .setParameter(Parameters.push(PARAMETER_NAME_A, "numDimensions"), "10");
+    
     @DataPoint
     public static Parameters.Builder PARAMETERS_A_3 = new Parameters.Builder(new Properties())
+            .setParameter(PARAMETER_NAME_A, Parameters.REFERENCE_SYMBOL + PARAMETER_NAME_REF_A)
+            .setParameter(PARAMETER_NAME_REF_A, "SigmaEC.evaluate.objective.real.SphereObjective")
+            .setParameter(SUB_PARAMETER_NAME_REF_A, "10");
+    
+    @DataPoint
+    public static Parameters.Builder PARAMETERS_A_4 = new Parameters.Builder(new Properties())
+            .setParameter(PARAMETER_NAME_A, Parameters.REFERENCE_SYMBOL + PARAMETER_NAME_REF_A)
+            .setParameter(PARAMETER_NAME_REF_A, "SigmaEC.evaluate.objective.real.SphereObjective");
+    
+    @DataPoint
+    public static Parameters.Builder PARAMETERS_A_5 = new Parameters.Builder(new Properties())
             .setParameter(PARAMETER_NAME_A, "SigmaEC.evaluate.objective.real.SphereObjective");
     
     @DataPoint
@@ -76,6 +92,17 @@ public class Parameters_InstanceTheoryTest {
     
     @DataPoint
     public static Parameters PARAMETERS_B_3 = new Parameters.Builder(new Properties())
+            .setParameter(PARAMETER_NAME_B, Parameters.REFERENCE_SYMBOL + PARAMETER_NAME_REF_B)
+            .setParameter(PARAMETER_NAME_REF_B, "SigmaEC.evaluate.objective.real.SphereObjective")
+            .setParameter(SUB_PARAMETER_NAME_REF_B, "15").build();
+    
+    @DataPoint
+    public static Parameters PARAMETERS_B_4 = new Parameters.Builder(new Properties())
+            .setParameter(PARAMETER_NAME_B, Parameters.REFERENCE_SYMBOL + PARAMETER_NAME_REF_B)
+            .setParameter(PARAMETER_NAME_REF_B, "SigmaEC.evaluate.objective.real.SphereObjective").build();
+    
+    @DataPoint
+    public static Parameters PARAMETERS_B_5 = new Parameters.Builder(new Properties())
             .setParameter(PARAMETER_NAME_B, "SigmaEC.evaluate.objective.real.SphereObjective").build();
     
     @DataPoint
@@ -106,8 +133,6 @@ public class Parameters_InstanceTheoryTest {
                 .build();
     }
     
-    // <editor-fold defaultstate="collapsed" desc="Single Instances">
-    
     // <editor-fold defaultstate="collapsed" desc="Required Parameter">
     /** If a parameter for an object exists and has its sub-parameters correctly
      * defined, then an appropriate object should be created/returned,
@@ -116,9 +141,10 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetInstanceFromParameter1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
-        assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
+        assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A)
+                || (sut.isReferenceParameter(PARAMETER_NAME_A)
+                        && sut.isDefined(SUB_PARAMETER_NAME_REF_A)));
         
         final ObjectiveFunction result1 = sut.getInstanceFromParameter(PARAMETER_NAME_A, SphereObjective.class);
         final ObjectiveFunction result2 = sut.getInstanceFromParameter(PARAMETER_NAME_A, SphereObjective.class);
@@ -127,29 +153,36 @@ public class Parameters_InstanceTheoryTest {
         assertTrue(result1 == result2);
     }
     
-    /** If an instance has already been registered for this parameter, then
-     * that instance should be returned (rather than creating a new one). It
-     * does not matter if parameters describing the object have been defined.
+    /** If an instance has already been registered for this parameter (xor the
+     * one it references), then that instance should be returned (rather than
+     * creating a new one). It does not matter if parameters describing the
+     * object have been defined.
      */
     @Theory
     public void testGetInstanceFromParameter2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getInstanceFromParameter\n%s, %s", sut, defaultValue));
-        assumeTrue(sut.isRegistered(PARAMETER_NAME_A));
+        assumeTrue(sut.isRegistered(PARAMETER_NAME_A)
+                ^ (sut.isDefined(PARAMETER_NAME_A)
+                        && sut.isReferenceParameter(PARAMETER_NAME_A)
+                        && sut.isRegistered(PARAMETER_NAME_REF_A)));
         
+        try { // XXX When the reference has no registered instance, but the parameter is a reference and has an instance, a correct but unexpected exception is being thrown
         final ObjectiveFunction result1 = sut.getInstanceFromParameter(PARAMETER_NAME_A, SphereObjective.class);
         final ObjectiveFunction result2 = sut.getInstanceFromParameter(PARAMETER_NAME_A, SphereObjective.class);
         
         assertEquals(INSTANCE_A, result1);
         assertTrue(INSTANCE_A == result1);
         assertTrue(result1 == result2);
+        }
+        catch (Throwable e) {
+            throw e;
+        }
     }
     
     /** If the parameter is not defined and no instance is registered, an exception is thrown. */
     @Theory
     public void testGetInstanceFromParameter3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -163,10 +196,11 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetInstanceFromParameter4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
+        assumeFalse(sut.isReferenceParameter(PARAMETER_NAME_A)
+                    && sut.isDefined(SUB_PARAMETER_NAME_REF_A));
         thrown.expect(IllegalStateException.class);
         
         sut.getInstanceFromParameter(PARAMETER_NAME_A, SphereObjective.class);
@@ -179,9 +213,10 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetInstanceFromParameter5(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
-        assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
+        assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A)
+                || (sut.isReferenceParameter(PARAMETER_NAME_A)
+                        && sut.isDefined(SUB_PARAMETER_NAME_REF_A)));
         thrown.expect(IllegalStateException.class);
         
         sut.getInstanceFromParameter(PARAMETER_NAME_A, String.class);
@@ -198,7 +233,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetNewInstanceFromParameter1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         
@@ -215,7 +249,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetNewInstanceFromParameter2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
         
@@ -227,7 +260,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetNewInstanceFromParameter3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -242,7 +274,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetNewInstanceFromParameter4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -259,7 +290,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameter1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         
@@ -277,7 +307,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameter2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isRegistered(PARAMETER_NAME_A));
         
         final Option<ObjectiveFunction> result1 = sut.getOptionalInstanceFromParameter(PARAMETER_NAME_A, SphereObjective.class);
@@ -292,7 +321,7 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameter3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter\n%s, %s", sut, defaultValue));
+
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         
@@ -307,7 +336,7 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameter4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter\n%s, %s", sut, defaultValue));
+
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
@@ -323,7 +352,7 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameter5(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter\n%s, %s", sut, defaultValue));
+
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -341,7 +370,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameter1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         
@@ -358,7 +386,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameter2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         
         final Option<ObjectiveFunction> result = sut.getOptionalNewInstanceFromParameter(PARAMETER_NAME_A, SphereObjective.class);
@@ -371,7 +398,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameter3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -386,7 +412,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameter4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -404,7 +429,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterWithDefault1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -423,7 +447,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterWithDefault2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
         
@@ -440,7 +463,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterWithDefault3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -460,7 +482,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterWithDefault4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
@@ -477,7 +498,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterWithDefault5(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -496,7 +516,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterWithDefault1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -513,7 +532,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterWithDefault2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
         
@@ -531,7 +549,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterWithDefault3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -547,7 +564,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterWithDefault4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (with default)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -566,7 +582,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         
@@ -584,7 +599,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isRegistered(PARAMETER_NAME_A));
         
         final ObjectiveFunction result1 = sut.getOptionalInstanceFromParameter(PARAMETER_NAME_A, PARAMETER_NAME_B, SphereObjective.class);
@@ -602,7 +616,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
@@ -621,7 +634,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
@@ -636,7 +648,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs5(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_B));
@@ -652,7 +663,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs6(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_B));
@@ -669,7 +679,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs7(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -685,7 +694,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterTwoArgs8(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
@@ -705,7 +713,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterTwoArgs1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         
@@ -725,7 +732,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterTwoArgs3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
@@ -745,7 +751,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterTwoArgs4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -759,7 +764,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterTwoArgs5(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_B));
@@ -773,7 +777,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterTwoArgs6(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(PARAMETER_NAME_B));
         thrown.expect(IllegalStateException.class);
@@ -788,7 +791,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterTwoArgs7(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         thrown.expect(IllegalStateException.class);
@@ -804,7 +806,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterTwoArgs8(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (two args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_B));
@@ -823,7 +824,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -843,7 +843,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs2(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
         
@@ -863,7 +862,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
@@ -884,7 +882,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
@@ -900,7 +897,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs5(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_B));
@@ -917,7 +913,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs6(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_B));
@@ -940,7 +935,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs7(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -962,7 +956,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalInstanceFromParameterThreeArgs8(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
@@ -983,7 +976,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterThreeArgs1(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -1005,7 +997,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterThreeArgs3(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isRegistered(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
@@ -1027,7 +1018,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterThreeArgs4(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -1042,7 +1032,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterThreeArgs5(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
         assumeFalse(sut.isDefined(SUB_PARAMETER_NAME_B));
@@ -1057,7 +1046,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterThreeArgs6(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeFalse(sut.isDefined(PARAMETER_NAME_B));
         assumeTrue(defaultValue != null);
@@ -1078,7 +1066,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterThreeArgs7(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeTrue(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_A));
         assumeTrue(defaultValue != null);
@@ -1095,7 +1082,6 @@ public class Parameters_InstanceTheoryTest {
     @Theory
     public void testGetOptionalNewInstanceFromParameterThreeArgs8(final Parameters.Builder aBuilder,  final AInstance aInstance, final Parameters b, final BInstance bInstance, final ObjectiveFunction defaultValue) {
         final Parameters sut = assembleParameters(aBuilder, aInstance, b, bInstance);
-        System.out.println(String.format("getOptionalNewInstanceFromParameter (three args)\n%s, %s", sut, defaultValue));
         assumeFalse(sut.isDefined(PARAMETER_NAME_A));
         assumeTrue(sut.isDefined(PARAMETER_NAME_B));
         assumeTrue(sut.isDefined(SUB_PARAMETER_NAME_B));
@@ -1104,8 +1090,6 @@ public class Parameters_InstanceTheoryTest {
         
         sut.getOptionalNewInstanceFromParameter(PARAMETER_NAME_A, PARAMETER_NAME_B, defaultValue, RastriginObjective.class);
     }
-    
-    // </editor-fold>
     
     // </editor-fold>
 }

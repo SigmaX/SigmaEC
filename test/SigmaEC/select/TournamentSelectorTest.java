@@ -67,30 +67,6 @@ public class TournamentSelectorTest {
         return new RankingSelectionProbability<TestIndividual, Double>(params, BASE);
     }
 
-    /** Test of selectIndividual method, of class TournamentSelector. */
-    @Test
-    public void testSelectIndividual() {
-        System.out.println("selectIndividual");
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /** Test of selectMultipleIndividuals method, of class TournamentSelector. */
-    @Test
-    public void testSelectMultipleIndividuals() {
-        System.out.println("selectMultipleIndividuals");
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /** Test of selectIndividualIndex method, of class TournamentSelector. */
-    @Test
-    public void testSelectIndividualIndex() {
-        System.out.println("selectIndividualIndex");
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
     /** Test of selectMultipleIndividualIndices method, of class TournamentSelector. */
     @Test
     public void testSelectMultipleIndividualIndices() {

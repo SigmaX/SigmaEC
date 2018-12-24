@@ -57,16 +57,6 @@ public class SUSSelectorTest {
     }
 
     /**
-     * Test of selectIndividual method, of class SUSSelector.
-     */
-    @Test
-    public void testSelectIndividual() {
-        System.out.println("selectIndividual");
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
      * Test of selectIndividualIndex method, of class SUSSelector.
      */
     @Test
@@ -90,16 +80,6 @@ public class SUSSelectorTest {
         assertEquals(3*SLOPE, (double) counts.get(THIRD_INDEX)/NUM_CALLS, PRECISION);
         assertEquals(4*SLOPE, (double) counts.get(FOURTH_INDEX)/NUM_CALLS, PRECISION);
         assertEquals(5*SLOPE, (double) counts.get(FIFTH_INDEX)/NUM_CALLS, PRECISION);
-    }
-
-    /**
-     * Test of selectMultipleIndividuals method, of class SUSSelector.
-     */
-    @Test
-    public void testSelectMultipleIndividuals() {
-        System.out.println("selectMultipleIndividuals");
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**

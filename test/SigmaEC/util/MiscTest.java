@@ -367,11 +367,6 @@ public class MiscTest {
     }
     // </editor-fold>
     
-    @Test
-    public void testGaussianSample() {
-        fail("This test case is a prototype.");
-    }
-
     // <editor-fold defaultstate="collapsed" desc="doubleEquals">
     @Test
     public void testDoubleEquals1() {
@@ -442,51 +437,6 @@ public class MiscTest {
         assertFalse(Misc.doubleEquals(a, b));
     }
     // </editor-fold>
-    
-    @Test
-    public void testDoubleArrayEquals() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testListOfDoubleArrayEquals() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testAllFinite() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testOpenFile() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testPrepend() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testPrependA() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testAllElementsHaveDimension() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testIsNumber() {
-        fail("This test case is a prototype.");
-    }
-    
-    @Test
-    public void testIn() {
-        fail("This test case is a prototype.");
-    }
     
     // <editor-fold defaultstate="collapsed" desc="shallowEquals">
     @Test
